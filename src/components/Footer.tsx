@@ -18,19 +18,19 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Services</h4>
             <ul className="space-y-2 text-white/70">
-              <li><a href="#" className="hover:text-financial-gold transition-colors">Investment Planning</a></li>
-              <li><a href="#" className="hover:text-financial-gold transition-colors">Retirement Planning</a></li>
-              <li><a href="#" className="hover:text-financial-gold transition-colors">Tax Planning</a></li>
-              <li><a href="#" className="hover:text-financial-gold transition-colors">Portfolio Management</a></li>
+              <li><button onClick={() => document.getElementById('services')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Investment Planning</button></li>
+              <li><button onClick={() => document.getElementById('services')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Retirement Planning</button></li>
+              <li><button onClick={() => document.getElementById('calculators')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Tax Planning</button></li>
+              <li><button onClick={() => document.getElementById('services')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Portfolio Management</button></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-4">Resources</h4>
             <ul className="space-y-2 text-white/70">
-              <li><a href="#" className="hover:text-financial-gold transition-colors">SIP Calculator</a></li>
-              <li><a href="#" className="hover:text-financial-gold transition-colors">EMI Calculator</a></li>
-              <li><a href="#" className="hover:text-financial-gold transition-colors">Tax Calculator</a></li>
+              <li><button onClick={() => document.getElementById('calculators')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">SIP Calculator</button></li>
+              <li><button onClick={() => document.getElementById('calculators')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">EMI Calculator</button></li>
+              <li><button onClick={() => document.getElementById('calculators')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Tax Calculator</button></li>
               <li><a href="#" className="hover:text-financial-gold transition-colors">Blog</a></li>
             </ul>
           </div>

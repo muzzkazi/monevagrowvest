@@ -14,11 +14,20 @@ const CallToAction = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-financial-gold hover:bg-financial-gold/90 text-financial-primary px-8 py-4 text-lg">
+            <Button 
+              size="lg" 
+              className="bg-financial-gold hover:bg-financial-gold/90 text-financial-primary px-8 py-4 text-lg"
+              onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}
+            >
               Get Free Consultation
             </Button>
-            <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-white text-white hover:bg-white hover:text-financial-primary">
-              Call Now: +91-XXX-XXXX-XXX
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="px-8 py-4 text-lg border-white text-white hover:bg-white hover:text-financial-primary"
+              onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}
+            >
+              Call Now: +91-9876-543-210
             </Button>
           </div>
           

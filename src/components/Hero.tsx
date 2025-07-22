@@ -20,10 +20,19 @@ const Hero = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-4 text-lg">
+              <Button 
+                size="lg" 
+                className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-4 text-lg"
+                onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}
+              >
                 Start Your Journey
               </Button>
-              <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="px-8 py-4 text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"
+                onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}
+              >
                 Schedule Consultation
               </Button>
             </div>
