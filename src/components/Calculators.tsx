@@ -5,13 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calculator, PieChart, Home, GraduationCap, TrendingUp } from "lucide-react";
+import MutualFundPortfolio from "./MutualFundPortfolio";
 
 const Calculators = () => {
   const [sipData, setSipData] = useState({
     monthlyAmount: '',
     annualReturn: '',
     years: '',
-    result: null as number | null
+    result: null as number | null,
+    showPortfolio: false
   });
 
   const [emiData, setEmiData] = useState({
@@ -34,7 +36,16 @@ const Calculators = () => {
     
     if (P && r && n) {
       const maturityAmount = P * (((1 + r) ** n - 1) / r) * (1 + r);
-      setSipData({ ...sipData, result: Math.round(maturityAmount) });
+      setSipData({ ...sipData, result: Math.round(maturityAmount), showPortfolio: true });
+    }
+  };
+
+  const generatePortfolio = () => {
+    const amount = parseFloat(sipData.monthlyAmount);
+    const years = parseInt(sipData.years);
+    
+    if (amount && years) {
+      setSipData({ ...sipData, showPortfolio: true });
     }
   };
 
@@ -101,7 +112,7 @@ const Calculators = () => {
           </TabsList>
 
           <TabsContent value="sip">
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-3 gap-8">
               <Card className="bg-gradient-card border-0 shadow-card">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -140,9 +151,14 @@ const Calculators = () => {
                       onChange={(e) => setSipData({ ...sipData, years: e.target.value })}
                     />
                   </div>
-                  <Button onClick={calculateSIP} className="w-full bg-financial-accent hover:bg-financial-accent/90">
-                    Calculate SIP
-                  </Button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button onClick={calculateSIP} className="bg-financial-accent hover:bg-financial-accent/90">
+                      Calculate SIP
+                    </Button>
+                    <Button onClick={generatePortfolio} variant="outline" className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                      Get Portfolio
+                    </Button>
+                  </div>
                   
                   {sipData.result && (
                     <Card className="bg-gradient-gold border-0">
@@ -185,6 +201,15 @@ const Calculators = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              {sipData.showPortfolio && parseFloat(sipData.monthlyAmount) && parseInt(sipData.years) && (
+                <div className="lg:col-span-1">
+                  <MutualFundPortfolio 
+                    monthlyAmount={parseFloat(sipData.monthlyAmount)}
+                    years={parseInt(sipData.years)}
+                  />
+                </div>
+              )}
             </div>
           </TabsContent>
 

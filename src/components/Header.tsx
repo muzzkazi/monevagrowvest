@@ -16,11 +16,9 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-gold rounded-lg flex items-center justify-center">
-              <span className="text-primary font-bold text-lg">M</span>
-            </div>
-            <span className="text-2xl font-bold text-primary">Moneva</span>
+          <div className="flex items-center space-x-3">
+            <img src="/src/assets/moneva-logo.svg" alt="Moneva" className="w-8 h-8" />
+            <span className="text-2xl font-bold text-primary">moneva</span>
           </div>
           
           <nav className="hidden md:flex items-center space-x-8">
