@@ -5,9 +5,10 @@ import { TrendingUp, Shield, Star, Target } from "lucide-react";
 interface PortfolioProps {
   monthlyAmount: number;
   years: number;
+  expectedReturn: number;
 }
 
-const MutualFundPortfolio = ({ monthlyAmount, years }: PortfolioProps) => {
+const MutualFundPortfolio = ({ monthlyAmount, years, expectedReturn }: PortfolioProps) => {
   const getPortfolioRecommendation = () => {
     const riskProfile = years >= 10 ? 'aggressive' : years >= 5 ? 'moderate' : 'conservative';
     
@@ -33,8 +34,13 @@ const MutualFundPortfolio = ({ monthlyAmount, years }: PortfolioProps) => {
   };
 
   const portfolio = getPortfolioRecommendation();
-  const expectedReturn = years >= 10 ? 14 : years >= 5 ? 11 : 8;
-  const projectedValue = monthlyAmount * 12 * years * (1 + expectedReturn/100) ** years;
+  
+  // Calculate projected portfolio value using SIP formula (same as main calculator)
+  const monthlyRate = expectedReturn / 100 / 12;
+  const totalMonths = years * 12;
+  const projectedValue = monthlyAmount * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate) * (1 + monthlyRate);
+  const totalInvestment = monthlyAmount * totalMonths;
+  const totalReturns = projectedValue - totalInvestment;
 
   return (
     <div className="space-y-6">

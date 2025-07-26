@@ -1,392 +1,616 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, PieChart, Home, GraduationCap, TrendingUp } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import MutualFundPortfolio from "./MutualFundPortfolio";
 
 const Calculators = () => {
-  const [sipData, setSipData] = useState({
-    monthlyAmount: '',
-    annualReturn: '',
-    years: '',
-    result: null as number | null,
-    showPortfolio: false
-  });
+  // SIP Calculator State
+  const [monthlyAmount, setMonthlyAmount] = useState(5000);
+  const [expectedReturn, setExpectedReturn] = useState(12);
+  const [timePeriod, setTimePeriod] = useState(10);
+  const [sipResult, setSipResult] = useState<{
+    maturityAmount: number;
+    totalInvestment: number;
+    wealthGain: number;
+  } | null>(null);
+  const [showPortfolio, setShowPortfolio] = useState(false);
 
-  const [emiData, setEmiData] = useState({
-    loanAmount: '',
-    interestRate: '',
-    tenure: '',
-    result: null as number | null
-  });
+  // EMI Calculator State
+  const [loanAmount, setLoanAmount] = useState(1000000);
+  const [interestRate, setInterestRate] = useState(8.5);
+  const [loanTenure, setLoanTenure] = useState(20);
+  const [emiResult, setEmiResult] = useState<{
+    emi: number;
+    totalAmount: number;
+    totalInterest: number;
+  } | null>(null);
 
-  const [taxData, setTaxData] = useState({
-    annualIncome: '',
-    deductions: '',
-    result: null as number | null
-  });
+  // Tax Calculator State
+  const [income, setIncome] = useState(800000);
+  const [deductions, setDeductions] = useState(150000);
+  const [taxResult, setTaxResult] = useState<{
+    taxableIncome: number;
+    incomeTax: number;
+    netIncome: number;
+  } | null>(null);
+
+  // Retirement Calculator State
+  const [currentAge, setCurrentAge] = useState(30);
+  const [retirementAge, setRetirementAge] = useState(60);
+  const [monthlyExpenses, setMonthlyExpenses] = useState(50000);
+  const [inflationRate, setInflationRate] = useState(6);
+  const [retirementReturn, setRetirementReturn] = useState(10);
+  const [retirementResult, setRetirementResult] = useState<{
+    yearsToRetirement: number;
+    futureExpenses: number;
+    corpusRequired: number;
+    monthlySip: number;
+  } | null>(null);
 
   const calculateSIP = () => {
-    const P = parseFloat(sipData.monthlyAmount);
-    const r = parseFloat(sipData.annualReturn) / 12 / 100;
-    const n = parseInt(sipData.years) * 12;
-    
-    if (P && r && n) {
-      const maturityAmount = P * (((1 + r) ** n - 1) / r) * (1 + r);
-      setSipData({ ...sipData, result: Math.round(maturityAmount), showPortfolio: true });
-    }
+    const monthlyRate = expectedReturn / 100 / 12;
+    const totalMonths = timePeriod * 12;
+    const maturityAmount = monthlyAmount * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate) * (1 + monthlyRate);
+    const totalInvestment = monthlyAmount * totalMonths;
+    const wealthGain = maturityAmount - totalInvestment;
+
+    setSipResult({
+      maturityAmount: Math.round(maturityAmount),
+      totalInvestment,
+      wealthGain: Math.round(wealthGain)
+    });
   };
 
   const generatePortfolio = () => {
-    const amount = parseFloat(sipData.monthlyAmount);
-    const years = parseInt(sipData.years);
-    
-    if (amount && years) {
-      setSipData({ ...sipData, showPortfolio: true });
-    }
+    setShowPortfolio(true);
   };
 
   const calculateEMI = () => {
-    const P = parseFloat(emiData.loanAmount);
-    const r = parseFloat(emiData.interestRate) / 12 / 100;
-    const n = parseInt(emiData.tenure) * 12;
-    
-    if (P && r && n) {
-      const emi = (P * r * (1 + r) ** n) / ((1 + r) ** n - 1);
-      setEmiData({ ...emiData, result: Math.round(emi) });
-    }
+    const monthlyRate = interestRate / 100 / 12;
+    const totalMonths = loanTenure * 12;
+    const emi = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+    const totalAmount = emi * totalMonths;
+    const totalInterest = totalAmount - loanAmount;
+
+    setEmiResult({
+      emi: Math.round(emi),
+      totalAmount: Math.round(totalAmount),
+      totalInterest: Math.round(totalInterest)
+    });
   };
 
   const calculateTax = () => {
-    const income = parseFloat(taxData.annualIncome);
-    const deductions = parseFloat(taxData.deductions) || 0;
-    const taxableIncome = income - deductions;
-    
-    let tax = 0;
-    if (taxableIncome > 250000) {
-      if (taxableIncome <= 500000) {
-        tax = (taxableIncome - 250000) * 0.05;
-      } else if (taxableIncome <= 1000000) {
-        tax = 12500 + (taxableIncome - 500000) * 0.2;
-      } else {
-        tax = 112500 + (taxableIncome - 1000000) * 0.3;
-      }
+    const taxableIncome = Math.max(income - deductions, 0);
+    let incomeTax = 0;
+
+    // Tax slabs for FY 2023-24 (New Regime)
+    if (taxableIncome <= 300000) {
+      incomeTax = 0;
+    } else if (taxableIncome <= 600000) {
+      incomeTax = (taxableIncome - 300000) * 0.05;
+    } else if (taxableIncome <= 900000) {
+      incomeTax = 15000 + (taxableIncome - 600000) * 0.10;
+    } else if (taxableIncome <= 1200000) {
+      incomeTax = 45000 + (taxableIncome - 900000) * 0.15;
+    } else if (taxableIncome <= 1500000) {
+      incomeTax = 90000 + (taxableIncome - 1200000) * 0.20;
+    } else {
+      incomeTax = 150000 + (taxableIncome - 1500000) * 0.30;
     }
+
+    const netIncome = income - incomeTax;
+    setTaxResult({ taxableIncome, incomeTax, netIncome });
+  };
+
+  const calculateRetirement = () => {
+    const yearsToRetirement = retirementAge - currentAge;
+    const futureExpenses = monthlyExpenses * Math.pow(1 + inflationRate / 100, yearsToRetirement);
+    const corpusRequired = (futureExpenses * 12) / (retirementReturn / 100);
     
-    setTaxData({ ...taxData, result: Math.round(tax) });
+    const monthlyRate = retirementReturn / 100 / 12;
+    const months = yearsToRetirement * 12;
+    const monthlySip = corpusRequired * monthlyRate / (Math.pow(1 + monthlyRate, months) - 1);
+
+    setRetirementResult({
+      yearsToRetirement,
+      futureExpenses,
+      corpusRequired,
+      monthlySip
+    });
   };
 
   return (
-    <section id="calculators" className="py-20 bg-financial-muted">
+    <section className="py-20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
-            Financial <span className="text-financial-accent">Calculators</span>
-          </h2>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-4">
+            Financial Calculators
+          </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Make informed financial decisions with our comprehensive suite of calculators. Plan your investments, loans, and taxes with precision.
+            Make informed financial decisions with our comprehensive suite of calculators. 
+            Plan your investments, loans, and retirement with precision.
           </p>
         </div>
 
-        <Tabs defaultValue="sip" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-12">
-            <TabsTrigger value="sip" className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              SIP Calculator
-            </TabsTrigger>
-            <TabsTrigger value="emi" className="flex items-center gap-2">
-              <Home className="w-4 h-4" />
-              EMI Calculator
-            </TabsTrigger>
-            <TabsTrigger value="tax" className="flex items-center gap-2">
-              <Calculator className="w-4 h-4" />
-              Tax Calculator
-            </TabsTrigger>
-            <TabsTrigger value="retirement" className="flex items-center gap-2">
-              <PieChart className="w-4 h-4" />
-              Retirement
-            </TabsTrigger>
+        <Tabs defaultValue="sip" className="w-full max-w-6xl mx-auto">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsTrigger value="sip">SIP Calculator</TabsTrigger>
+            <TabsTrigger value="emi">EMI Calculator</TabsTrigger>
+            <TabsTrigger value="tax">Tax Calculator</TabsTrigger>
+            <TabsTrigger value="retirement">Retirement</TabsTrigger>
           </TabsList>
 
           <TabsContent value="sip">
-            <div className="grid lg:grid-cols-3 gap-8">
-              <Card className="bg-gradient-card border-0 shadow-card">
+            <div className="grid lg:grid-cols-2 gap-8">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-financial-accent" />
-                    SIP Calculator
-                  </CardTitle>
+                  <CardTitle>SIP Calculator</CardTitle>
+                  <CardDescription>
+                    Calculate your Systematic Investment Plan returns
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="sipAmount">Monthly Investment Amount (₹)</Label>
-                    <Input
-                      id="sipAmount"
-                      type="number"
-                      placeholder="e.g., 5000"
-                      value={sipData.monthlyAmount}
-                      onChange={(e) => setSipData({ ...sipData, monthlyAmount: e.target.value })}
+                    <Label>Monthly Investment: ₹{monthlyAmount.toLocaleString()}</Label>
+                    <Slider
+                      value={[monthlyAmount]}
+                      onValueChange={([value]) => setMonthlyAmount(value)}
+                      max={100000}
+                      min={500}
+                      step={500}
+                      className="w-full"
                     />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>₹500</span>
+                      <span>₹1,00,000</span>
+                    </div>
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="sipReturn">Expected Annual Return (%)</Label>
-                    <Input
-                      id="sipReturn"
-                      type="number"
-                      placeholder="e.g., 12"
-                      value={sipData.annualReturn}
-                      onChange={(e) => setSipData({ ...sipData, annualReturn: e.target.value })}
+                    <Label>Expected Return: {expectedReturn}% p.a.</Label>
+                    <Slider
+                      value={[expectedReturn]}
+                      onValueChange={([value]) => setExpectedReturn(value)}
+                      max={20}
+                      min={1}
+                      step={0.5}
+                      className="w-full"
                     />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>1%</span>
+                      <span>20%</span>
+                    </div>
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="sipYears">Investment Period (Years)</Label>
-                    <Input
-                      id="sipYears"
-                      type="number"
-                      placeholder="e.g., 10"
-                      value={sipData.years}
-                      onChange={(e) => setSipData({ ...sipData, years: e.target.value })}
+                    <Label>Time Period: {timePeriod} years</Label>
+                    <Slider
+                      value={[timePeriod]}
+                      onValueChange={([value]) => setTimePeriod(value)}
+                      max={30}
+                      min={1}
+                      step={1}
+                      className="w-full"
                     />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>1 year</span>
+                      <span>30 years</span>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button onClick={calculateSIP} className="bg-financial-accent hover:bg-financial-accent/90">
+
+                  <div className="flex gap-2">
+                    <Button onClick={calculateSIP} className="flex-1">
                       Calculate SIP
                     </Button>
-                    <Button onClick={generatePortfolio} variant="outline" className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                    <Button onClick={generatePortfolio} variant="outline" className="flex-1">
                       Get Portfolio
                     </Button>
                   </div>
-                  
-                  {sipData.result && (
-                    <Card className="bg-gradient-gold border-0">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-sm text-financial-secondary mb-2">Maturity Amount</p>
-                        <p className="text-2xl font-bold text-financial-primary">₹{sipData.result.toLocaleString()}</p>
-                        <p className="text-xs text-financial-secondary mt-2">
-                          Total Investment: ₹{(parseFloat(sipData.monthlyAmount) * parseInt(sipData.years) * 12).toLocaleString()}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )}
                 </CardContent>
               </Card>
 
-              <div className="space-y-6">
-                <Card className="bg-gradient-card border-0 shadow-card">
-                  <CardContent className="p-6">
-                    <h4 className="font-semibold mb-4 text-financial-accent">How SIP Works</h4>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Systematic Investment Plan (SIP) allows regular investing</li>
-                      <li>• Benefit from rupee cost averaging</li>
-                      <li>• Compounding returns over time</li>
-                      <li>• Start with as little as ₹500 per month</li>
-                      <li>• Flexible investment amounts and durations</li>
-                    </ul>
+              {sipResult && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>SIP Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Total Investment</p>
+                          <p className="text-lg font-semibold">
+                            ₹{sipResult.totalInvestment.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Wealth Gain</p>
+                          <p className="text-lg font-semibold text-green-600">
+                            ₹{sipResult.wealthGain.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Maturity Amount</p>
+                          <p className="text-lg font-semibold text-primary">
+                            ₹{sipResult.maturityAmount.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: 'Investment', value: sipResult.totalInvestment, fill: '#8884d8' },
+                                { name: 'Returns', value: sipResult.wealthGain, fill: '#82ca9d' }
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={80}
+                              dataKey="value"
+                              label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            >
+                              <Cell fill="#8884d8" />
+                              <Cell fill="#82ca9d" />
+                            </Pie>
+                            <Tooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
-
-                <Card className="bg-gradient-card border-0 shadow-card">
-                  <CardContent className="p-6">
-                    <h4 className="font-semibold mb-4 text-financial-accent">SIP Benefits</h4>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Disciplined investing approach</li>
-                      <li>• Reduces market volatility impact</li>
-                      <li>• Power of compounding</li>
-                      <li>• Tax benefits under Section 80C</li>
-                      <li>• Professional fund management</li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {sipData.showPortfolio && parseFloat(sipData.monthlyAmount) && parseInt(sipData.years) && (
-                <div className="lg:col-span-1">
-                  <MutualFundPortfolio 
-                    monthlyAmount={parseFloat(sipData.monthlyAmount)}
-                    years={parseInt(sipData.years)}
-                  />
-                </div>
               )}
             </div>
+
+            {showPortfolio && (
+              <div className="mt-8">
+                <MutualFundPortfolio 
+                  monthlyAmount={monthlyAmount} 
+                  years={timePeriod}
+                  expectedReturn={expectedReturn}
+                />
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="emi">
             <div className="grid lg:grid-cols-2 gap-8">
-              <Card className="bg-gradient-card border-0 shadow-card">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Home className="w-5 h-5 text-financial-accent" />
-                    EMI Calculator
-                  </CardTitle>
+                  <CardTitle>EMI Calculator</CardTitle>
+                  <CardDescription>
+                    Calculate your Equated Monthly Installment
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="loanAmount">Loan Amount (₹)</Label>
-                    <Input
-                      id="loanAmount"
-                      type="number"
-                      placeholder="e.g., 1000000"
-                      value={emiData.loanAmount}
-                      onChange={(e) => setEmiData({ ...emiData, loanAmount: e.target.value })}
+                    <Label>Loan Amount: ₹{loanAmount.toLocaleString()}</Label>
+                    <Slider
+                      value={[loanAmount]}
+                      onValueChange={([value]) => setLoanAmount(value)}
+                      max={10000000}
+                      min={100000}
+                      step={50000}
+                      className="w-full"
                     />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>₹1L</span>
+                      <span>₹1Cr</span>
+                    </div>
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="interestRate">Interest Rate (% per annum)</Label>
-                    <Input
-                      id="interestRate"
-                      type="number"
-                      placeholder="e.g., 8.5"
-                      value={emiData.interestRate}
-                      onChange={(e) => setEmiData({ ...emiData, interestRate: e.target.value })}
+                    <Label>Interest Rate: {interestRate}% p.a.</Label>
+                    <Slider
+                      value={[interestRate]}
+                      onValueChange={([value]) => setInterestRate(value)}
+                      max={20}
+                      min={5}
+                      step={0.25}
+                      className="w-full"
                     />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>5%</span>
+                      <span>20%</span>
+                    </div>
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="tenure">Loan Tenure (Years)</Label>
-                    <Input
-                      id="tenure"
-                      type="number"
-                      placeholder="e.g., 20"
-                      value={emiData.tenure}
-                      onChange={(e) => setEmiData({ ...emiData, tenure: e.target.value })}
+                    <Label>Loan Tenure: {loanTenure} years</Label>
+                    <Slider
+                      value={[loanTenure]}
+                      onValueChange={([value]) => setLoanTenure(value)}
+                      max={30}
+                      min={1}
+                      step={1}
+                      className="w-full"
                     />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>1 year</span>
+                      <span>30 years</span>
+                    </div>
                   </div>
-                  <Button onClick={calculateEMI} className="w-full bg-financial-accent hover:bg-financial-accent/90">
+
+                  <Button onClick={calculateEMI} className="w-full">
                     Calculate EMI
                   </Button>
-                  
-                  {emiData.result && (
-                    <Card className="bg-gradient-gold border-0">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-sm text-financial-secondary mb-2">Monthly EMI</p>
-                        <p className="text-2xl font-bold text-financial-primary">₹{emiData.result.toLocaleString()}</p>
-                        <p className="text-xs text-financial-secondary mt-2">
-                          Total Amount: ₹{(emiData.result * parseInt(emiData.tenure) * 12).toLocaleString()}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )}
                 </CardContent>
               </Card>
 
-              <div className="space-y-6">
-                <Card className="bg-gradient-card border-0 shadow-card">
-                  <CardContent className="p-6">
-                    <h4 className="font-semibold mb-4 text-financial-accent">EMI Planning Tips</h4>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Keep EMI under 40% of monthly income</li>
-                      <li>• Compare interest rates across lenders</li>
-                      <li>• Consider prepayment options</li>
-                      <li>• Factor in processing fees and charges</li>
-                      <li>• Choose appropriate loan tenure</li>
-                    </ul>
-                  </CardContent>
-                </Card>
+              {emiResult && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>EMI Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Monthly EMI</p>
+                          <p className="text-lg font-semibold text-primary">
+                            ₹{emiResult.emi.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Total Interest</p>
+                          <p className="text-lg font-semibold text-red-600">
+                            ₹{emiResult.totalInterest.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Total Amount</p>
+                          <p className="text-lg font-semibold">
+                            ₹{emiResult.totalAmount.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
 
-                <Card className="bg-gradient-card border-0 shadow-card">
-                  <CardContent className="p-6">
-                    <h4 className="font-semibold mb-4 text-financial-accent">Loan Types We Cover</h4>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Home Loans</li>
-                      <li>• Personal Loans</li>
-                      <li>• Car Loans</li>
-                      <li>• Business Loans</li>
-                      <li>• Education Loans</li>
-                    </ul>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: 'Principal', value: loanAmount, fill: '#8884d8' },
+                                { name: 'Interest', value: emiResult.totalInterest, fill: '#ff8042' }
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={80}
+                              dataKey="value"
+                              label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            >
+                              <Cell fill="#8884d8" />
+                              <Cell fill="#ff8042" />
+                            </Pie>
+                            <Tooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
-              </div>
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="tax">
             <div className="grid lg:grid-cols-2 gap-8">
-              <Card className="bg-gradient-card border-0 shadow-card">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calculator className="w-5 h-5 text-financial-accent" />
-                    Income Tax Calculator
-                  </CardTitle>
+                  <CardTitle>Tax Calculator</CardTitle>
+                  <CardDescription>
+                    Calculate your income tax liability
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="annualIncome">Annual Income (₹)</Label>
+                    <Label htmlFor="income">Annual Income (₹)</Label>
                     <Input
-                      id="annualIncome"
+                      id="income"
                       type="number"
-                      placeholder="e.g., 800000"
-                      value={taxData.annualIncome}
-                      onChange={(e) => setTaxData({ ...taxData, annualIncome: e.target.value })}
+                      value={income}
+                      onChange={(e) => setIncome(Number(e.target.value))}
+                      placeholder="800000"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="deductions">Deductions under 80C (₹)</Label>
+                    <Label htmlFor="deductions">Deductions (₹)</Label>
                     <Input
                       id="deductions"
                       type="number"
-                      placeholder="e.g., 150000"
-                      value={taxData.deductions}
-                      onChange={(e) => setTaxData({ ...taxData, deductions: e.target.value })}
+                      value={deductions}
+                      onChange={(e) => setDeductions(Number(e.target.value))}
+                      placeholder="150000"
                     />
                   </div>
-                  <Button onClick={calculateTax} className="w-full bg-financial-accent hover:bg-financial-accent/90">
+                  <Button onClick={calculateTax} className="w-full">
                     Calculate Tax
                   </Button>
-                  
-                  {taxData.result !== null && (
-                    <Card className="bg-gradient-gold border-0">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-sm text-financial-secondary mb-2">Annual Tax Liability</p>
-                        <p className="text-2xl font-bold text-financial-primary">₹{taxData.result.toLocaleString()}</p>
-                        <p className="text-xs text-financial-secondary mt-2">
-                          Effective Tax Rate: {((taxData.result / parseFloat(taxData.annualIncome)) * 100).toFixed(2)}%
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )}
                 </CardContent>
               </Card>
 
-              <div className="space-y-6">
-                <Card className="bg-gradient-card border-0 shadow-card">
-                  <CardContent className="p-6">
-                    <h4 className="font-semibold mb-4 text-financial-accent">Tax Saving Options</h4>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Section 80C: ELSS, PPF, NSC (₹1.5L)</li>
-                      <li>• Section 80D: Health Insurance (₹25K)</li>
-                      <li>• Section 24B: Home Loan Interest (₹2L)</li>
-                      <li>• Section 80E: Education Loan Interest</li>
-                      <li>• NPS under 80CCD(1B): ₹50,000</li>
-                    </ul>
+              {taxResult && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Tax Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div className="p-4 bg-secondary/50 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Taxable Income</p>
+                        <p className="text-lg font-semibold">
+                          ₹{taxResult.taxableIncome.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-secondary/50 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Income Tax</p>
+                        <p className="text-lg font-semibold text-red-600">
+                          ₹{taxResult.incomeTax.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-secondary/50 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Net Income</p>
+                        <p className="text-lg font-semibold text-green-600">
+                          ₹{taxResult.netIncome.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
-
-                <Card className="bg-gradient-card border-0 shadow-card">
-                  <CardContent className="p-6">
-                    <h4 className="font-semibold mb-4 text-financial-accent">Current Tax Slabs (Old Regime)</h4>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Up to ₹2.5L: 0%</li>
-                      <li>• ₹2.5L - ₹5L: 5%</li>
-                      <li>• ₹5L - ₹10L: 20%</li>
-                      <li>• Above ₹10L: 30%</li>
-                      <li>• Cess: 4% of total tax</li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="retirement">
-            <div className="text-center py-12">
-              <GraduationCap className="w-16 h-16 text-financial-accent mx-auto mb-6" />
-              <h3 className="text-2xl font-bold mb-4">Retirement Calculator</h3>
-              <p className="text-muted-foreground mb-8">Coming Soon! Plan your retirement with our comprehensive calculator.</p>
-              <Button className="bg-financial-accent hover:bg-financial-accent/90">
-                Get Notified
-              </Button>
+            <div className="grid lg:grid-cols-2 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Retirement Calculator</CardTitle>
+                  <CardDescription>
+                    Plan your retirement corpus and monthly savings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label>Current Age: {currentAge} years</Label>
+                    <Slider
+                      value={[currentAge]}
+                      onValueChange={([value]) => setCurrentAge(value)}
+                      max={60}
+                      min={18}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>18 years</span>
+                      <span>60 years</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Retirement Age: {retirementAge} years</Label>
+                    <Slider
+                      value={[retirementAge]}
+                      onValueChange={([value]) => setRetirementAge(value)}
+                      max={70}
+                      min={50}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>50 years</span>
+                      <span>70 years</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Monthly Expenses: ₹{monthlyExpenses.toLocaleString()}</Label>
+                    <Slider
+                      value={[monthlyExpenses]}
+                      onValueChange={([value]) => setMonthlyExpenses(value)}
+                      max={200000}
+                      min={10000}
+                      step={5000}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>₹10K</span>
+                      <span>₹2L</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Inflation Rate: {inflationRate}% p.a.</Label>
+                    <Slider
+                      value={[inflationRate]}
+                      onValueChange={([value]) => setInflationRate(value)}
+                      max={10}
+                      min={3}
+                      step={0.5}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>3%</span>
+                      <span>10%</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Expected Return: {retirementReturn}% p.a.</Label>
+                    <Slider
+                      value={[retirementReturn]}
+                      onValueChange={([value]) => setRetirementReturn(value)}
+                      max={15}
+                      min={6}
+                      step={0.5}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>6%</span>
+                      <span>15%</span>
+                    </div>
+                  </div>
+
+                  <Button onClick={calculateRetirement} className="w-full">
+                    Calculate Retirement Plan
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {retirementResult && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Retirement Plan Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Years to Retirement</p>
+                          <p className="text-lg font-semibold">
+                            {retirementResult.yearsToRetirement} years
+                          </p>
+                        </div>
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Future Monthly Expenses</p>
+                          <p className="text-lg font-semibold text-orange-600">
+                            ₹{retirementResult.futureExpenses.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Corpus Required</p>
+                          <p className="text-lg font-semibold text-primary">
+                            ₹{retirementResult.corpusRequired.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="p-4 bg-secondary/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground">Monthly SIP Required</p>
+                          <p className="text-lg font-semibold text-green-600">
+                            ₹{retirementResult.monthlySip.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-secondary/20 rounded-lg">
+                        <h4 className="font-semibold mb-2">Retirement Summary</h4>
+                        <ul className="space-y-1 text-sm text-muted-foreground">
+                          <li>• Start investing ₹{retirementResult.monthlySip.toLocaleString()} monthly</li>
+                          <li>• Build a corpus of ₹{retirementResult.corpusRequired.toLocaleString()}</li>
+                          <li>• Maintain {retirementReturn}% annual returns</li>
+                          <li>• Account for {inflationRate}% inflation</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
         </Tabs>
