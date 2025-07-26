@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
     <footer className="bg-financial-primary text-white py-16">
@@ -18,20 +20,20 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Services</h4>
             <ul className="space-y-2 text-white/70">
-              <li><button onClick={() => document.getElementById('services')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Investment Planning</button></li>
-              <li><button onClick={() => document.getElementById('services')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Retirement Planning</button></li>
-              <li><button onClick={() => document.getElementById('calculators')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Tax Planning</button></li>
-              <li><button onClick={() => document.getElementById('services')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Portfolio Management</button></li>
+              <li><Link to="/services" className="hover:text-financial-gold transition-colors">Investment Planning</Link></li>
+              <li><Link to="/services" className="hover:text-financial-gold transition-colors">Retirement Planning</Link></li>
+              <li><Link to="/services" className="hover:text-financial-gold transition-colors">Tax Planning</Link></li>
+              <li><Link to="/services" className="hover:text-financial-gold transition-colors">Portfolio Management</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-4">Resources</h4>
             <ul className="space-y-2 text-white/70">
-              <li><button onClick={() => document.getElementById('calculators')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">SIP Calculator</button></li>
-              <li><button onClick={() => document.getElementById('calculators')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">EMI Calculator</button></li>
-              <li><button onClick={() => document.getElementById('calculators')?.scrollIntoView({behavior: 'smooth'})} className="hover:text-financial-gold transition-colors text-left">Tax Calculator</button></li>
-              <li><a href="#" className="hover:text-financial-gold transition-colors">Blog</a></li>
+              <li><Link to="/calculators" className="hover:text-financial-gold transition-colors">SIP Calculator</Link></li>
+              <li><Link to="/calculators" className="hover:text-financial-gold transition-colors">EMI Calculator</Link></li>
+              <li><Link to="/calculators" className="hover:text-financial-gold transition-colors">Tax Calculator</Link></li>
+              <li><Link to="/blog" className="hover:text-financial-gold transition-colors">Blog</Link></li>
             </ul>
           </div>
           

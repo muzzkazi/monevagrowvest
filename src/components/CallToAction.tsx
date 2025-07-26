@@ -17,7 +17,7 @@ const CallToAction = () => {
             <Button 
               size="lg" 
               className="bg-financial-gold hover:bg-financial-gold/90 text-financial-primary px-8 py-4 text-lg"
-              onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}
+              onClick={() => window.location.href = '/contact'}
             >
               Get Free Consultation
             </Button>
@@ -25,7 +25,7 @@ const CallToAction = () => {
               variant="outline" 
               size="lg" 
               className="px-8 py-4 text-lg border-white text-white hover:bg-white hover:text-financial-primary"
-              onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}
+              onClick={() => window.location.href = 'tel:+919876543210'}
             >
               Call Now: +91-9876-543-210
             </Button>

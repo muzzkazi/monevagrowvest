@@ -23,7 +23,7 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-4 text-lg"
-                onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}
+                onClick={() => window.location.href = '/contact'}
               >
                 Start Your Journey
               </Button>
@@ -31,7 +31,7 @@ const Hero = () => {
                 variant="outline" 
                 size="lg" 
                 className="px-8 py-4 text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"
-                onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}
+                onClick={() => window.location.href = '/contact'}
               >
                 Schedule Consultation
               </Button>

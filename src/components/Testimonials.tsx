@@ -8,32 +8,32 @@ const Testimonials = () => {
       location: "Mumbai",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
       rating: 5,
-      text: "Moneva helped me diversify my portfolio and achieve 18% returns last year. Their SIP recommendations were spot-on!",
-      investment: "₹2.5L Portfolio"
+      text: "Started with Moneva 8 months ago. Their SIP recommendations helped me build a diversified portfolio systematically.",
+      investment: "₹50K SIP Portfolio"
     },
     {
       name: "Priya Sharma",
       location: "Bangalore",
       image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
       rating: 5,
-      text: "The tax planning strategies saved me over ₹45,000 this year. Professional service with transparent pricing.",
-      investment: "₹8L Annual Income"
+      text: "Young team with fresh ideas! Their tax planning advice helped me save ₹15,000 in my first year with them.",
+      investment: "₹5L Annual Income"
     },
     {
       name: "Amit Patel",
       location: "Delhi",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
       rating: 5,
-      text: "From ₹5,000 SIP to ₹12L portfolio in 4 years. Moneva's guidance made my retirement planning stress-free.",
-      investment: "₹12L Portfolio"
+      text: "Just started my investment journey 6 months back. Moneva's guidance made it simple to begin with ₹3,000 SIP.",
+      investment: "₹18K Invested"
     },
     {
       name: "Sneha Reddy",
       location: "Hyderabad",
       image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
       rating: 5,
-      text: "Best investment decision was choosing Moneva. They helped me buy my first home with smart loan planning.",
-      investment: "₹85L Home Loan"
+      text: "Transparent advice and no hidden charges. They helped me plan for my home loan with realistic expectations.",
+      investment: "₹25L Home Loan"
     }
   ];
 
@@ -45,7 +45,7 @@ const Testimonials = () => {
             What Our <span className="text-financial-accent">Clients Say</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Over 10,000+ satisfied clients trust us with their financial future
+            Over 500+ satisfied clients started their financial journey with us in our first year
           </p>
         </div>
 
@@ -85,15 +85,15 @@ const Testimonials = () => {
         <div className="text-center mt-12">
           <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
             <div>
-              <p className="text-3xl font-bold text-financial-accent">10,000+</p>
+              <p className="text-3xl font-bold text-financial-accent">500+</p>
               <p className="text-sm text-muted-foreground">Happy Clients</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-financial-accent">₹500Cr+</p>
+              <p className="text-3xl font-bold text-financial-accent">₹12Cr+</p>
               <p className="text-sm text-muted-foreground">Assets Managed</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-financial-accent">15%</p>
+              <p className="text-3xl font-bold text-financial-accent">12%</p>
               <p className="text-sm text-muted-foreground">Avg Returns</p>
             </div>
           </div>
