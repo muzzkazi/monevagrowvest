@@ -4,7 +4,7 @@ import { Award, Users2, TrendingUp, Shield } from "lucide-react";
 const About = () => {
   const stats = [
     { icon: Users2, value: "500+", label: "Happy Clients", description: "Satisfied investors across India" },
-    { icon: TrendingUp, value: "₹50Cr+", label: "Assets Under Management", description: "Growing portfolio value" },
+    { icon: TrendingUp, value: "₹12Cr+", label: "Assets Under Management", description: "Growing portfolio value" },
     { icon: Award, value: "12%+", label: "Average Returns", description: "Consistent performance track record" },
     { icon: Shield, value: "100%", label: "Research Based", description: "Data-driven investment decisions" }
   ];
@@ -49,10 +49,13 @@ const About = () => {
                 Moneva was born from a simple observation: traditional financial advisory services were either too expensive for the average investor or too generic to be truly helpful. We set out to change that.
               </p>
               <p>
-                Since our founding in 2018, we've built a team of certified financial planners, market researchers, and technology experts who share a common goal - making sophisticated financial planning accessible to everyone.
+                Since our founding just over a year ago, we've built a dynamic team of certified financial planners, market researchers, and technology experts who share a common goal - making sophisticated financial planning accessible to everyone.
               </p>
               <p>
-                Today, we're proud to serve over 500 clients across India, managing assets worth more than ₹50 crores, and maintaining an average return rate of 12%+ through our research-driven approach.
+                In our first year, we're proud to serve over 500 clients across India, managing assets worth more than ₹12 crores, and maintaining an average return rate of 12%+ through our research-driven approach.
+              </p>
+              <p>
+                As authorized channel partners of leading brokerages like <strong>AngelOne</strong> and <strong>AssetPlus</strong>, we provide seamless investment execution while maintaining complete transparency in our advisory process.
               </p>
             </div>
           </div>

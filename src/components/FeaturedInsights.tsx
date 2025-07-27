@@ -99,7 +99,10 @@ const FeaturedInsights = () => {
             <TrendingUp className="w-12 h-12 text-financial-accent mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">Portfolio Review</h3>
             <p className="text-muted-foreground text-sm mb-4">Get your portfolio analyzed by our experts for free</p>
-            <Button className="bg-financial-accent hover:bg-financial-accent/90 text-white">
+            <Button 
+              className="bg-financial-accent hover:bg-financial-accent/90 text-white"
+              onClick={() => window.location.href = '/contact'}
+            >
               Book Review
             </Button>
           </Card>

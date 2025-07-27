@@ -6,50 +6,50 @@ const SuccessStories = () => {
   const stories = [
     {
       icon: <Home className="w-8 h-8 text-financial-accent" />,
-      title: "From Renter to Homeowner",
-      story: "Rahul's Dream Home",
-      description: "Started with ₹3,000 monthly SIP at age 25. In 8 years, built a corpus of ₹18L for his dream home down payment.",
+      title: "First Home Achievement",
+      story: "Rajesh's Success in 10 Months",
+      description: "Started his investment journey with us 10 months ago. Smart SIP planning helped him save ₹2.5L for his home down payment.",
       image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=250&fit=crop",
       metrics: {
-        timeline: "8 Years",
-        investment: "₹3,000/month",
-        result: "₹18L Corpus"
+        timeline: "10 Months",
+        investment: "₹5,000/month",
+        result: "₹2.5L Saved"
       }
     },
     {
       icon: <GraduationCap className="w-8 h-8 text-financial-accent" />,
-      title: "Child's Education Secured",
-      story: "Meera's Planning Success",
-      description: "Planned for her daughter's engineering education with smart education funds. Accumulated ₹25L by the time her daughter turned 18.",
+      title: "Education Fund Started",
+      story: "Priya's Smart Planning",
+      description: "Young mother who started planning for her child's education early. Built ₹3L corpus in just 8 months with our guidance.",
       image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&h=250&fit=crop",
       metrics: {
-        timeline: "12 Years",
-        investment: "₹8,000/month",
-        result: "₹25L Education Fund"
+        timeline: "8 Months",
+        investment: "₹10,000/month",
+        result: "₹3L Fund"
       }
     },
     {
       icon: <TrendingUp className="w-8 h-8 text-financial-accent" />,
-      title: "Early Retirement Achieved",
-      story: "Suresh's Freedom Journey",
-      description: "Retired at 50 with a corpus of ₹2.5Cr through disciplined investing and smart asset allocation strategies.",
+      title: "Investment Growth",
+      story: "Amit's Portfolio Success",
+      description: "Started investing with us a year ago. His diversified portfolio has already shown 15% returns with our research-backed approach.",
       image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400&h=250&fit=crop",
       metrics: {
-        timeline: "20 Years",
-        investment: "₹25,000/month",
-        result: "₹2.5Cr Retirement Fund"
+        timeline: "12 Months",
+        investment: "₹15,000/month",
+        result: "15% Returns"
       }
     },
     {
       icon: <Heart className="w-8 h-8 text-financial-accent" />,
-      title: "Medical Emergency Covered",
-      story: "Anita's Relief Story",
-      description: "When faced with a medical emergency, her emergency fund and health insurance plan provided complete financial security.",
+      title: "Emergency Fund Built",
+      story: "Sneha's Security Story",
+      description: "Created a solid emergency fund in 6 months. Now feels financially secure with our systematic planning approach.",
       image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop",
       metrics: {
-        timeline: "5 Years",
-        investment: "Emergency Fund",
-        result: "₹8L Coverage"
+        timeline: "6 Months",
+        investment: "Emergency SIP",
+        result: "₹1.5L Secured"
       }
     }
   ];
@@ -112,7 +112,10 @@ const SuccessStories = () => {
         </div>
 
         <div className="text-center">
-          <Button className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-3">
+          <Button 
+            className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-3"
+            onClick={() => window.location.href = '/contact'}
+          >
             Start Your Success Story
           </Button>
         </div>
