@@ -1,7 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
+import { useCountUp } from "@/hooks/useCountUp";
 
 const Testimonials = () => {
+  const clientsCount = useCountUp({ end: 500, suffix: "+", duration: 2000 });
+  const aumCount = useCountUp({ end: 12, prefix: "₹", suffix: "Cr+", duration: 2500 });
+  const returnsCount = useCountUp({ end: 12, suffix: "%", duration: 2200 });
   const testimonials = [
     {
       name: "Rajesh Kumar",
@@ -85,15 +89,15 @@ const Testimonials = () => {
         <div className="text-center mt-12">
           <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
             <div>
-              <p className="text-3xl font-bold text-financial-accent">500+</p>
+              <p ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">{clientsCount.value}</p>
               <p className="text-sm text-muted-foreground">Happy Clients</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-financial-accent">₹12Cr+</p>
+              <p ref={aumCount.ref} className="text-3xl font-bold text-financial-accent">{aumCount.value}</p>
               <p className="text-sm text-muted-foreground">Assets Managed</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-financial-accent">12%</p>
+              <p ref={returnsCount.ref} className="text-3xl font-bold text-financial-accent">{returnsCount.value}</p>
               <p className="text-sm text-muted-foreground">Avg Returns</p>
             </div>
           </div>
