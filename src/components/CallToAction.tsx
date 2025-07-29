@@ -24,7 +24,7 @@ const CallToAction = () => {
             <Button 
               variant="outline" 
               size="lg" 
-              className="px-8 py-4 text-lg border-white text-white hover:bg-white hover:text-financial-primary"
+              className="px-8 py-4 text-lg border-white text-black hover:bg-white hover:text-black"
               onClick={() => window.location.href = 'tel:+919876543210'}
             >
               Call Now: +91-9876-543-210
