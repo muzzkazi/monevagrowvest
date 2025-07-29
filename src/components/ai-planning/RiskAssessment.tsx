@@ -8,7 +8,7 @@ import { TrendingUp, TrendingDown, Shield, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface RiskAssessmentProps {
-  onComplete: () => void;
+  onComplete: (riskProfile: string) => void;
 }
 
 interface Question {
@@ -163,11 +163,12 @@ const RiskAssessment = ({ onComplete }: RiskAssessmentProps) => {
   };
 
   const handleComplete = () => {
+    const profile = calculateRiskProfile();
     toast({
       title: "Risk Assessment Complete",
       description: "Your risk profile has been saved successfully."
     });
-    onComplete();
+    onComplete(profile);
   };
 
   if (showResults) {

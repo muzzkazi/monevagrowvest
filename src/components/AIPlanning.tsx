@@ -8,9 +8,21 @@ import GoalSetting from "./ai-planning/GoalSetting";
 import RiskAssessment from "./ai-planning/RiskAssessment";
 import AIRecommendations from "./ai-planning/AIRecommendations";
 
+interface FinancialGoal {
+  id: string;
+  name: string;
+  category: string;
+  targetAmount: number;
+  timeHorizon: number;
+  priority: number;
+  currentSavings: number;
+}
+
 const AIPlanning = () => {
   const [currentStep, setCurrentStep] = useState("goals");
   const [completionProgress, setCompletionProgress] = useState(0);
+  const [userGoals, setUserGoals] = useState<FinancialGoal[]>([]);
+  const [riskProfile, setRiskProfile] = useState<string>("");
 
   const steps = [
     { id: "goals", label: "Financial Goals", icon: Target, completed: false },
@@ -74,7 +86,8 @@ const AIPlanning = () => {
               </CardHeader>
               <CardContent>
                 <GoalSetting 
-                  onComplete={() => {
+                  onComplete={(goals) => {
+                    setUserGoals(goals);
                     setCompletionProgress(33);
                     setCurrentStep("risk");
                   }}
@@ -94,7 +107,8 @@ const AIPlanning = () => {
               </CardHeader>
               <CardContent>
                 <RiskAssessment 
-                  onComplete={() => {
+                  onComplete={(profile) => {
+                    setRiskProfile(profile);
                     setCompletionProgress(66);
                     setCurrentStep("recommendations");
                   }}
@@ -114,6 +128,8 @@ const AIPlanning = () => {
               </CardHeader>
               <CardContent>
                 <AIRecommendations 
+                  goals={userGoals}
+                  riskProfile={riskProfile}
                   onComplete={() => setCompletionProgress(100)}
                 />
               </CardContent>

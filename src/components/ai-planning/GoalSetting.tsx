@@ -19,7 +19,7 @@ interface FinancialGoal {
 }
 
 interface GoalSettingProps {
-  onComplete: () => void;
+  onComplete: (goals: FinancialGoal[]) => void;
 }
 
 const GoalSetting = ({ onComplete }: GoalSettingProps) => {
@@ -93,7 +93,7 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
       title: "Goals Saved",
       description: "Your financial goals have been saved successfully."
     });
-    onComplete();
+    onComplete(goals);
   };
 
   const formatCurrency = (amount: number) => {

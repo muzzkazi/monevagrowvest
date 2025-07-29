@@ -19,7 +19,19 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+interface FinancialGoal {
+  id: string;
+  name: string;
+  category: string;
+  targetAmount: number;
+  timeHorizon: number;
+  priority: number;
+  currentSavings: number;
+}
+
 interface AIRecommendationsProps {
+  goals: FinancialGoal[];
+  riskProfile: string;
   onComplete: () => void;
 }
 
@@ -42,49 +54,73 @@ interface Recommendation {
   sipAmount?: number;
 }
 
-const AIRecommendations = ({ onComplete }: AIRecommendationsProps) => {
+const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendationsProps) => {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(true);
   const [generationProgress, setGenerationProgress] = useState(0);
 
-  // Simulated AI recommendations data
+  // Calculate total investment needed from goals
+  const totalInvestmentNeeded = goals.reduce((total, goal) => {
+    return total + (goal.targetAmount - goal.currentSavings);
+  }, 0);
+
+  // Calculate total monthly SIP required
+  const totalMonthlySIP = goals.reduce((total, goal) => {
+    const monthlyRequired = (goal.targetAmount - goal.currentSavings) / (goal.timeHorizon * 12);
+    return total + monthlyRequired;
+  }, 0);
+
+  // Dynamic asset allocation based on risk profile
+  const getRiskBasedAllocation = () => {
+    const allocations = {
+      Conservative: { equity: 30, debt: 60, gold: 10, international: 0 },
+      Moderate: { equity: 50, debt: 40, gold: 5, international: 5 },
+      Balanced: { equity: 65, debt: 25, gold: 5, international: 5 },
+      Aggressive: { equity: 80, debt: 10, gold: 5, international: 5 }
+    };
+    return allocations[riskProfile as keyof typeof allocations] || allocations.Moderate;
+  };
+
+  const allocation = getRiskBasedAllocation();
+  
+  // Dynamic asset allocation based on actual goals
   const assetAllocation: AssetAllocation[] = [
     {
       category: "Large Cap Equity",
-      percentage: 35,
-      amount: 350000,
+      percentage: Math.round(allocation.equity * 0.6), // 60% of equity allocation
+      amount: Math.round((totalInvestmentNeeded * allocation.equity * 0.6) / 100),
       color: "#3b82f6",
       instruments: ["HDFC Top 100 Fund", "ICICI Pru Bluechip Fund", "SBI Large Cap Fund"]
     },
     {
       category: "Mid & Small Cap",
-      percentage: 25,
-      amount: 250000,
+      percentage: Math.round(allocation.equity * 0.4), // 40% of equity allocation
+      amount: Math.round((totalInvestmentNeeded * allocation.equity * 0.4) / 100),
       color: "#8b5cf6",
       instruments: ["Kotak Emerging Equity", "DSP Midcap Fund", "Axis Small Cap Fund"]
     },
     {
       category: "Debt Funds",
-      percentage: 25,
-      amount: 250000,
+      percentage: allocation.debt,
+      amount: Math.round((totalInvestmentNeeded * allocation.debt) / 100),
       color: "#10b981",
       instruments: ["HDFC Corporate Bond", "ICICI Pru Medium Term", "SBI Corporate Bond"]
     },
     {
       category: "International",
-      percentage: 10,
-      amount: 100000,
+      percentage: allocation.international,
+      amount: Math.round((totalInvestmentNeeded * allocation.international) / 100),
       color: "#f59e0b",
       instruments: ["Motilal NASDAQ 100", "HDFC Sensex ETF", "Nippon India US Equity"]
     },
     {
       category: "Gold ETF",
-      percentage: 5,
-      amount: 50000,
+      percentage: allocation.gold,
+      amount: Math.round((totalInvestmentNeeded * allocation.gold) / 100),
       color: "#fbbf24",
       instruments: ["HDFC Gold ETF", "SBI Gold ETF", "Nippon Gold BeES"]
     }
-  ];
+  ].filter(asset => asset.percentage > 0); // Only show assets with allocation > 0
 
   const recommendations: Recommendation[] = [
     {
@@ -180,8 +216,62 @@ const AIRecommendations = ({ onComplete }: AIRecommendationsProps) => {
     );
   }
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Goal Summary Section */}
+      <Card className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/20 dark:to-blue-950/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-financial-accent" />
+            Investment Summary Based on Your Goals
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <div className="text-center">
+              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrency(totalInvestmentNeeded)}</h4>
+              <p className="text-sm text-muted-foreground">Total Investment Needed</p>
+            </div>
+            <div className="text-center">
+              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrency(totalMonthlySIP)}</h4>
+              <p className="text-sm text-muted-foreground">Monthly SIP Required</p>
+            </div>
+            <div className="text-center">
+              <h4 className="text-2xl font-bold text-financial-accent">{goals.length}</h4>
+              <p className="text-sm text-muted-foreground">Financial Goals</p>
+            </div>
+          </div>
+          
+          {/* Individual Goal Breakdown */}
+          <div className="space-y-3">
+            <h4 className="font-semibold mb-3">Goal-wise SIP Breakdown:</h4>
+            {goals.map((goal) => {
+              const monthlyRequired = (goal.targetAmount - goal.currentSavings) / (goal.timeHorizon * 12);
+              return (
+                <div key={goal.id} className="flex justify-between items-center p-3 bg-white/60 dark:bg-black/20 rounded-lg">
+                  <div>
+                    <span className="font-medium">{goal.name}</span>
+                    <span className="text-sm text-muted-foreground ml-2">({goal.timeHorizon} years)</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold">{formatCurrency(monthlyRequired)}/month</div>
+                    <div className="text-xs text-muted-foreground">Target: {formatCurrency(goal.targetAmount)}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="flex justify-center">
@@ -190,7 +280,7 @@ const AIRecommendations = ({ onComplete }: AIRecommendationsProps) => {
         <div>
           <h3 className="text-2xl font-bold mb-2">Your AI-Generated Investment Strategy</h3>
           <p className="text-muted-foreground">
-            Based on your goals and risk profile, here's your personalized investment roadmap.
+            Based on your {goals.length} goals and {riskProfile.toLowerCase()} risk profile, here's your personalized investment roadmap.
           </p>
         </div>
       </div>
