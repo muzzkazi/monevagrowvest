@@ -52,8 +52,8 @@ const Hero = () => {
             
             <div className="flex items-center gap-8 pt-8">
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div ref={researchCount.ref} className="text-3xl font-bold text-financial-accent">
-                  {researchCount.value}
+                <div className="text-3xl font-bold text-financial-accent">
+                  100%
                 </div>
                 <div className="text-sm text-muted-foreground">Research Based</div>
               </div>
