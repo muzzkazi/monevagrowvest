@@ -42,13 +42,13 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
   const [editCurrentSavingsInput, setEditCurrentSavingsInput] = useState("");
 
   const goalCategories = [
-    { value: "retirement", label: "Retirement", icon: PiggyBank },
-    { value: "home", label: "Home Purchase", icon: Home },
-    { value: "education", label: "Education", icon: GraduationCap },
-    { value: "car", label: "Vehicle", icon: Car },
-    { value: "travel", label: "Travel", icon: Plane },
-    { value: "emergency", label: "Emergency Fund", icon: PiggyBank },
-    { value: "other", label: "Other", icon: PiggyBank }
+    { value: "retirement", label: "Retirement", icon: PiggyBank, emoji: "🏖️" },
+    { value: "home", label: "Home Purchase", icon: Home, emoji: "🏠" },
+    { value: "education", label: "Education", icon: GraduationCap, emoji: "🎓" },
+    { value: "car", label: "Vehicle", icon: Car, emoji: "🚗" },
+    { value: "travel", label: "Travel", icon: Plane, emoji: "✈️" },
+    { value: "emergency", label: "Emergency Fund", icon: PiggyBank, emoji: "🛡️" },
+    { value: "other", label: "Other", icon: PiggyBank, emoji: "🎯" }
   ];
 
   const addGoal = () => {
@@ -255,18 +255,22 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
 
       {/* Goals List */}
       {goals.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Your Financial Goals ({goals.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {goals.map((goal) => {
-                const categoryInfo = goalCategories.find(cat => cat.value === goal.category);
-                const Icon = categoryInfo?.icon || PiggyBank;
-                const monthlyRequired = (goal.targetAmount - goal.currentSavings) / (goal.timeHorizon * 12);
+        <div className="space-y-4">
+          {goals.map((goal) => {
+            const categoryInfo = goalCategories.find(cat => cat.value === goal.category);
+            const Icon = categoryInfo?.icon || PiggyBank;
+            const emoji = categoryInfo?.emoji || "🎯";
+            const monthlyRequired = (goal.targetAmount - goal.currentSavings) / (goal.timeHorizon * 12);
 
-                return (
+            return (
+              <Card key={goal.id}>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <span className="text-2xl">{emoji}</span>
+                    {goal.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div key={goal.id} className="border rounded-lg p-4">
                     {editingGoal === goal.id && editGoal ? (
                       // Edit Mode
@@ -427,11 +431,11 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
                       </div>
                     )}
                   </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       )}
 
       {/* Continue Button */}
