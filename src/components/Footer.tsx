@@ -42,8 +42,8 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Contact</h4>
             <ul className="space-y-2 text-white/70">
-              <li>invest@moneva.in</li>
-              <li>+91-XXX-XXXX-XXX</li>
+              <li>contact@moneva.in</li>
+              <li>+91-XXXX-XXXX-XXX</li>
               <li>Mumbai, India</li>
             </ul>
           </div>
