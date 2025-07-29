@@ -52,12 +52,13 @@ const Footer = () => {
         <div className="border-t border-white/20 pt-8">
           <div className="text-center mb-6">
             <p className="text-white/60 text-sm mb-3">
-              <strong>Regulatory Disclosure:</strong> Moneva is a registered sub-broker with Angel One (SEBI Reg. No: INZ000156038) 
-              and holds a valid ARN for mutual fund distribution. Investment advice is provided by qualified professionals 
-              in compliance with SEBI regulations. Mutual fund investments are subject to market risks.
+              <strong>Regulatory Disclosure:</strong> Moneva is a SEBI registered investment advisor and mutual fund distributor.
+              We are authorized to provide investment advisory services and distribute mutual fund schemes. 
+              All investments are subject to market risks. Please read the scheme information documents carefully before investing.
             </p>
             <p className="text-white/60 text-xs">
-              ARN: [Your ARN Number] | Sub-Broker Code: [Your Code] | For grievances, contact: invest@moneva.in
+              SEBI Registration No: [To be updated with actual SEBI IA registration] | ARN: [To be updated with actual ARN] | 
+              CIN: [To be updated with actual CIN] | For grievances, contact: invest@moneva.in
             </p>
           </div>
           <div className="text-center text-white/60">
