@@ -23,12 +23,20 @@ const AIPlanning = () => {
   const [completionProgress, setCompletionProgress] = useState(0);
   const [userGoals, setUserGoals] = useState<FinancialGoal[]>([]);
   const [riskProfile, setRiskProfile] = useState<string>("");
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
   const steps = [
-    { id: "goals", label: "Financial Goals", icon: Target, completed: false },
-    { id: "risk", label: "Risk Assessment", icon: Shield, completed: false },
-    { id: "recommendations", label: "AI Recommendations", icon: Brain, completed: false }
+    { id: "goals", label: "Financial Goals", icon: Target, completed: completedSteps.has("goals") },
+    { id: "risk", label: "Risk Assessment", icon: Shield, completed: completedSteps.has("risk") },
+    { id: "recommendations", label: "AI Recommendations", icon: Brain, completed: completedSteps.has("recommendations") }
   ];
+
+  const isStepAccessible = (stepId: string) => {
+    if (stepId === "goals") return true;
+    if (stepId === "risk") return completedSteps.has("goals");
+    if (stepId === "recommendations") return completedSteps.has("goals") && completedSteps.has("risk");
+    return false;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
@@ -57,19 +65,29 @@ const AIPlanning = () => {
         </div>
 
         {/* Main Content */}
-        <Tabs value={currentStep} onValueChange={setCurrentStep} className="w-full">
+        <Tabs value={currentStep} className="w-full">
           {/* Step Navigation */}
           <TabsList className="grid w-full grid-cols-3 mb-8">
             {steps.map((step) => {
               const Icon = step.icon;
+              const isAccessible = isStepAccessible(step.id);
               return (
                 <TabsTrigger 
                   key={step.id} 
                   value={step.id}
-                  className="flex items-center gap-2 py-3"
+                  disabled={!isAccessible}
+                  className={`flex items-center gap-2 py-3 relative ${
+                    !isAccessible ? 'opacity-50 cursor-not-allowed' : ''
+                  } ${step.completed ? 'text-green-600' : ''}`}
                 >
                   <Icon className="h-4 w-4" />
                   <span className="hidden sm:inline">{step.label}</span>
+                  {step.completed && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></div>
+                  )}
+                  {!isAccessible && (
+                    <div className="absolute inset-0 bg-gray-200/50 dark:bg-gray-800/50 rounded"></div>
+                  )}
                 </TabsTrigger>
               );
             })}
@@ -88,6 +106,7 @@ const AIPlanning = () => {
                 <GoalSetting 
                   onComplete={(goals) => {
                     setUserGoals(goals);
+                    setCompletedSteps(prev => new Set([...prev, "goals"]));
                     setCompletionProgress(33);
                     setCurrentStep("risk");
                   }}
@@ -98,42 +117,78 @@ const AIPlanning = () => {
 
           {/* Risk Assessment Tab */}
           <TabsContent value="risk" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-financial-accent" />
-                  Risk Profile Assessment
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <RiskAssessment 
-                  onComplete={(profile) => {
-                    setRiskProfile(profile);
-                    setCompletionProgress(66);
-                    setCurrentStep("recommendations");
-                  }}
-                />
-              </CardContent>
-            </Card>
+            {!completedSteps.has("goals") ? (
+              <Card className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
+                <CardContent className="pt-6 text-center">
+                  <Shield className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Complete Your Goals First</h3>
+                  <p className="text-muted-foreground">
+                    Please define your financial goals before proceeding to risk assessment.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-financial-accent" />
+                    Risk Profile Assessment
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RiskAssessment 
+                    onComplete={(profile) => {
+                      setRiskProfile(profile);
+                      setCompletedSteps(prev => new Set([...prev, "risk"]));
+                      setCompletionProgress(66);
+                      setCurrentStep("recommendations");
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* AI Recommendations Tab */}
           <TabsContent value="recommendations" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-financial-accent" />
-                  Your Personalized Investment Strategy
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AIRecommendations 
-                  goals={userGoals}
-                  riskProfile={riskProfile}
-                  onComplete={() => setCompletionProgress(100)}
-                />
-              </CardContent>
-            </Card>
+            {!completedSteps.has("goals") || !completedSteps.has("risk") ? (
+              <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
+                <CardContent className="pt-6 text-center">
+                  <Brain className="h-12 w-12 text-red-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Complete Previous Steps</h3>
+                  <p className="text-muted-foreground">
+                    Please complete your financial goals and risk assessment before viewing AI recommendations.
+                  </p>
+                  <div className="mt-4 space-y-2">
+                    <div className={`flex items-center gap-2 ${completedSteps.has("goals") ? 'text-green-600' : 'text-red-600'}`}>
+                      {completedSteps.has("goals") ? '✓' : '✗'} Financial Goals
+                    </div>
+                    <div className={`flex items-center gap-2 ${completedSteps.has("risk") ? 'text-green-600' : 'text-red-600'}`}>
+                      {completedSteps.has("risk") ? '✓' : '✗'} Risk Assessment
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-financial-accent" />
+                    Your Personalized Investment Strategy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AIRecommendations 
+                    goals={userGoals}
+                    riskProfile={riskProfile}
+                    onComplete={() => {
+                      setCompletedSteps(prev => new Set([...prev, "recommendations"]));
+                      setCompletionProgress(100);
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
 
