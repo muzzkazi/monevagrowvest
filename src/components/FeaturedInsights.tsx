@@ -129,7 +129,7 @@ const FeaturedInsights = () => {
       <ContactFormModal
         isOpen={showContactForm}
         onClose={() => setShowContactForm(false)}
-        actionType="download"
+        actionType="subscribe"
       />
     </section>
   );

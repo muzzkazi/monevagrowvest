@@ -10,7 +10,7 @@ import { Phone, Mail, User, FileText } from "lucide-react";
 interface ContactFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  actionType: "download" | "implement";
+  actionType: "download" | "implement" | "subscribe";
 }
 
 const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps) => {
@@ -107,6 +107,8 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
         title: "Success!",
         description: actionType === "download" 
           ? "Your report will be sent to your email shortly. Our advisor will contact you within 24 hours."
+          : actionType === "subscribe"
+          ? "Welcome! You'll start receiving market updates and insights in your inbox. Our advisor may also reach out with personalized recommendations."
           : "Thank you for your interest! Our financial advisor will contact you within 2 hours to discuss your investment strategy."
       });
 
@@ -136,12 +138,18 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {actionType === "download" ? <FileText className="h-5 w-5" /> : <User className="h-5 w-5" />}
-            {actionType === "download" ? "Download Investment Report" : "Implement Investment Strategy"}
+            {actionType === "download" ? <FileText className="h-5 w-5" /> : 
+             actionType === "subscribe" ? <Mail className="h-5 w-5" /> : 
+             <User className="h-5 w-5" />}
+            {actionType === "download" ? "Download Investment Report" : 
+             actionType === "subscribe" ? "Subscribe to Market Updates" :
+             "Implement Investment Strategy"}
           </DialogTitle>
           <DialogDescription>
             {actionType === "download" 
               ? "Get your detailed investment report and personalized guidance from our advisors."
+              : actionType === "subscribe"
+              ? "Get daily market updates, fund performance reports, and expert insights delivered to your inbox."
               : "Connect with our certified financial advisors to start your investment journey."}
           </DialogDescription>
         </DialogHeader>
@@ -234,7 +242,10 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting} className="flex-1 bg-financial-accent hover:bg-financial-accent/90">
-              {isSubmitting ? "Submitting..." : actionType === "download" ? "Get Report" : "Get Started"}
+              {isSubmitting ? "Submitting..." : 
+               actionType === "download" ? "Get Report" : 
+               actionType === "subscribe" ? "Subscribe Now" : 
+               "Get Started"}
             </Button>
           </div>
         </form>
