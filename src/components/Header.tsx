@@ -53,6 +53,14 @@ const Header = () => {
               Calculators
             </Link>
             <Link 
+              to="/ai-planning" 
+              className={`transition-colors cursor-pointer ${
+                location.pathname === '/ai-planning' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+              }`}
+            >
+              AI Planning
+            </Link>
+            <Link 
               to="/contact" 
               className={`transition-colors cursor-pointer ${
                 location.pathname === '/contact' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
@@ -117,6 +125,15 @@ const Header = () => {
                 }`}
               >
                 Calculators
+              </Link>
+              <Link 
+                to="/ai-planning" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block w-full text-left transition-colors py-2 ${
+                  location.pathname === '/ai-planning' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                AI Planning
               </Link>
               <Link 
                 to="/contact" 
