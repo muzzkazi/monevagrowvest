@@ -73,9 +73,27 @@ const Calculators = () => {
   const calculateEMI = () => {
     const monthlyRate = interestRate / 100 / 12;
     const totalMonths = loanTenure * 12;
+    
+    console.log('EMI Calculation Debug:', {
+      loanAmount,
+      interestRate,
+      loanTenure,
+      monthlyRate,
+      totalMonths
+    });
+    
     const emi = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
     const totalAmount = emi * totalMonths;
     const totalInterest = totalAmount - loanAmount;
+    
+    console.log('EMI Results:', {
+      emi,
+      totalAmount,
+      totalInterest,
+      emiRounded: Math.round(emi),
+      totalAmountRounded: Math.round(totalAmount),
+      totalInterestRounded: Math.round(totalInterest)
+    });
 
     setEmiResult({
       emi: Math.round(emi),
