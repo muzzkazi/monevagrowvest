@@ -11,7 +11,7 @@ const Footer = () => {
                 src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
                 alt="Moneva Logo" 
                 className="h-10 w-auto"
-                style={{ filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' }}
+                style={{ filter: 'brightness(0) saturate(100%) invert(12%) sepia(94%) saturate(7481%) hue-rotate(246deg) brightness(97%) contrast(149%)' }}
               />
             </div>
             <p className="text-white/70">
