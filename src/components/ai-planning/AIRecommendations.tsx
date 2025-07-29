@@ -292,25 +292,32 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
       const year = month / 12;
       const totalInvested = totalMonthlySIP * month;
       
-      // Calculate portfolio value using compound interest formula for SIP
+      // Calculate portfolio value using the exact same SIP compound formula
       let portfolioValue = 0;
       if (month > 0) {
+        // Use the standard SIP future value formula: PMT * [((1 + r)^n - 1) / r] * (1 + r)
         portfolioValue = totalMonthlySIP * (((Math.pow(1 + monthlyReturn, month) - 1) / monthlyReturn) * (1 + monthlyReturn));
       }
       
+      // Add current savings growth for any existing savings
+      const currentSavingsGrowth = goals.reduce((total, goal) => {
+        const yearsElapsed = month / 12;
+        if (yearsElapsed <= goal.timeHorizon) {
+          return total + goal.currentSavings * Math.pow(1 + expectedReturn / 100, yearsElapsed);
+        }
+        return total + goal.currentSavings * Math.pow(1 + expectedReturn / 100, goal.timeHorizon);
+      }, 0);
+      
+      const totalPortfolioValue = portfolioValue + currentSavingsGrowth;
+
       data.push({
         month,
         year: parseFloat(year.toFixed(1)),
         totalInvested: Math.round(totalInvested),
-        portfolioValue: Math.round(portfolioValue),
-        returns: Math.round(portfolioValue - totalInvested)
+        portfolioValue: Math.round(totalPortfolioValue),
+        returns: Math.round(totalPortfolioValue - totalInvested)
       });
     }
-    
-    // Debug: Log final projection
-    const finalData = data[data.length - 1];
-    console.log("Final Projection Data:", finalData);
-    console.log("Target vs Final Portfolio:", totalTargetAmount, "vs", finalData?.portfolioValue);
     
     return data;
   };
