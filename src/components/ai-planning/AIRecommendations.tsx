@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Brain, 
   TrendingUp, 
@@ -16,11 +17,12 @@ import {
   CheckCircle,
   Download,
   BookOpen,
-  LineChart
+  LineChart,
+  Info
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ContactFormModal from "../ContactFormModal";
-import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 interface FinancialGoal {
   id: string;
@@ -589,7 +591,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                       tickFormatter={formatCurrency}
                       label={{ value: 'Amount', angle: -90, position: 'insideLeft' }}
                     />
-                    <Tooltip 
+                    <RechartsTooltip
                       formatter={(value: number, name: string) => [formatTooltipCurrency(value), name]}
                       labelFormatter={(value) => `Year ${value}`}
                     />
@@ -841,18 +843,52 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
               <CardTitle className="flex items-center gap-2">
                 <Brain className="h-5 w-5 text-financial-accent" />
                 Behavioral Finance Insights
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-sm">
+                      <p>Understanding your investment psychology to avoid emotional decisions that can hurt returns. Based on your risk profile and goals.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="p-4 bg-financial-muted rounded-lg">
-                    <h4 className="font-semibold mb-2">Investor Type</h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-semibold">Investor Type</h4>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p>Your psychological investor profile based on risk tolerance, time horizon, and decision-making style. Helps predict how you might react during market volatility.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <p className="text-sm">{behavioralInsights.investorType}</p>
                   </div>
                   
                   <div className="p-4 bg-financial-muted rounded-lg">
-                    <h4 className="font-semibold mb-2">Discipline Score</h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-semibold">Discipline Score</h4>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p>Measures your likelihood to stick to your investment plan during market ups and downs. Higher scores indicate better discipline and lower chance of emotional decisions.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <div className="flex items-center gap-2">
                       <Progress value={behavioralInsights.disciplineScore} className="flex-1" />
                       <span className="text-sm font-medium">{behavioralInsights.disciplineScore}/100</span>
@@ -862,7 +898,19 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                 
                 <div className="space-y-4">
                   <div className="p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
-                    <h4 className="font-semibold mb-2 text-red-700 dark:text-red-400">Common Biases to Watch</h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-semibold text-red-700 dark:text-red-400">Common Biases to Watch</h4>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-red-500 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p>Psychological biases that commonly affect investors like you. Being aware of these helps you recognize and avoid making emotional investment mistakes.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <ul className="text-sm space-y-1">
                       {behavioralInsights.commonBiases.map((bias, index) => (
                         <li key={index} className="flex items-center gap-2">
@@ -876,7 +924,19 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
               </div>
               
               <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg">
-                <h4 className="font-semibold mb-2 text-green-700 dark:text-green-400">Behavioral Recommendations</h4>
+                <div className="flex items-center gap-2 mb-2">
+                  <h4 className="font-semibold text-green-700 dark:text-green-400">Behavioral Recommendations</h4>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-green-600 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <p>Specific strategies tailored to your psychological profile to help you stay disciplined and avoid common investment mistakes. Follow these to improve your success rate.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <ul className="text-sm space-y-1">
                   {behavioralInsights.recommendations.map((rec, index) => (
                     <li key={index} className="flex items-center gap-2">
