@@ -125,11 +125,21 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
     monthlySIP: calculateMonthlySIP(goal.targetAmount, goal.currentSavings, goal.timeHorizon)
   }));
 
+  // Debug logging
+  console.log("=== AI Planning Debug ===");
+  console.log("Risk Profile:", riskProfile);
+  console.log("Expected Return:", expectedReturn + "%");
+  console.log("Goals:", goals);
+  console.log("Goal SIPs:", goalSIPs);
+
   // Calculate total monthly SIP required using proper compound interest formula
   const totalMonthlySIP = goalSIPs.reduce((total, goal) => total + goal.monthlySIP, 0);
 
   // Calculate total target amount for all goals
   const totalTargetAmount = goals.reduce((total, goal) => total + goal.targetAmount, 0);
+
+  console.log("Total Monthly SIP:", totalMonthlySIP);
+  console.log("Total Target Amount:", totalTargetAmount);
 
   // Dynamic asset allocation based on risk profile
   const getRiskBasedAllocation = () => {
@@ -296,6 +306,11 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
         returns: Math.round(portfolioValue - totalInvested)
       });
     }
+    
+    // Debug: Log final projection
+    const finalData = data[data.length - 1];
+    console.log("Final Projection Data:", finalData);
+    console.log("Target vs Final Portfolio:", totalTargetAmount, "vs", finalData?.portfolioValue);
     
     return data;
   };
