@@ -143,14 +143,14 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
              <User className="h-5 w-5" />}
             {actionType === "download" ? "Download Investment Report" : 
              actionType === "subscribe" ? "Subscribe to Market Updates" :
-             "Implement Investment Strategy"}
+             "Start Your AI-Recommended Investment Plan"}
           </DialogTitle>
           <DialogDescription>
             {actionType === "download" 
               ? "Get your detailed investment report and personalized guidance from our advisors."
               : actionType === "subscribe"
               ? "Get daily market updates, fund performance reports, and expert insights delivered to your inbox."
-              : "Connect with our certified financial advisors to start your investment journey."}
+              : "Connect with our SEBI-certified advisors to implement your AI-generated investment strategy and start your wealth building journey."}
           </DialogDescription>
         </DialogHeader>
 
