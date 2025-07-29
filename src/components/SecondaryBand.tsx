@@ -28,7 +28,7 @@ const SecondaryBand = () => {
   ];
 
   return (
-    <div className="bg-financial-primary text-white py-4 w-full z-20 relative overflow-hidden mt-4">
+    <div className="bg-financial-primary text-white pt-4 pb-2 w-full z-20 relative overflow-hidden mt-4 flex flex-col justify-center">
       {/* First line - Indices */}
       <div className="relative mb-2 overflow-hidden">
         <div className="flex animate-[scroll_30s_linear_infinite]">
@@ -69,18 +69,18 @@ const SecondaryBand = () => {
 
       {/* Second line - NIFTY 50 Stocks */}
       <div className="relative overflow-hidden">
-        <div className="flex animate-[scroll_20s_linear_infinite]">
+        <div className="flex animate-[scroll_15s_linear_infinite]">
           {/* First set of stocks */}
           {nifty50Stocks.map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
             return (
-              <div key={`stock-first-${index}`} className="flex items-center gap-2 px-6 whitespace-nowrap">
+              <div key={`stock-first-${index}`} className="flex items-center gap-2 px-4 whitespace-nowrap">
                 <span className="font-medium text-xs text-white/90">{stock.symbol}</span>
                 <span className="text-sm font-semibold">{stock.price}</span>
                 <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
                   {stock.change}
                 </span>
-                <span className="text-white/30 mx-3">•</span>
+                <span className="text-white/30 mx-2">•</span>
               </div>
             );
           })}
@@ -88,13 +88,13 @@ const SecondaryBand = () => {
           {nifty50Stocks.map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
             return (
-              <div key={`stock-second-${index}`} className="flex items-center gap-2 px-6 whitespace-nowrap">
+              <div key={`stock-second-${index}`} className="flex items-center gap-2 px-4 whitespace-nowrap">
                 <span className="font-medium text-xs text-white/90">{stock.symbol}</span>
                 <span className="text-sm font-semibold">{stock.price}</span>
                 <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
                   {stock.change}
                 </span>
-                <span className="text-white/30 mx-3">•</span>
+                <span className="text-white/30 mx-2">•</span>
               </div>
             );
           })}
