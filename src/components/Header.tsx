@@ -12,8 +12,11 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <img src="/src/assets/moneva-logo.svg" alt="Moneva" className="w-8 h-8" />
-            <span className="text-2xl font-bold text-primary">moneva</span>
+            <img 
+              src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
+              alt="Moneva Logo" 
+              className="h-8 w-auto"
+            />
           </div>
           
           <nav className="hidden md:flex items-center space-x-8">
