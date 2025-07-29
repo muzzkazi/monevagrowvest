@@ -204,7 +204,7 @@ const AIPlanning = () => {
             <CardContent className="space-y-4 text-sm text-amber-800 dark:text-amber-300">
               <div className="space-y-3">
                 <p>
-                  <strong>SEBI Compliance:</strong> This platform provides financial planning tools and information for educational purposes only. We are not SEBI registered investment advisors. All investment recommendations are AI-generated suggestions and should not be considered as professional financial advice.
+                  <strong>Regulatory Status:</strong> Moneva is a registered sub-broker with Angel One and holds a valid ARN (AMFI Registration Number) for mutual fund distribution. We are authorized to provide investment advisory services and distribute mutual fund products in compliance with SEBI regulations.
                 </p>
                 
                 <p>
@@ -212,23 +212,23 @@ const AIPlanning = () => {
                 </p>
                 
                 <p>
-                  <strong>No Guarantee:</strong> The calculations, projections, and recommendations provided by our AI tool are based on assumptions and historical data. Actual returns may vary significantly due to market volatility, economic conditions, and other factors beyond our control.
+                  <strong>AI-Generated Recommendations:</strong> While our AI tool provides personalized investment recommendations based on your goals and risk profile, these are generated using algorithms and historical data. Actual market performance may vary significantly due to volatility, economic conditions, and unforeseen circumstances.
                 </p>
                 
                 <p>
-                  <strong>Professional Advice:</strong> Before making any investment decisions, please consult with a qualified SEBI registered investment advisor or financial planner who can provide personalized advice based on your complete financial situation.
+                  <strong>Professional Guidance:</strong> Our qualified financial advisors review and validate AI-generated recommendations before implementation. We encourage clients to discuss their complete financial situation with our advisors for comprehensive planning.
                 </p>
                 
                 <p>
-                  <strong>Accuracy of Information:</strong> While we strive to provide accurate information, we do not warrant the completeness or accuracy of the data. Users should independently verify all information before making investment decisions.
+                  <strong>Accuracy of Information:</strong> While we strive to provide accurate and up-to-date information, market conditions change rapidly. We recommend reviewing all investment decisions with our advisors before execution.
                 </p>
                 
                 <p>
-                  <strong>Regulatory Compliance:</strong> This platform operates in compliance with applicable Indian financial regulations. We recommend consulting the latest SEBI guidelines and tax laws before investing.
+                  <strong>Compliance & Transparency:</strong> All our investment recommendations and transactions are executed in full compliance with SEBI guidelines, Angel One's policies, and AMFI regulations. We maintain complete transparency in our fee structure and commissions.
                 </p>
                 
                 <p>
-                  <strong>Tax Implications:</strong> Tax benefits mentioned are subject to current tax laws and may change. Please consult a tax advisor for personalized tax planning advice.
+                  <strong>Tax Implications:</strong> Tax benefits mentioned are subject to current tax laws and individual circumstances. Our advisors can provide guidance on tax-efficient investment strategies as per your tax bracket and financial goals.
                 </p>
               </div>
             </CardContent>
