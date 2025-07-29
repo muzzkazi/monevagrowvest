@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import TickerBand from "@/components/TickerBand";
+import SecondaryBand from "@/components/SecondaryBand";
 
 import Hero from "@/components/Hero";
 import Testimonials from "@/components/Testimonials";
@@ -13,6 +14,7 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
       <TickerBand />
+      <SecondaryBand />
       <main id="home">
         <Hero />
         <Testimonials />

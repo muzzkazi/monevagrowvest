@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import TickerBand from "@/components/TickerBand";
+import SecondaryBand from "@/components/SecondaryBand";
 import Footer from "@/components/Footer";
 
 interface PageLayoutProps {
@@ -11,6 +12,7 @@ const PageLayout = ({ children }: PageLayoutProps) => {
     <div className="min-h-screen">
       <Header />
       <TickerBand />
+      <SecondaryBand />
       {children}
       <Footer />
     </div>
