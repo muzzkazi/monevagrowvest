@@ -28,9 +28,9 @@ const SecondaryBand = () => {
   ];
 
   return (
-    <div className="bg-financial-primary text-white py-4 w-full z-10 overflow-hidden">
+    <div className="bg-financial-primary text-white py-4 w-full z-20 relative overflow-hidden">
       {/* First line - Indices */}
-      <div className="relative mb-2">
+      <div className="relative mb-2 overflow-hidden">
         <div className="flex animate-[scroll_30s_linear_infinite]">
           {/* First set of indices */}
           {indices.map((item, index) => {
@@ -68,7 +68,7 @@ const SecondaryBand = () => {
       </div>
 
       {/* Second line - NIFTY 50 Stocks */}
-      <div className="relative">
+      <div className="relative overflow-hidden">
         <div className="flex animate-[scroll_20s_linear_infinite]">
           {/* First set of stocks */}
           {nifty50Stocks.map((stock, index) => {
