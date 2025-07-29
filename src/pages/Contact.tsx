@@ -5,7 +5,7 @@ import WhatsAppButton from "@/components/shared/WhatsAppButton";
 const ContactPage = () => {
   return (
     <PageLayout>
-      <div className="pt-20">
+      <div className="pt-28">
         <Contact />
       </div>
       <WhatsAppButton message="Hi! I'd like to get in touch for financial consultation" />

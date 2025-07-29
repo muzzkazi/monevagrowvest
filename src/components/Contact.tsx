@@ -37,7 +37,7 @@ const Contact = () => {
     {
       icon: Phone,
       title: "Phone Numbers",
-      details: ["+91-9876-543-210", "+91-9876-543-211"],
+      details: ["+91 80878 55185", "Available 24/7"],
       color: "text-green-600"
     },
     {

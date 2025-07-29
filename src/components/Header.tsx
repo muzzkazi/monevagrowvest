@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Header = () => {
@@ -8,16 +8,31 @@ const Header = () => {
   const location = useLocation();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <img 
-              src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
-              alt="Moneva Logo" 
-              className="h-8 w-auto"
-            />
+    <>
+      {/* Top contact bar */}
+      <div className="bg-financial-accent text-white py-2 text-center text-sm">
+        <div className="container mx-auto px-4 flex items-center justify-center gap-4">
+          <div className="flex items-center gap-2">
+            <Phone className="h-4 w-4" />
+            <a href="tel:+918087855185" className="hover:underline font-medium">
+              +91 80878 55185
+            </a>
           </div>
+          <span className="hidden md:inline">|</span>
+          <span className="hidden md:inline">Call us for expert financial advice</span>
+        </div>
+      </div>
+      
+      <header className="fixed top-8 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
+                alt="Moneva Logo" 
+                className="h-8 w-auto"
+              />
+            </div>
           
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
@@ -69,26 +84,35 @@ const Header = () => {
               Contact
             </Link>
           </nav>
-          
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-          </div>
-          
-          <Button className="hidden md:block bg-financial-accent hover:bg-financial-accent/90 text-white">
-            Get Started
-          </Button>
+            
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center gap-4">
+              <a href="tel:+918087855185" className="text-financial-accent">
+                <Phone className="h-5 w-5" />
+              </a>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </Button>
+            </div>
+            
+            <div className="hidden md:flex items-center gap-4">
+              <a href="tel:+918087855185" className="flex items-center gap-2 text-financial-accent hover:text-financial-accent/80 transition-colors">
+                <Phone className="h-4 w-4" />
+                <span className="font-medium">+91 80878 55185</span>
+              </a>
+              <Button className="bg-financial-accent hover:bg-financial-accent/90 text-white">
+                Get Started
+              </Button>
+            </div>
         </div>
-        
-        {/* Mobile Navigation */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-lg border-b border-border shadow-lg">
+          
+          {/* Mobile Navigation */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-lg border-b border-border shadow-lg">
             <nav className="container mx-auto px-4 py-4 space-y-4">
               <Link 
                 to="/" 
@@ -144,14 +168,21 @@ const Header = () => {
               >
                 Contact
               </Link>
-              <Button className="w-full bg-financial-accent hover:bg-financial-accent/90 text-white mt-4">
-                Get Started
-              </Button>
-            </nav>
-          </div>
-        )}
-      </div>
-    </header>
+                <div className="border-t border-border pt-4">
+                  <a href="tel:+918087855185" className="flex items-center justify-center gap-2 text-financial-accent font-medium py-2">
+                    <Phone className="h-4 w-4" />
+                    +91 80878 55185
+                  </a>
+                  <Button className="w-full bg-financial-accent hover:bg-financial-accent/90 text-white mt-2">
+                    Get Started
+                  </Button>
+                </div>
+              </nav>
+            </div>
+          )}
+        </div>
+      </header>
+    </>
   );
 };
 
