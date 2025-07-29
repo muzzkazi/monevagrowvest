@@ -57,7 +57,7 @@ const Footer = () => {
               All investments are subject to market risks. Please read the scheme information documents carefully before investing.
             </p>
             <p className="text-white/60 text-xs">
-              BSE: AP01061201162326 | NSE: AP0397604963 | 
+              BSE: AP01061201162326 | NSE: AP0397604963 | ARN: ARN-305935 | 
               For grievances, contact: contact@moneva.in
             </p>
           </div>
