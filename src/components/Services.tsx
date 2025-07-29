@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Shield, Users, Calculator, PieChart, Target, ArrowRight, CheckCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Services = () => {
   const services = [
@@ -80,10 +81,19 @@ const Services = () => {
                     ))}
                   </div>
                   
-                  <Button variant="outline" className="w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
-                    {service.cta}
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+                  {service.title === "Financial Planning Tools" ? (
+                    <Link to="/calculators">
+                      <Button variant="outline" className="w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                        {service.cta}
+                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button variant="outline" className="w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                      {service.cta}
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
