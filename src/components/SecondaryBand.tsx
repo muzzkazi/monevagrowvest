@@ -72,8 +72,7 @@ const SecondaryBand = () => {
             const isPositive = !item.change.startsWith('-');
             return (
               <div key={`indices-${index}`} className="flex items-center whitespace-nowrap flex-shrink-0">
-                <span className="text-white/40 mx-4">|</span>
-                <div className="flex items-center gap-2 px-4">
+                <div className="flex items-center gap-2 px-6">
                   <span className="font-medium text-sm">{item.name}</span>
                   <span className="text-base font-bold">{item.value}</span>
                   <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
@@ -97,8 +96,7 @@ const SecondaryBand = () => {
             const isPositive = !stock.change.startsWith('-');
             return (
               <div key={`stocks-${index}`} className="flex items-center whitespace-nowrap flex-shrink-0">
-                <span className="text-white/30 mx-3">•</span>
-                <div className="flex items-center gap-2 px-2">
+                <div className="flex items-center gap-2 px-4">
                   <span className="font-medium text-xs text-white/90">{stock.symbol}</span>
                   <span className="text-sm font-semibold">{stock.price}</span>
                   <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
