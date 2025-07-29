@@ -1042,6 +1042,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
           </div>
         </CardContent>
       </Card>
+      </div>
 
       {/* Contact Form Modal */}
       <ContactFormModal 
