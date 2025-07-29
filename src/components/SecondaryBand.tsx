@@ -28,7 +28,7 @@ const SecondaryBand = () => {
   ];
 
   return (
-    <div className="bg-financial-primary text-white py-4 w-full z-20 relative overflow-hidden">
+    <div className="bg-financial-primary text-white py-4 w-full z-20 relative overflow-hidden mt-4">
       {/* First line - Indices */}
       <div className="relative mb-2 overflow-hidden">
         <div className="flex animate-[scroll_30s_linear_infinite]">
