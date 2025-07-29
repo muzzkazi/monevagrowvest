@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/premium-financial-hero.jpg";
 import { useCountUp } from "@/hooks/useCountUp";
+import AnimatedGrowthCurve from "./AnimatedGrowthCurve";
 
 const Hero = () => {
   const researchCount = useCountUp({ end: 100, suffix: '%', duration: 2000, delay: 500 });
@@ -73,22 +74,7 @@ const Hero = () => {
           </div>
           
           <div className="relative animate-slide-up">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-              <img 
-                src={heroImage} 
-                alt="Financial Success" 
-                className="relative w-full h-auto rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute -top-4 -right-4 bg-gradient-gold p-6 rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
-                <div className="text-center">
-                  <div ref={returnsCount.ref} className="text-2xl font-bold text-financial-primary">
-                    {returnsCount.value}
-                  </div>
-                  <div className="text-sm text-financial-secondary">Avg. Returns</div>
-                </div>
-              </div>
-            </div>
+            <AnimatedGrowthCurve />
           </div>
         </div>
       </div>
