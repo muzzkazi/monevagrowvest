@@ -459,7 +459,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
       {/* WhatsApp Contact Button - Floating */}
       <div className="fixed bottom-6 right-6 z-50">
         <Button
-          onClick={() => window.open('https://wa.me/919876543210?text=Hi! I want to discuss my AI-generated investment strategy', '_blank')}
+          onClick={() => window.open('https://wa.me/918987855185?text=Hi! I want to discuss my AI-generated investment strategy', '_blank')}
           className="bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300"
           size="lg"
         >
@@ -820,7 +820,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                   </p>
                   <div className="flex gap-3 mt-4">
                     <Button
-                      onClick={() => window.open('https://wa.me/919876543210?text=Hi! I need expert advice for portfolio rebalancing', '_blank')}
+                      onClick={() => window.open('https://wa.me/918987855185?text=Hi! I need expert advice for portfolio rebalancing', '_blank')}
                       className="bg-green-600 hover:bg-green-700 text-white"
                       size="sm"
                     >
