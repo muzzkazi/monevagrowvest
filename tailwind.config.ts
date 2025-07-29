@@ -59,9 +59,7 @@ export default {
 					gold: 'hsl(var(--financial-gold))',
 					'gold-light': 'hsl(var(--financial-gold-light))',
 					accent: 'hsl(var(--financial-accent))',
-					muted: 'hsl(var(--financial-muted))',
-					success: 'hsl(var(--financial-success))',
-					'blue-light': 'hsl(var(--financial-blue-light))'
+					muted: 'hsl(var(--financial-muted))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -124,14 +122,6 @@ export default {
 						transform: 'translateY(-10px)'
 					}
 				},
-				'growth-line': {
-					'0%': {
-						strokeDasharray: '0 1000'
-					},
-					'100%': {
-						strokeDasharray: '1000 1000'
-					}
-				},
 				'scroll': {
 					'0%': {
 						transform: 'translateX(0%)'
@@ -155,7 +145,6 @@ export default {
 				'fade-in': 'fade-in 0.6s ease-out forwards',
 				'slide-up': 'slide-up 0.6s ease-out forwards',
 				'float': 'float 3s ease-in-out infinite',
-				'growth-line': 'growth-line 2s ease-out forwards',
 				'scroll': 'scroll 35s linear infinite',
 				'scroll-fast': 'scroll-fast 25s linear infinite'
 			},

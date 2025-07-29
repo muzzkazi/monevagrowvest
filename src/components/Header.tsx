@@ -12,11 +12,8 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <img 
-              src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
-              alt="Moneva Logo" 
-              className="h-8 w-auto"
-            />
+            <img src="/src/assets/moneva-logo.svg" alt="Moneva" className="w-8 h-8" />
+            <span className="text-2xl font-bold text-primary">moneva</span>
           </div>
           
           <nav className="hidden md:flex items-center space-x-8">
@@ -73,8 +70,8 @@ const Header = () => {
             </Button>
           </div>
           
-          <Button className="hidden md:block bg-financial-accent hover:bg-financial-accent/90 text-white rounded-full px-6">
-            OPEN YOUR DEMAT A/C
+          <Button className="hidden md:block bg-financial-accent hover:bg-financial-accent/90 text-white">
+            Get Started
           </Button>
         </div>
         
