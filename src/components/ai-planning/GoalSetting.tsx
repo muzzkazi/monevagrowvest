@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Plus, Trash2, Home, GraduationCap, Car, Plane, PiggyBank } from "lucide-react";
+import { Plus, Trash2, Home, GraduationCap, Car, Plane, PiggyBank, Edit, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency, parseCommaNumber, formatInputValue } from "@/lib/utils";
 
@@ -36,6 +36,10 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
   });
   const [targetAmountInput, setTargetAmountInput] = useState("");
   const [currentSavingsInput, setCurrentSavingsInput] = useState("");
+  const [editingGoal, setEditingGoal] = useState<string | null>(null);
+  const [editGoal, setEditGoal] = useState<FinancialGoal | null>(null);
+  const [editTargetAmountInput, setEditTargetAmountInput] = useState("");
+  const [editCurrentSavingsInput, setEditCurrentSavingsInput] = useState("");
 
   const goalCategories = [
     { value: "retirement", label: "Retirement", icon: PiggyBank },
@@ -82,6 +86,51 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
 
   const removeGoal = (id: string) => {
     setGoals(goals.filter(goal => goal.id !== id));
+    if (editingGoal === id) {
+      setEditingGoal(null);
+      setEditGoal(null);
+    }
+  };
+
+  const startEditGoal = (goal: FinancialGoal) => {
+    setEditingGoal(goal.id);
+    setEditGoal({ ...goal });
+    setEditTargetAmountInput(formatCurrency(goal.targetAmount).replace('₹', ''));
+    setEditCurrentSavingsInput(formatCurrency(goal.currentSavings).replace('₹', ''));
+  };
+
+  const saveEditGoal = () => {
+    if (!editGoal) return;
+    
+    if (!editGoal.name || !editGoal.category || editGoal.targetAmount <= 0) {
+      toast({
+        title: "Incomplete Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setGoals(goals.map(goal => 
+      goal.id === editGoal.id ? editGoal : goal
+    ));
+    
+    setEditingGoal(null);
+    setEditGoal(null);
+    setEditTargetAmountInput("");
+    setEditCurrentSavingsInput("");
+    
+    toast({
+      title: "Goal Updated",
+      description: `${editGoal.name} has been updated successfully.`
+    });
+  };
+
+  const cancelEditGoal = () => {
+    setEditingGoal(null);
+    setEditGoal(null);
+    setEditTargetAmountInput("");
+    setEditCurrentSavingsInput("");
   };
 
   const handleComplete = () => {
@@ -219,43 +268,164 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
 
                 return (
                   <div key={goal.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
-                        <Icon className="h-5 w-5 text-financial-accent mt-1" />
-                        <div className="space-y-2 flex-1">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-semibold">{goal.name}</h4>
+                    {editingGoal === goal.id && editGoal ? (
+                      // Edit Mode
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-semibold">Edit Goal</h4>
+                          <div className="flex gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => removeGoal(goal.id)}
-                              className="text-red-500 hover:text-red-700"
+                              onClick={saveEditGoal}
+                              className="text-green-600 hover:text-green-700"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Save className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={cancelEditGoal}
+                              className="text-gray-500 hover:text-gray-700"
+                            >
+                              <X className="h-4 w-4" />
                             </Button>
                           </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-muted-foreground">
-                            <div>
-                              <span className="font-medium">Target:</span> {formatCurrency(goal.targetAmount)}
-                            </div>
-                            <div>
-                              <span className="font-medium">Timeline:</span> {goal.timeHorizon} years
-                            </div>
-                            <div>
-                              <span className="font-medium">Priority:</span> {goal.priority}/10
-                            </div>
-                            <div>
-                              <span className="font-medium">Monthly SIP:</span> {formatCurrency(monthlyRequired)}
-                            </div>
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="editGoalName">Goal Name</Label>
+                            <Input
+                              id="editGoalName"
+                              value={editGoal.name}
+                              onChange={(e) => setEditGoal({ ...editGoal, name: e.target.value })}
+                            />
                           </div>
-                          {goal.currentSavings > 0 && (
-                            <div className="text-sm text-green-600">
-                              Current Savings: {formatCurrency(goal.currentSavings)}
-                            </div>
-                          )}
+                          <div className="space-y-2">
+                            <Label htmlFor="editCategory">Category</Label>
+                            <Select value={editGoal.category} onValueChange={(value) => setEditGoal({ ...editGoal, category: value })}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {goalCategories.map((category) => (
+                                  <SelectItem key={category.value} value={category.value}>
+                                    <div className="flex items-center gap-2">
+                                      <category.icon className="h-4 w-4" />
+                                      {category.label}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="editTargetAmount">Target Amount (₹)</Label>
+                            <Input
+                              id="editTargetAmount"
+                              type="text"
+                              value={editTargetAmountInput}
+                              onChange={(e) => {
+                                const formatted = formatInputValue(e.target.value);
+                                setEditTargetAmountInput(formatted);
+                                setEditGoal({ ...editGoal, targetAmount: parseCommaNumber(formatted) });
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="editCurrentSavings">Current Savings (₹)</Label>
+                            <Input
+                              id="editCurrentSavings"
+                              type="text"
+                              value={editCurrentSavingsInput}
+                              onChange={(e) => {
+                                const formatted = formatInputValue(e.target.value);
+                                setEditCurrentSavingsInput(formatted);
+                                setEditGoal({ ...editGoal, currentSavings: parseCommaNumber(formatted) });
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Time Horizon: {editGoal.timeHorizon} years</Label>
+                            <Slider
+                              value={[editGoal.timeHorizon]}
+                              onValueChange={(value) => setEditGoal({ ...editGoal, timeHorizon: value[0] })}
+                              max={30}
+                              min={1}
+                              step={1}
+                              className="w-full"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Priority Level: {editGoal.priority}/10</Label>
+                            <Slider
+                              value={[editGoal.priority]}
+                              onValueChange={(value) => setEditGoal({ ...editGoal, priority: value[0] })}
+                              max={10}
+                              min={1}
+                              step={1}
+                              className="w-full"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      // View Mode
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          <Icon className="h-5 w-5 text-financial-accent mt-1" />
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-semibold">{goal.name}</h4>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => startEditGoal(goal)}
+                                  className="text-blue-500 hover:text-blue-700"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeGoal(goal.id)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-muted-foreground">
+                              <div>
+                                <span className="font-medium">Target:</span> {formatCurrency(goal.targetAmount)}
+                              </div>
+                              <div>
+                                <span className="font-medium">Timeline:</span> {goal.timeHorizon} years
+                              </div>
+                              <div>
+                                <span className="font-medium">Priority:</span> {goal.priority}/10
+                              </div>
+                              <div>
+                                <span className="font-medium">Monthly SIP:</span> {formatCurrency(monthlyRequired)}
+                              </div>
+                            </div>
+                            {goal.currentSavings > 0 && (
+                              <div className="text-sm text-green-600">
+                                Current Savings: {formatCurrency(goal.currentSavings)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
