@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Clock, ArrowRight, BarChart3 } from "lucide-react";
+import ContactFormModal from "@/components/ContactFormModal";
 
 const FeaturedInsights = () => {
+  const [showContactForm, setShowContactForm] = useState(false);
+  
   const insights = [
     {
       category: "Market Analysis",
@@ -90,7 +94,11 @@ const FeaturedInsights = () => {
             <BarChart3 className="w-12 h-12 text-financial-primary mx-auto mb-4" />
             <h3 className="text-xl font-bold text-financial-primary mb-2">Market Updates</h3>
             <p className="text-financial-secondary text-sm mb-4">Daily market analysis and fund performance updates</p>
-            <Button variant="outline" className="border-financial-primary text-financial-primary hover:bg-financial-primary hover:text-white">
+            <Button 
+              variant="outline" 
+              className="border-financial-primary text-financial-primary hover:bg-financial-primary hover:text-white"
+              onClick={() => setShowContactForm(true)}
+            >
               Subscribe Free
             </Button>
           </Card>
@@ -117,6 +125,12 @@ const FeaturedInsights = () => {
           </Card>
         </div>
       </div>
+      
+      <ContactFormModal
+        isOpen={showContactForm}
+        onClose={() => setShowContactForm(false)}
+        actionType="download"
+      />
     </section>
   );
 };
