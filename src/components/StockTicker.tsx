@@ -88,8 +88,8 @@ const StockTicker = () => {
   }
 
   return (
-    <div className="bg-financial-dark text-white py-2 overflow-hidden relative">
-      <div className="animate-scroll flex items-center space-x-8 whitespace-nowrap">
+    <div className="bg-financial-dark text-white py-3 overflow-hidden relative w-full z-10" style={{ minHeight: '40px' }}>
+      <div className="animate-scroll flex items-center space-x-8 whitespace-nowrap px-4">
         {stocks.concat(stocks).map((stock, index) => (
           <div key={`${stock.symbol}-${index}`} className="flex items-center space-x-2 min-w-fit">
             <span className="font-semibold text-sm">{stock.name}</span>
