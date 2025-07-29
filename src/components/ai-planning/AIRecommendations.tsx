@@ -18,7 +18,9 @@ import {
   Download,
   BookOpen,
   LineChart,
-  Info
+  Info,
+  MessageCircle,
+  Phone
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ContactFormModal from "../ContactFormModal";
@@ -453,7 +455,20 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      {/* WhatsApp Contact Button - Floating */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={() => window.open('https://wa.me/919876543210?text=Hi! I want to discuss my AI-generated investment strategy', '_blank')}
+          className="bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300"
+          size="lg"
+        >
+          <MessageCircle className="h-6 w-6" />
+          <span className="ml-2 hidden md:inline">WhatsApp Us</span>
+        </Button>
+      </div>
+
+      <div className="space-y-6">
       {/* Goal Summary Section */}
       <Card className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/20 dark:to-blue-950/20">
         <CardHeader>
@@ -792,6 +807,41 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
 
         {/* Rebalancing Strategy Tab */}
         <TabsContent value="rebalancing" className="space-y-6">
+          {/* Expert Advice Notice */}
+          <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <AlertCircle className="h-6 w-6 text-orange-600 mt-1 flex-shrink-0" />
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-orange-800 dark:text-orange-200">Expert Advice Required</h4>
+                  <p className="text-sm text-orange-700 dark:text-orange-300">
+                    Portfolio rebalancing is a complex process that requires careful analysis of market conditions, tax implications, and your personal financial situation. 
+                    We strongly recommend consulting with our certified financial experts before making any rebalancing decisions.
+                  </p>
+                  <div className="flex gap-3 mt-4">
+                    <Button
+                      onClick={() => window.open('https://wa.me/919876543210?text=Hi! I need expert advice for portfolio rebalancing', '_blank')}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      size="sm"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      WhatsApp Expert
+                    </Button>
+                    <Button
+                      onClick={() => setShowContactForm(true)}
+                      variant="outline"
+                      className="border-orange-300 text-orange-700 hover:bg-orange-100 dark:border-orange-600 dark:text-orange-300"
+                      size="sm"
+                    >
+                      <Phone className="h-4 w-4 mr-2" />
+                      Schedule Call
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -831,6 +881,11 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                   <li>• Goal timeline changes or life events</li>
                   <li>• Annual review regardless of drift</li>
                 </ul>
+                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 rounded border border-blue-200 dark:border-blue-800">
+                  <p className="text-xs text-blue-700 dark:text-blue-300">
+                    <strong>Note:</strong> Our experts will help you identify these triggers and execute rebalancing with minimal tax impact and optimal timing.
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -994,7 +1049,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
         onClose={() => setShowContactForm(false)}
         actionType={actionType}
       />
-    </div>
+    </>
   );
 };
 
