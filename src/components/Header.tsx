@@ -73,8 +73,8 @@ const Header = () => {
             </Button>
           </div>
           
-          <Button className="hidden md:block bg-financial-accent hover:bg-financial-accent/90 text-white">
-            Get Started
+          <Button className="hidden md:block bg-financial-accent hover:bg-financial-accent/90 text-white rounded-full px-6">
+            OPEN YOUR DEMAT A/C
           </Button>
         </div>
         

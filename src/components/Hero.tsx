@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/premium-financial-hero.jpg";
 import { useCountUp } from "@/hooks/useCountUp";
+import GrowthCurve from "./GrowthCurve";
 
 const Hero = () => {
   const researchCount = useCountUp({ end: 100, suffix: '%', duration: 2000, delay: 500 });
@@ -10,24 +11,24 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-screen bg-gradient-hero pt-20 overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-financial-gold/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-financial-accent/10 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 right-1/3 w-32 h-32 bg-financial-gold/5 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }}></div>
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-1/4 left-1/3 w-32 h-32 bg-financial-accent rounded-full blur-xl"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-24 h-24 bg-financial-success rounded-full blur-lg"></div>
       </div>
       
       <div className="container mx-auto px-4 py-20 relative">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[80vh]">
+          {/* Left content */}
           <div className="space-y-8 animate-fade-in">
-            <div className="space-y-4">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+            <div className="space-y-6">
+              <h1 className="text-5xl lg:text-6xl font-bold leading-tight text-financial-primary">
                 Take control of your{" "}
-                <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent animate-pulse">
-                  financial destiny
+                <span className="text-financial-accent">
+                  financial destiny.
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
+              <p className="text-xl text-financial-secondary leading-relaxed max-w-lg">
                 Whether you're saving for a new home, planning your child's education, or growing your retirement fund, we're here to support you in reaching your financial goals.
               </p>
             </div>
@@ -35,7 +36,7 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
-                className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-8 py-4 text-lg shadow-lg"
+                className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
                 onClick={() => window.location.href = '/contact'}
               >
                 Start Your Journey
@@ -43,51 +44,51 @@ const Hero = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="px-8 py-4 text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white hover:scale-105 transition-all duration-300"
+                className="px-8 py-4 text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white transition-all duration-300"
                 onClick={() => window.location.href = '/contact'}
               >
                 Schedule Consultation
               </Button>
             </div>
             
-            <div className="flex items-center gap-8 pt-8">
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-financial-accent">
-                  100%
-                </div>
-                <div className="text-sm text-muted-foreground">Research Based</div>
-              </div>
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
+            {/* Stats section */}
+            <div className="flex items-center gap-12 pt-8">
+              <div className="text-center">
                 <div ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">
                   {clientsCount.value}
                 </div>
-                <div className="text-sm text-muted-foreground">Happy Clients</div>
+                <div className="text-sm text-financial-secondary">Happy Clients</div>
               </div>
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
+              <div className="text-center">
                 <div ref={aumCount.ref} className="text-3xl font-bold text-financial-accent">
                   {aumCount.value}
                 </div>
-                <div className="text-sm text-muted-foreground">Assets Managed</div>
+                <div className="text-sm text-financial-secondary">Assets Managed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-financial-accent">
+                  12%+
+                </div>
+                <div className="text-sm text-financial-secondary">Avg. Returns</div>
               </div>
             </div>
           </div>
           
+          {/* Right content with animated growth curve */}
           <div className="relative animate-slide-up">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-              <img 
-                src={heroImage} 
-                alt="Financial Success" 
-                className="relative w-full h-auto rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute -top-4 -right-4 bg-gradient-gold p-6 rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
-                <div className="text-center">
-                  <div ref={returnsCount.ref} className="text-2xl font-bold text-financial-primary">
-                    {returnsCount.value}
-                  </div>
-                  <div className="text-sm text-financial-secondary">Avg. Returns</div>
-                </div>
-              </div>
+            <GrowthCurve />
+            
+            {/* Call to action card */}
+            <div className="mt-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
+              <h3 className="text-xl font-semibold text-financial-primary mb-2">
+                Create a strategic plan to grow your wealth with our expert guidance.
+              </h3>
+              <Button 
+                className="mt-4 bg-financial-accent hover:bg-financial-accent/90 text-white"
+                onClick={() => window.location.href = '/contact'}
+              >
+                Connect Today !
+              </Button>
             </div>
           </div>
         </div>
