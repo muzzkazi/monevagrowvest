@@ -104,7 +104,7 @@ const SecondaryBand = () => {
 
       {/* Second line - NIFTY 50 Stocks */}
       <div className="relative overflow-hidden">
-        <div className="flex animate-[scroll_60s_linear_infinite] will-change-transform">
+        <div className="flex animate-[scroll_40s_linear_infinite] will-change-transform">
           {/* First set of stocks */}
           {nifty50Stocks.map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
