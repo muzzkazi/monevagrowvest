@@ -97,7 +97,7 @@ const Testimonials = () => {
               <p className="text-sm text-muted-foreground">Assets Managed</p>
             </div>
             <div>
-              <p ref={returnsCount.ref} className="text-3xl font-bold text-financial-accent">{returnsCount.value}</p>
+              <p className="text-3xl font-bold text-financial-accent">12%</p>
               <p className="text-sm text-muted-foreground">Avg Returns</p>
             </div>
           </div>
