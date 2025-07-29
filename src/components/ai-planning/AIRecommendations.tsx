@@ -76,54 +76,43 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
   // Dynamic asset allocation based on risk profile
   const getRiskBasedAllocation = () => {
     const allocations = {
-      Conservative: { equity: 30, debt: 60, gold: 10, international: 0 },
-      Moderate: { equity: 50, debt: 40, gold: 5, international: 5 },
-      Balanced: { equity: 65, debt: 25, gold: 5, international: 5 },
-      Aggressive: { equity: 80, debt: 10, gold: 5, international: 5 }
+      Conservative: [
+        { category: "Short Duration Debt Funds", percentage: 40, color: "#10b981", instruments: ["HDFC Short Term Debt Fund", "ICICI Pru Short Term Fund", "SBI Short Term Debt Fund"] },
+        { category: "Corporate Bond Funds", percentage: 15, color: "#059669", instruments: ["HDFC Corporate Bond Fund", "ICICI Pru Corporate Bond Fund", "Aditya Birla Corporate Bond Fund"] },
+        { category: "Conservative Hybrid Funds", percentage: 15, color: "#6366f1", instruments: ["HDFC Balanced Advantage Fund", "ICICI Pru Balanced Advantage Fund", "SBI Conservative Hybrid Fund"] },
+        { category: "Arbitrage Funds", percentage: 10, color: "#8b5cf6", instruments: ["ICICI Pru Arbitrage Fund", "Kotak Equity Arbitrage Fund", "Nippon India Arbitrage Fund"] },
+        { category: "Large Cap Equity Funds", percentage: 10, color: "#3b82f6", instruments: ["HDFC Top 100 Fund", "ICICI Pru Bluechip Fund", "SBI Large Cap Fund"] },
+        { category: "Gold ETF", percentage: 10, color: "#fbbf24", instruments: ["HDFC Gold ETF", "SBI Gold ETF", "Nippon Gold BeES"] }
+      ],
+      Moderate: [
+        { category: "Balanced Advantage Funds", percentage: 40, color: "#6366f1", instruments: ["HDFC Balanced Advantage Fund", "ICICI Pru Balanced Advantage Fund", "SBI Dynamic Asset Allocation Fund"] },
+        { category: "Large Cap Equity Funds", percentage: 30, color: "#3b82f6", instruments: ["HDFC Top 100 Fund", "ICICI Pru Bluechip Fund", "SBI Large Cap Fund"] },
+        { category: "Short Duration Debt Funds", percentage: 20, color: "#10b981", instruments: ["HDFC Short Term Debt Fund", "ICICI Pru Short Term Fund", "SBI Short Term Debt Fund"] },
+        { category: "Gold Funds", percentage: 10, color: "#fbbf24", instruments: ["HDFC Gold Fund", "SBI Gold Fund", "Nippon India Gold Savings Fund"] }
+      ],
+      Balanced: [
+        { category: "Flexi Cap Funds", percentage: 40, color: "#8b5cf6", instruments: ["Parag Parikh Flexi Cap Fund", "HDFC Flexi Cap Fund", "ICICI Pru Flexi Cap Fund"] },
+        { category: "Large & Mid Cap Funds", percentage: 30, color: "#3b82f6", instruments: ["HDFC Large and Mid Cap Fund", "ICICI Pru Large & Mid Cap Fund", "SBI Large & Midcap Fund"] },
+        { category: "Hybrid Equity Funds", percentage: 20, color: "#6366f1", instruments: ["SBI Equity Hybrid Fund", "HDFC Hybrid Equity Fund", "ICICI Pru Equity & Debt Fund"] },
+        { category: "Gold Funds", percentage: 10, color: "#fbbf24", instruments: ["HDFC Gold Fund", "SBI Gold Fund", "Nippon India Gold Savings Fund"] }
+      ],
+      Aggressive: [
+        { category: "Mid Cap Funds", percentage: 40, color: "#8b5cf6", instruments: ["Kotak Emerging Equity Fund", "HDFC Mid-Cap Opportunities Fund", "DSP Midcap Fund"] },
+        { category: "Small Cap Funds", percentage: 30, color: "#ef4444", instruments: ["Axis Small Cap Fund", "SBI Small Cap Fund", "HDFC Small Cap Fund"] },
+        { category: "Flexi Cap Funds", percentage: 20, color: "#6366f1", instruments: ["Parag Parikh Flexi Cap Fund", "HDFC Flexi Cap Fund", "ICICI Pru Flexi Cap Fund"] },
+        { category: "Large Cap Funds", percentage: 10, color: "#3b82f6", instruments: ["HDFC Top 100 Fund", "ICICI Pru Bluechip Fund", "SBI Large Cap Fund"] }
+      ]
     };
     return allocations[riskProfile as keyof typeof allocations] || allocations.Moderate;
   };
 
-  const allocation = getRiskBasedAllocation();
+  const assetAllocation = getRiskBasedAllocation();
   
-  // Dynamic asset allocation based on actual goals
-  const assetAllocation: AssetAllocation[] = [
-    {
-      category: "Large Cap Equity",
-      percentage: Math.round(allocation.equity * 0.6), // 60% of equity allocation
-      amount: Math.round((totalInvestmentNeeded * allocation.equity * 0.6) / 100),
-      color: "#3b82f6",
-      instruments: ["HDFC Top 100 Fund", "ICICI Pru Bluechip Fund", "SBI Large Cap Fund"]
-    },
-    {
-      category: "Mid & Small Cap",
-      percentage: Math.round(allocation.equity * 0.4), // 40% of equity allocation
-      amount: Math.round((totalInvestmentNeeded * allocation.equity * 0.4) / 100),
-      color: "#8b5cf6",
-      instruments: ["Kotak Emerging Equity", "DSP Midcap Fund", "Axis Small Cap Fund"]
-    },
-    {
-      category: "Debt Funds",
-      percentage: allocation.debt,
-      amount: Math.round((totalInvestmentNeeded * allocation.debt) / 100),
-      color: "#10b981",
-      instruments: ["HDFC Corporate Bond", "ICICI Pru Medium Term", "SBI Corporate Bond"]
-    },
-    {
-      category: "International",
-      percentage: allocation.international,
-      amount: Math.round((totalInvestmentNeeded * allocation.international) / 100),
-      color: "#f59e0b",
-      instruments: ["Motilal NASDAQ 100", "HDFC Sensex ETF", "Nippon India US Equity"]
-    },
-    {
-      category: "Gold ETF",
-      percentage: allocation.gold,
-      amount: Math.round((totalInvestmentNeeded * allocation.gold) / 100),
-      color: "#fbbf24",
-      instruments: ["HDFC Gold ETF", "SBI Gold ETF", "Nippon Gold BeES"]
-    }
-  ].filter(asset => asset.percentage > 0); // Only show assets with allocation > 0
+  // Calculate amounts for each allocation
+  const assetAllocationWithAmounts: AssetAllocation[] = assetAllocation.map(asset => ({
+    ...asset,
+    amount: Math.round((totalInvestmentNeeded * asset.percentage) / 100)
+  }));
 
   const recommendations: Recommendation[] = [
     {
@@ -301,7 +290,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {assetAllocation.map((asset) => (
+                {assetAllocationWithAmounts.map((asset) => (
                   <div key={asset.category} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="font-medium">{asset.category}</span>
