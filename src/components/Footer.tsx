@@ -52,13 +52,13 @@ const Footer = () => {
         <div className="border-t border-white/20 pt-8">
           <div className="text-center mb-6">
             <p className="text-white/60 text-sm mb-3">
-              <strong>Regulatory Disclosure:</strong> Moneva is a SEBI registered investment advisor and mutual fund distributor.
+              <strong>Regulatory Disclosure:</strong> Moneva is a SEBI registered investment advisor and authorized person for mutual fund distribution.
               We are authorized to provide investment advisory services and distribute mutual fund schemes. 
               All investments are subject to market risks. Please read the scheme information documents carefully before investing.
             </p>
             <p className="text-white/60 text-xs">
-              SEBI Registration No: [To be updated with actual SEBI IA registration] | ARN: [To be updated with actual ARN] | 
-              CIN: [To be updated with actual CIN] | For grievances, contact: invest@moneva.in
+              BSE: AP01061201162326 | NSE: AP0397604963 | 
+              For grievances, contact: contact@moneva.in
             </p>
           </div>
           <div className="text-center text-white/60">
