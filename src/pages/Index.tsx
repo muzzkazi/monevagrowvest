@@ -6,6 +6,7 @@ import WhatsAppButton from "@/components/shared/WhatsAppButton";
 import Hero from "@/components/Hero";
 import Testimonials from "@/components/Testimonials";
 import SuccessStories from "@/components/SuccessStories";
+import Partners from "@/components/Partners";
 import FeaturedInsights from "@/components/FeaturedInsights";
 import CallToAction from "@/components/CallToAction";
 import Footer from "@/components/Footer";
@@ -20,6 +21,7 @@ const Index = () => {
         <Hero />
         <Testimonials />
         <SuccessStories />
+        <Partners />
         <FeaturedInsights />
         <CallToAction />
       </main>
