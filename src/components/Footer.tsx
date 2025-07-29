@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import monevaLogo from "@/assets/moneva-logo.svg";
 
 const Footer = () => {
   return (
@@ -9,8 +8,8 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <img 
-                src={monevaLogo} 
-                alt="Moneva" 
+                src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
+                alt="Moneva Logo" 
                 className="h-10 w-auto"
               />
             </div>
