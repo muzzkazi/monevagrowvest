@@ -91,16 +91,29 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
   const [showContactForm, setShowContactForm] = useState(false);
   const [actionType, setActionType] = useState<"download" | "implement">("download");
 
-  // Calculate total investment needed from goals
-  const totalInvestmentNeeded = goals.reduce((total, goal) => {
-    return total + (goal.targetAmount - goal.currentSavings);
-  }, 0);
+  // Helper function to calculate monthly SIP needed for a goal
+  const calculateMonthlySIP = (targetAmount: number, currentSavings: number, timeHorizon: number, expectedReturn: number = 12) => {
+    const futureValueOfCurrentSavings = currentSavings * Math.pow(1 + expectedReturn / 100, timeHorizon);
+    const remainingAmount = targetAmount - futureValueOfCurrentSavings;
+    
+    if (remainingAmount <= 0) return 0;
+    
+    const monthlyRate = expectedReturn / 100 / 12;
+    const totalMonths = timeHorizon * 12;
+    
+    // SIP formula: PMT = FV / [((1 + r)^n - 1) / r]
+    const monthlySIP = remainingAmount / (((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate));
+    return Math.round(monthlySIP);
+  };
 
-  // Calculate total monthly SIP required
+  // Calculate total monthly SIP required using proper compound interest formula
   const totalMonthlySIP = goals.reduce((total, goal) => {
-    const monthlyRequired = (goal.targetAmount - goal.currentSavings) / (goal.timeHorizon * 12);
+    const monthlyRequired = calculateMonthlySIP(goal.targetAmount, goal.currentSavings, goal.timeHorizon);
     return total + monthlyRequired;
   }, 0);
+
+  // Calculate total investment needed (total SIP amount over time period)
+  const totalInvestmentNeeded = totalMonthlySIP * Math.max(...goals.map(g => g.timeHorizon)) * 12;
 
   // Dynamic asset allocation based on risk profile
   const getRiskBasedAllocation = () => {
