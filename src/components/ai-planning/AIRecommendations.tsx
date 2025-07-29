@@ -143,6 +143,105 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
     amount: Math.round((totalInvestmentNeeded * asset.percentage) / 100)
   }));
 
+  // Fund database with comprehensive details
+  interface FundData {
+    name: string;
+    score: number;
+    expenseRatio: string;
+    fundSize: string;
+    managerTenure: string;
+    taxEfficiency: "High" | "Medium" | "Low";
+    expectedReturn: string;
+    alternativeFund: string;
+  }
+
+  interface RiskProfileFunds {
+    [key: string]: FundData;
+  }
+
+  const getFundDatabase = (): { [key: string]: RiskProfileFunds } => {
+    return {
+      Conservative: {
+        "Short Duration Debt Funds": { name: "HDFC Short Term Debt Fund", score: 92, expenseRatio: "0.35%", fundSize: "₹8,500 Cr", managerTenure: "6 years", taxEfficiency: "High", expectedReturn: "6-8%", alternativeFund: "ICICI Pru Short Term Fund" },
+        "Corporate Bond Funds": { name: "ICICI Pru Corporate Bond Fund", score: 89, expenseRatio: "0.42%", fundSize: "₹4,200 Cr", managerTenure: "4 years", taxEfficiency: "High", expectedReturn: "7-9%", alternativeFund: "Aditya Birla Corporate Bond Fund" },
+        "Conservative Hybrid Funds": { name: "HDFC Balanced Advantage Fund", score: 87, expenseRatio: "0.95%", fundSize: "₹12,500 Cr", managerTenure: "8 years", taxEfficiency: "Medium", expectedReturn: "9-11%", alternativeFund: "ICICI Pru Balanced Advantage Fund" },
+        "Arbitrage Funds": { name: "ICICI Pru Arbitrage Fund", score: 85, expenseRatio: "0.65%", fundSize: "₹3,200 Cr", managerTenure: "5 years", taxEfficiency: "High", expectedReturn: "5-7%", alternativeFund: "Kotak Equity Arbitrage Fund" },
+        "Large Cap Equity Funds": { name: "HDFC Top 100 Fund", score: 94, expenseRatio: "1.25%", fundSize: "₹25,600 Cr", managerTenure: "12 years", taxEfficiency: "Medium", expectedReturn: "12-14%", alternativeFund: "ICICI Pru Bluechip Fund" },
+        "Gold ETF": { name: "HDFC Gold ETF", score: 83, expenseRatio: "0.50%", fundSize: "₹1,800 Cr", managerTenure: "6 years", taxEfficiency: "Low", expectedReturn: "8-10%", alternativeFund: "SBI Gold ETF" }
+      },
+      Moderate: {
+        "Balanced Advantage Funds": { name: "HDFC Balanced Advantage Fund", score: 91, expenseRatio: "0.95%", fundSize: "₹12,500 Cr", managerTenure: "8 years", taxEfficiency: "Medium", expectedReturn: "10-12%", alternativeFund: "SBI Dynamic Asset Allocation Fund" },
+        "Large Cap Equity Funds": { name: "ICICI Pru Bluechip Fund", score: 93, expenseRatio: "1.05%", fundSize: "₹18,200 Cr", managerTenure: "10 years", taxEfficiency: "Medium", expectedReturn: "12-15%", alternativeFund: "SBI Large Cap Fund" },
+        "Short Duration Debt Funds": { name: "HDFC Short Term Debt Fund", score: 92, expenseRatio: "0.35%", fundSize: "₹8,500 Cr", managerTenure: "6 years", taxEfficiency: "High", expectedReturn: "6-8%", alternativeFund: "ICICI Pru Short Term Fund" },
+        "Gold Funds": { name: "HDFC Gold Fund", score: 85, expenseRatio: "0.55%", fundSize: "₹1,800 Cr", managerTenure: "5 years", taxEfficiency: "Low", expectedReturn: "8-10%", alternativeFund: "SBI Gold Fund" }
+      },
+      Balanced: {
+        "Flexi Cap Funds": { name: "Parag Parikh Flexi Cap Fund", score: 95, expenseRatio: "0.68%", fundSize: "₹35,600 Cr", managerTenure: "15 years", taxEfficiency: "Medium", expectedReturn: "14-16%", alternativeFund: "HDFC Flexi Cap Fund" },
+        "Large & Mid Cap Funds": { name: "HDFC Large and Mid Cap Fund", score: 90, expenseRatio: "1.45%", fundSize: "₹8,900 Cr", managerTenure: "7 years", taxEfficiency: "Medium", expectedReturn: "13-16%", alternativeFund: "ICICI Pru Large & Mid Cap Fund" },
+        "Hybrid Equity Funds": { name: "SBI Equity Hybrid Fund", score: 88, expenseRatio: "1.15%", fundSize: "₹6,500 Cr", managerTenure: "9 years", taxEfficiency: "Medium", expectedReturn: "11-13%", alternativeFund: "HDFC Hybrid Equity Fund" },
+        "Gold Funds": { name: "Nippon India Gold Savings Fund", score: 86, expenseRatio: "0.65%", fundSize: "₹2,100 Cr", managerTenure: "6 years", taxEfficiency: "Low", expectedReturn: "8-10%", alternativeFund: "SBI Gold Fund" }
+      },
+      Aggressive: {
+        "Mid Cap Funds": { name: "Kotak Emerging Equity Fund", score: 92, expenseRatio: "1.85%", fundSize: "₹12,800 Cr", managerTenure: "11 years", taxEfficiency: "Medium", expectedReturn: "16-20%", alternativeFund: "DSP Midcap Fund" },
+        "Small Cap Funds": { name: "Axis Small Cap Fund", score: 89, expenseRatio: "2.15%", fundSize: "₹8,600 Cr", managerTenure: "8 years", taxEfficiency: "Medium", expectedReturn: "18-25%", alternativeFund: "SBI Small Cap Fund" },
+        "Flexi Cap Funds": { name: "HDFC Flexi Cap Fund", score: 91, expenseRatio: "1.35%", fundSize: "₹18,500 Cr", managerTenure: "9 years", taxEfficiency: "Medium", expectedReturn: "14-18%", alternativeFund: "ICICI Pru Flexi Cap Fund" },
+        "Large Cap Funds": { name: "SBI Large Cap Fund", score: 88, expenseRatio: "0.95%", fundSize: "₹15,200 Cr", managerTenure: "6 years", taxEfficiency: "Medium", expectedReturn: "12-15%", alternativeFund: "HDFC Top 100 Fund" }
+      }
+    };
+  };
+
+  // Generate recommendations based on asset allocation
+  const generateRecommendations = (): Recommendation[] => {
+    const fundDatabase = getFundDatabase();
+    const riskProfileFunds = fundDatabase[riskProfile] || fundDatabase.Moderate;
+    
+    return assetAllocationWithAmounts.map((asset, index) => {
+      // Find matching fund for this category
+      const fundData = riskProfileFunds[asset.category];
+      
+      if (!fundData) {
+        // Fallback to first available fund
+        const firstKey = Object.keys(riskProfileFunds)[0];
+        const fallbackFund = riskProfileFunds[firstKey];
+        return {
+          id: (index + 1).toString(),
+          name: fallbackFund.name,
+          type: asset.category,
+          allocation: asset.percentage,
+          expectedReturn: fallbackFund.expectedReturn,
+          riskLevel: fallbackFund.taxEfficiency === "High" ? "Low" : fallbackFund.taxEfficiency === "Medium" ? "Medium" : "High",
+          reason: `Score: ${fallbackFund.score}/100. ${asset.category} allocation (${asset.percentage}%). Expense ratio: ${fallbackFund.expenseRatio}, Manager tenure: ${fallbackFund.managerTenure}.`,
+          sipAmount: Math.round((totalMonthlySIP * asset.percentage) / 100),
+          score: fallbackFund.score,
+          expenseRatio: fallbackFund.expenseRatio,
+          fundSize: fallbackFund.fundSize,
+          managerTenure: fallbackFund.managerTenure,
+          taxEfficiency: fallbackFund.taxEfficiency,
+          alternativeFund: fallbackFund.alternativeFund
+        };
+      }
+
+      return {
+        id: (index + 1).toString(),
+        name: fundData.name,
+        type: asset.category,
+        allocation: asset.percentage,
+        expectedReturn: fundData.expectedReturn,
+        riskLevel: fundData.taxEfficiency === "High" ? "Low" : fundData.taxEfficiency === "Medium" ? "Medium" : "High",
+        reason: `Score: ${fundData.score}/100. ${asset.category} allocation (${asset.percentage}%). Expense ratio: ${fundData.expenseRatio}, Manager tenure: ${fundData.managerTenure}.`,
+        sipAmount: Math.round((totalMonthlySIP * asset.percentage) / 100),
+        score: fundData.score,
+        expenseRatio: fundData.expenseRatio,
+        fundSize: fundData.fundSize,
+        managerTenure: fundData.managerTenure,
+        taxEfficiency: fundData.taxEfficiency,
+        alternativeFund: fundData.alternativeFund
+      };
+    });
+  };
+
+  const recommendations = generateRecommendations();
+
   // Generate investment projection data
   const generateProjectionData = () => {
     const maxTimeHorizon = Math.max(...goals.map(g => g.timeHorizon));
@@ -193,38 +292,6 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
       currency: 'INR',
       minimumFractionDigits: 0
     }).format(value);
-  };
-
-  // Intelligent Fund Selection with Scoring Algorithm
-  const getFundRecommendations = () => {
-    const fundDatabase = {
-      Conservative: [
-        { name: "HDFC Short Term Debt Fund", type: "Short Duration Debt", score: 92, expenseRatio: "0.35%", fundSize: "₹8,500 Cr", managerTenure: "6 years", taxEfficiency: "High" as const, expectedReturn: "6-8%", alternativeFund: "ICICI Pru Short Term Fund" },
-        { name: "ICICI Pru Corporate Bond Fund", type: "Corporate Bond", score: 89, expenseRatio: "0.42%", fundSize: "₹4,200 Cr", managerTenure: "4 years", taxEfficiency: "High" as const, expectedReturn: "7-9%", alternativeFund: "Aditya Birla Corporate Bond Fund" },
-        { name: "HDFC Balanced Advantage Fund", type: "Conservative Hybrid", score: 87, expenseRatio: "0.95%", fundSize: "₹12,500 Cr", managerTenure: "8 years", taxEfficiency: "Medium" as const, expectedReturn: "9-11%", alternativeFund: "ICICI Pru Balanced Advantage Fund" },
-        { name: "HDFC Top 100 Fund", type: "Large Cap Equity", score: 94, expenseRatio: "1.25%", fundSize: "₹25,600 Cr", managerTenure: "12 years", taxEfficiency: "Medium" as const, expectedReturn: "12-14%", alternativeFund: "ICICI Pru Bluechip Fund" }
-      ],
-      Moderate: [
-        { name: "HDFC Balanced Advantage Fund", type: "Balanced Advantage", score: 91, expenseRatio: "0.95%", fundSize: "₹12,500 Cr", managerTenure: "8 years", taxEfficiency: "Medium" as const, expectedReturn: "10-12%", alternativeFund: "SBI Dynamic Asset Allocation Fund" },
-        { name: "ICICI Pru Bluechip Fund", type: "Large Cap Equity", score: 93, expenseRatio: "1.05%", fundSize: "₹18,200 Cr", managerTenure: "10 years", taxEfficiency: "Medium" as const, expectedReturn: "12-15%", alternativeFund: "SBI Large Cap Fund" },
-        { name: "HDFC Short Term Debt Fund", type: "Short Duration Debt", score: 92, expenseRatio: "0.35%", fundSize: "₹8,500 Cr", managerTenure: "6 years", taxEfficiency: "High" as const, expectedReturn: "6-8%", alternativeFund: "ICICI Pru Short Term Fund" },
-        { name: "HDFC Gold Fund", type: "Gold Fund", score: 85, expenseRatio: "0.55%", fundSize: "₹1,800 Cr", managerTenure: "5 years", taxEfficiency: "Low" as const, expectedReturn: "8-10%", alternativeFund: "SBI Gold Fund" }
-      ],
-      Balanced: [
-        { name: "Parag Parikh Flexi Cap Fund", type: "Flexi Cap", score: 95, expenseRatio: "0.68%", fundSize: "₹35,600 Cr", managerTenure: "15 years", taxEfficiency: "Medium" as const, expectedReturn: "14-16%", alternativeFund: "HDFC Flexi Cap Fund" },
-        { name: "HDFC Large and Mid Cap Fund", type: "Large & Mid Cap", score: 90, expenseRatio: "1.45%", fundSize: "₹8,900 Cr", managerTenure: "7 years", taxEfficiency: "Medium" as const, expectedReturn: "13-16%", alternativeFund: "ICICI Pru Large & Mid Cap Fund" },
-        { name: "SBI Equity Hybrid Fund", type: "Hybrid Equity", score: 88, expenseRatio: "1.15%", fundSize: "₹6,500 Cr", managerTenure: "9 years", taxEfficiency: "Medium" as const, expectedReturn: "11-13%", alternativeFund: "HDFC Hybrid Equity Fund" },
-        { name: "Nippon India Gold Savings Fund", type: "Gold Fund", score: 86, expenseRatio: "0.65%", fundSize: "₹2,100 Cr", managerTenure: "6 years", taxEfficiency: "Low" as const, expectedReturn: "8-10%", alternativeFund: "SBI Gold Fund" }
-      ],
-      Aggressive: [
-        { name: "Kotak Emerging Equity Fund", type: "Mid Cap", score: 92, expenseRatio: "1.85%", fundSize: "₹12,800 Cr", managerTenure: "11 years", taxEfficiency: "Medium" as const, expectedReturn: "16-20%", alternativeFund: "DSP Midcap Fund" },
-        { name: "Axis Small Cap Fund", type: "Small Cap", score: 89, expenseRatio: "2.15%", fundSize: "₹8,600 Cr", managerTenure: "8 years", taxEfficiency: "Medium" as const, expectedReturn: "18-25%", alternativeFund: "SBI Small Cap Fund" },
-        { name: "HDFC Flexi Cap Fund", type: "Flexi Cap", score: 91, expenseRatio: "1.35%", fundSize: "₹18,500 Cr", managerTenure: "9 years", taxEfficiency: "Medium" as const, expectedReturn: "14-18%", alternativeFund: "ICICI Pru Flexi Cap Fund" },
-        { name: "SBI Large Cap Fund", type: "Large Cap", score: 88, expenseRatio: "0.95%", fundSize: "₹15,200 Cr", managerTenure: "6 years", taxEfficiency: "Medium" as const, expectedReturn: "12-15%", alternativeFund: "HDFC Top 100 Fund" }
-      ]
-    };
-
-    return fundDatabase[riskProfile as keyof typeof fundDatabase] || fundDatabase.Moderate;
   };
 
   // Tax Optimization Analysis
@@ -283,27 +350,9 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
     return insights[riskProfile as keyof typeof insights] || insights.Moderate;
   };
 
-  const selectedFunds = getFundRecommendations();
   const taxOptimization = getTaxOptimization();
   const rebalancingStrategy = getRebalancingStrategy();
   const behavioralInsights = getBehavioralInsights();
-
-  const recommendations: Recommendation[] = selectedFunds.map((fund, index) => ({
-    id: (index + 1).toString(),
-    name: fund.name,
-    type: fund.type,
-    allocation: index === 0 ? 35 : index === 1 ? 30 : index === 2 ? 25 : 10,
-    expectedReturn: fund.expectedReturn,
-    riskLevel: fund.taxEfficiency === "High" ? "Low" : fund.taxEfficiency === "Medium" ? "Medium" : "High",
-    reason: `Score: ${fund.score}/100. Low expense ratio (${fund.expenseRatio}), strong track record with ${fund.managerTenure} manager tenure.`,
-    sipAmount: Math.round((totalMonthlySIP * (index === 0 ? 35 : index === 1 ? 30 : index === 2 ? 25 : 10)) / 100),
-    score: fund.score,
-    expenseRatio: fund.expenseRatio,
-    fundSize: fund.fundSize,
-    managerTenure: fund.managerTenure,
-    taxEfficiency: fund.taxEfficiency,
-    alternativeFund: fund.alternativeFund
-  }));
 
   useEffect(() => {
     // Simulate AI generation process
@@ -466,7 +515,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                 <div>
                   <h4 className="font-semibold mb-2">Why This Allocation?</h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Balanced approach aligning with your moderate risk profile</li>
+                    <li>• Balanced approach aligning with your {riskProfile.toLowerCase()} risk profile</li>
                     <li>• Diversification across asset classes to reduce risk</li>
                     <li>• Long-term growth potential while maintaining stability</li>
                     <li>• Tax-efficient structure for your income bracket</li>
@@ -585,7 +634,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
             </CardHeader>
             <CardContent>
               <div className="text-sm text-muted-foreground mb-4">
-                Funds selected using our proprietary scoring algorithm considering performance, costs, and risk metrics.
+                Each fund corresponds to your asset allocation categories. Funds selected using our proprietary scoring algorithm.
               </div>
             </CardContent>
           </Card>
@@ -795,61 +844,6 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                     </li>
                   ))}
                 </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Timeline Tab */}
-        <TabsContent value="timeline" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-financial-accent" />
-                Investment Timeline & Milestones
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid gap-4">
-                  <div className="flex items-center gap-4 p-4 border rounded-lg">
-                    <div className="bg-financial-accent/10 p-2 rounded">
-                      <Target className="h-4 w-4 text-financial-accent" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">Phase 1 (Months 1-6): Foundation Building</h4>
-                      <p className="text-sm text-muted-foreground">• Start SIP investments • Build emergency fund (6 months expenses) • Complete KYC and account setup • Establish investment discipline</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 p-4 border rounded-lg">
-                    <div className="bg-financial-accent/10 p-2 rounded">
-                      <BarChart3 className="h-4 w-4 text-financial-accent" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">Phase 2 (Year 1-3): Growth & Monitoring</h4>
-                      <p className="text-sm text-muted-foreground">• Monitor portfolio performance monthly • Rebalance quarterly if needed • Increase SIP amount by 10-15% annually • Review and adjust goals</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 p-4 border rounded-lg">
-                    <div className="bg-financial-accent/10 p-2 rounded">
-                      <TrendingUp className="h-4 w-4 text-financial-accent" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">Phase 3 (Year 3+): Optimization & Wealth Building</h4>
-                      <p className="text-sm text-muted-foreground">• Optimize for tax efficiency • Consider advanced investment options • Review and update financial goals • Plan for wealth preservation strategies</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2">Key Milestones to Track:</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• <strong>6 Months:</strong> Emergency fund fully established</li>
-                    <li>• <strong>1 Year:</strong> All SIPs running smoothly, first portfolio review</li>
-                    <li>• <strong>3 Years:</strong> Significant corpus build-up, goal reassessment</li>
-                    <li>• <strong>5 Years:</strong> Mid-term goals achievement, strategy refinement</li>
-                  </ul>
-                </div>
               </div>
             </CardContent>
           </Card>
