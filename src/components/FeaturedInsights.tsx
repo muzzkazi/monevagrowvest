@@ -7,6 +7,7 @@ import ContactFormModal from "@/components/ContactFormModal";
 
 const FeaturedInsights = () => {
   const [showContactForm, setShowContactForm] = useState(false);
+  const [actionType, setActionType] = useState<"download" | "implement" | "subscribe" | "webinar">("subscribe");
   
   const insights = [
     {
@@ -97,7 +98,10 @@ const FeaturedInsights = () => {
             <Button 
               variant="outline" 
               className="border-financial-primary text-financial-primary hover:bg-financial-primary hover:text-white"
-              onClick={() => setShowContactForm(true)}
+              onClick={() => {
+                setActionType("subscribe");
+                setShowContactForm(true);
+              }}
             >
               Subscribe Free
             </Button>
@@ -119,7 +123,14 @@ const FeaturedInsights = () => {
             <Clock className="w-12 h-12 text-financial-accent mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">Weekly Webinars</h3>
             <p className="text-muted-foreground text-sm mb-4">Join our live sessions on investment strategies</p>
-            <Button variant="outline" className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+            <Button 
+              variant="outline" 
+              className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"
+              onClick={() => {
+                setActionType("webinar");
+                setShowContactForm(true);
+              }}
+            >
               Join Live
             </Button>
           </Card>
@@ -129,7 +140,7 @@ const FeaturedInsights = () => {
       <ContactFormModal
         isOpen={showContactForm}
         onClose={() => setShowContactForm(false)}
-        actionType="subscribe"
+        actionType={actionType}
       />
     </section>
   );

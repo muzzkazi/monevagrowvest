@@ -10,7 +10,7 @@ import { Phone, Mail, User, FileText } from "lucide-react";
 interface ContactFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  actionType: "download" | "implement" | "subscribe";
+  actionType: "download" | "implement" | "subscribe" | "webinar";
 }
 
 const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps) => {
@@ -109,6 +109,8 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
           ? "Your report will be sent to your email shortly. Our advisor will contact you within 24 hours."
           : actionType === "subscribe"
           ? "Welcome! You'll start receiving market updates and insights in your inbox. Our advisor may also reach out with personalized recommendations."
+          : actionType === "webinar"
+          ? "Registration successful! You'll receive the webinar link and schedule details via email. Our team will also contact you with additional resources."
           : "Thank you for your interest! Our financial advisor will contact you within 2 hours to discuss your investment strategy."
       });
 
@@ -140,9 +142,11 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
           <DialogTitle className="flex items-center gap-2">
             {actionType === "download" ? <FileText className="h-5 w-5" /> : 
              actionType === "subscribe" ? <Mail className="h-5 w-5" /> : 
+             actionType === "webinar" ? <Phone className="h-5 w-5" /> :
              <User className="h-5 w-5" />}
             {actionType === "download" ? "Download Investment Report" : 
              actionType === "subscribe" ? "Subscribe to Market Updates" :
+             actionType === "webinar" ? "Join Live Investment Webinar" :
              "Start Your AI-Recommended Investment Plan"}
           </DialogTitle>
           <DialogDescription>
@@ -150,6 +154,8 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
               ? "Get your detailed investment report and personalized guidance from our advisors."
               : actionType === "subscribe"
               ? "Get daily market updates, fund performance reports, and expert insights delivered to your inbox."
+              : actionType === "webinar"
+              ? "Register for our weekly live sessions where our experts share investment strategies and market insights. Get your questions answered in real-time."
               : "Connect with our SEBI-certified advisors to implement your AI-generated investment strategy and start your wealth building journey."}
           </DialogDescription>
         </DialogHeader>
@@ -245,6 +251,7 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
               {isSubmitting ? "Submitting..." : 
                actionType === "download" ? "Get Report" : 
                actionType === "subscribe" ? "Subscribe Now" : 
+               actionType === "webinar" ? "Register Now" :
                "Get Started"}
             </Button>
           </div>
