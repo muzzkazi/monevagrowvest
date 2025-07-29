@@ -18,9 +18,9 @@ const AnimatedGrowthCurve = () => {
         viewBox="0 0 600 400"
         className="overflow-visible"
       >
-        {/* Main wavy growth curve path - matches the reference image exactly */}
+        {/* Main wavy growth curve path - exactly matching the red highlighted reference */}
         <path
-          d="M 80 350 Q 120 320 160 330 Q 200 340 240 310 Q 280 280 320 290 Q 360 300 400 270 Q 440 240 480 200 Q 520 160 560 120"
+          d="M 80 350 L 140 300 Q 180 280 220 320 Q 260 360 320 280 Q 380 200 420 240 Q 460 280 520 120"
           fill="none"
           stroke="url(#growthGradient)"
           strokeWidth="12"
@@ -42,7 +42,7 @@ const AnimatedGrowthCurve = () => {
         
         {/* End point circle */}
         <circle
-          cx="560"
+          cx="520"
           cy="120"
           r="16"
           fill="#16a34a"
@@ -53,7 +53,7 @@ const AnimatedGrowthCurve = () => {
         
         {/* Pulsing effect on the circle */}
         <circle
-          cx="560"
+          cx="520"
           cy="120"
           r="16"
           fill="none"
