@@ -308,7 +308,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                     <div className="flex justify-between items-center">
                       <span className="font-medium">{asset.category}</span>
                       <span className="text-sm text-muted-foreground">
-                        {asset.percentage}% (₹{asset.amount.toLocaleString()})
+                        {asset.percentage}% ({formatCurrency(asset.amount)})
                       </span>
                     </div>
                     <Progress value={asset.percentage} className="h-2" />
@@ -357,7 +357,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                     <div className="flex items-center gap-4 text-sm">
                       <span><strong>Allocation:</strong> {rec.allocation}%</span>
                       <span><strong>Expected Return:</strong> {rec.expectedReturn}</span>
-                      {rec.sipAmount && <span><strong>Monthly SIP:</strong> ₹{rec.sipAmount.toLocaleString()}</span>}
+                      {rec.sipAmount && <span><strong>Monthly SIP:</strong> {formatCurrency(rec.sipAmount)}</span>}
                     </div>
                   </div>
                 </div>

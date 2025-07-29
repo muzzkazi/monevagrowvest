@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Plus, Trash2, Home, GraduationCap, Car, Plane, PiggyBank } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { formatCurrency, parseCommaNumber, formatInputValue } from "@/lib/utils";
 
 interface FinancialGoal {
   id: string;
@@ -33,6 +34,8 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
     priority: 5,
     currentSavings: 0
   });
+  const [targetAmountInput, setTargetAmountInput] = useState("");
+  const [currentSavingsInput, setCurrentSavingsInput] = useState("");
 
   const goalCategories = [
     { value: "retirement", label: "Retirement", icon: PiggyBank },
@@ -68,6 +71,8 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
       priority: 5,
       currentSavings: 0
     });
+    setTargetAmountInput("");
+    setCurrentSavingsInput("");
 
     toast({
       title: "Goal Added",
@@ -96,13 +101,7 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
     onComplete(goals);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+  // formatCurrency is now imported from utils
 
   return (
     <div className="space-y-6">
@@ -147,20 +146,28 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
               <Label htmlFor="targetAmount">Target Amount (₹) *</Label>
               <Input
                 id="targetAmount"
-                type="number"
-                placeholder="1000000"
-                value={newGoal.targetAmount || ""}
-                onChange={(e) => setNewGoal({ ...newGoal, targetAmount: Number(e.target.value) })}
+                type="text"
+                placeholder="10,00,000"
+                value={targetAmountInput}
+                onChange={(e) => {
+                  const formatted = formatInputValue(e.target.value);
+                  setTargetAmountInput(formatted);
+                  setNewGoal({ ...newGoal, targetAmount: parseCommaNumber(formatted) });
+                }}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="currentSavings">Current Savings (₹)</Label>
               <Input
                 id="currentSavings"
-                type="number"
-                placeholder="100000"
-                value={newGoal.currentSavings || ""}
-                onChange={(e) => setNewGoal({ ...newGoal, currentSavings: Number(e.target.value) })}
+                type="text"
+                placeholder="1,00,000"
+                value={currentSavingsInput}
+                onChange={(e) => {
+                  const formatted = formatInputValue(e.target.value);
+                  setCurrentSavingsInput(formatted);
+                  setNewGoal({ ...newGoal, currentSavings: parseCommaNumber(formatted) });
+                }}
               />
             </div>
           </div>

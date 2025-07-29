@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Shield, Star, Target } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 
 interface PortfolioProps {
   monthlyAmount: number;
@@ -64,7 +65,7 @@ const MutualFundPortfolio = ({ monthlyAmount, years, expectedReturn }: Portfolio
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-financial-accent">{fund.allocation}%</p>
-                  <p className="text-xs text-muted-foreground">₹{Math.round(monthlyAmount * fund.allocation / 100).toLocaleString()}/month</p>
+                  <p className="text-xs text-muted-foreground">{formatCurrency(Math.round(monthlyAmount * fund.allocation / 100))}/month</p>
                 </div>
               </div>
             ))}
@@ -74,7 +75,7 @@ const MutualFundPortfolio = ({ monthlyAmount, years, expectedReturn }: Portfolio
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-financial-secondary">Projected Portfolio Value</p>
-                <p className="text-2xl font-bold text-financial-primary">₹{projectedValue.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-financial-primary">{formatCurrency(projectedValue)}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-financial-accent" />
             </div>

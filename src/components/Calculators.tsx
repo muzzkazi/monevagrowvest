@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import MutualFundPortfolio from "./MutualFundPortfolio";
+import { formatCurrency, formatNumber, parseCommaNumber, formatInputValue } from "@/lib/utils";
 
 const Calculators = () => {
   // SIP Calculator State
@@ -33,6 +34,8 @@ const Calculators = () => {
   // Tax Calculator State
   const [income, setIncome] = useState(800000);
   const [deductions, setDeductions] = useState(150000);
+  const [incomeInput, setIncomeInput] = useState("8,00,000");
+  const [deductionsInput, setDeductionsInput] = useState("1,50,000");
   const [taxResult, setTaxResult] = useState<{
     taxableIncome: number;
     incomeTax: number;
@@ -174,7 +177,7 @@ const Calculators = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label>Monthly Investment: ₹{monthlyAmount.toLocaleString()}</Label>
+                    <Label>Monthly Investment: {formatCurrency(monthlyAmount)}</Label>
                     <Slider
                       value={[monthlyAmount]}
                       onValueChange={([value]) => setMonthlyAmount(value)}
@@ -240,24 +243,24 @@ const Calculators = () => {
                   <CardContent>
                     <div className="space-y-6">
                       <div className="grid grid-cols-3 gap-4 text-center">
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Total Investment</p>
-                          <p className="text-lg font-semibold">
-                            ₹{sipResult.totalInvestment.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Wealth Gain</p>
-                          <p className="text-lg font-semibold text-green-600">
-                            ₹{sipResult.wealthGain.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Maturity Amount</p>
-                          <p className="text-lg font-semibold text-primary">
-                            ₹{sipResult.maturityAmount.toLocaleString()}
-                          </p>
-                        </div>
+                         <div className="p-4 bg-secondary/50 rounded-lg">
+                           <p className="text-sm text-muted-foreground">Total Investment</p>
+                           <p className="text-lg font-semibold">
+                             {formatCurrency(sipResult.totalInvestment)}
+                           </p>
+                         </div>
+                         <div className="p-4 bg-secondary/50 rounded-lg">
+                           <p className="text-sm text-muted-foreground">Wealth Gain</p>
+                           <p className="text-lg font-semibold text-green-600">
+                             {formatCurrency(sipResult.wealthGain)}
+                           </p>
+                         </div>
+                         <div className="p-4 bg-secondary/50 rounded-lg">
+                           <p className="text-sm text-muted-foreground">Maturity Amount</p>
+                           <p className="text-lg font-semibold text-primary">
+                             {formatCurrency(sipResult.maturityAmount)}
+                           </p>
+                         </div>
                       </div>
 
                       <div className="h-64">
@@ -277,7 +280,7 @@ const Calculators = () => {
                               <Cell fill="#8884d8" />
                               <Cell fill="#82ca9d" />
                             </Pie>
-                            <Tooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
+                            <Tooltip formatter={(value: number) => formatCurrency(value)} />
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
@@ -309,7 +312,7 @@ const Calculators = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label>Loan Amount: ₹{loanAmount.toLocaleString()}</Label>
+                    <Label>Loan Amount: {formatCurrency(loanAmount)}</Label>
                     <Slider
                       value={[loanAmount]}
                       onValueChange={([value]) => setLoanAmount(value)}
@@ -370,24 +373,24 @@ const Calculators = () => {
                   <CardContent>
                     <div className="space-y-6">
                       <div className="grid grid-cols-3 gap-4 text-center">
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Monthly EMI</p>
-                          <p className="text-lg font-semibold text-primary">
-                            ₹{emiResult.emi.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Total Interest</p>
-                          <p className="text-lg font-semibold text-red-600">
-                            ₹{emiResult.totalInterest.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Total Amount</p>
-                          <p className="text-lg font-semibold">
-                            ₹{emiResult.totalAmount.toLocaleString()}
-                          </p>
-                        </div>
+                         <div className="p-4 bg-secondary/50 rounded-lg">
+                           <p className="text-sm text-muted-foreground">Monthly EMI</p>
+                           <p className="text-lg font-semibold text-primary">
+                             {formatCurrency(emiResult.emi)}
+                           </p>
+                         </div>
+                         <div className="p-4 bg-secondary/50 rounded-lg">
+                           <p className="text-sm text-muted-foreground">Total Interest</p>
+                           <p className="text-lg font-semibold text-red-600">
+                             {formatCurrency(emiResult.totalInterest)}
+                           </p>
+                         </div>
+                         <div className="p-4 bg-secondary/50 rounded-lg">
+                           <p className="text-sm text-muted-foreground">Total Amount</p>
+                           <p className="text-lg font-semibold">
+                             {formatCurrency(emiResult.totalAmount)}
+                           </p>
+                         </div>
                       </div>
 
                       <div className="h-64">
@@ -407,7 +410,7 @@ const Calculators = () => {
                               <Cell fill="#8884d8" />
                               <Cell fill="#ff8042" />
                             </Pie>
-                            <Tooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
+                            <Tooltip formatter={(value: number) => formatCurrency(value)} />
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
@@ -428,26 +431,34 @@ const Calculators = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="income">Annual Income (₹)</Label>
-                    <Input
-                      id="income"
-                      type="number"
-                      value={income}
-                      onChange={(e) => setIncome(Number(e.target.value))}
-                      placeholder="800000"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="deductions">Deductions (₹)</Label>
-                    <Input
-                      id="deductions"
-                      type="number"
-                      value={deductions}
-                      onChange={(e) => setDeductions(Number(e.target.value))}
-                      placeholder="150000"
-                    />
-                  </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="income">Annual Income (₹)</Label>
+                     <Input
+                       id="income"
+                       type="text"
+                       value={incomeInput}
+                       onChange={(e) => {
+                         const formatted = formatInputValue(e.target.value);
+                         setIncomeInput(formatted);
+                         setIncome(parseCommaNumber(formatted));
+                       }}
+                       placeholder="8,00,000"
+                     />
+                   </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="deductions">Deductions (₹)</Label>
+                     <Input
+                       id="deductions"
+                       type="text"
+                       value={deductionsInput}
+                       onChange={(e) => {
+                         const formatted = formatInputValue(e.target.value);
+                         setDeductionsInput(formatted);
+                         setDeductions(parseCommaNumber(formatted));
+                       }}
+                       placeholder="1,50,000"
+                     />
+                   </div>
                   <Button onClick={calculateTax} className="w-full">
                     Calculate Tax
                   </Button>
@@ -461,24 +472,24 @@ const Calculators = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-3 gap-4 text-center">
-                      <div className="p-4 bg-secondary/50 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Taxable Income</p>
-                        <p className="text-lg font-semibold">
-                          ₹{taxResult.taxableIncome.toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-secondary/50 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Income Tax</p>
-                        <p className="text-lg font-semibold text-red-600">
-                          ₹{taxResult.incomeTax.toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-secondary/50 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Net Income</p>
-                        <p className="text-lg font-semibold text-green-600">
-                          ₹{taxResult.netIncome.toLocaleString()}
-                        </p>
-                      </div>
+                       <div className="p-4 bg-secondary/50 rounded-lg">
+                         <p className="text-sm text-muted-foreground">Taxable Income</p>
+                         <p className="text-lg font-semibold">
+                           {formatCurrency(taxResult.taxableIncome)}
+                         </p>
+                       </div>
+                       <div className="p-4 bg-secondary/50 rounded-lg">
+                         <p className="text-sm text-muted-foreground">Income Tax</p>
+                         <p className="text-lg font-semibold text-red-600">
+                           {formatCurrency(taxResult.incomeTax)}
+                         </p>
+                       </div>
+                       <div className="p-4 bg-secondary/50 rounded-lg">
+                         <p className="text-sm text-muted-foreground">Net Income</p>
+                         <p className="text-lg font-semibold text-green-600">
+                           {formatCurrency(taxResult.netIncome)}
+                         </p>
+                       </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -529,7 +540,7 @@ const Calculators = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label>Monthly Expenses: ₹{monthlyExpenses.toLocaleString()}</Label>
+                    <Label>Monthly Expenses: {formatCurrency(monthlyExpenses)}</Label>
                     <Slider
                       value={[monthlyExpenses]}
                       onValueChange={([value]) => setMonthlyExpenses(value)}
@@ -596,31 +607,31 @@ const Calculators = () => {
                             {retirementResult.yearsToRetirement} years
                           </p>
                         </div>
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Future Monthly Expenses</p>
-                          <p className="text-lg font-semibold text-orange-600">
-                            ₹{retirementResult.futureExpenses.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Corpus Required</p>
-                          <p className="text-lg font-semibold text-primary">
-                            ₹{retirementResult.corpusRequired.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Monthly SIP Required</p>
-                          <p className="text-lg font-semibold text-green-600">
-                            ₹{retirementResult.monthlySip.toLocaleString()}
-                          </p>
-                        </div>
+                         <div className="p-4 bg-secondary/50 rounded-lg">
+                           <p className="text-sm text-muted-foreground">Future Monthly Expenses</p>
+                           <p className="text-lg font-semibold text-orange-600">
+                             {formatCurrency(retirementResult.futureExpenses)}
+                           </p>
+                         </div>
+                         <div className="p-4 bg-secondary/50 rounded-lg">
+                           <p className="text-sm text-muted-foreground">Corpus Required</p>
+                           <p className="text-lg font-semibold text-primary">
+                             {formatCurrency(retirementResult.corpusRequired)}
+                           </p>
+                         </div>
+                         <div className="p-4 bg-secondary/50 rounded-lg">
+                           <p className="text-sm text-muted-foreground">Monthly SIP Required</p>
+                           <p className="text-lg font-semibold text-green-600">
+                             {formatCurrency(retirementResult.monthlySip)}
+                           </p>
+                         </div>
                       </div>
 
                       <div className="p-4 bg-secondary/20 rounded-lg">
                         <h4 className="font-semibold mb-2">Retirement Summary</h4>
                         <ul className="space-y-1 text-sm text-muted-foreground">
-                          <li>• Start investing ₹{retirementResult.monthlySip.toLocaleString()} monthly</li>
-                          <li>• Build a corpus of ₹{retirementResult.corpusRequired.toLocaleString()}</li>
+                           <li>• Start investing {formatCurrency(retirementResult.monthlySip)} monthly</li>
+                           <li>• Build a corpus of {formatCurrency(retirementResult.corpusRequired)}</li>
                           <li>• Maintain {retirementReturn}% annual returns</li>
                           <li>• Account for {inflationRate}% inflation</li>
                         </ul>
