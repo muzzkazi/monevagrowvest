@@ -192,16 +192,59 @@ const AIPlanning = () => {
           </TabsContent>
         </Tabs>
 
+        {/* Financial Disclaimers */}
+        <div className="mt-12">
+          <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                <AlertCircle className="h-5 w-5" />
+                Important Financial Disclaimers
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm text-amber-800 dark:text-amber-300">
+              <div className="space-y-3">
+                <p>
+                  <strong>SEBI Compliance:</strong> This platform provides financial planning tools and information for educational purposes only. We are not SEBI registered investment advisors. All investment recommendations are AI-generated suggestions and should not be considered as professional financial advice.
+                </p>
+                
+                <p>
+                  <strong>Risk Warning:</strong> All investments in mutual funds, stocks, and other financial instruments are subject to market risks. Past performance does not guarantee future returns. The value of investments can go up or down, and you may not get back the original amount invested.
+                </p>
+                
+                <p>
+                  <strong>No Guarantee:</strong> The calculations, projections, and recommendations provided by our AI tool are based on assumptions and historical data. Actual returns may vary significantly due to market volatility, economic conditions, and other factors beyond our control.
+                </p>
+                
+                <p>
+                  <strong>Professional Advice:</strong> Before making any investment decisions, please consult with a qualified SEBI registered investment advisor or financial planner who can provide personalized advice based on your complete financial situation.
+                </p>
+                
+                <p>
+                  <strong>Accuracy of Information:</strong> While we strive to provide accurate information, we do not warrant the completeness or accuracy of the data. Users should independently verify all information before making investment decisions.
+                </p>
+                
+                <p>
+                  <strong>Regulatory Compliance:</strong> This platform operates in compliance with applicable Indian financial regulations. We recommend consulting the latest SEBI guidelines and tax laws before investing.
+                </p>
+                
+                <p>
+                  <strong>Tax Implications:</strong> Tax benefits mentioned are subject to current tax laws and may change. Please consult a tax advisor for personalized tax planning advice.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Call to Action */}
-        <div className="mt-12 text-center">
+        <div className="mt-8 text-center">
           <Card className="bg-gradient-to-r from-financial-accent/10 to-financial-gold/10 border-financial-accent/20">
             <CardContent className="pt-6">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <AlertCircle className="h-5 w-5 text-financial-accent" />
+                <TrendingUp className="h-5 w-5 text-financial-accent" />
                 <h3 className="text-lg font-semibold">Ready to Start Investing?</h3>
               </div>
               <p className="text-muted-foreground mb-6">
-                Complete your AI-driven financial plan and get started with personalized investment recommendations.
+                Complete your AI-driven financial plan and get started with personalized investment recommendations from qualified advisors.
               </p>
               <Button 
                 size="lg" 

@@ -47,8 +47,20 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-white/20 pt-8 text-center text-white/60">
-          <p>&copy; 2024 Moneva. All rights reserved. | Privacy Policy | Terms of Service</p>
+        <div className="border-t border-white/20 pt-8">
+          <div className="text-center mb-6">
+            <p className="text-white/60 text-sm mb-3">
+              <strong>Regulatory Disclaimer:</strong> Investment advice provided on this platform is for educational purposes only. 
+              We are not SEBI registered advisors. Please consult qualified professionals before investing. 
+              Mutual fund investments are subject to market risks.
+            </p>
+            <p className="text-white/60 text-xs">
+              ARN: Not applicable | This platform does not charge any fees for mutual fund recommendations
+            </p>
+          </div>
+          <div className="text-center text-white/60">
+            <p>&copy; 2024 Moneva. All rights reserved. | Privacy Policy | Terms of Service</p>
+          </div>
         </div>
       </div>
     </footer>
