@@ -66,7 +66,7 @@ const SecondaryBand = () => {
     <div className="bg-financial-primary text-white pt-4 pb-2 w-full z-20 relative overflow-hidden mt-4 flex flex-col justify-center">
       {/* First line - Indices */}
       <div className="relative mb-2 overflow-hidden">
-        <div className="flex animate-[scroll_25s_linear_infinite] will-change-transform">
+        <div className="flex animate-scroll will-change-transform">
           {/* First set of indices */}
           {indices.map((item, index) => {
             const isPositive = !item.change.startsWith('-');
@@ -104,7 +104,7 @@ const SecondaryBand = () => {
 
       {/* Second line - NIFTY 50 Stocks */}
       <div className="relative overflow-hidden">
-        <div className="flex animate-[scroll_40s_linear_infinite] will-change-transform">
+        <div className="flex animate-scroll-fast will-change-transform">
           {/* First set of stocks */}
           {nifty50Stocks.map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
