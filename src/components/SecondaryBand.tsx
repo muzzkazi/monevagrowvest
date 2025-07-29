@@ -66,12 +66,12 @@ const SecondaryBand = () => {
     <div className="bg-financial-primary text-white pt-4 pb-2 w-full z-20 relative overflow-hidden mt-4 flex flex-col justify-center">
       {/* First line - Indices */}
       <div className="relative mb-2 overflow-hidden">
-        <div className="flex animate-[scroll_30s_linear_infinite]">
+        <div className="flex animate-[scroll_25s_linear_infinite] will-change-transform">
           {/* First set of indices */}
           {indices.map((item, index) => {
             const isPositive = !item.change.startsWith('-');
             return (
-              <div key={`first-${index}`} className="flex items-center gap-2 px-8 whitespace-nowrap">
+              <div key={`first-${index}`} className="flex items-center gap-2 px-8 whitespace-nowrap flex-shrink-0">
                 <span className="font-medium text-sm">{item.name}</span>
                 <span className="text-base font-bold">{item.value}</span>
                 <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
@@ -83,11 +83,11 @@ const SecondaryBand = () => {
               </div>
             );
           })}
-          {/* Duplicate set for seamless loop */}
+          {/* Second set for seamless loop */}
           {indices.map((item, index) => {
             const isPositive = !item.change.startsWith('-');
             return (
-              <div key={`second-${index}`} className="flex items-center gap-2 px-8 whitespace-nowrap">
+              <div key={`second-${index}`} className="flex items-center gap-2 px-8 whitespace-nowrap flex-shrink-0">
                 <span className="font-medium text-sm">{item.name}</span>
                 <span className="text-base font-bold">{item.value}</span>
                 <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
@@ -104,12 +104,12 @@ const SecondaryBand = () => {
 
       {/* Second line - NIFTY 50 Stocks */}
       <div className="relative overflow-hidden">
-        <div className="flex animate-[scroll_15s_linear_infinite]">
+        <div className="flex animate-[scroll_60s_linear_infinite] will-change-transform">
           {/* First set of stocks */}
           {nifty50Stocks.map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
             return (
-              <div key={`stock-first-${index}`} className="flex items-center gap-2 px-4 whitespace-nowrap">
+              <div key={`stock-first-${index}`} className="flex items-center gap-2 px-4 whitespace-nowrap flex-shrink-0">
                 <span className="font-medium text-xs text-white/90">{stock.symbol}</span>
                 <span className="text-sm font-semibold">{stock.price}</span>
                 <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
@@ -119,11 +119,11 @@ const SecondaryBand = () => {
               </div>
             );
           })}
-          {/* Duplicate set for seamless loop */}
+          {/* Second set for seamless loop */}
           {nifty50Stocks.map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
             return (
-              <div key={`stock-second-${index}`} className="flex items-center gap-2 px-4 whitespace-nowrap">
+              <div key={`stock-second-${index}`} className="flex items-center gap-2 px-4 whitespace-nowrap flex-shrink-0">
                 <span className="font-medium text-xs text-white/90">{stock.symbol}</span>
                 <span className="text-sm font-semibold">{stock.price}</span>
                 <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
