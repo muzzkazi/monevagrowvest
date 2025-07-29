@@ -43,7 +43,7 @@ const Contact = () => {
     {
       icon: Mail,
       title: "Email Addresses",
-      details: ["info@moneva.in", "support@moneva.in"],
+      details: ["invest@moneva.in", "support@moneva.in"],
       color: "text-purple-600"
     },
     {
