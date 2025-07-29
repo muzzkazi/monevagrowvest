@@ -55,6 +55,7 @@ export default {
 				financial: {
 					primary: 'hsl(var(--financial-primary))',
 					secondary: 'hsl(var(--financial-secondary))',
+					dark: 'hsl(var(--financial-dark))',
 					gold: 'hsl(var(--financial-gold))',
 					'gold-light': 'hsl(var(--financial-gold-light))',
 					accent: 'hsl(var(--financial-accent))',

@@ -39,6 +39,7 @@ All colors MUST be HSL.
     /* Premium financial color palette */
     --financial-primary: 222 47% 11%;
     --financial-secondary: 210 20% 25%;
+    --financial-dark: 222 47% 6%;
     --financial-gold: 45 93% 58%;
     --financial-gold-light: 48 96% 89%;
     --financial-accent: 213 84% 58%;
@@ -109,6 +110,7 @@ All colors MUST be HSL.
     /* Dark mode financial colors */
     --financial-primary: 48 96% 89%;
     --financial-secondary: 210 40% 90%;
+    --financial-dark: 222 47% 3%;
     --financial-gold: 45 93% 58%;
     --financial-gold-light: 48 96% 89%;
     --financial-accent: 213 84% 68%;
@@ -127,6 +129,19 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .animate-scroll {
+    animation: scroll 30s linear infinite;
   }
 }
 
