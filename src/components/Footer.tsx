@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import monevaLogo from "@/assets/moneva-logo.svg";
 
 const Footer = () => {
   return (
@@ -7,10 +8,11 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-gold rounded-lg flex items-center justify-center">
-                <span className="text-financial-primary font-bold text-lg">M</span>
-              </div>
-              <span className="text-2xl font-bold">Moneva</span>
+              <img 
+                src={monevaLogo} 
+                alt="Moneva" 
+                className="h-10 w-auto"
+              />
             </div>
             <p className="text-white/70">
               Your trusted partner in financial planning and wealth management.
