@@ -18,6 +18,7 @@ import {
   BookOpen
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ContactFormModal from "../ContactFormModal";
 
 interface FinancialGoal {
   id: string;
@@ -58,6 +59,8 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(true);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [actionType, setActionType] = useState<"download" | "implement">("download");
 
   // Calculate total investment needed from goals
   const totalInvestmentNeeded = goals.reduce((total, goal) => {
@@ -182,18 +185,13 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
   }, []);
 
   const handleImplementPlan = () => {
-    toast({
-      title: "Investment Plan Ready",
-      description: "Your personalized investment strategy has been prepared. Contact us to start investing."
-    });
-    onComplete();
+    setActionType("implement");
+    setShowContactForm(true);
   };
 
   const handleDownloadReport = () => {
-    toast({
-      title: "Report Downloaded",
-      description: "Your detailed investment report has been downloaded."
-    });
+    setActionType("download");
+    setShowContactForm(true);
   };
 
   if (isGenerating) {
@@ -383,8 +381,8 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                       <Target className="h-4 w-4 text-financial-accent" />
                     </div>
                     <div>
-                      <h4 className="font-semibold">Month 1-3: Foundation</h4>
-                      <p className="text-sm text-muted-foreground">Start SIPs, build emergency fund, establish investment discipline</p>
+                      <h4 className="font-semibold">Phase 1 (Months 1-6): Foundation Building</h4>
+                      <p className="text-sm text-muted-foreground">• Start SIP investments • Build emergency fund (6 months expenses) • Complete KYC and account setup • Establish investment discipline</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 p-4 border rounded-lg">
@@ -392,8 +390,8 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                       <BarChart3 className="h-4 w-4 text-financial-accent" />
                     </div>
                     <div>
-                      <h4 className="font-semibold">Year 1-2: Growth Phase</h4>
-                      <p className="text-sm text-muted-foreground">Monitor performance, rebalance quarterly, increase SIP by 10% annually</p>
+                      <h4 className="font-semibold">Phase 2 (Year 1-3): Growth & Monitoring</h4>
+                      <p className="text-sm text-muted-foreground">• Monitor portfolio performance monthly • Rebalance quarterly if needed • Increase SIP amount by 10-15% annually • Review and adjust goals</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 p-4 border rounded-lg">
@@ -401,10 +399,20 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                       <TrendingUp className="h-4 w-4 text-financial-accent" />
                     </div>
                     <div>
-                      <h4 className="font-semibold">Year 3+: Optimization</h4>
-                      <p className="text-sm text-muted-foreground">Review goals, optimize tax strategy, consider advanced investments</p>
+                      <h4 className="font-semibold">Phase 3 (Year 3+): Optimization & Wealth Building</h4>
+                      <p className="text-sm text-muted-foreground">• Optimize for tax efficiency • Consider advanced investment options • Review and update financial goals • Plan for wealth preservation strategies</p>
                     </div>
                   </div>
+                </div>
+                
+                <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2">Key Milestones to Track:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• <strong>6 Months:</strong> Emergency fund fully established</li>
+                    <li>• <strong>1 Year:</strong> All SIPs running smoothly, first portfolio review</li>
+                    <li>• <strong>3 Years:</strong> Significant corpus build-up, goal reassessment</li>
+                    <li>• <strong>5 Years:</strong> Mid-term goals achievement, strategy refinement</li>
+                  </ul>
                 </div>
               </div>
             </CardContent>
@@ -448,6 +456,13 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
           </div>
         </CardContent>
       </Card>
+
+      {/* Contact Form Modal */}
+      <ContactFormModal 
+        isOpen={showContactForm}
+        onClose={() => setShowContactForm(false)}
+        actionType={actionType}
+      />
     </div>
   );
 };
