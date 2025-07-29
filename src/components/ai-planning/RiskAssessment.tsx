@@ -66,12 +66,12 @@ const RiskAssessment = ({ onComplete }: RiskAssessmentProps) => {
     },
     {
       id: 5,
-      question: "How long can you keep your money invested?",
+      question: "What is your preferred investment time horizon? (How long do you plan to stay invested before needing the money)",
       options: [
-        { value: 1, text: "Less than 2 years - I may need the money soon" },
-        { value: 2, text: "2-5 years - Medium term investment" },
-        { value: 3, text: "5-10 years - Long term investment" },
-        { value: 4, text: "More than 10 years - Very long term investment" }
+        { value: 1, text: "Short term (Less than 2 years) - I may need the money soon" },
+        { value: 2, text: "Medium term (2-5 years) - Planning for a specific goal" },
+        { value: 3, text: "Long term (5-10 years) - Building wealth for future needs" },
+        { value: 4, text: "Very long term (10+ years) - Long-term wealth creation" }
       ]
     },
     {
@@ -260,7 +260,7 @@ const RiskAssessment = ({ onComplete }: RiskAssessmentProps) => {
         </CardHeader>
         <CardContent>
           <RadioGroup
-            value={answers[currentQuestion]?.toString()}
+            value={answers[currentQuestion]?.toString() || ""}
             onValueChange={(value) => handleAnswer(parseInt(value))}
             className="space-y-4"
           >
