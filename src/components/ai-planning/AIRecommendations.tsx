@@ -15,10 +15,12 @@ import {
   AlertCircle,
   CheckCircle,
   Download,
-  BookOpen
+  BookOpen,
+  LineChart
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ContactFormModal from "../ContactFormModal";
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 interface FinancialGoal {
   id: string;
@@ -114,6 +116,58 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
     amount: Math.round((totalInvestmentNeeded * asset.percentage) / 100)
   }));
 
+  // Generate investment projection data
+  const generateProjectionData = () => {
+    const maxTimeHorizon = Math.max(...goals.map(g => g.timeHorizon));
+    const data = [];
+    
+    // Expected annual return based on risk profile
+    const expectedReturns = {
+      Conservative: 8.5,
+      Moderate: 11,
+      Balanced: 13,
+      Aggressive: 15
+    };
+    
+    const annualReturn = expectedReturns[riskProfile as keyof typeof expectedReturns] || 11;
+    const monthlyReturn = annualReturn / 100 / 12;
+    
+    for (let month = 0; month <= maxTimeHorizon * 12; month++) {
+      const year = month / 12;
+      const totalInvested = totalMonthlySIP * month;
+      
+      // Calculate portfolio value using compound interest formula for SIP
+      let portfolioValue = 0;
+      if (month > 0) {
+        portfolioValue = totalMonthlySIP * (((Math.pow(1 + monthlyReturn, month) - 1) / monthlyReturn) * (1 + monthlyReturn));
+      }
+      
+      data.push({
+        month,
+        year: parseFloat(year.toFixed(1)),
+        totalInvested: Math.round(totalInvested),
+        portfolioValue: Math.round(portfolioValue),
+        returns: Math.round(portfolioValue - totalInvested)
+      });
+    }
+    
+    return data;
+  };
+
+  const projectionData = generateProjectionData();
+
+  const formatCurrency = (value: number) => {
+    return `₹${(value / 100000).toFixed(1)}L`;
+  };
+
+  const formatTooltipCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0
+    }).format(value);
+  };
+
   const recommendations: Recommendation[] = [
     {
       id: "1",
@@ -203,7 +257,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
     );
   }
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrencyInCard = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -224,11 +278,11 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
             <div className="text-center">
-              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrency(totalInvestmentNeeded)}</h4>
+              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalInvestmentNeeded)}</h4>
               <p className="text-sm text-muted-foreground">Total Investment Needed</p>
             </div>
             <div className="text-center">
-              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrency(totalMonthlySIP)}</h4>
+              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalMonthlySIP)}</h4>
               <p className="text-sm text-muted-foreground">Monthly SIP Required</p>
             </div>
             <div className="text-center">
@@ -249,8 +303,8 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                     <span className="text-sm text-muted-foreground ml-2">({goal.timeHorizon} years)</span>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold">{formatCurrency(monthlyRequired)}/month</div>
-                    <div className="text-xs text-muted-foreground">Target: {formatCurrency(goal.targetAmount)}</div>
+                    <div className="font-semibold">{formatCurrencyInCard(monthlyRequired)}/month</div>
+                    <div className="text-xs text-muted-foreground">Target: {formatCurrencyInCard(goal.targetAmount)}</div>
                   </div>
                 </div>
               );
@@ -273,8 +327,9 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
       </div>
 
       <Tabs defaultValue="allocation" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="allocation">Asset Allocation</TabsTrigger>
+          <TabsTrigger value="projection">Growth Projection</TabsTrigger>
           <TabsTrigger value="recommendations">Fund Selection</TabsTrigger>
           <TabsTrigger value="timeline">Investment Timeline</TabsTrigger>
         </TabsList>
@@ -295,7 +350,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                     <div className="flex justify-between items-center">
                       <span className="font-medium">{asset.category}</span>
                       <span className="text-sm text-muted-foreground">
-                        {asset.percentage}% ({formatCurrency(asset.amount)})
+                        {asset.percentage}% ({formatCurrencyInCard(asset.amount)})
                       </span>
                     </div>
                     <Progress value={asset.percentage} className="h-2" />
@@ -344,13 +399,110 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                     <div className="flex items-center gap-4 text-sm">
                       <span><strong>Allocation:</strong> {rec.allocation}%</span>
                       <span><strong>Expected Return:</strong> {rec.expectedReturn}</span>
-                      {rec.sipAmount && <span><strong>Monthly SIP:</strong> {formatCurrency(rec.sipAmount)}</span>}
+                      {rec.sipAmount && <span><strong>Monthly SIP:</strong> {formatCurrencyInCard(rec.sipAmount)}</span>}
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
+        </TabsContent>
+
+        {/* Growth Projection Tab */}
+        <TabsContent value="projection" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <LineChart className="h-5 w-5 text-financial-accent" />
+                Investment Growth Projection
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsLineChart data={projectionData}>
+                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                    <XAxis 
+                      dataKey="year" 
+                      label={{ value: 'Years', position: 'insideBottom', offset: -5 }}
+                    />
+                    <YAxis 
+                      tickFormatter={formatCurrency}
+                      label={{ value: 'Amount', angle: -90, position: 'insideLeft' }}
+                    />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => [formatTooltipCurrency(value), name]}
+                      labelFormatter={(value) => `Year ${value}`}
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="totalInvested" 
+                      stroke="#10b981" 
+                      name="Total Invested"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="portfolioValue" 
+                      stroke="#3b82f6" 
+                      name="Expected Portfolio Value"
+                      strokeWidth={3}
+                      dot={false}
+                    />
+                    {goals.map((goal, index) => (
+                      <ReferenceLine 
+                        key={goal.id}
+                        x={goal.timeHorizon} 
+                        stroke="#f59e0b" 
+                        strokeDasharray="5 5"
+                        label={{ value: goal.name, position: "top" }}
+                      />
+                    ))}
+                  </RechartsLineChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-4 mt-6">
+                <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                  <h4 className="text-lg font-semibold text-green-700 dark:text-green-400">
+                    {formatTooltipCurrency(projectionData[projectionData.length - 1]?.totalInvested || 0)}
+                  </h4>
+                  <p className="text-sm text-muted-foreground">Total Investment</p>
+                </div>
+                <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                  <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-400">
+                    {formatTooltipCurrency(projectionData[projectionData.length - 1]?.portfolioValue || 0)}
+                  </h4>
+                  <p className="text-sm text-muted-foreground">Expected Portfolio Value</p>
+                </div>
+                <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg">
+                  <h4 className="text-lg font-semibold text-yellow-700 dark:text-yellow-400">
+                    {formatTooltipCurrency(projectionData[projectionData.length - 1]?.returns || 0)}
+                  </h4>
+                  <p className="text-sm text-muted-foreground">Expected Returns</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-blue-50 dark:bg-blue-950/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-blue-600 mt-1" />
+                <div>
+                  <h4 className="font-semibold mb-2">Key Insights from Your Projection</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Your investments are projected to grow at {riskProfile === 'Conservative' ? '8.5%' : riskProfile === 'Moderate' ? '11%' : riskProfile === 'Balanced' ? '13%' : '15%'} annually</li>
+                    <li>• The power of compounding becomes evident after 3-5 years</li>
+                    <li>• Consistent SIP investing helps average out market volatility</li>
+                    <li>• Regular review and rebalancing will help optimize returns</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Timeline Tab */}
