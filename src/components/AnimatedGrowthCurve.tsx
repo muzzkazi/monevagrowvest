@@ -18,15 +18,15 @@ const AnimatedGrowthCurve = () => {
         viewBox="0 0 600 400"
         className="overflow-visible"
       >
-        {/* M-shaped growth curve exactly matching the Moneva logo */}
+        {/* Perfect M-shaped curve matching Moneva logo exactly */}
         <path
-          d="M 80 350 Q 120 300 160 150 Q 200 100 240 200 Q 280 300 320 120 Q 360 80 400 100"
+          d="M 80 350 Q 120 320 160 180 Q 200 120 240 260 Q 280 320 320 180 Q 360 120 400 180"
           fill="none"
           stroke="url(#growthGradient)"
           strokeWidth="12"
           strokeLinecap="round"
-          strokeDasharray="800"
-          strokeDashoffset={isAnimating ? "0" : "800"}
+          strokeDasharray="900"
+          strokeDashoffset={isAnimating ? "0" : "900"}
           className="transition-all duration-[5000ms] ease-out"
         />
         
@@ -43,7 +43,7 @@ const AnimatedGrowthCurve = () => {
         {/* End point circle */}
         <circle
           cx="400"
-          cy="100"
+          cy="180"
           r="16"
           fill="#16a34a"
           className={`transition-all duration-500 delay-[4500ms] ${
@@ -54,7 +54,7 @@ const AnimatedGrowthCurve = () => {
         {/* Pulsing effect on the circle */}
         <circle
           cx="400"
-          cy="100"
+          cy="180"
           r="16"
           fill="none"
           stroke="#16a34a"
