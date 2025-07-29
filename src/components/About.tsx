@@ -5,14 +5,12 @@ import { useCountUp } from "@/hooks/useCountUp";
 const About = () => {
   const clientsCount = useCountUp({ end: 500, duration: 2000, suffix: "+" });
   const aumValue = useCountUp({ end: 12, duration: 2000, prefix: "₹", suffix: "Cr+" });
-  const returnsValue = useCountUp({ end: 12, duration: 2000, suffix: "%+" });
-  const researchValue = useCountUp({ end: 100, duration: 2000, suffix: "%" });
 
   const stats = [
-    { icon: Users2, value: clientsCount.value, label: "Happy Clients", description: "Satisfied investors across India", ref: clientsCount.ref },
-    { icon: TrendingUp, value: aumValue.value, label: "Assets Under Management", description: "Growing portfolio value", ref: aumValue.ref },
-    { icon: Award, value: returnsValue.value, label: "Average Returns", description: "Consistent performance track record", ref: returnsValue.ref },
-    { icon: Shield, value: researchValue.value, label: "Research Based", description: "Data-driven investment decisions", ref: researchValue.ref }
+    { icon: Users2, value: clientsCount.value, label: "Happy Clients", description: "Satisfied investors across India", ref: clientsCount.ref, animated: true },
+    { icon: TrendingUp, value: aumValue.value, label: "Assets Under Management", description: "Growing portfolio value", ref: aumValue.ref, animated: true },
+    { icon: Award, value: "12%+", label: "Average Returns", description: "Consistent performance track record", animated: false },
+    { icon: Shield, value: "100%", label: "Research Based", description: "Data-driven investment decisions", animated: false }
   ];
 
   const values = [
@@ -71,7 +69,7 @@ const About = () => {
               <Card key={index} className="bg-gradient-card border-0 shadow-card hover:shadow-financial transition-all duration-300">
                 <CardContent className="p-6 text-center">
                   <stat.icon className="w-8 h-8 text-financial-accent mx-auto mb-4" />
-                  <div ref={stat.ref} className="text-2xl font-bold text-financial-accent mb-2">{stat.value}</div>
+                  <div ref={stat.animated ? stat.ref : undefined} className="text-2xl font-bold text-financial-accent mb-2">{stat.value}</div>
                   <div className="text-sm font-medium text-foreground mb-2">{stat.label}</div>
                   <div className="text-xs text-muted-foreground">{stat.description}</div>
                 </CardContent>

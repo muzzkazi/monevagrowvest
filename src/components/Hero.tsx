@@ -5,7 +5,7 @@ import { useCountUp } from "@/hooks/useCountUp";
 const Hero = () => {
   const researchCount = useCountUp({ end: 100, suffix: '%', duration: 2000, delay: 500 });
   const clientsCount = useCountUp({ end: 500, suffix: '+', duration: 2500, delay: 800 });
-  const aumCount = useCountUp({ end: 50, prefix: '₹', suffix: 'Cr+', duration: 3000, delay: 1100 });
+  const aumCount = useCountUp({ end: 12, prefix: '₹', suffix: 'Cr+', duration: 3000, delay: 1100 });
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 1400 });
 
   return (
