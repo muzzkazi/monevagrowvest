@@ -106,14 +106,17 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
     return Math.round(monthlySIP);
   };
 
-  // Calculate total monthly SIP required using proper compound interest formula
-  const totalMonthlySIP = goals.reduce((total, goal) => {
-    const monthlyRequired = calculateMonthlySIP(goal.targetAmount, goal.currentSavings, goal.timeHorizon);
-    return total + monthlyRequired;
-  }, 0);
+  // Calculate individual SIPs for each goal
+  const goalSIPs = goals.map(goal => ({
+    ...goal,
+    monthlySIP: calculateMonthlySIP(goal.targetAmount, goal.currentSavings, goal.timeHorizon)
+  }));
 
-  // Calculate total investment needed (total SIP amount over time period)
-  const totalInvestmentNeeded = totalMonthlySIP * Math.max(...goals.map(g => g.timeHorizon)) * 12;
+  // Calculate total monthly SIP required using proper compound interest formula
+  const totalMonthlySIP = goalSIPs.reduce((total, goal) => total + goal.monthlySIP, 0);
+
+  // Calculate total target amount for all goals
+  const totalTargetAmount = goals.reduce((total, goal) => total + goal.targetAmount, 0);
 
   // Dynamic asset allocation based on risk profile
   const getRiskBasedAllocation = () => {
@@ -150,10 +153,10 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
 
   const assetAllocation = getRiskBasedAllocation();
   
-  // Calculate amounts for each allocation
+  // Calculate amounts for each allocation based on monthly SIP
   const assetAllocationWithAmounts: AssetAllocation[] = assetAllocation.map(asset => ({
     ...asset,
-    amount: Math.round((totalInvestmentNeeded * asset.percentage) / 100)
+    amount: Math.round((totalMonthlySIP * asset.percentage) / 100)
   }));
 
   // Fund database with comprehensive details
@@ -434,24 +437,23 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
             <div className="text-center">
-              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalInvestmentNeeded)}</h4>
-              <p className="text-sm text-muted-foreground">Total Investment Needed</p>
-            </div>
-            <div className="text-center">
               <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalMonthlySIP)}</h4>
               <p className="text-sm text-muted-foreground">Monthly SIP Required</p>
             </div>
             <div className="text-center">
-              <h4 className="text-2xl font-bold text-financial-accent">{goals.length}</h4>
-              <p className="text-sm text-muted-foreground">Financial Goals</p>
+              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalTargetAmount)}</h4>
+              <p className="text-sm text-muted-foreground">Total Target Amount</p>
+            </div>
+            <div className="text-center">
+              <h4 className="text-2xl font-bold text-financial-accent">{Math.max(...goals.map(g => g.timeHorizon))}</h4>
+              <p className="text-sm text-muted-foreground">Max Investment Horizon (Years)</p>
             </div>
           </div>
           
           {/* Individual Goal Breakdown */}
           <div className="space-y-3">
             <h4 className="font-semibold mb-3">Goal-wise SIP Breakdown:</h4>
-            {goals.map((goal) => {
-              const monthlyRequired = (goal.targetAmount - goal.currentSavings) / (goal.timeHorizon * 12);
+            {goalSIPs.map((goal) => {
               return (
                 <div key={goal.id} className="flex justify-between items-center p-3 bg-white/60 dark:bg-black/20 rounded-lg">
                   <div>
@@ -459,7 +461,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                     <span className="text-sm text-muted-foreground ml-2">({goal.timeHorizon} years)</span>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold">{formatCurrencyInCard(monthlyRequired)}/month</div>
+                    <div className="font-semibold">{formatCurrencyInCard(goal.monthlySIP)}/month</div>
                     <div className="text-xs text-muted-foreground">Target: {formatCurrencyInCard(goal.targetAmount)}</div>
                   </div>
                 </div>
