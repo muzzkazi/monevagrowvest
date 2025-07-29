@@ -44,7 +44,9 @@ const Footer = () => {
             <ul className="space-y-2 text-white/70">
               <li>contact@moneva.in</li>
               <li>+91-XXXX-XXXX-XXX</li>
-              <li>Mumbai, India</li>
+              <li>Unit no. 611, Reliables Pride</li>
+              <li>Anand Nagar Opp. Heera Panna</li>
+              <li>Jogeshwari West, Mumbai – 400102</li>
             </ul>
           </div>
         </div>

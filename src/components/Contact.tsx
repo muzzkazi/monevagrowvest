@@ -31,7 +31,7 @@ const Contact = () => {
     {
       icon: MapPin,
       title: "Head Office",
-      details: ["Lower Parel, Mumbai - 400013", "Maharashtra, India"],
+      details: ["Unit no. 611, Reliables Pride, Anand Nagar", "Opp. Heera Panna, Jogeshwari West, Mumbai – 400102"],
       color: "text-blue-600"
     },
     {
