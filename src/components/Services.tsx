@@ -88,6 +88,13 @@ const Services = () => {
                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </Link>
+                  ) : service.title === "Research Based Investment" ? (
+                    <Link to="/ai-planning">
+                      <Button variant="outline" className="w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                        {service.cta}
+                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   ) : (
                     <Button variant="outline" className="w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
                       {service.cta}
