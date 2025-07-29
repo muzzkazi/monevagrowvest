@@ -9,32 +9,32 @@ const Partners = () => {
   const featuredPartners = [
     {
       name: "AngelOne",
-      logo: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=200&h=100&fit=crop&crop=center",
+      logo: "/lovable-uploads/angelone-logo.png", // Replace with actual logo
       type: "Trading Partner",
       description: "Leading digital trading platform"
     },
     {
       name: "Asset Plus",
-      logo: "https://images.unsplash.com/photo-1560472355-536de3962603?w=200&h=100&fit=crop&crop=center", 
-      type: "Investment Partner",
+      logo: "/lovable-uploads/assetplus-logo.png", // Replace with actual logo
+      type: "Investment Partner", 
       description: "Comprehensive investment solutions"
     }
   ];
 
   // Major mutual fund houses
   const mutualFundPartners = [
-    { name: "HDFC Mutual Fund", logo: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=60&fit=crop&crop=center" },
-    { name: "ICICI Prudential", logo: "https://images.unsplash.com/photo-1560472355-536de3962603?w=120&h=60&fit=crop&crop=center" },
-    { name: "SBI Mutual Fund", logo: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&h=60&fit=crop&crop=center" },
-    { name: "Axis Mutual Fund", logo: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=120&h=60&fit=crop&crop=center" },
-    { name: "Kotak Mahindra MF", logo: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=120&h=60&fit=crop&crop=center" },
-    { name: "Aditya Birla Sun Life", logo: "https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=120&h=60&fit=crop&crop=center" },
-    { name: "Nippon India MF", logo: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=120&h=60&fit=crop&crop=center" },
-    { name: "UTI Mutual Fund", logo: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=120&h=60&fit=crop&crop=center" },
-    { name: "DSP Mutual Fund", logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=60&fit=crop&crop=center" },
-    { name: "Franklin Templeton", logo: "https://images.unsplash.com/photo-1569025743873-ea3a9ade89f9?w=120&h=60&fit=crop&crop=center" },
-    { name: "Mirae Asset", logo: "https://images.unsplash.com/photo-1551836022-b06f4b3d8ecd?w=120&h=60&fit=crop&crop=center" },
-    { name: "Tata Mutual Fund", logo: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=120&h=60&fit=crop&crop=center" }
+    { name: "HDFC Mutual Fund", logo: "/lovable-uploads/hdfc-mf-logo.png" },
+    { name: "ICICI Prudential", logo: "/lovable-uploads/icici-pru-logo.png" },
+    { name: "SBI Mutual Fund", logo: "/lovable-uploads/sbi-mf-logo.png" },
+    { name: "Axis Mutual Fund", logo: "/lovable-uploads/axis-mf-logo.png" },
+    { name: "Kotak Mahindra MF", logo: "/lovable-uploads/kotak-mf-logo.png" },
+    { name: "Aditya Birla Sun Life", logo: "/lovable-uploads/absl-logo.png" },
+    { name: "Nippon India MF", logo: "/lovable-uploads/nippon-logo.png" },
+    { name: "UTI Mutual Fund", logo: "/lovable-uploads/uti-mf-logo.png" },
+    { name: "DSP Mutual Fund", logo: "/lovable-uploads/dsp-mf-logo.png" },
+    { name: "Franklin Templeton", logo: "/lovable-uploads/franklin-logo.png" },
+    { name: "Mirae Asset", logo: "/lovable-uploads/mirae-logo.png" },
+    { name: "Tata Mutual Fund", logo: "/lovable-uploads/tata-mf-logo.png" }
   ];
 
   // Auto-scroll carousel
@@ -74,9 +74,19 @@ const Partners = () => {
                 <div className="relative mb-6">
                   <img
                     src={partner.logo}
-                    alt={partner.name}
+                    alt={`${partner.name} logo`}
                     className="h-16 w-auto mx-auto object-contain group-hover:scale-110 transition-transform duration-300"
+                    onError={(e) => {
+                      // Fallback to text if logo doesn't load
+                      const target = e.currentTarget as HTMLImageElement;
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      target.style.display = 'none';
+                      if (fallback) fallback.style.display = 'block';
+                    }}
                   />
+                  <div className="hidden h-16 w-32 mx-auto bg-financial-muted rounded-lg flex items-center justify-center">
+                    <span className="text-sm font-bold text-financial-accent">{partner.name}</span>
+                  </div>
                   <Badge className="absolute -top-2 -right-2 bg-financial-accent text-white">
                     Featured
                   </Badge>
@@ -116,9 +126,19 @@ const Partners = () => {
                     >
                       <img
                         src={partner.logo}
-                        alt={partner.name}
+                        alt={`${partner.name} logo`}
                         className="h-12 w-auto object-contain mb-3 group-hover:scale-110 transition-transform duration-300"
+                        onError={(e) => {
+                          // Fallback to text if logo doesn't load
+                          const target = e.currentTarget as HTMLImageElement;
+                          const fallback = target.nextElementSibling as HTMLElement;
+                          target.style.display = 'none';
+                          if (fallback) fallback.style.display = 'block';
+                        }}
                       />
+                      <div className="hidden h-12 w-20 bg-financial-muted rounded flex items-center justify-center mb-3">
+                        <span className="text-xs font-bold text-financial-accent text-center">{partner.name.split(' ')[0]}</span>
+                      </div>
                       <p className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
                         {partner.name}
                       </p>
