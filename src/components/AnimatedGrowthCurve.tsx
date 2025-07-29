@@ -13,72 +13,91 @@ const AnimatedGrowthCurve = () => {
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <svg
-        width="600"
+        width="700"
         height="400"
-        viewBox="0 0 600 400"
+        viewBox="0 0 700 400"
         className="overflow-visible"
       >
-        {/* Perfect M-shaped curve matching Moneva logo exactly */}
-        <path
-          d="M 80 350 Q 120 320 160 180 Q 200 120 240 260 Q 280 320 320 180 Q 360 120 400 180"
-          fill="none"
-          stroke="url(#growthGradient)"
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeDasharray="900"
-          strokeDashoffset={isAnimating ? "0" : "900"}
-          className="transition-all duration-[5000ms] ease-out"
-        />
-        
-        {/* Gradient definition */}
+        {/* Gradient definitions */}
         <defs>
-          <linearGradient id="growthGradient" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#86efac" />
-            <stop offset="30%" stopColor="#4ade80" />
-            <stop offset="70%" stopColor="#22c55e" />
-            <stop offset="100%" stopColor="#16a34a" />
+          {/* Curve gradient */}
+          <linearGradient id="curveGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#22c55e" />
+            <stop offset="50%" stopColor="#16a34a" />
+            <stop offset="100%" stopColor="#15803d" />
+          </linearGradient>
+          
+          {/* Rectangle gradient */}
+          <linearGradient id="rectangleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#bbf7d0" />
+            <stop offset="100%" stopColor="#ddd6fe" />
           </linearGradient>
         </defs>
-        
-        {/* End point circle */}
+
+        {/* Rounded rectangle (appears first, static) */}
+        <rect
+          x="450"
+          y="80"
+          width="220"
+          height="60"
+          rx="30"
+          ry="30"
+          fill="url(#rectangleGradient)"
+          opacity="0.9"
+          className="drop-shadow-lg"
+        />
+
+        {/* Smooth undulating growth curve */}
+        <path
+          d="M 50 350 Q 100 320 150 280 Q 200 240 250 260 Q 300 280 350 200 Q 400 120 450 140 Q 480 150 500 110 L 500 110"
+          fill="none"
+          stroke="url(#curveGradient)"
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray="800"
+          strokeDashoffset={isAnimating ? "0" : "800"}
+          className="transition-all duration-[4000ms] ease-out"
+        />
+
+        {/* Dark green circle at connection point */}
         <circle
-          cx="400"
-          cy="180"
-          r="16"
-          fill="#16a34a"
-          className={`transition-all duration-500 delay-[4500ms] ${
+          cx="500"
+          cy="110"
+          r="20"
+          fill="#15803d"
+          className={`transition-all duration-500 delay-[3500ms] drop-shadow-md ${
             isAnimating ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
           }`}
         />
-        
-        {/* Pulsing effect on the circle */}
+
+        {/* Text that fades in after curve completion */}
+        <text
+          x="580"
+          y="115"
+          textAnchor="middle"
+          className={`fill-gray-800 text-lg font-semibold transition-all duration-1000 delay-[4000ms] ${
+            isAnimating ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{ fontSize: '16px', fontFamily: 'system-ui, sans-serif' }}
+        >
+          <tspan x="580" dy="0">100%</tspan>
+          <tspan x="580" dy="18" className="text-sm font-medium fill-gray-600">Research based advice</tspan>
+        </text>
+
+        {/* Subtle glow effect on circle */}
         <circle
-          cx="400"
-          cy="180"
-          r="16"
+          cx="500"
+          cy="110"
+          r="20"
           fill="none"
-          stroke="#16a34a"
-          strokeWidth="3"
-          className={`animate-ping transition-all duration-500 delay-[4500ms] ${
-            isAnimating ? 'opacity-75' : 'opacity-0'
+          stroke="#22c55e"
+          strokeWidth="2"
+          opacity="0.6"
+          className={`animate-ping transition-all duration-500 delay-[3500ms] ${
+            isAnimating ? 'opacity-60' : 'opacity-0'
           }`}
         />
       </svg>
-      
-      {/* 100% Research badge */}
-      <div
-        className={`absolute top-16 right-8 bg-gradient-to-br from-orange-100 to-yellow-200 px-6 py-3 rounded-full shadow-lg transform transition-all duration-700 delay-[4800ms] ${
-          isAnimating ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-          <div>
-            <div className="text-xl font-bold text-gray-800">100%</div>
-            <div className="text-sm text-gray-600 -mt-1">Research based advice</div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
