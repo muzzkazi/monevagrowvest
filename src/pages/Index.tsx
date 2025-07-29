@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import TickerBand from "@/components/TickerBand";
 import SecondaryBand from "@/components/SecondaryBand";
+import WhatsAppButton from "@/components/shared/WhatsAppButton";
 
 import Hero from "@/components/Hero";
 import Testimonials from "@/components/Testimonials";
@@ -23,6 +24,7 @@ const Index = () => {
         <CallToAction />
       </main>
       <Footer />
+      <WhatsAppButton message="Hi! I'm interested in your financial planning services" />
     </div>
   );
 };
