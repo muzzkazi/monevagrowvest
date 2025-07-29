@@ -91,8 +91,21 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
   const [showContactForm, setShowContactForm] = useState(false);
   const [actionType, setActionType] = useState<"download" | "implement">("download");
 
+  // Expected annual return based on risk profile (consistent across all calculations)
+  const getExpectedReturn = () => {
+    const expectedReturns = {
+      Conservative: 8.5,
+      Moderate: 11,
+      Balanced: 13,
+      Aggressive: 15
+    };
+    return expectedReturns[riskProfile as keyof typeof expectedReturns] || 11;
+  };
+
+  const expectedReturn = getExpectedReturn();
+
   // Helper function to calculate monthly SIP needed for a goal
-  const calculateMonthlySIP = (targetAmount: number, currentSavings: number, timeHorizon: number, expectedReturn: number = 12) => {
+  const calculateMonthlySIP = (targetAmount: number, currentSavings: number, timeHorizon: number) => {
     const futureValueOfCurrentSavings = currentSavings * Math.pow(1 + expectedReturn / 100, timeHorizon);
     const remainingAmount = targetAmount - futureValueOfCurrentSavings;
     
@@ -106,7 +119,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
     return Math.round(monthlySIP);
   };
 
-  // Calculate individual SIPs for each goal
+  // Calculate individual SIPs for each goal using consistent expected return
   const goalSIPs = goals.map(goal => ({
     ...goal,
     monthlySIP: calculateMonthlySIP(goal.targetAmount, goal.currentSavings, goal.timeHorizon)
@@ -258,21 +271,12 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
 
   const recommendations = generateRecommendations();
 
-  // Generate investment projection data
+  // Generate investment projection data using consistent return rate
   const generateProjectionData = () => {
     const maxTimeHorizon = Math.max(...goals.map(g => g.timeHorizon));
     const data = [];
     
-    // Expected annual return based on risk profile
-    const expectedReturns = {
-      Conservative: 8.5,
-      Moderate: 11,
-      Balanced: 13,
-      Aggressive: 15
-    };
-    
-    const annualReturn = expectedReturns[riskProfile as keyof typeof expectedReturns] || 11;
-    const monthlyReturn = annualReturn / 100 / 12;
+    const monthlyReturn = expectedReturn / 100 / 12;
     
     for (let month = 0; month <= maxTimeHorizon * 12; month++) {
       const year = month / 12;
