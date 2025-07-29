@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
-import { Brain, Target, TrendingUp, Shield, AlertCircle } from "lucide-react";
+import { Brain, Target, TrendingUp, Shield, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import GoalSetting from "./ai-planning/GoalSetting";
 import RiskAssessment from "./ai-planning/RiskAssessment";
 import AIRecommendations from "./ai-planning/AIRecommendations";
@@ -24,6 +25,7 @@ const AIPlanning = () => {
   const [userGoals, setUserGoals] = useState<FinancialGoal[]>([]);
   const [riskProfile, setRiskProfile] = useState<string>("");
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false);
 
   const steps = [
     { id: "goals", label: "Financial Goals", icon: Target, completed: completedSteps.has("goals") },
@@ -192,49 +194,6 @@ const AIPlanning = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Financial Disclaimers */}
-        <div className="mt-12">
-          <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-                <AlertCircle className="h-5 w-5" />
-                Important Financial Disclaimers
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-amber-800 dark:text-amber-300">
-              <div className="space-y-3">
-                <p>
-                  <strong>Regulatory Status:</strong> Moneva is a registered sub-broker with Angel One and holds a valid ARN (AMFI Registration Number) for mutual fund distribution. We are authorized to provide investment advisory services and distribute mutual fund products in compliance with SEBI regulations.
-                </p>
-                
-                <p>
-                  <strong>Risk Warning:</strong> All investments in mutual funds, stocks, and other financial instruments are subject to market risks. Past performance does not guarantee future returns. The value of investments can go up or down, and you may not get back the original amount invested.
-                </p>
-                
-                <p>
-                  <strong>AI-Generated Recommendations:</strong> While our AI tool provides personalized investment recommendations based on your goals and risk profile, these are generated using algorithms and historical data. Actual market performance may vary significantly due to volatility, economic conditions, and unforeseen circumstances.
-                </p>
-                
-                <p>
-                  <strong>Professional Guidance:</strong> Our qualified financial advisors review and validate AI-generated recommendations before implementation. We encourage clients to discuss their complete financial situation with our advisors for comprehensive planning.
-                </p>
-                
-                <p>
-                  <strong>Accuracy of Information:</strong> While we strive to provide accurate and up-to-date information, market conditions change rapidly. We recommend reviewing all investment decisions with our advisors before execution.
-                </p>
-                
-                <p>
-                  <strong>Compliance & Transparency:</strong> All our investment recommendations and transactions are executed in full compliance with SEBI guidelines, Angel One's policies, and AMFI regulations. We maintain complete transparency in our fee structure and commissions.
-                </p>
-                
-                <p>
-                  <strong>Tax Implications:</strong> Tax benefits mentioned are subject to current tax laws and individual circumstances. Our advisors can provide guidance on tax-efficient investment strategies as per your tax bracket and financial goals.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Call to Action */}
         <div className="mt-8 text-center">
           <Card className="bg-gradient-to-r from-financial-accent/10 to-financial-gold/10 border-financial-accent/20">
@@ -255,6 +214,63 @@ const AIPlanning = () => {
               </Button>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Collapsible Financial Disclaimers */}
+        <div className="mt-12">
+          <Collapsible open={isDisclaimerOpen} onOpenChange={setIsDisclaimerOpen}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-between p-4 h-auto border-amber-200 hover:bg-amber-50 dark:border-amber-800 dark:hover:bg-amber-950/20"
+              >
+                <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                  <AlertCircle className="h-5 w-5" />
+                  <span className="font-semibold">Important Financial Disclaimers & Regulatory Information</span>
+                </div>
+                {isDisclaimerOpen ? (
+                  <ChevronUp className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 mt-2">
+                <CardContent className="space-y-4 text-sm text-amber-800 dark:text-amber-300 pt-6">
+                  <div className="space-y-3">
+                    <p>
+                      <strong>Regulatory Status:</strong> Moneva is a registered sub-broker with Angel One and holds a valid ARN (AMFI Registration Number) for mutual fund distribution. We are authorized to provide investment advisory services and distribute mutual fund products in compliance with SEBI regulations.
+                    </p>
+                    
+                    <p>
+                      <strong>Risk Warning:</strong> All investments in mutual funds, stocks, and other financial instruments are subject to market risks. Past performance does not guarantee future returns. The value of investments can go up or down, and you may not get back the original amount invested.
+                    </p>
+                    
+                    <p>
+                      <strong>AI-Generated Recommendations:</strong> While our AI tool provides personalized investment recommendations based on your goals and risk profile, these are generated using algorithms and historical data. Actual market performance may vary significantly due to volatility, economic conditions, and unforeseen circumstances.
+                    </p>
+                    
+                    <p>
+                      <strong>Professional Guidance:</strong> Our qualified financial advisors review and validate AI-generated recommendations before implementation. We encourage clients to discuss their complete financial situation with our advisors for comprehensive planning.
+                    </p>
+                    
+                    <p>
+                      <strong>Accuracy of Information:</strong> While we strive to provide accurate and up-to-date information, market conditions change rapidly. We recommend reviewing all investment decisions with our advisors before execution.
+                    </p>
+                    
+                    <p>
+                      <strong>Compliance & Transparency:</strong> All our investment recommendations and transactions are executed in full compliance with SEBI guidelines, Angel One's policies, and AMFI regulations. We maintain complete transparency in our fee structure and commissions.
+                    </p>
+                    
+                    <p>
+                      <strong>Tax Implications:</strong> Tax benefits mentioned are subject to current tax laws and individual circumstances. Our advisors can provide guidance on tax-efficient investment strategies as per your tax bracket and financial goals.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </div>
     </div>
