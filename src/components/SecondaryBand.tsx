@@ -67,34 +67,21 @@ const SecondaryBand = () => {
       {/* First line - Indices */}
       <div className="relative mb-2 overflow-hidden">
         <div className="flex animate-scroll will-change-transform">
-          {/* First set of indices */}
-          {indices.map((item, index) => {
+          {/* Create triple sets for seamless looping */}
+          {[...indices, ...indices, ...indices].map((item, index) => {
             const isPositive = !item.change.startsWith('-');
             return (
-              <div key={`first-${index}`} className="flex items-center gap-2 px-8 whitespace-nowrap flex-shrink-0">
-                <span className="font-medium text-sm">{item.name}</span>
-                <span className="text-base font-bold">{item.value}</span>
-                <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                  <span>{isPositive ? '↗' : '↘'}</span>
-                  <span>{item.change}</span>
-                  <span>({item.changePercent})</span>
-                </span>
+              <div key={`indices-${index}`} className="flex items-center whitespace-nowrap flex-shrink-0">
                 <span className="text-white/40 mx-4">|</span>
-              </div>
-            );
-          })}
-          {/* Second set for seamless loop */}
-          {indices.map((item, index) => {
-            const isPositive = !item.change.startsWith('-');
-            return (
-              <div key={`second-${index}`} className="flex items-center gap-2 px-8 whitespace-nowrap flex-shrink-0">
-                <span className="font-medium text-sm">{item.name}</span>
-                <span className="text-base font-bold">{item.value}</span>
-                <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                  <span>{isPositive ? '↗' : '↘'}</span>
-                  <span>{item.change}</span>
-                  <span>({item.changePercent})</span>
-                </span>
+                <div className="flex items-center gap-2 px-4">
+                  <span className="font-medium text-sm">{item.name}</span>
+                  <span className="text-base font-bold">{item.value}</span>
+                  <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                    <span>{isPositive ? '↗' : '↘'}</span>
+                    <span>{item.change}</span>
+                    <span>({item.changePercent})</span>
+                  </span>
+                </div>
                 <span className="text-white/40 mx-4">|</span>
               </div>
             );
@@ -105,31 +92,20 @@ const SecondaryBand = () => {
       {/* Second line - NIFTY 50 Stocks */}
       <div className="relative overflow-hidden">
         <div className="flex animate-scroll-fast will-change-transform">
-          {/* First set of stocks */}
-          {nifty50Stocks.map((stock, index) => {
+          {/* Create triple sets for seamless looping */}
+          {[...nifty50Stocks, ...nifty50Stocks, ...nifty50Stocks].map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
             return (
-              <div key={`stock-first-${index}`} className="flex items-center gap-2 px-4 whitespace-nowrap flex-shrink-0">
-                <span className="font-medium text-xs text-white/90">{stock.symbol}</span>
-                <span className="text-sm font-semibold">{stock.price}</span>
-                <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                  {stock.change}
-                </span>
-                <span className="text-white/30 mx-2">•</span>
-              </div>
-            );
-          })}
-          {/* Second set for seamless loop */}
-          {nifty50Stocks.map((stock, index) => {
-            const isPositive = !stock.change.startsWith('-');
-            return (
-              <div key={`stock-second-${index}`} className="flex items-center gap-2 px-4 whitespace-nowrap flex-shrink-0">
-                <span className="font-medium text-xs text-white/90">{stock.symbol}</span>
-                <span className="text-sm font-semibold">{stock.price}</span>
-                <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                  {stock.change}
-                </span>
-                <span className="text-white/30 mx-2">•</span>
+              <div key={`stocks-${index}`} className="flex items-center whitespace-nowrap flex-shrink-0">
+                <span className="text-white/30 mx-3">•</span>
+                <div className="flex items-center gap-2 px-2">
+                  <span className="font-medium text-xs text-white/90">{stock.symbol}</span>
+                  <span className="text-sm font-semibold">{stock.price}</span>
+                  <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                    {stock.change}
+                  </span>
+                </div>
+                <span className="text-white/30 mx-3">•</span>
               </div>
             );
           })}
