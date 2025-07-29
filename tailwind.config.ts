@@ -127,7 +127,7 @@ export default {
 						transform: 'translateX(0%)'
 					},
 					'100%': {
-						transform: 'translateX(-33.333%)'
+						transform: 'translateX(-50%)'
 					}
 				},
 				'scroll-fast': {
@@ -135,7 +135,7 @@ export default {
 						transform: 'translateX(0%)'
 					},
 					'100%': {
-						transform: 'translateX(-33.333%)'
+						transform: 'translateX(-50%)'
 					}
 				}
 			},
@@ -145,8 +145,8 @@ export default {
 				'fade-in': 'fade-in 0.6s ease-out forwards',
 				'slide-up': 'slide-up 0.6s ease-out forwards',
 				'float': 'float 3s ease-in-out infinite',
-				'scroll': 'scroll 45s linear infinite',
-				'scroll-fast': 'scroll-fast 30s linear infinite'
+				'scroll': 'scroll 50s linear infinite',
+				'scroll-fast': 'scroll-fast 35s linear infinite'
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
