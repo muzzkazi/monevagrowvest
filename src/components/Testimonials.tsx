@@ -12,7 +12,7 @@ const Testimonials = () => {
       location: "Mumbai",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
       rating: 5,
-      text: "Started with Moneva 8 months ago. Their SIP recommendations helped me build a diversified portfolio systematically.",
+      text: "Started with Moneva Growvest Pvt. Ltd. 8 months ago. Their SIP recommendations helped me build a diversified portfolio systematically.",
       investment: "₹50K SIP Portfolio"
     },
     {
@@ -28,7 +28,7 @@ const Testimonials = () => {
       location: "Delhi",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
       rating: 5,
-      text: "Just started my investment journey 6 months back. Moneva's guidance made it simple to begin with ₹3,000 SIP.",
+      text: "Just started my investment journey 6 months back. Moneva Growvest Pvt. Ltd.'s guidance made it simple to begin with ₹3,000 SIP.",
       investment: "₹18K Invested"
     },
     {

@@ -40,7 +40,7 @@ const About = () => {
             About <span className="text-financial-accent">Moneva</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Founded with a mission to democratize financial planning, Moneva has been helping individuals and families achieve their financial dreams through expert guidance and personalized strategies.
+            Founded with a mission to democratize financial planning, Moneva Growvest Pvt. Ltd. has been helping individuals and families achieve their financial dreams through expert guidance and personalized strategies.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ const About = () => {
             <h3 className="text-3xl font-bold text-foreground">Our Story</h3>
             <div className="space-y-4 text-muted-foreground">
               <p>
-                Moneva was born from a simple observation: traditional financial advisory services were either too expensive for the average investor or too generic to be truly helpful. We set out to change that.
+                Moneva Growvest Pvt. Ltd. was born from a simple observation: traditional financial advisory services were either too expensive for the average investor or too generic to be truly helpful. We set out to change that.
               </p>
               <p>
                 Since our founding just over a year ago, we've built a dynamic team of certified financial planners, market researchers, and technology experts who share a common goal - making sophisticated financial planning accessible to everyone.

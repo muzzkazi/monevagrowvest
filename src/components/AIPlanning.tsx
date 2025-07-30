@@ -240,7 +240,7 @@ const AIPlanning = () => {
                 <CardContent className="space-y-4 text-sm text-amber-800 dark:text-amber-300 pt-6">
                   <div className="space-y-3">
                     <p>
-                      <strong>Regulatory Status:</strong> Moneva is a registered sub-broker with Angel One and holds a valid ARN (AMFI Registration Number) for mutual fund distribution. We are authorized to provide investment advisory services and distribute mutual fund products in compliance with SEBI regulations.
+                      <strong>Regulatory Status:</strong> Moneva Growvest Pvt. Ltd. is a registered sub-broker with Angel One and holds a valid ARN (AMFI Registration Number) for mutual fund distribution. We are authorized to provide investment advisory services and distribute mutual fund products in compliance with SEBI regulations.
                     </p>
                     
                     <p>
