@@ -15,7 +15,7 @@ const Footer = () => {
               />
             </div>
             <p className="text-white/70">
-              Your trusted partner in financial planning and wealth management - Moneva Grow West Private Limited.
+              Your trusted partner in financial planning and wealth management - Moneva Growvest Pvt. Ltd.
             </p>
           </div>
           
@@ -58,7 +58,7 @@ const Footer = () => {
         <div className="border-t border-white/20 pt-8">
           <div className="text-center mb-6">
             <p className="text-white/60 text-sm mb-3">
-              <strong>Regulatory Disclosure:</strong> Moneva Grow West Private Limited is a SEBI registered investment advisor and authorized person for mutual fund distribution.
+              <strong>Regulatory Disclosure:</strong> Moneva Growvest Pvt. Ltd. is a SEBI registered investment advisor and authorized person for mutual fund distribution.
               We are authorized to provide investment advisory services and distribute mutual fund schemes. 
               All investments are subject to market risks. Please read the scheme information documents carefully before investing.
             </p>
@@ -68,7 +68,7 @@ const Footer = () => {
             </p>
           </div>
           <div className="text-center text-white/60">
-            <p>&copy; 2024 Moneva Grow West Private Limited. All rights reserved. | Privacy Policy | Terms of Service</p>
+            <p>&copy; 2024 Moneva Growvest Pvt. Ltd. All rights reserved. | Privacy Policy | Terms of Service</p>
           </div>
         </div>
       </div>

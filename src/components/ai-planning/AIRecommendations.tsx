@@ -453,14 +453,14 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
         pdf.setFontSize(14);
         pdf.setTextColor(40, 116, 166);
         pdf.setFont('helvetica', 'bold');
-        pdf.text('Moneva Grow West Private Limited', 65, yPosition + 8);
+        pdf.text('Moneva Growvest Pvt. Ltd.', 65, yPosition + 8);
       } catch (error) {
         // Fallback if logo fails to load
         pdf.setFontSize(20);
         pdf.setTextColor(40, 116, 166);
         pdf.text('MONEVA', 20, yPosition);
         pdf.setFontSize(10);
-        pdf.text('Moneva Grow West Private Limited', 20, yPosition + 8);
+        pdf.text('Moneva Growvest Pvt. Ltd.', 20, yPosition + 8);
       }
       
       pdf.setFontSize(12);
@@ -653,7 +653,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
       const footerY = pageHeight - 15;
       pdf.setFontSize(8);
       pdf.setTextColor(100, 100, 100);
-      pdf.text('Moneva Grow West Private Limited | SEBI Reg: ARN-305935 | +91 80878 55185 | contact@moneva.in', 20, footerY);
+      pdf.text('Moneva Growvest Pvt. Ltd. | SEBI Reg: ARN-305935 | +91 80878 55185 | contact@moneva.in', 20, footerY);
       pdf.text('All investments are subject to market risks. Please read scheme documents carefully.', 20, footerY + 5);
 
       // Save the PDF
