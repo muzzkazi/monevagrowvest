@@ -1045,7 +1045,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
 
         {/* Asset Allocation Tab */}
         <TabsContent value="allocation" className="space-y-6">
-          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <PieChart className="h-5 w-5 text-financial-accent" />
@@ -1092,7 +1092,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
 
         {/* Growth Projection Tab */}
         <TabsContent value="projection" className="space-y-6">
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <LineChart className="h-5 w-5 text-financial-accent" />
@@ -1189,7 +1189,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
 
         {/* Enhanced Fund Recommendations Tab */}
         <TabsContent value="recommendations" className="space-y-4">
-          <Card className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20 border-purple-200 dark:border-purple-800">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-financial-accent" />
