@@ -1266,12 +1266,12 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
           Download Detailed Report
         </Button>
         <Button
-          disabled
+          onClick={handleImplementPlan}
           size="lg"
-          className="bg-gray-400 cursor-not-allowed flex items-center gap-2"
+          className="bg-financial-accent hover:bg-financial-accent/90 flex items-center gap-2"
         >
           <DollarSign className="h-4 w-4" />
-          Implement This Strategy (Coming Soon)
+          Implement This Strategy
         </Button>
       </div>
 
