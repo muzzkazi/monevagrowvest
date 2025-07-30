@@ -25,7 +25,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ContactFormModal from "../ContactFormModal";
 import jsPDF from 'jspdf';
-import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import html2canvas from 'html2canvas';
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend as RechartsLegend, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 interface FinancialGoal {
   id: string;
@@ -843,7 +844,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                       formatter={(value: number, name: string) => [formatTooltipCurrency(value), name]}
                       labelFormatter={(value) => `Year ${value}`}
                     />
-                    <Legend />
+                    <RechartsLegend />
                     <Line 
                       type="monotone" 
                       dataKey="totalInvested" 
