@@ -168,7 +168,7 @@ const Partners = () => {
         {/* Regulatory Information */}
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            SEBI Registered Investment Advisor & Authorized Mutual Fund Distributor | 
+            Authorized Mutual Fund Distributor | 
             ARN: ARN-305935 | All investments are subject to market risks.
           </p>
         </div>

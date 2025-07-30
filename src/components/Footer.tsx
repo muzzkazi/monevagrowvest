@@ -58,8 +58,8 @@ const Footer = () => {
         <div className="border-t border-white/20 pt-8">
           <div className="text-center mb-6">
             <p className="text-white/60 text-sm mb-3">
-              <strong>Regulatory Disclosure:</strong> Moneva Growvest Pvt. Ltd. is a SEBI registered investment advisor and authorized person for mutual fund distribution.
-              We are authorized to provide investment advisory services and distribute mutual fund schemes. 
+              <strong>Regulatory Disclosure:</strong> Moneva Growvest Pvt. Ltd. is an authorized person for mutual fund distribution.
+              We are authorized to distribute mutual fund schemes. 
               All investments are subject to market risks. Please read the scheme information documents carefully before investing.
             </p>
             <p className="text-white/60 text-xs">
