@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Award, Users2, TrendingUp, Shield } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
+import consultationImage from "@/assets/consultation-office.jpg";
+import growthImage from "@/assets/growth-infographic.jpg";
 
 const About = () => {
   const clientsCount = useCountUp({ end: 500, duration: 2000, suffix: "+" });
@@ -35,13 +37,66 @@ const About = () => {
   return (
     <section id="about" className="py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
-            About <span className="text-financial-accent">Moneva</span>
+        <div className="text-center mb-16 animate-fade-in">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            About <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">Moneva</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Founded with a mission to democratize financial planning, Moneva Growvest Pvt. Ltd. has been helping individuals and families achieve their financial dreams through expert guidance and personalized strategies.
           </p>
+        </div>
+
+        {/* Hero Image Section */}
+        <div className="mb-20">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="animate-slide-up">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                <img 
+                  src={consultationImage} 
+                  alt="Professional Financial Consultation" 
+                  className="relative w-full h-96 object-cover rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+            <div className="space-y-6 animate-fade-in">
+              <h3 className="text-3xl font-bold text-financial-primary dark:text-financial-primary">Your Financial Success is Our Mission</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                With over a decade of experience in the financial industry, we've helped hundreds of clients achieve their financial goals through personalized investment strategies and comprehensive wealth management.
+              </p>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Award className="h-6 w-6 text-financial-gold" />
+                  <span className="text-sm font-medium">Certified Financial Planners</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Shield className="h-6 w-6 text-financial-accent" />
+                  <span className="text-sm font-medium">Registered Advisory</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Growth Infographic */}
+        <div className="mb-16">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-bold mb-4">Our Track Record</h3>
+            <p className="text-muted-foreground">Data-driven results that speak for themselves</p>
+          </div>
+          <div className="relative group animate-scale-hover">
+            <img 
+              src={growthImage} 
+              alt="Financial Growth Analytics" 
+              className="w-full h-80 object-cover rounded-2xl shadow-elegant"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl flex items-end">
+              <div className="p-8 text-white">
+                <h4 className="text-2xl font-bold mb-2">Consistent Growth</h4>
+                <p className="text-lg opacity-90">Average portfolio returns of 12%+ annually</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Our Story */}

@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Shield, Users, Calculator, PieChart, Target, ArrowRight, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import successImage from "@/assets/hero-success.jpg";
 
 const Services = () => {
   const services = [
@@ -50,15 +51,33 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="py-20 bg-financial-muted">
+    <section id="services" className="py-20 bg-muted/50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
-            Our <span className="text-financial-accent">Services</span>
+        <div className="text-center mb-16 animate-fade-in">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Our <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">Services</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Comprehensive financial solutions designed to help you build wealth, protect your future, and achieve your dreams.
           </p>
+        </div>
+
+        {/* Success Story Hero */}
+        <div className="mb-20">
+          <div className="relative group animate-scale-hover">
+            <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/30 to-financial-gold/30 rounded-3xl blur-xl"></div>
+            <img 
+              src={successImage} 
+              alt="Financial Success Story" 
+              className="relative w-full h-64 md:h-80 object-cover rounded-3xl shadow-financial"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30 rounded-3xl flex items-center justify-center">
+              <div className="text-center text-white space-y-4">
+                <h3 className="text-3xl md:text-4xl font-bold">Empowering Your Financial Journey</h3>
+                <p className="text-lg md:text-xl opacity-90 max-w-2xl">Every investment decision is a step towards your financial freedom</p>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

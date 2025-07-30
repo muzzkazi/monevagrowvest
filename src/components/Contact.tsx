@@ -79,8 +79,8 @@ const Contact = () => {
     <section id="contact" className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
-            Get In <span className="text-financial-accent">Touch</span>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">Contact Us</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Ready to take control of your financial future? Get AI-powered recommendations and start your personalized investment journey now. Contact our expert advisors for comprehensive financial planning solutions.
