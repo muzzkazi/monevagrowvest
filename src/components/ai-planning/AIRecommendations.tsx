@@ -444,15 +444,30 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
         }
       };
 
-      // Header with Logo placeholder and title
-      pdf.setFontSize(20);
-      pdf.setTextColor(40, 116, 166); // Financial accent color
-      pdf.text('MONEVA', 20, yPosition);
+      // Header with Moneva logo and company info
+      try {
+        // Add actual Moneva logo
+        pdf.addImage('/lovable-uploads/0e8706be-f873-45af-8037-de6a700531a1.png', 'PNG', 20, yPosition, 40, 12);
+        
+        // Company name next to logo
+        pdf.setFontSize(14);
+        pdf.setTextColor(40, 116, 166);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Moneva Grow West Private Limited', 65, yPosition + 8);
+      } catch (error) {
+        // Fallback if logo fails to load
+        pdf.setFontSize(20);
+        pdf.setTextColor(40, 116, 166);
+        pdf.text('MONEVA', 20, yPosition);
+        pdf.setFontSize(10);
+        pdf.text('Moneva Grow West Private Limited', 20, yPosition + 8);
+      }
+      
       pdf.setFontSize(12);
       pdf.setTextColor(100, 100, 100);
-      pdf.text('Investment Advisory & Wealth Management', 20, yPosition + 8);
+      pdf.text('Investment Advisory & Wealth Management', 20, yPosition + 18);
       
-      yPosition += 25;
+      yPosition += 30;
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
       pdf.text('AI-GENERATED INVESTMENT STRATEGY REPORT', 20, yPosition);
@@ -638,7 +653,7 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
       const footerY = pageHeight - 15;
       pdf.setFontSize(8);
       pdf.setTextColor(100, 100, 100);
-      pdf.text('Moneva Growvest Pvt. Ltd. | SEBI Reg: ARN-305935 | +91 80878 55185 | contact@moneva.in', 20, footerY);
+      pdf.text('Moneva Grow West Private Limited | SEBI Reg: ARN-305935 | +91 80878 55185 | contact@moneva.in', 20, footerY);
       pdf.text('All investments are subject to market risks. Please read scheme documents carefully.', 20, footerY + 5);
 
       // Save the PDF
