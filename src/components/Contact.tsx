@@ -94,7 +94,7 @@ const Contact = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-financial-accent" />
-                  Send us a Message
+                  Start Your Personalized Investment Plan
                 </CardTitle>
               </CardHeader>
               <CardContent>
