@@ -160,102 +160,118 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name *</Label>
-            <Input
-              id="fullName"
-              placeholder="Enter your full name"
-              value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address *</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="your.email@domain.com"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              Please use a genuine email address. Temporary/disposable emails are not accepted.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            <div className="space-y-2">
-              <Label htmlFor="countryCode">Country</Label>
-              <Select value={formData.countryCode} onValueChange={(value) => setFormData({ ...formData, countryCode: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {countryCodes.map((country) => (
-                    <SelectItem key={country.code} value={country.code}>
-                      {country.code} ({country.country})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        {actionType === "implement" ? (
+          <div className="space-y-4">
+            <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-lg text-center">
+              <h3 className="text-lg font-semibold mb-2">Coming Soon</h3>
+              <p className="text-muted-foreground">
+                The implementation feature is currently under development. Our team is working to bring you the best investment experience.
+              </p>
             </div>
-            <div className="col-span-2 space-y-2">
-              <Label htmlFor="mobile">Mobile Number *</Label>
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+                Close
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name *</Label>
               <Input
-                id="mobile"
-                placeholder={formData.countryCode === "+91" ? "9876543210" : "Mobile number"}
-                value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, '') })}
+                id="fullName"
+                placeholder="Enter your full name"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 required
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="email">Email Address *</Label>
               <Input
-                id="city"
-                placeholder="Your city"
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                id="email"
+                type="email"
+                placeholder="your.email@domain.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
               />
+              <p className="text-xs text-muted-foreground">
+                Please use a genuine email address. Temporary/disposable emails are not accepted.
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="investmentAmount">Investment Budget</Label>
-              <Input
-                id="investmentAmount"
-                placeholder="e.g., 50,000/month"
-                value={formData.investmentAmount}
-                onChange={(e) => setFormData({ ...formData, investmentAmount: e.target.value })}
-              />
+
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-2">
+                <Label htmlFor="countryCode">Country</Label>
+                <Select value={formData.countryCode} onValueChange={(value) => setFormData({ ...formData, countryCode: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countryCodes.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {country.code} ({country.country})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="mobile">Mobile Number *</Label>
+                <Input
+                  id="mobile"
+                  placeholder={formData.countryCode === "+91" ? "9876543210" : "Mobile number"}
+                  value={formData.mobile}
+                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, '') })}
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
-            <p className="text-xs text-muted-foreground">
-              <strong>Privacy Notice:</strong> Your information will be used only for providing investment guidance 
-              and will not be shared with third parties. Our advisors are SEBI registered professionals.
-            </p>
-          </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  placeholder="Your city"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="investmentAmount">Investment Budget</Label>
+                <Input
+                  id="investmentAmount"
+                  placeholder="e.g., 50,000/month"
+                  value={formData.investmentAmount}
+                  onChange={(e) => setFormData({ ...formData, investmentAmount: e.target.value })}
+                />
+              </div>
+            </div>
 
-          <div className="flex gap-3">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="flex-1 bg-financial-accent hover:bg-financial-accent/90">
-              {isSubmitting ? "Submitting..." : 
-               actionType === "download" ? "Get Report" : 
-               actionType === "subscribe" ? "Subscribe Now" : 
-               actionType === "webinar" ? "Register Now" :
-               "Get Started"}
-            </Button>
-          </div>
-        </form>
+            <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
+              <p className="text-xs text-muted-foreground">
+                <strong>Privacy Notice:</strong> Your information will be used only for providing investment guidance 
+                and will not be shared with third parties. Our advisors are SEBI registered professionals.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className="flex-1 bg-financial-accent hover:bg-financial-accent/90">
+                {isSubmitting ? "Submitting..." : 
+                 actionType === "download" ? "Get Report" : 
+                 actionType === "subscribe" ? "Subscribe Now" : 
+                 actionType === "webinar" ? "Register Now" :
+                 "Get Started"}
+              </Button>
+            </div>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
