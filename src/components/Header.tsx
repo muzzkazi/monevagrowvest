@@ -73,7 +73,7 @@ const Header = () => {
                 location.pathname === '/ai-planning' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
               }`}
             >
-              AI Planning
+              AI Powered Portfolio
             </Link>
             <Link 
               to="/contact" 
@@ -157,7 +157,7 @@ const Header = () => {
                   location.pathname === '/ai-planning' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
                 }`}
               >
-                AI Planning
+                AI Powered Portfolio
               </Link>
               <Link 
                 to="/contact" 
