@@ -25,9 +25,9 @@ const CallToAction = () => {
               variant="outline" 
               size="lg" 
               className="px-8 py-4 text-lg border-white text-black hover:bg-white hover:text-black"
-              onClick={() => window.location.href = 'tel:+919876543210'}
+              onClick={() => window.location.href = 'tel:+918087855185'}
             >
-              Call Now: +91-9876-543-210
+              Call Now: +91 80878 55185
             </Button>
           </div>
           
