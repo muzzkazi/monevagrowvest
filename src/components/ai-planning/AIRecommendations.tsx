@@ -1451,7 +1451,18 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                       </TooltipProvider>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Progress value={behavioralInsights.disciplineScore} className="flex-1" />
+                      <div className="flex-1 relative">
+                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              behavioralInsights.disciplineScore >= 71 ? 'bg-gradient-to-r from-green-400 to-green-600' :
+                              behavioralInsights.disciplineScore >= 41 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
+                              'bg-gradient-to-r from-red-400 to-red-600'
+                            }`}
+                            style={{ width: `${behavioralInsights.disciplineScore}%` }}
+                          />
+                        </div>
+                      </div>
                       <span className="text-sm font-medium">{behavioralInsights.disciplineScore}/100</span>
                     </div>
                   </div>
