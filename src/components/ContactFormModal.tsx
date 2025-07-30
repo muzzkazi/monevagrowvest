@@ -239,7 +239,7 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
           <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
             <p className="text-xs text-muted-foreground">
               <strong>Privacy Notice:</strong> Your information will be used only for providing investment guidance 
-              and will not be shared with third parties. Our advisors are SEBI registered professionals.
+              and will not be shared with third parties. Our advisors are certified professionals.
             </p>
           </div>
 
