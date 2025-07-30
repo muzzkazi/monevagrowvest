@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -87,6 +88,7 @@ const Header = () => {
             
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center gap-4">
+              <ThemeToggle />
               <a href="tel:+918087855185" className="text-financial-accent">
                 <Phone className="h-5 w-5" />
               </a>
@@ -100,6 +102,7 @@ const Header = () => {
             </div>
             
             <div className="hidden md:flex items-center gap-4">
+              <ThemeToggle />
               <a href="tel:+918087855185" className="flex items-center gap-2 text-financial-accent hover:text-financial-accent/80 transition-colors">
                 <Phone className="h-4 w-4" />
                 <span className="font-medium">+91 80878 55185</span>
