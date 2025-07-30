@@ -42,7 +42,7 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Contact</h4>
             <ul className="space-y-2 text-white/70">
-              <li>contact@moneva.in</li>
+              <li>invest@moneva.in</li>
               <li>
                 <a href="tel:+918087855185" className="hover:text-financial-gold transition-colors">
                   +91 80878 55185
@@ -64,7 +64,7 @@ const Footer = () => {
             </p>
             <p className="text-white/60 text-xs">
               BSE: AP01061201162326 | NSE: AP0397604963 | ARN: ARN-305935 | 
-              For grievances, contact: contact@moneva.in
+              For grievances, contact: invest@moneva.in
             </p>
           </div>
           <div className="text-center text-white/60">
