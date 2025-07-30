@@ -44,20 +44,33 @@ All colors MUST be HSL.
     --financial-gold-light: 48 96% 89%;
     --financial-accent: 213 84% 58%;
     --financial-muted: 210 14% 89%;
+    --financial-luxury: 280 100% 8%;
+    --financial-platinum: 210 14% 83%;
+    --financial-emerald: 142 76% 36%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(210 20% 25%) 100%);
+    /* Premium Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(280 100% 8%) 50%, hsl(222 47% 11%) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(45 93% 58%) 0%, hsl(48 96% 89%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11% / 0.05) 0%, hsl(213 84% 58% / 0.05) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 14% 97%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11% / 0.95) 0%, hsl(280 100% 8% / 0.8) 50%, hsl(213 84% 58% / 0.1) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100% / 0.9) 0%, hsl(210 14% 97%) 100%);
+    --gradient-luxury: linear-gradient(135deg, hsl(280 100% 8%) 0%, hsl(222 47% 6%) 100%);
+    --gradient-glow: radial-gradient(circle, hsl(45 93% 58% / 0.3) 0%, transparent 70%);
+    --gradient-mesh: conic-gradient(from 180deg at 50% 50%, hsl(222 47% 11%) 0deg, hsl(280 100% 8%) 60deg, hsl(213 84% 58%) 120deg, hsl(45 93% 58%) 180deg, hsl(222 47% 11%) 240deg, hsl(280 100% 8%) 300deg, hsl(222 47% 11%) 360deg);
 
-    /* Shadows */
+    /* Premium Shadows */
     --shadow-financial: 0 4px 20px hsl(222 47% 11% / 0.08);
     --shadow-gold: 0 4px 20px hsl(45 93% 58% / 0.15);
     --shadow-card: 0 1px 3px hsl(222 47% 11% / 0.05);
+    --shadow-luxury: 0 25px 50px -12px hsl(280 100% 8% / 0.25);
+    --shadow-glow: 0 0 30px hsl(45 93% 58% / 0.3);
+    --shadow-elevation: 0 10px 25px -5px hsl(222 47% 11% / 0.1), 0 20px 40px -7px hsl(222 47% 11% / 0.1);
+    --shadow-inset: inset 0 2px 4px 0 hsl(222 47% 11% / 0.06);
 
-    /* Transitions */
+    /* Premium Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-luxury: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     --radius: 0.5rem;
 
@@ -146,6 +159,107 @@ All colors MUST be HSL.
 
   .animate-scroll-fast {
     animation: scroll 10s linear infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(var(--financial-gold) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px hsl(var(--financial-gold) / 0.6);
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes parallax-float {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    33% {
+      transform: translateY(-10px) rotate(1deg);
+    }
+    66% {
+      transform: translateY(-5px) rotate(-1deg);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.5s ease-out;
+  }
+
+  .animate-parallax-float {
+    animation: parallax-float 8s ease-in-out infinite;
+  }
+
+  .hover-lift {
+    transition: var(--transition-luxury);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-elevation);
+  }
+
+  .luxury-card {
+    background: var(--gradient-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid hsl(var(--financial-gold) / 0.2);
+    box-shadow: var(--shadow-luxury);
+  }
+
+  .gradient-text {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 }
 
