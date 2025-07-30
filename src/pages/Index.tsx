@@ -1,5 +1,4 @@
 import Header from "@/components/Header";
-import TickerBand from "@/components/TickerBand";
 import SecondaryBand from "@/components/SecondaryBand";
 import WhatsAppButton from "@/components/shared/WhatsAppButton";
 
@@ -15,7 +14,6 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <TickerBand />
       <SecondaryBand />
       <main id="home">
         <Hero />

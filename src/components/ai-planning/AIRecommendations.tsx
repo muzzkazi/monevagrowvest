@@ -1054,20 +1054,30 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {assetAllocationWithAmounts.map((asset) => (
-                  <div key={asset.category} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">{asset.category}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {asset.percentage}% ({formatCurrencyInCard(asset.amount)})
-                      </span>
-                    </div>
-                    <Progress value={asset.percentage} className="h-2" />
-                    <div className="text-xs text-muted-foreground">
-                      Suggested: {asset.instruments.join(", ")}
-                    </div>
-                  </div>
-                ))}
+                {assetAllocationWithAmounts.map((asset) => {
+                  // Dynamic color based on percentage
+                  const getProgressBarClass = (percentage: number) => {
+                    if (percentage >= 30) return "h-2 [&>div]:bg-gradient-to-r [&>div]:from-green-500 [&>div]:to-green-600";
+                    if (percentage >= 15) return "h-2 [&>div]:bg-gradient-to-r [&>div]:from-blue-500 [&>div]:to-blue-600";
+                    if (percentage >= 10) return "h-2 [&>div]:bg-gradient-to-r [&>div]:from-yellow-500 [&>div]:to-yellow-600";
+                    return "h-2 [&>div]:bg-gradient-to-r [&>div]:from-purple-500 [&>div]:to-purple-600";
+                  };
+
+                  return (
+                    <div key={asset.category} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">{asset.category}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {asset.percentage}% ({formatCurrencyInCard(asset.amount)})
+                        </span>
+                      </div>
+                       <Progress value={asset.percentage} className={getProgressBarClass(asset.percentage)} />
+                       <div className="text-xs text-muted-foreground">
+                         Suggested: {asset.instruments.join(", ")}
+                       </div>
+                     </div>
+                   );
+                 })}
               </div>
             </CardContent>
           </Card>
