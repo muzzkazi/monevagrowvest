@@ -63,7 +63,7 @@ const SecondaryBand = () => {
   ];
 
   return (
-    <div className="bg-financial-primary text-white pt-4 pb-2 w-full z-20 sticky top-0 overflow-hidden mt-4 flex flex-col justify-center">
+    <div className="bg-financial-primary text-white pt-4 pb-2 w-full z-20 overflow-hidden flex flex-col justify-center">
       {/* First line - Indices */}
       <div className="relative mb-2 overflow-hidden">
         <div className="flex animate-scroll will-change-transform">
