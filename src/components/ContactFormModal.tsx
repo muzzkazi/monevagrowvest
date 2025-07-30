@@ -156,7 +156,7 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
               ? "Get daily market updates, fund performance reports, and expert insights delivered to your inbox."
               : actionType === "webinar"
               ? "Register for our weekly live sessions where our experts share investment strategies and market insights. Get your questions answered in real-time."
-              : "Connect with our SEBI-certified advisors to implement your AI-generated investment strategy and start your wealth building journey."}
+              : "Connect with our certified advisors to implement your AI-generated investment strategy and start your wealth building journey."}
           </DialogDescription>
         </DialogHeader>
 
