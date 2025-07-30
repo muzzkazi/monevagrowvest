@@ -48,7 +48,7 @@ const AIPlanning = () => {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Brain className="h-8 w-8 text-financial-accent" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">
-              AI-Driven Financial Planning
+              AI-powered portfolio designer
             </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
