@@ -147,7 +147,7 @@ const ContactFormModal = ({ isOpen, onClose, actionType }: ContactFormModalProps
             {actionType === "download" ? "Download Investment Report" : 
              actionType === "subscribe" ? "Subscribe to Market Updates" :
              actionType === "webinar" ? "Join Live Investment Webinar" :
-             "Start Your Hyper Personalized Investment Journey"}
+             "Start Your Personalized Investment Journey"}
           </DialogTitle>
           <DialogDescription>
             {actionType === "download" 
