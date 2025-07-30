@@ -7,9 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Phone, Mail, Clock, MessageCircle, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ContactFormModal from "./ContactFormModal";
 
 const Contact = () => {
   const { toast } = useToast();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -184,7 +186,10 @@ const Contact = () => {
                 <p className="text-muted-foreground mb-4">
                   Prefer to talk directly? Schedule a free 30-minute consultation with our financial experts.
                 </p>
-                <Button className="w-full bg-financial-gold hover:bg-financial-gold/90 text-financial-primary">
+                <Button 
+                  className="w-full bg-financial-gold hover:bg-financial-gold/90 text-financial-primary"
+                  onClick={() => setIsModalOpen(true)}
+                >
                   Book Free Consultation
                 </Button>
               </CardContent>
@@ -236,6 +241,12 @@ const Contact = () => {
           </div>
         </div>
       </div>
+      
+      <ContactFormModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        actionType="implement"
+      />
     </section>
   );
 };
