@@ -83,7 +83,7 @@ const Contact = () => {
             Get In <span className="text-financial-accent">Touch</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Ready to take control of your financial future? Contact our expert advisors for personalized guidance and comprehensive financial planning solutions.
+            Ready to take control of your financial future? Get AI-powered recommendations and start your personalized investment journey now. Contact our expert advisors for comprehensive financial planning solutions.
           </p>
         </div>
 
@@ -94,7 +94,7 @@ const Contact = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-financial-accent" />
-                  Start Your Personalized Investment Plan
+                  Send us a Message
                 </CardTitle>
               </CardHeader>
               <CardContent>
