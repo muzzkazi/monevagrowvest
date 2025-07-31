@@ -18,8 +18,14 @@ const TickerBand = () => {
       try {
         const nseIndia = new NseIndia();
         
-        // Fetch data for popular stocks (including ticker 2 as requested)
-        const symbols = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'HINDUNILVR'];
+        // Fetch data for top 50 NSE stocks
+        const symbols = [
+          'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'HINDUNILVR', 'ICICIBANK', 'KOTAKBANK', 'LT', 'SBIN', 'BHARTIARTL',
+          'ASIANPAINT', 'ITC', 'AXISBANK', 'BAJFINANCE', 'MARUTI', 'NESTLEIND', 'HCLTECH', 'WIPRO', 'ULTRACEMCO', 'TITAN',
+          'SUNPHARMA', 'ONGC', 'NTPC', 'POWERGRID', 'BAJAJFINSV', 'M&M', 'TECHM', 'TATAMOTORS', 'COALINDIA', 'JSWSTEEL',
+          'GRASIM', 'INDUSINDBK', 'ADANIENT', 'HINDALCO', 'TATASTEEL', 'CIPLA', 'DRREDDY', 'BRITANNIA', 'BPCL', 'EICHERMOT',
+          'APOLLOHOSP', 'DIVISLAB', 'TATACONSUM', 'BAJAJ-AUTO', 'HEROMOTOCO', 'PIDILITIND', 'GODREJCP', 'SBILIFE', 'HDFCLIFE', 'ADANIPORTS'
+        ];
         const tickerPromises = symbols.map(async (symbol) => {
           try {
             const data = await nseIndia.getEquityDetails(symbol);
@@ -77,9 +83,10 @@ const TickerBand = () => {
 
   return (
     <div className="bg-financial-dark text-white py-3 overflow-hidden relative w-full z-10" style={{ minHeight: '40px' }}>
-      <div className="flex animate-scroll-2x whitespace-nowrap">
+      <div className="flex animate-ticker-scroll whitespace-nowrap">
+        {/* First set of tickers */}
         {tickerData.map((ticker, index) => (
-          <div key={ticker.symbol} className="flex items-center mr-8">
+          <div key={`first-${ticker.symbol}`} className="flex items-center mr-8 flex-shrink-0">
             <span className="text-sm font-medium">{ticker.symbol}</span>
             <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
             <span 
@@ -90,9 +97,23 @@ const TickerBand = () => {
               {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} 
               ({ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%)
             </span>
-            {index < tickerData.length - 1 && (
-              <span className="text-sm opacity-50 ml-4">•</span>
-            )}
+            <span className="text-sm opacity-50 ml-4">•</span>
+          </div>
+        ))}
+        {/* Duplicate set for seamless loop */}
+        {tickerData.map((ticker, index) => (
+          <div key={`second-${ticker.symbol}`} className="flex items-center mr-8 flex-shrink-0">
+            <span className="text-sm font-medium">{ticker.symbol}</span>
+            <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
+            <span 
+              className={`text-sm ml-2 ${
+                ticker.change >= 0 ? 'text-green-400' : 'text-red-400'
+              }`}
+            >
+              {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} 
+              ({ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%)
+            </span>
+            <span className="text-sm opacity-50 ml-4">•</span>
           </div>
         ))}
       </div>
