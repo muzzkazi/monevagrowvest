@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NseIndia } from 'stock-nse-india';
 
 interface TickerData {
@@ -12,6 +12,7 @@ const TickerBand = () => {
   const [tickerData, setTickerData] = useState<TickerData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const tickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchTickerData = async () => {
@@ -83,14 +84,18 @@ const TickerBand = () => {
 
   return (
     <div className="bg-financial-dark text-white py-3 overflow-hidden relative w-full z-10" style={{ minHeight: '40px' }}>
-      <div className="flex">
-        {/* First ticker strip */}
-        <div 
-          className="flex whitespace-nowrap animate-marquee"
-          style={{ minWidth: '100%' }}
-        >
-          {tickerData.concat(tickerData).map((ticker, index) => (
-            <div key={`strip1-${index}`} className="flex items-center mr-8 flex-shrink-0">
+      <div 
+        ref={tickerRef}
+        className="flex whitespace-nowrap"
+        style={{
+          animation: 'continuous-scroll 200s linear infinite',
+          willChange: 'transform'
+        }}
+      >
+        {/* All 50 stocks repeated 3 times for seamless loop */}
+        {[1, 2, 3].map(setNum => 
+          tickerData.map((ticker, index) => (
+            <div key={`set${setNum}-${ticker.symbol}-${index}`} className="flex items-center mr-8 flex-shrink-0">
               <span className="text-sm font-medium">{ticker.symbol}</span>
               <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
               <span 
@@ -103,30 +108,8 @@ const TickerBand = () => {
               </span>
               <span className="text-sm opacity-50 ml-4">•</span>
             </div>
-          ))}
-        </div>
-        
-        {/* Second ticker strip for seamless continuation */}
-        <div 
-          className="flex whitespace-nowrap animate-marquee"
-          style={{ minWidth: '100%' }}
-        >
-          {tickerData.concat(tickerData).map((ticker, index) => (
-            <div key={`strip2-${index}`} className="flex items-center mr-8 flex-shrink-0">
-              <span className="text-sm font-medium">{ticker.symbol}</span>
-              <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
-              <span 
-                className={`text-sm ml-2 ${
-                  ticker.change >= 0 ? 'text-green-400' : 'text-red-400'
-                }`}
-              >
-                {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} 
-                ({ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%)
-              </span>
-              <span className="text-sm opacity-50 ml-4">•</span>
-            </div>
-          ))}
-        </div>
+          ))
+        )}
       </div>
     </div>
   );
