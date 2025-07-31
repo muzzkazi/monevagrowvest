@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import yahooFinance from 'yahoo-finance2';
 
 interface TickerData {
   symbol: string;
@@ -16,8 +17,6 @@ const TickerBand = () => {
   useEffect(() => {
     const fetchTickerData = async () => {
       try {
-        const API_KEY = 'MAWLLGQUCZPH288B';
-        
         // Popular US stocks
         const symbols = [
           'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'JPM', 'JNJ', 'V',
@@ -27,21 +26,17 @@ const TickerBand = () => {
           'LOW', 'IBM', 'AMGN', 'RTX', 'ELV', 'SBUX', 'GILD', 'CAT', 'AMT', 'BKNG'
         ];
 
-        // Fetch data from Alpha Vantage API
+        // Fetch data from Yahoo Finance
         const tickerPromises = symbols.map(async (symbol) => {
           try {
-            const response = await fetch(
-              `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`
-            );
-            const data = await response.json();
+            const quote = await yahooFinance.quote(symbol);
             
-            if (data['Global Quote']) {
-              const quote = data['Global Quote'];
+            if (quote && quote.regularMarketPrice) {
               return {
                 symbol: symbol,
-                price: parseFloat(quote['05. price']),
-                change: parseFloat(quote['09. change']),
-                changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
+                price: quote.regularMarketPrice,
+                change: quote.regularMarketChange || 0,
+                changePercent: quote.regularMarketChangePercent || 0,
               };
             } else {
               console.warn(`No data received for ${symbol}`);
