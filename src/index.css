@@ -147,6 +147,10 @@ All colors MUST be HSL.
   .animate-scroll-fast {
     animation: scroll 10s linear infinite;
   }
+
+  .animate-scroll-2x {
+    animation: scroll 5s linear infinite;
+  }
 }
 
 @layer base {
