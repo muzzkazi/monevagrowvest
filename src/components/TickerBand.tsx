@@ -83,39 +83,43 @@ const TickerBand = () => {
 
   return (
     <div className="bg-financial-dark text-white py-3 overflow-hidden relative w-full z-10" style={{ minHeight: '40px' }}>
-      <div className="flex animate-ticker-scroll whitespace-nowrap">
-        {/* First set of tickers */}
-        {tickerData.map((ticker, index) => (
-          <div key={`first-${ticker.symbol}`} className="flex items-center mr-8 flex-shrink-0">
-            <span className="text-sm font-medium">{ticker.symbol}</span>
-            <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
-            <span 
-              className={`text-sm ml-2 ${
-                ticker.change >= 0 ? 'text-green-400' : 'text-red-400'
-              }`}
-            >
-              {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} 
-              ({ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%)
-            </span>
-            <span className="text-sm opacity-50 ml-4">•</span>
-          </div>
-        ))}
-        {/* Duplicate set for seamless loop */}
-        {tickerData.map((ticker, index) => (
-          <div key={`second-${ticker.symbol}`} className="flex items-center mr-8 flex-shrink-0">
-            <span className="text-sm font-medium">{ticker.symbol}</span>
-            <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
-            <span 
-              className={`text-sm ml-2 ${
-                ticker.change >= 0 ? 'text-green-400' : 'text-red-400'
-              }`}
-            >
-              {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} 
-              ({ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%)
-            </span>
-            <span className="text-sm opacity-50 ml-4">•</span>
-          </div>
-        ))}
+      <div className="flex animate-ticker-scroll whitespace-nowrap" style={{ width: '200%' }}>
+        {/* First complete set */}
+        <div className="flex whitespace-nowrap" style={{ width: '50%' }}>
+          {tickerData.map((ticker, index) => (
+            <div key={`set1-${ticker.symbol}`} className="flex items-center mr-8 flex-shrink-0">
+              <span className="text-sm font-medium">{ticker.symbol}</span>
+              <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
+              <span 
+                className={`text-sm ml-2 ${
+                  ticker.change >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}
+              >
+                {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} 
+                ({ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%)
+              </span>
+              <span className="text-sm opacity-50 ml-4">•</span>
+            </div>
+          ))}
+        </div>
+        {/* Second complete set for seamless loop */}
+        <div className="flex whitespace-nowrap" style={{ width: '50%' }}>
+          {tickerData.map((ticker, index) => (
+            <div key={`set2-${ticker.symbol}`} className="flex items-center mr-8 flex-shrink-0">
+              <span className="text-sm font-medium">{ticker.symbol}</span>
+              <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
+              <span 
+                className={`text-sm ml-2 ${
+                  ticker.change >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}
+              >
+                {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} 
+                ({ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%)
+              </span>
+              <span className="text-sm opacity-50 ml-4">•</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
