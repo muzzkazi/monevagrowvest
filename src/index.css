@@ -143,7 +143,7 @@ All colors MUST be HSL.
 
   @keyframes marquee {
     0% {
-      transform: translateX(100vw);
+      transform: translateX(0%);
     }
     100% {
       transform: translateX(-100%);
@@ -162,8 +162,8 @@ All colors MUST be HSL.
     animation: scroll 5s linear infinite;
   }
 
-  .animate-infinite-scroll {
-    animation: infinite-scroll 120s linear infinite;
+  .animate-marquee {
+    animation: marquee 120s linear infinite;
   }
 }
 
