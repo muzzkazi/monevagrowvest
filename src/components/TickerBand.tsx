@@ -77,7 +77,7 @@ const TickerBand = () => {
 
   return (
     <div className="bg-financial-dark text-white py-3 overflow-hidden relative w-full z-10" style={{ minHeight: '40px' }}>
-      <div className="flex animate-scroll whitespace-nowrap">
+      <div className="flex animate-scroll-fast whitespace-nowrap">
         {tickerData.map((ticker, index) => (
           <div key={ticker.symbol} className="flex items-center mr-8">
             <span className="text-sm font-medium">{ticker.symbol}</span>
