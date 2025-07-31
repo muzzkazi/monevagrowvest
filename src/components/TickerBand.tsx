@@ -16,7 +16,9 @@ const TickerBand = () => {
   useEffect(() => {
     const fetchTickerData = async () => {
       try {
-        // Popular US stocks for demo - you'll need Alpha Vantage API key for real data
+        const API_KEY = 'MAWLLGQUCZPH288B';
+        
+        // Popular US stocks
         const symbols = [
           'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'JPM', 'JNJ', 'V',
           'PG', 'UNH', 'HD', 'MA', 'BAC', 'ABBV', 'PFE', 'KO', 'AVGO', 'XOM',
@@ -25,22 +27,40 @@ const TickerBand = () => {
           'LOW', 'IBM', 'AMGN', 'RTX', 'ELV', 'SBUX', 'GILD', 'CAT', 'AMT', 'BKNG'
         ];
 
-        // For demo purposes, generate mock data
-        // In production, replace with actual Alpha Vantage API calls
-        const mockData = symbols.map(symbol => {
-          const basePrice = Math.random() * 500 + 50;
-          const change = (Math.random() - 0.5) * 20;
-          const changePercent = (change / basePrice) * 100;
-          
-          return {
-            symbol,
-            price: basePrice,
-            change,
-            changePercent
-          };
+        // Fetch data from Alpha Vantage API
+        const tickerPromises = symbols.map(async (symbol) => {
+          try {
+            const response = await fetch(
+              `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`
+            );
+            const data = await response.json();
+            
+            if (data['Global Quote']) {
+              const quote = data['Global Quote'];
+              return {
+                symbol: symbol,
+                price: parseFloat(quote['05. price']),
+                change: parseFloat(quote['09. change']),
+                changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
+              };
+            } else {
+              console.warn(`No data received for ${symbol}`);
+              return null;
+            }
+          } catch (err) {
+            console.error(`Error fetching data for ${symbol}:`, err);
+            return null;
+          }
         });
 
-        setTickerData(mockData);
+        const results = await Promise.all(tickerPromises);
+        const validResults = results.filter((result): result is TickerData => result !== null);
+        
+        if (validResults.length > 0) {
+          setTickerData(validResults);
+        } else {
+          setError('No market data available');
+        }
         setLoading(false);
       } catch (err) {
         console.error('Error fetching ticker data:', err);
