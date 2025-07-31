@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { NseIndia } from 'stock-nse-india';
 
 interface TickerData {
   symbol: string;
@@ -17,35 +16,31 @@ const TickerBand = () => {
   useEffect(() => {
     const fetchTickerData = async () => {
       try {
-        const nseIndia = new NseIndia();
-        
-        // Fetch data for top 50 NSE stocks
+        // Popular US stocks for demo - you'll need Alpha Vantage API key for real data
         const symbols = [
-          'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'HINDUNILVR', 'ICICIBANK', 'KOTAKBANK', 'LT', 'SBIN', 'BHARTIARTL',
-          'ASIANPAINT', 'ITC', 'AXISBANK', 'BAJFINANCE', 'MARUTI', 'NESTLEIND', 'HCLTECH', 'WIPRO', 'ULTRACEMCO', 'TITAN',
-          'SUNPHARMA', 'ONGC', 'NTPC', 'POWERGRID', 'BAJAJFINSV', 'M&M', 'TECHM', 'TATAMOTORS', 'COALINDIA', 'JSWSTEEL',
-          'GRASIM', 'INDUSINDBK', 'ADANIENT', 'HINDALCO', 'TATASTEEL', 'CIPLA', 'DRREDDY', 'BRITANNIA', 'BPCL', 'EICHERMOT',
-          'APOLLOHOSP', 'DIVISLAB', 'TATACONSUM', 'BAJAJ-AUTO', 'HEROMOTOCO', 'PIDILITIND', 'GODREJCP', 'SBILIFE', 'HDFCLIFE', 'ADANIPORTS'
+          'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'JPM', 'JNJ', 'V',
+          'PG', 'UNH', 'HD', 'MA', 'BAC', 'ABBV', 'PFE', 'KO', 'AVGO', 'XOM',
+          'WMT', 'LLY', 'TMO', 'COST', 'DIS', 'ABT', 'ACN', 'VZ', 'ADBE', 'DHR',
+          'NKE', 'TXN', 'CMCSA', 'CVX', 'NEE', 'QCOM', 'PM', 'SPGI', 'HON', 'UPS',
+          'LOW', 'IBM', 'AMGN', 'RTX', 'ELV', 'SBUX', 'GILD', 'CAT', 'AMT', 'BKNG'
         ];
-        const tickerPromises = symbols.map(async (symbol) => {
-          try {
-            const data = await nseIndia.getEquityDetails(symbol);
-            return {
-              symbol: symbol,
-              price: data.priceInfo?.lastPrice || 0,
-              change: data.priceInfo?.change || 0,
-              changePercent: data.priceInfo?.pChange || 0,
-            };
-          } catch (err) {
-            console.error(`Error fetching data for ${symbol}:`, err);
-            return null;
-          }
+
+        // For demo purposes, generate mock data
+        // In production, replace with actual Alpha Vantage API calls
+        const mockData = symbols.map(symbol => {
+          const basePrice = Math.random() * 500 + 50;
+          const change = (Math.random() - 0.5) * 20;
+          const changePercent = (change / basePrice) * 100;
+          
+          return {
+            symbol,
+            price: basePrice,
+            change,
+            changePercent
+          };
         });
 
-        const results = await Promise.all(tickerPromises);
-        const validResults = results.filter((result): result is TickerData => result !== null);
-        
-        setTickerData(validResults);
+        setTickerData(mockData);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching ticker data:', err);
