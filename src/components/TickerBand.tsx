@@ -81,36 +81,33 @@ const TickerBand = () => {
     );
   }
 
-  // Create a long continuous string of all tickers repeated multiple times
-  const createTickerContent = () => {
-    const tickerElements = [];
-    // Repeat the ticker data 4 times to ensure continuous flow
-    for (let repeat = 0; repeat < 4; repeat++) {
-      tickerData.forEach((ticker, index) => {
-        tickerElements.push(
-          <div key={`${repeat}-${ticker.symbol}`} className="flex items-center mr-8 flex-shrink-0">
-            <span className="text-sm font-medium">{ticker.symbol}</span>
-            <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
-            <span 
-              className={`text-sm ml-2 ${
-                ticker.change >= 0 ? 'text-green-400' : 'text-red-400'
-              }`}
-            >
-              {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} 
-              ({ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%)
-            </span>
-            <span className="text-sm opacity-50 ml-4">•</span>
-          </div>
-        );
-      });
-    }
-    return tickerElements;
-  };
-
   return (
     <div className="bg-financial-dark text-white py-3 overflow-hidden relative w-full z-10" style={{ minHeight: '40px' }}>
-      <div className="flex animate-infinite-scroll whitespace-nowrap">
-        {createTickerContent()}
+      <div 
+        className="flex whitespace-nowrap"
+        style={{
+          animation: 'marquee 240s linear infinite',
+          width: 'max-content'
+        }}
+      >
+        {/* Repeat ticker data 8 times to ensure no gaps */}
+        {Array.from({ length: 8 }, (_, repeatIndex) =>
+          tickerData.map((ticker, index) => (
+            <div key={`${repeatIndex}-${ticker.symbol}-${index}`} className="flex items-center mr-8 flex-shrink-0">
+              <span className="text-sm font-medium">{ticker.symbol}</span>
+              <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
+              <span 
+                className={`text-sm ml-2 ${
+                  ticker.change >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}
+              >
+                {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} 
+                ({ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%)
+              </span>
+              <span className="text-sm opacity-50 ml-4">•</span>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

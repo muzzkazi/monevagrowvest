@@ -141,12 +141,12 @@ All colors MUST be HSL.
     }
   }
 
-  @keyframes infinite-scroll {
+  @keyframes marquee {
     0% {
-      transform: translateX(0);
+      transform: translateX(100vw);
     }
     100% {
-      transform: translateX(-25%);
+      transform: translateX(-100%);
     }
   }
 
