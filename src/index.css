@@ -141,12 +141,12 @@ All colors MUST be HSL.
     }
   }
 
-  @keyframes ticker-scroll {
+  @keyframes infinite-scroll {
     0% {
       transform: translateX(0);
     }
     100% {
-      transform: translateX(-50%);
+      transform: translateX(-25%);
     }
   }
 
@@ -162,8 +162,8 @@ All colors MUST be HSL.
     animation: scroll 5s linear infinite;
   }
 
-  .animate-ticker-scroll {
-    animation: ticker-scroll 60s linear infinite;
+  .animate-infinite-scroll {
+    animation: infinite-scroll 120s linear infinite;
   }
 }
 
