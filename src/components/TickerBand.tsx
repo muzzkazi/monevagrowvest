@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import yahooFinance from 'yahoo-finance2';
 
 interface TickerData {
   symbol: string;
@@ -13,30 +12,41 @@ const TickerBand = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const tickerRef = useRef<HTMLDivElement>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const fetchTickerData = async () => {
-      try {
-        // Popular US stocks
-        const symbols = [
-          'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'JPM', 'JNJ', 'V',
-          'PG', 'UNH', 'HD', 'MA', 'BAC', 'ABBV', 'PFE', 'KO', 'AVGO', 'XOM',
-          'WMT', 'LLY', 'TMO', 'COST', 'DIS', 'ABT', 'ACN', 'VZ', 'ADBE', 'DHR',
-          'NKE', 'TXN', 'CMCSA', 'CVX', 'NEE', 'QCOM', 'PM', 'SPGI', 'HON', 'UPS',
-          'LOW', 'IBM', 'AMGN', 'RTX', 'ELV', 'SBUX', 'GILD', 'CAT', 'AMT', 'BKNG'
-        ];
+    const symbols = [
+      'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'JPM', 'JNJ', 'V',
+      'PG', 'UNH', 'HD', 'MA', 'BAC', 'ABBV', 'PFE', 'KO', 'AVGO', 'XOM',
+      'WMT', 'LLY', 'TMO', 'COST', 'DIS', 'ABT', 'ACN', 'VZ', 'ADBE', 'DHR',
+      'NKE', 'TXN', 'CMCSA', 'CVX', 'NEE', 'QCOM', 'PM', 'SPGI', 'HON', 'UPS',
+      'LOW', 'IBM', 'AMGN', 'RTX', 'ELV', 'SBUX', 'GILD', 'CAT', 'AMT', 'BKNG'
+    ];
 
-        // Fetch data from Yahoo Finance
+    const fetchInitialData = async () => {
+      try {
+        console.log('Fetching initial ticker data...');
+        
+        // Using a financial data API that provides better real-time data
         const tickerPromises = symbols.map(async (symbol) => {
           try {
-            const quote = await yahooFinance.quote(symbol);
+            // Using Finnhub API for real-time data (free tier available)
+            const response = await fetch(
+              `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=demo`
+            );
+            const data = await response.json();
             
-            if (quote && quote.regularMarketPrice) {
+            console.log(`Data for ${symbol}:`, data);
+            
+            if (data && data.c) {
+              const change = data.c - data.pc;
+              const changePercent = (change / data.pc) * 100;
+              
               return {
                 symbol: symbol,
-                price: quote.regularMarketPrice,
-                change: quote.regularMarketChange || 0,
-                changePercent: quote.regularMarketChangePercent || 0,
+                price: data.c, // current price
+                change: change,
+                changePercent: changePercent,
               };
             } else {
               console.warn(`No data received for ${symbol}`);
@@ -51,6 +61,8 @@ const TickerBand = () => {
         const results = await Promise.all(tickerPromises);
         const validResults = results.filter((result): result is TickerData => result !== null);
         
+        console.log('Valid results:', validResults);
+        
         if (validResults.length > 0) {
           setTickerData(validResults);
         } else {
@@ -64,12 +76,75 @@ const TickerBand = () => {
       }
     };
 
-    fetchTickerData();
+    // WebSocket for real-time updates
+    const connectWebSocket = () => {
+      try {
+        // Using a WebSocket service for real-time updates
+        // Note: This is a mock implementation - replace with actual WebSocket endpoint
+        const ws = new WebSocket('wss://ws.finnhub.io?token=demo');
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+          console.log('WebSocket connected');
+          // Subscribe to symbols
+          symbols.forEach(symbol => {
+            ws.send(JSON.stringify({type: 'subscribe', symbol: symbol}));
+          });
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('WebSocket data:', data);
+            
+            if (data.type === 'trade' && data.data) {
+              data.data.forEach((trade: any) => {
+                setTickerData(prev => prev.map(ticker => {
+                  if (ticker.symbol === trade.s) {
+                    const change = trade.p - ticker.price;
+                    const changePercent = (change / ticker.price) * 100;
+                    return {
+                      ...ticker,
+                      price: trade.p,
+                      change: change,
+                      changePercent: changePercent
+                    };
+                  }
+                  return ticker;
+                }));
+              });
+            }
+          } catch (err) {
+            console.error('Error parsing WebSocket data:', err);
+          }
+        };
+
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = () => {
+          console.log('WebSocket disconnected, attempting to reconnect...');
+          setTimeout(connectWebSocket, 5000);
+        };
+      } catch (err) {
+        console.error('Error connecting WebSocket:', err);
+        // Fallback to polling
+        const interval = setInterval(fetchInitialData, 10000);
+        return () => clearInterval(interval);
+      }
+    };
+
+    fetchInitialData();
     
-    // Update data every 30 seconds
-    const interval = setInterval(fetchTickerData, 30000);
-    
-    return () => clearInterval(interval);
+    // Start WebSocket connection after initial data load
+    setTimeout(connectWebSocket, 2000);
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
   }, []);
 
   if (loading) {
@@ -107,7 +182,7 @@ const TickerBand = () => {
           tickerData.map((ticker, index) => (
             <div key={`set${setNum}-${ticker.symbol}-${index}`} className="flex items-center mr-8 flex-shrink-0">
               <span className="text-sm font-medium">{ticker.symbol}</span>
-              <span className="text-sm ml-2">₹{ticker.price.toFixed(2)}</span>
+              <span className="text-sm ml-2">${ticker.price.toFixed(2)}</span>
               <span 
                 className={`text-sm ml-2 ${
                   ticker.change >= 0 ? 'text-green-400' : 'text-red-400'
