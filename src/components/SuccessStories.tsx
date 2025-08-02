@@ -55,55 +55,69 @@ const SuccessStories = () => {
   ];
 
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
-            Real Stories, <span className="text-financial-accent">Real Success</span>
+    <section className="py-32 bg-background relative overflow-hidden">
+      {/* Background elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-financial-tertiary/6 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-financial-gold/8 rounded-full blur-2xl animate-float" style={{ animationDelay: '2s' }}></div>
+      </div>
+      
+      <div className="container mx-auto px-4 relative">
+        <div className="text-center mb-20 animate-fade-in-up">
+          <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-glass backdrop-blur-sm border border-financial-accent/20 mb-6">
+            <span className="text-sm font-medium text-financial-primary">🏆 Success Stories</span>
+          </div>
+          
+          <h2 className="text-5xl lg:text-6xl font-bold mb-8 leading-tight">
+            Real Stories, <span className="gradient-text">Real Success</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl lg:text-2xl text-financial-secondary max-w-4xl mx-auto leading-relaxed font-light">
             Discover how our clients transformed their financial lives with smart planning and disciplined investing
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 gap-12 mb-16">
           {stories.map((story, index) => (
-            <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
-              <div className="relative">
+            <Card key={index} className="glass border-0 shadow-glass overflow-hidden hover-lift hover-glow group animate-scale-in" style={{ animationDelay: `${index * 0.15}s` }}>
+              <div className="relative overflow-hidden">
                 <img
                   src={story.image}
                   alt={story.title}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute top-4 left-4 bg-white/90 p-2 rounded-lg">
+                <div className="absolute inset-0 bg-gradient-primary/20 group-hover:bg-gradient-primary/10 transition-colors"></div>
+                <div className="absolute top-6 left-6 glass p-4 rounded-2xl backdrop-blur-sm">
                   {story.icon}
+                </div>
+                <div className="absolute bottom-6 left-6 right-6">
+                  <div className="glass p-4 rounded-xl backdrop-blur-sm">
+                    <h3 className="text-xl font-bold text-white mb-1">{story.title}</h3>
+                    <p className="text-financial-gold-light text-sm font-medium">{story.story}</p>
+                  </div>
                 </div>
               </div>
               
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold">{story.title}</h3>
-                    <p className="text-sm text-financial-accent">{story.story}</p>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent>
-                <p className="text-muted-foreground mb-6">{story.description}</p>
+              <CardContent className="p-8">
+                <p className="text-financial-secondary leading-relaxed mb-8 text-lg">{story.description}</p>
                 
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-financial-accent">{story.metrics.timeline}</p>
-                    <p className="text-xs text-muted-foreground">Timeline</p>
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="text-center group/metric hover-lift">
+                    <div className="bg-gradient-accent/10 p-4 rounded-xl mb-3 group-hover/metric:bg-gradient-accent/20 transition-colors">
+                      <p className="text-lg font-bold gradient-text">{story.metrics.timeline}</p>
+                    </div>
+                    <p className="text-sm text-financial-secondary font-medium">Timeline</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-financial-accent">{story.metrics.investment}</p>
-                    <p className="text-xs text-muted-foreground">Investment</p>
+                  <div className="text-center group/metric hover-lift">
+                    <div className="bg-gradient-accent/10 p-4 rounded-xl mb-3 group-hover/metric:bg-gradient-accent/20 transition-colors">
+                      <p className="text-lg font-bold gradient-text">{story.metrics.investment}</p>
+                    </div>
+                    <p className="text-sm text-financial-secondary font-medium">Investment</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-financial-accent">{story.metrics.result}</p>
-                    <p className="text-xs text-muted-foreground">Result</p>
+                  <div className="text-center group/metric hover-lift">
+                    <div className="bg-gradient-accent/10 p-4 rounded-xl mb-3 group-hover/metric:bg-gradient-accent/20 transition-colors">
+                      <p className="text-lg font-bold gradient-text">{story.metrics.result}</p>
+                    </div>
+                    <p className="text-sm text-financial-secondary font-medium">Result</p>
                   </div>
                 </div>
               </CardContent>
@@ -111,12 +125,15 @@ const SuccessStories = () => {
           ))}
         </div>
 
-        <div className="text-center">
+        <div className="text-center animate-slide-in-right">
           <Button 
-            className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-3"
+            className="group bg-gradient-accent hover:shadow-glow hover:scale-105 transition-spring text-white px-12 py-6 text-xl font-semibold rounded-2xl hover-lift"
             onClick={() => window.location.href = '/contact'}
           >
-            Start Your Success Story
+            <span className="flex items-center gap-3">
+              Start Your Success Story
+              <span className="group-hover:translate-x-1 transition-transform">🚀</span>
+            </span>
           </Button>
         </div>
       </div>
