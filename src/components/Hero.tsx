@@ -9,83 +9,118 @@ const Hero = () => {
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 1400 });
 
   return (
-    <section id="home" className="relative min-h-screen bg-gradient-hero pt-20 overflow-hidden">
-      {/* Animated background elements */}
+    <section id="home" className="relative min-h-screen bg-gradient-mesh pt-20 overflow-hidden">
+      {/* Enhanced animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-financial-gold/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-financial-accent/10 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 right-1/3 w-32 h-32 bg-financial-gold/5 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/4 left-1/4 w-88 h-88 bg-financial-accent/8 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-financial-gold/6 rounded-full blur-2xl animate-float" style={{ animationDelay: '1.5s' }}></div>
+        <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-financial-tertiary/4 rounded-full blur-xl animate-float" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-financial-accent-light/5 rounded-full blur-lg animate-float" style={{ animationDelay: '4.5s' }}></div>
       </div>
       
       <div className="container mx-auto px-4 py-20 relative">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8 animate-fade-in">
-            <div className="space-y-4">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-10 animate-fade-in-up">
+            <div className="space-y-6">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-glass backdrop-blur-sm border border-financial-accent/20 animate-shimmer">
+                <span className="text-sm font-medium text-financial-primary">🚀 Premium Financial Planning</span>
+              </div>
+              
+              <h1 className="text-6xl lg:text-8xl font-bold leading-tight tracking-tight">
                 Take control of your{" "}
-                <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent animate-pulse">
+                <span className="gradient-text animate-pulse-glow">
                   financial destiny
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-                Whether you're saving for a new home, planning your child's education, or growing your retirement fund, we're here to support you in reaching your financial goals.
+              
+              <p className="text-xl lg:text-2xl text-financial-secondary leading-relaxed max-w-2xl font-light">
+                Whether you're saving for a new home, planning your child's education, or growing your retirement fund, 
+                we're here to support you in reaching your financial goals with expert guidance.
               </p>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
-                className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-8 py-4 text-lg shadow-lg"
+                className="group bg-gradient-accent hover:shadow-glow hover:scale-105 transition-spring text-white px-10 py-6 text-lg font-semibold rounded-2xl hover-lift"
                 onClick={() => window.location.href = '/contact'}
               >
-                Start Your Journey
+                <span className="flex items-center gap-2">
+                  Start Your Journey
+                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                </span>
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="px-8 py-4 text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white hover:scale-105 transition-all duration-300"
+                className="glass px-10 py-6 text-lg font-semibold border-financial-accent/30 text-financial-primary hover:bg-financial-accent/10 hover:scale-105 transition-spring rounded-2xl hover-lift"
                 onClick={() => window.location.href = '/contact'}
               >
                 Schedule Consultation
               </Button>
             </div>
             
-            <div className="flex items-center gap-8 pt-8 stagger-fade-in">
-              <div className="text-center hover-lift group">
-                <div className="text-3xl font-bold text-financial-accent group-hover:text-financial-gold transition-colors duration-300">
-                  100%
+            <div className="grid grid-cols-3 gap-8 pt-12">
+              <div className="text-center group hover-lift">
+                <div className="p-4 rounded-2xl bg-gradient-card shadow-card group-hover:shadow-accent transition-smooth">
+                  <div className="text-4xl font-bold gradient-text mb-2">
+                    100%
+                  </div>
+                  <div className="text-sm text-financial-secondary font-medium">Research Based</div>
                 </div>
-                <div className="text-sm text-muted-foreground">Research Based</div>
               </div>
-              <div className="text-center hover-lift group">
-                <div ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent group-hover:text-financial-gold transition-colors duration-300">
-                  {clientsCount.value}
+              <div className="text-center group hover-lift">
+                <div className="p-4 rounded-2xl bg-gradient-card shadow-card group-hover:shadow-accent transition-smooth">
+                  <div ref={clientsCount.ref} className="text-4xl font-bold gradient-text mb-2">
+                    {clientsCount.value}
+                  </div>
+                  <div className="text-sm text-financial-secondary font-medium">Happy Clients</div>
                 </div>
-                <div className="text-sm text-muted-foreground">Happy Clients</div>
               </div>
-              <div className="text-center hover-lift group">
-                <div ref={aumCount.ref} className="text-3xl font-bold text-financial-accent group-hover:text-financial-gold transition-colors duration-300">
-                  {aumCount.value}
+              <div className="text-center group hover-lift">
+                <div className="p-4 rounded-2xl bg-gradient-card shadow-card group-hover:shadow-accent transition-smooth">
+                  <div ref={aumCount.ref} className="text-4xl font-bold gradient-text mb-2">
+                    {aumCount.value}
+                  </div>
+                  <div className="text-sm text-financial-secondary font-medium">Assets Managed</div>
                 </div>
-                <div className="text-sm text-muted-foreground">Assets Managed</div>
               </div>
             </div>
           </div>
           
-          <div className="relative animate-slide-up">
+          <div className="relative animate-slide-in-right">
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-              <img 
-                src={heroImage} 
-                alt="Financial Success" 
-                className="relative w-full h-auto rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute -top-4 -right-4 bg-gradient-gold p-6 rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
+              {/* Enhanced glow effect */}
+              <div className="absolute inset-0 bg-gradient-accent/20 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-700 animate-pulse-glow"></div>
+              
+              {/* Main image */}
+              <div className="relative">
+                <img 
+                  src={heroImage} 
+                  alt="Financial Success" 
+                  className="relative w-full h-auto rounded-3xl shadow-glass transform group-hover:scale-105 transition-spring"
+                />
+                
+                {/* Glass overlay for depth */}
+                <div className="absolute inset-0 bg-gradient-glass rounded-3xl opacity-30"></div>
+              </div>
+              
+              {/* Enhanced floating stats card */}
+              <div className="absolute -top-6 -right-6 glass p-8 rounded-3xl shadow-glass animate-float hover:animate-none hover:scale-110 transition-spring cursor-pointer group/card">
                 <div className="text-center">
-                  <div ref={returnsCount.ref} className="text-2xl font-bold text-financial-primary">
+                  <div ref={returnsCount.ref} className="text-3xl font-bold gradient-text mb-1">
                     {returnsCount.value}
                   </div>
-                  <div className="text-sm text-financial-secondary">Avg. Returns</div>
+                  <div className="text-sm text-financial-secondary font-medium">Avg. Returns</div>
+                  <div className="w-full h-1 bg-gradient-accent rounded-full mt-3 opacity-70 group-hover/card:opacity-100 transition-opacity"></div>
+                </div>
+              </div>
+              
+              {/* Additional floating element */}
+              <div className="absolute -bottom-4 -left-4 glass p-6 rounded-2xl shadow-glass animate-float hover:scale-110 transition-spring cursor-pointer" style={{ animationDelay: '2s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-financial-success rounded-full animate-pulse"></div>
+                  <div className="text-sm font-medium text-financial-primary">Live Portfolio</div>
                 </div>
               </div>
             </div>

@@ -55,74 +55,69 @@ const SuccessStories = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-background to-financial-muted/20 relative overflow-hidden">
-      {/* Mesh gradient background */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-financial-accent/5 via-transparent to-financial-gold/5"></div>
-        <div className="absolute top-1/3 right-0 w-96 h-96 bg-financial-accent/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-financial-gold/10 rounded-full blur-2xl animate-float-delayed"></div>
+    <section className="py-32 bg-background relative overflow-hidden">
+      {/* Background elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-financial-tertiary/6 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-financial-gold/8 rounded-full blur-2xl animate-float" style={{ animationDelay: '2s' }}></div>
       </div>
       
       <div className="container mx-auto px-4 relative">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl lg:text-5xl font-display font-bold mb-6">
-            Real Stories, <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">Real Success</span>
+        <div className="text-center mb-20 animate-fade-in-up">
+          <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-glass backdrop-blur-sm border border-financial-accent/20 mb-6">
+            <span className="text-sm font-medium text-financial-primary">🏆 Success Stories</span>
+          </div>
+          
+          <h2 className="text-5xl lg:text-6xl font-bold mb-8 leading-tight">
+            Real Stories, <span className="gradient-text">Real Success</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl lg:text-2xl text-financial-secondary max-w-4xl mx-auto leading-relaxed font-light">
             Discover how our clients transformed their financial lives with smart planning and disciplined investing
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-12 stagger-fade-in">
+        <div className="grid md:grid-cols-2 gap-12 mb-16">
           {stories.map((story, index) => (
-            <Card key={index} className="glass-card border-0 shadow-premium overflow-hidden hover-lift hover-glow group cursor-pointer">
+            <Card key={index} className="glass border-0 shadow-glass overflow-hidden hover-lift hover-glow group animate-scale-in" style={{ animationDelay: `${index * 0.15}s` }}>
               <div className="relative overflow-hidden">
                 <img
                   src={story.image}
                   alt={story.title}
-                  className="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
-                {/* Floating icon */}
-                <div className="absolute top-4 left-4 glass-card p-3 rounded-xl backdrop-blur-md group-hover:scale-110 transition-transform duration-300">
-                  <div className="relative z-10">
-                    {story.icon}
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-financial-accent/20 to-financial-gold/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-primary/20 group-hover:bg-gradient-primary/10 transition-colors"></div>
+                <div className="absolute top-6 left-6 glass p-4 rounded-2xl backdrop-blur-sm">
+                  {story.icon}
                 </div>
-
-                {/* Success badge */}
-                <div className="absolute top-4 right-4 glass-card px-3 py-1 rounded-full backdrop-blur-md">
-                  <span className="text-xs font-medium text-financial-accent">✨ Success</span>
+                <div className="absolute bottom-6 left-6 right-6">
+                  <div className="glass p-4 rounded-xl backdrop-blur-sm">
+                    <h3 className="text-xl font-bold text-white mb-1">{story.title}</h3>
+                    <p className="text-financial-gold-light text-sm font-medium">{story.story}</p>
+                  </div>
                 </div>
               </div>
               
-              <CardHeader className="relative">
-                <CardTitle className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground group-hover:text-financial-accent transition-colors duration-300">{story.title}</h3>
-                    <p className="text-sm text-financial-accent font-medium">{story.story}</p>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent className="relative">
-                <p className="text-muted-foreground mb-6 leading-relaxed">{story.description}</p>
+              <CardContent className="p-8">
+                <p className="text-financial-secondary leading-relaxed mb-8 text-lg">{story.description}</p>
                 
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className="text-center p-3 rounded-lg bg-gradient-to-br from-financial-accent/5 to-financial-gold/5 group-hover:from-financial-accent/10 group-hover:to-financial-gold/10 transition-all duration-300">
-                    <p className="text-sm font-bold text-financial-accent">{story.metrics.timeline}</p>
-                    <p className="text-xs text-muted-foreground">Timeline</p>
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="text-center group/metric hover-lift">
+                    <div className="bg-gradient-accent/10 p-4 rounded-xl mb-3 group-hover/metric:bg-gradient-accent/20 transition-colors">
+                      <p className="text-lg font-bold gradient-text">{story.metrics.timeline}</p>
+                    </div>
+                    <p className="text-sm text-financial-secondary font-medium">Timeline</p>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-gradient-to-br from-financial-accent/5 to-financial-gold/5 group-hover:from-financial-accent/10 group-hover:to-financial-gold/10 transition-all duration-300">
-                    <p className="text-sm font-bold text-financial-accent">{story.metrics.investment}</p>
-                    <p className="text-xs text-muted-foreground">Investment</p>
+                  <div className="text-center group/metric hover-lift">
+                    <div className="bg-gradient-accent/10 p-4 rounded-xl mb-3 group-hover/metric:bg-gradient-accent/20 transition-colors">
+                      <p className="text-lg font-bold gradient-text">{story.metrics.investment}</p>
+                    </div>
+                    <p className="text-sm text-financial-secondary font-medium">Investment</p>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-gradient-to-br from-financial-accent/5 to-financial-gold/5 group-hover:from-financial-accent/10 group-hover:to-financial-gold/10 transition-all duration-300">
-                    <p className="text-sm font-bold text-financial-accent">{story.metrics.result}</p>
-                    <p className="text-xs text-muted-foreground">Result</p>
+                  <div className="text-center group/metric hover-lift">
+                    <div className="bg-gradient-accent/10 p-4 rounded-xl mb-3 group-hover/metric:bg-gradient-accent/20 transition-colors">
+                      <p className="text-lg font-bold gradient-text">{story.metrics.result}</p>
+                    </div>
+                    <p className="text-sm text-financial-secondary font-medium">Result</p>
                   </div>
                 </div>
               </CardContent>
@@ -130,14 +125,15 @@ const SuccessStories = () => {
           ))}
         </div>
 
-        <div className="text-center animate-spring-bounce">
+        <div className="text-center animate-slide-in-right">
           <Button 
-            variant="premium"
-            size="lg"
-            className="px-8 py-4 text-lg font-semibold shadow-floating hover:shadow-glow"
+            className="group bg-gradient-accent hover:shadow-glow hover:scale-105 transition-spring text-white px-12 py-6 text-xl font-semibold rounded-2xl hover-lift"
             onClick={() => window.location.href = '/contact'}
           >
-            ✨ Start Your Success Story
+            <span className="flex items-center gap-3">
+              Start Your Success Story
+              <span className="group-hover:translate-x-1 transition-transform">🚀</span>
+            </span>
           </Button>
         </div>
       </div>

@@ -18,10 +18,6 @@ export default {
 			}
 		},
 		extend: {
-			fontFamily: {
-				sans: ['Inter', 'system-ui', 'sans-serif'],
-				display: ['Playfair Display', 'serif'],
-			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -59,11 +55,17 @@ export default {
 				financial: {
 					primary: 'hsl(var(--financial-primary))',
 					secondary: 'hsl(var(--financial-secondary))',
+					tertiary: 'hsl(var(--financial-tertiary))',
 					dark: 'hsl(var(--financial-dark))',
 					gold: 'hsl(var(--financial-gold))',
 					'gold-light': 'hsl(var(--financial-gold-light))',
+					'gold-dark': 'hsl(var(--financial-gold-dark))',
 					accent: 'hsl(var(--financial-accent))',
-					muted: 'hsl(var(--financial-muted))'
+					'accent-light': 'hsl(var(--financial-accent-light))',
+					muted: 'hsl(var(--financial-muted))',
+					success: 'hsl(var(--financial-success))',
+					warning: 'hsl(var(--financial-warning))',
+					danger: 'hsl(var(--financial-danger))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -108,6 +110,16 @@ export default {
 						transform: 'translateY(0)'
 					}
 				},
+				'fade-in-up': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(40px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
 				'slide-up': {
 					'0%': {
 						opacity: '0',
@@ -118,49 +130,51 @@ export default {
 						transform: 'translateY(0)'
 					}
 				},
-				'float': {
-					'0%, 100%': {
-						transform: 'translateY(0px)'
+				'slide-in-right': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateX(30px)'
 					},
-					'50%': {
-						transform: 'translateY(-10px)'
+					'100%': {
+						opacity: '1',
+						transform: 'translateX(0)'
 					}
 				},
-				'float-delayed': {
+				'scale-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'scale(0.95)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'scale(1)'
+					}
+				},
+				'float': {
 					'0%, 100%': {
 						transform: 'translateY(0px) rotate(0deg)'
 					},
 					'33%': {
-						transform: 'translateY(-8px) rotate(1deg)'
+						transform: 'translateY(-10px) rotate(1deg)'
 					},
 					'66%': {
-						transform: 'translateY(-12px) rotate(-1deg)'
+						transform: 'translateY(5px) rotate(-1deg)'
 					}
 				},
-				'glow-pulse': {
+				'pulse-glow': {
 					'0%, 100%': {
-						boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)'
+						boxShadow: '0 0 20px hsl(var(--financial-accent) / 0.3)'
 					},
 					'50%': {
-						boxShadow: '0 0 40px rgba(59, 130, 246, 0.4)'
+						boxShadow: '0 0 40px hsl(var(--financial-accent) / 0.6)'
 					}
 				},
-				'spring-bounce': {
+				'shimmer': {
 					'0%': {
-						transform: 'scale(0.3) translateY(50px)',
-						opacity: '0'
-					},
-					'50%': {
-						transform: 'scale(1.05) translateY(-10px)',
-						opacity: '0.8'
-					},
-					'70%': {
-						transform: 'scale(0.95) translateY(5px)',
-						opacity: '0.9'
+						backgroundPosition: '-200% 0'
 					},
 					'100%': {
-						transform: 'scale(1) translateY(0)',
-						opacity: '1'
+						backgroundPosition: '200% 0'
 					}
 				},
 				'scroll': {
@@ -178,41 +192,84 @@ export default {
 					'100%': {
 						transform: 'translateX(-25%)'
 					}
+				},
+				'bounce-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'scale(0.3)'
+					},
+					'50%': {
+						opacity: '1',
+						transform: 'scale(1.05)'
+					},
+					'70%': {
+						transform: 'scale(0.9)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'scale(1)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.6s ease-out forwards',
+				'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
 				'slide-up': 'slide-up 0.6s ease-out forwards',
-				'float': 'float 3s ease-in-out infinite',
-				'float-delayed': 'float-delayed 4s ease-in-out infinite',
-				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
-				'spring-bounce': 'spring-bounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
+				'slide-in-right': 'slide-in-right 0.6s ease-out forwards',
+				'scale-in': 'scale-in 0.5s ease-out forwards',
+				'float': 'float 6s ease-in-out infinite',
+				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+				'shimmer': 'shimmer 2s infinite',
 				'scroll': 'scroll 35s linear infinite',
-				'scroll-fast': 'scroll-fast 25s linear infinite'
+				'scroll-fast': 'scroll-fast 25s linear infinite',
+				'bounce-in': 'bounce-in 0.6s ease-out'
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
-				'gradient-gold': 'var(--gradient-gold)',
 				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-card': 'var(--gradient-card)'
+				'gradient-gold': 'var(--gradient-gold)',
+				'gradient-accent': 'var(--gradient-accent)',
+				'gradient-card': 'var(--gradient-card)',
+				'gradient-glass': 'var(--gradient-glass)',
+				'gradient-mesh': 'var(--gradient-mesh)'
+			},
+			backdropBlur: {
+				'xs': '2px',
+				'3xl': '64px'
+			},
+			blur: {
+				'xs': '2px',
+				'3xl': '64px'
 			},
 			boxShadow: {
 				'financial': 'var(--shadow-financial)',
 				'gold': 'var(--shadow-gold)',
+				'accent': 'var(--shadow-accent)',
 				'card': 'var(--shadow-card)',
 				'glow': 'var(--shadow-glow)',
-				'premium': 'var(--shadow-premium)',
-				'floating': 'var(--shadow-floating)'
+				'glass': 'var(--shadow-glass)'
+			},
+			spacing: {
+				'18': '4.5rem',
+				'88': '22rem',
+				'128': '32rem'
+			},
+			fontSize: {
+				'2xs': ['0.625rem', { lineHeight: '0.75rem' }],
+				'3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+				'4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+				'5xl': ['3rem', { lineHeight: '1' }],
+				'6xl': ['3.75rem', { lineHeight: '1' }],
+				'7xl': ['4.5rem', { lineHeight: '1' }],
+				'8xl': ['6rem', { lineHeight: '1' }],
+				'9xl': ['8rem', { lineHeight: '1' }]
 			},
 			transitionTimingFunction: {
 				'smooth': 'var(--transition-smooth)',
-				'spring': 'var(--spring-bounce)',
-				'gentle': 'var(--spring-gentle)'
-			},
-			backdropBlur: {
-				'glass': '20px'
+				'bounce': 'var(--transition-bounce)',
+				'spring': 'var(--transition-spring)'
 			}
 		}
 	},
