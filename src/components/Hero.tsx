@@ -26,10 +26,10 @@ const Hero = () => {
                 <span className="text-sm font-medium text-financial-primary">🚀 Premium Financial Planning</span>
               </div>
               
-              <h1 className="text-6xl lg:text-8xl font-bold leading-tight tracking-tight">
+              <h1 className="text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
                 Take control of your{" "}
-                <span className="gradient-text animate-pulse-glow">
-                  financial destiny
+                <span className="gradient-text">
+                  financial future
                 </span>
               </h1>
               
