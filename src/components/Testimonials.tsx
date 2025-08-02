@@ -42,58 +42,43 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-32 bg-gradient-mesh relative overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/3 right-1/4 w-88 h-88 bg-financial-accent/5 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-financial-gold/4 rounded-full blur-2xl animate-float" style={{ animationDelay: '3s' }}></div>
-      </div>
-      
-      <div className="container mx-auto px-4 relative">
-        <div className="text-center mb-20 animate-fade-in-up">
-          <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-glass backdrop-blur-sm border border-financial-accent/20 mb-6">
-            <span className="text-sm font-medium text-financial-primary">⭐ Client Success Stories</span>
-          </div>
-          
-          <h2 className="text-5xl lg:text-6xl font-bold mb-8 leading-tight">
-            What Our <span className="gradient-text">Clients Say</span>
+    <section className="py-20 bg-financial-muted">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold mb-6">
+            What Our <span className="text-financial-accent">Clients Say</span>
           </h2>
-          <p className="text-xl lg:text-2xl text-financial-secondary max-w-4xl mx-auto leading-relaxed font-light">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Over 500+ satisfied clients started their financial journey with us in our first year
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="glass border-0 shadow-glass hover-lift hover-glow group animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
-              <CardContent className="p-8">
-                <div className="flex items-center mb-6">
-                  <div className="relative">
-                    <img
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      className="w-16 h-16 rounded-full object-cover border-2 border-financial-accent/20 group-hover:border-financial-accent/40 transition-colors"
-                    />
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-financial-success rounded-full border-2 border-white flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <h4 className="font-bold text-lg text-financial-primary">{testimonial.name}</h4>
-                    <p className="text-sm text-financial-secondary">{testimonial.location}</p>
+            <Card key={index} className="bg-gradient-card border-0 shadow-card hover-scale">
+              <CardContent className="p-6">
+                <div className="flex items-center mb-4">
+                  <img
+                    src={testimonial.image}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover mr-4"
+                  />
+                  <div>
+                    <h4 className="font-semibold">{testimonial.name}</h4>
+                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center mb-4">
+                <div className="flex items-center mb-3">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-financial-gold text-financial-gold mr-1" />
+                    <Star key={i} className="w-4 h-4 fill-financial-accent text-financial-accent" />
                   ))}
                 </div>
 
-                <Quote className="w-8 h-8 text-financial-accent/60 mb-4" />
-                <p className="text-financial-secondary leading-relaxed mb-6 font-medium">{testimonial.text}</p>
+                <Quote className="w-6 h-6 text-financial-accent mb-3" />
+                <p className="text-sm text-muted-foreground mb-4">{testimonial.text}</p>
                 
-                <div className="bg-gradient-accent/10 text-financial-accent font-semibold text-sm px-4 py-2 rounded-xl inline-block">
+                <div className="text-xs font-medium text-financial-accent bg-financial-accent/10 px-3 py-1 rounded-full inline-block">
                   {testimonial.investment}
                 </div>
               </CardContent>
@@ -101,34 +86,19 @@ const Testimonials = () => {
           ))}
         </div>
 
-        <div className="text-center animate-slide-in-right">
-          <div className="glass p-12 rounded-3xl backdrop-blur-sm border border-financial-accent/20 max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              <div className="group hover-lift">
-                <div className="mb-4">
-                  <p ref={clientsCount.ref} className="text-5xl font-bold gradient-text group-hover:scale-110 transition-transform">
-                    {clientsCount.value}
-                  </p>
-                </div>
-                <p className="text-lg font-semibold text-financial-secondary">Happy Clients</p>
-                <div className="w-full h-1 bg-gradient-accent rounded-full mt-4 opacity-60 group-hover:opacity-100 transition-opacity"></div>
-              </div>
-              <div className="group hover-lift">
-                <div className="mb-4">
-                  <p ref={aumCount.ref} className="text-5xl font-bold gradient-text group-hover:scale-110 transition-transform">
-                    {aumCount.value}
-                  </p>
-                </div>
-                <p className="text-lg font-semibold text-financial-secondary">Assets Managed</p>
-                <div className="w-full h-1 bg-gradient-accent rounded-full mt-4 opacity-60 group-hover:opacity-100 transition-opacity"></div>
-              </div>
-              <div className="group hover-lift">
-                <div className="mb-4">
-                  <p className="text-5xl font-bold gradient-text group-hover:scale-110 transition-transform">12%</p>
-                </div>
-                <p className="text-lg font-semibold text-financial-secondary">Avg Returns</p>
-                <div className="w-full h-1 bg-gradient-accent rounded-full mt-4 opacity-60 group-hover:opacity-100 transition-opacity"></div>
-              </div>
+        <div className="text-center mt-12">
+          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+            <div>
+              <p ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">{clientsCount.value}</p>
+              <p className="text-sm text-muted-foreground">Happy Clients</p>
+            </div>
+            <div>
+              <p ref={aumCount.ref} className="text-3xl font-bold text-financial-accent">{aumCount.value}</p>
+              <p className="text-sm text-muted-foreground">Assets Managed</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-financial-accent">12%</p>
+              <p className="text-sm text-muted-foreground">Avg Returns</p>
             </div>
           </div>
         </div>
