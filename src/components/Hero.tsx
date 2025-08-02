@@ -9,13 +9,13 @@ const Hero = () => {
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 1400 });
 
   return (
-    <section id="home" className="relative min-h-screen bg-gradient-mesh pt-20 overflow-hidden">
-      {/* Enhanced animated background elements */}
+    <section id="home" className="relative min-h-screen bg-gradient-to-br from-yellow-50 via-orange-50 to-amber-100 pt-20 overflow-hidden">
+      {/* Yellowish animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-88 h-88 bg-financial-accent/8 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-financial-gold/6 rounded-full blur-2xl animate-float" style={{ animationDelay: '1.5s' }}></div>
-        <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-financial-tertiary/4 rounded-full blur-xl animate-float" style={{ animationDelay: '3s' }}></div>
-        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-financial-accent-light/5 rounded-full blur-lg animate-float" style={{ animationDelay: '4.5s' }}></div>
+        <div className="absolute top-1/4 left-1/4 w-88 h-88 bg-yellow-300/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-amber-400/8 rounded-full blur-2xl animate-float" style={{ animationDelay: '1.5s' }}></div>
+        <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-orange-300/6 rounded-full blur-xl animate-float" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-yellow-400/8 rounded-full blur-lg animate-float" style={{ animationDelay: '4.5s' }}></div>
       </div>
       
       <div className="container mx-auto px-4 py-20 relative">
