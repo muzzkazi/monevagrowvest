@@ -18,6 +18,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+				display: ['Playfair Display', 'serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -122,6 +126,43 @@ export default {
 						transform: 'translateY(-10px)'
 					}
 				},
+				'float-delayed': {
+					'0%, 100%': {
+						transform: 'translateY(0px) rotate(0deg)'
+					},
+					'33%': {
+						transform: 'translateY(-8px) rotate(1deg)'
+					},
+					'66%': {
+						transform: 'translateY(-12px) rotate(-1deg)'
+					}
+				},
+				'glow-pulse': {
+					'0%, 100%': {
+						boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)'
+					},
+					'50%': {
+						boxShadow: '0 0 40px rgba(59, 130, 246, 0.4)'
+					}
+				},
+				'spring-bounce': {
+					'0%': {
+						transform: 'scale(0.3) translateY(50px)',
+						opacity: '0'
+					},
+					'50%': {
+						transform: 'scale(1.05) translateY(-10px)',
+						opacity: '0.8'
+					},
+					'70%': {
+						transform: 'scale(0.95) translateY(5px)',
+						opacity: '0.9'
+					},
+					'100%': {
+						transform: 'scale(1) translateY(0)',
+						opacity: '1'
+					}
+				},
 				'scroll': {
 					'0%': {
 						transform: 'translateX(0%)'
@@ -145,6 +186,9 @@ export default {
 				'fade-in': 'fade-in 0.6s ease-out forwards',
 				'slide-up': 'slide-up 0.6s ease-out forwards',
 				'float': 'float 3s ease-in-out infinite',
+				'float-delayed': 'float-delayed 4s ease-in-out infinite',
+				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+				'spring-bounce': 'spring-bounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
 				'scroll': 'scroll 35s linear infinite',
 				'scroll-fast': 'scroll-fast 25s linear infinite'
 			},
@@ -157,10 +201,18 @@ export default {
 			boxShadow: {
 				'financial': 'var(--shadow-financial)',
 				'gold': 'var(--shadow-gold)',
-				'card': 'var(--shadow-card)'
+				'card': 'var(--shadow-card)',
+				'glow': 'var(--shadow-glow)',
+				'premium': 'var(--shadow-premium)',
+				'floating': 'var(--shadow-floating)'
 			},
 			transitionTimingFunction: {
-				'smooth': 'var(--transition-smooth)'
+				'smooth': 'var(--transition-smooth)',
+				'spring': 'var(--spring-bounce)',
+				'gentle': 'var(--spring-gentle)'
+			},
+			backdropBlur: {
+				'glass': '20px'
 			}
 		}
 	},

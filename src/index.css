@@ -57,8 +57,25 @@ All colors MUST be HSL.
     --shadow-gold: 0 4px 20px hsl(45 93% 58% / 0.15);
     --shadow-card: 0 1px 3px hsl(222 47% 11% / 0.05);
 
+    /* Glass morphism effects */
+    --glass-bg: hsla(0 0% 100% / 0.1);
+    --glass-border: hsla(0 0% 100% / 0.2);
+    --glass-backdrop: blur(20px);
+    
+    /* Premium shadows with glow effects */
+    --shadow-glow: 0 0 40px hsl(213 84% 58% / 0.2);
+    --shadow-premium: 0 8px 32px hsl(222 47% 11% / 0.12);
+    --shadow-floating: 0 20px 40px hsl(222 47% 11% / 0.08);
+    
+    /* Advanced animations */
+    --spring-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --spring-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --spring-gentle: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s var(--spring-bounce);
+    --transition-gentle: all 0.6s var(--spring-gentle);
 
     --radius: 0.5rem;
 
@@ -122,6 +139,10 @@ All colors MUST be HSL.
     --gradient-gold: linear-gradient(135deg, hsl(45 93% 58%) 0%, hsl(48 96% 89%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(222 47% 4% / 0.8) 0%, hsl(213 84% 68% / 0.1) 100%);
     --gradient-card: linear-gradient(135deg, hsl(222 47% 6%) 0%, hsl(217 33% 18%) 100%);
+    
+    /* Dark glass morphism */
+    --glass-bg: hsla(222 47% 6% / 0.1);
+    --glass-border: hsla(210 40% 98% / 0.1);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -165,6 +186,46 @@ All colors MUST be HSL.
   .animate-marquee {
     animation: marquee 120s linear infinite;
   }
+
+  /* Glass morphism utilities */
+  .glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+  }
+
+  /* Premium hover effects */
+  .hover-lift {
+    transition: transform 0.3s var(--spring-bounce), box-shadow 0.3s var(--spring-smooth);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-floating);
+  }
+
+  .hover-glow {
+    transition: box-shadow 0.3s var(--spring-smooth);
+  }
+
+  .hover-glow:hover {
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Staggered animations */
+  .stagger-fade-in > * {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-in 0.6s var(--spring-gentle) forwards;
+  }
+
+  .stagger-fade-in > *:nth-child(1) { animation-delay: 0.1s; }
+  .stagger-fade-in > *:nth-child(2) { animation-delay: 0.2s; }
+  .stagger-fade-in > *:nth-child(3) { animation-delay: 0.3s; }
+  .stagger-fade-in > *:nth-child(4) { animation-delay: 0.4s; }
+  .stagger-fade-in > *:nth-child(5) { animation-delay: 0.5s; }
+  .stagger-fade-in > *:nth-child(6) { animation-delay: 0.6s; }
 }
 
 @layer base {

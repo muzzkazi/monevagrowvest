@@ -50,21 +50,21 @@ const Hero = () => {
               </Button>
             </div>
             
-            <div className="flex items-center gap-8 pt-8">
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-financial-accent">
+            <div className="flex items-center gap-8 pt-8 stagger-fade-in">
+              <div className="text-center hover-lift group">
+                <div className="text-3xl font-bold text-financial-accent group-hover:text-financial-gold transition-colors duration-300">
                   100%
                 </div>
                 <div className="text-sm text-muted-foreground">Research Based</div>
               </div>
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">
+              <div className="text-center hover-lift group">
+                <div ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent group-hover:text-financial-gold transition-colors duration-300">
                   {clientsCount.value}
                 </div>
                 <div className="text-sm text-muted-foreground">Happy Clients</div>
               </div>
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div ref={aumCount.ref} className="text-3xl font-bold text-financial-accent">
+              <div className="text-center hover-lift group">
+                <div ref={aumCount.ref} className="text-3xl font-bold text-financial-accent group-hover:text-financial-gold transition-colors duration-300">
                   {aumCount.value}
                 </div>
                 <div className="text-sm text-muted-foreground">Assets Managed</div>
