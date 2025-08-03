@@ -9,9 +9,13 @@ import { CreditCard, TrendingDown, Calculator } from "lucide-react";
 export interface Debt {
   id: string;
   name: string;
+  type: 'credit-card' | 'personal-loan' | 'car-loan' | 'mortgage' | 'gold-loan' | 'other';
   balance: number;
   interestRate: number;
   minimumPayment: number;
+  originalAmount?: number;
+  loanTenureMonths?: number;
+  startDate?: Date;
 }
 
 const DebtManagement = () => {

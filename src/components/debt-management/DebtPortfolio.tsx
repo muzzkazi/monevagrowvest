@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, Plus, DollarSign, Percent, CreditCard } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Trash2, Plus, DollarSign, Percent, CreditCard, Calendar } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Debt } from "../DebtManagement";
 
@@ -17,26 +18,43 @@ interface DebtPortfolioProps {
 const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtPortfolioProps) => {
   const [newDebt, setNewDebt] = useState({
     name: "",
+    type: "",
     balance: "",
     interestRate: "",
-    minimumPayment: ""
+    minimumPayment: "",
+    originalAmount: "",
+    loanTenureMonths: "",
+    startDate: ""
   });
 
   const addDebt = () => {
-    if (!newDebt.name || !newDebt.balance || !newDebt.interestRate || !newDebt.minimumPayment) {
+    if (!newDebt.name || !newDebt.type || !newDebt.balance || !newDebt.interestRate || !newDebt.minimumPayment) {
       return;
     }
 
     const debt: Debt = {
       id: Date.now().toString(),
       name: newDebt.name,
+      type: newDebt.type as Debt['type'],
       balance: parseFloat(newDebt.balance),
       interestRate: parseFloat(newDebt.interestRate),
-      minimumPayment: parseFloat(newDebt.minimumPayment)
+      minimumPayment: parseFloat(newDebt.minimumPayment),
+      originalAmount: newDebt.originalAmount ? parseFloat(newDebt.originalAmount) : undefined,
+      loanTenureMonths: newDebt.loanTenureMonths ? parseFloat(newDebt.loanTenureMonths) : undefined,
+      startDate: newDebt.startDate ? new Date(newDebt.startDate) : undefined
     };
 
     setDebts([...debts, debt]);
-    setNewDebt({ name: "", balance: "", interestRate: "", minimumPayment: "" });
+    setNewDebt({ 
+      name: "", 
+      type: "", 
+      balance: "", 
+      interestRate: "", 
+      minimumPayment: "",
+      originalAmount: "",
+      loanTenureMonths: "",
+      startDate: ""
+    });
   };
 
   const removeDebt = (id: string) => {
@@ -54,49 +72,110 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
       {/* Add New Debt Form */}
       <div className="border rounded-lg p-6 bg-muted/30">
         <h3 className="text-lg font-semibold mb-4">Add New Debt</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <Label htmlFor="debt-name">Debt Name</Label>
-            <Input
-              id="debt-name"
-              placeholder="Credit Card 1"
-              value={newDebt.name}
-              onChange={(e) => setNewDebt({ ...newDebt, name: e.target.value })}
-            />
+        <div className="space-y-6">
+          {/* Basic Information */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="debt-name">Debt Name</Label>
+              <Input
+                id="debt-name"
+                placeholder="Credit Card 1"
+                value={newDebt.name}
+                onChange={(e) => setNewDebt({ ...newDebt, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="debt-type">Debt Type</Label>
+              <Select value={newDebt.type} onValueChange={(value) => setNewDebt({ ...newDebt, type: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select debt type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="credit-card">Credit Card</SelectItem>
+                  <SelectItem value="personal-loan">Personal Loan</SelectItem>
+                  <SelectItem value="car-loan">Car Loan</SelectItem>
+                  <SelectItem value="mortgage">Home Mortgage</SelectItem>
+                  <SelectItem value="gold-loan">Gold Loan</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="debt-balance">Current Balance</Label>
+              <Input
+                id="debt-balance"
+                type="number"
+                placeholder="10000"
+                value={newDebt.balance}
+                onChange={(e) => setNewDebt({ ...newDebt, balance: e.target.value })}
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="debt-balance">Current Balance</Label>
-            <Input
-              id="debt-balance"
-              type="number"
-              placeholder="10000"
-              value={newDebt.balance}
-              onChange={(e) => setNewDebt({ ...newDebt, balance: e.target.value })}
-            />
+
+          {/* Financial Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="debt-rate">Interest Rate (%)</Label>
+              <Input
+                id="debt-rate"
+                type="number"
+                step="0.01"
+                placeholder="18.5"
+                value={newDebt.interestRate}
+                onChange={(e) => setNewDebt({ ...newDebt, interestRate: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="debt-min">Minimum Payment</Label>
+              <Input
+                id="debt-min"
+                type="number"
+                placeholder="300"
+                value={newDebt.minimumPayment}
+                onChange={(e) => setNewDebt({ ...newDebt, minimumPayment: e.target.value })}
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="debt-rate">Interest Rate (%)</Label>
-            <Input
-              id="debt-rate"
-              type="number"
-              step="0.01"
-              placeholder="18.5"
-              value={newDebt.interestRate}
-              onChange={(e) => setNewDebt({ ...newDebt, interestRate: e.target.value })}
-            />
-          </div>
-          <div>
-            <Label htmlFor="debt-min">Minimum Payment</Label>
-            <Input
-              id="debt-min"
-              type="number"
-              placeholder="300"
-              value={newDebt.minimumPayment}
-              onChange={(e) => setNewDebt({ ...newDebt, minimumPayment: e.target.value })}
-            />
-          </div>
+
+          {/* Conditional fields for fixed loans */}
+          {newDebt.type && !['credit-card', 'other'].includes(newDebt.type) && (
+            <div className="border-t pt-4">
+              <h4 className="text-sm font-medium mb-3 text-muted-foreground">Loan Details (for accurate calculations)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="original-amount">Original Loan Amount</Label>
+                  <Input
+                    id="original-amount"
+                    type="number"
+                    placeholder="100000"
+                    value={newDebt.originalAmount}
+                    onChange={(e) => setNewDebt({ ...newDebt, originalAmount: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="loan-tenure">Total Tenure (months)</Label>
+                  <Input
+                    id="loan-tenure"
+                    type="number"
+                    placeholder="60"
+                    value={newDebt.loanTenureMonths}
+                    onChange={(e) => setNewDebt({ ...newDebt, loanTenureMonths: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="start-date">Loan Start Date</Label>
+                  <Input
+                    id="start-date"
+                    type="date"
+                    value={newDebt.startDate}
+                    onChange={(e) => setNewDebt({ ...newDebt, startDate: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        <Button onClick={addDebt} className="mt-4" disabled={!newDebt.name || !newDebt.balance}>
+        <Button onClick={addDebt} className="mt-6" disabled={!newDebt.name || !newDebt.type || !newDebt.balance}>
           <Plus className="w-4 h-4 mr-2" />
           Add Debt
         </Button>
@@ -173,21 +252,14 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
             <Card key={debt.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                      <p className="font-semibold">{debt.name}</p>
-                      <p className="text-sm text-muted-foreground">Balance</p>
-                      <p className="font-medium text-destructive">{formatCurrency(debt.balance)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Interest Rate</p>
-                      <p className="font-medium">{debt.interestRate}%</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Min. Payment</p>
-                      <p className="font-medium">{formatCurrency(debt.minimumPayment)}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold">{debt.name}</p>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {debt.type.replace('-', ' ')} • Balance: {formatCurrency(debt.balance)}
+                        </p>
+                      </div>
                       <Button
                         variant="outline"
                         size="sm"
@@ -196,6 +268,29 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Interest Rate</p>
+                        <p className="font-medium">{debt.interestRate}%</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Min. Payment</p>
+                        <p className="font-medium">{formatCurrency(debt.minimumPayment)}</p>
+                      </div>
+                      {debt.loanTenureMonths && (
+                        <div>
+                          <p className="text-muted-foreground">Tenure</p>
+                          <p className="font-medium">{debt.loanTenureMonths} months</p>
+                        </div>
+                      )}
+                      {debt.startDate && (
+                        <div>
+                          <p className="text-muted-foreground">Started</p>
+                          <p className="font-medium">{debt.startDate.toLocaleDateString()}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
