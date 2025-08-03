@@ -23,7 +23,7 @@ interface PrepaymentScenario {
   name: string;
   extraMonthly: number;
   lumpSum: number;
-  lumpSumMonth: number;
+  lumpSumFrequency: number;
   totalMonths: number;
   totalInterest: number;
   savings: number;
@@ -35,7 +35,7 @@ const LoanAmortization = () => {
   const [loanTerm, setLoanTerm] = useState("");
   const [extraMonthly, setExtraMonthly] = useState(0);
   const [lumpSum, setLumpSum] = useState(0);
-  const [lumpSumMonth, setLumpSumMonth] = useState(12);
+  const [lumpSumFrequency, setLumpSumFrequency] = useState(12);
   const [isScenariosCollapsed, setIsScenariosCollapsed] = useState(false);
 
   // Check if all required inputs are provided
@@ -104,14 +104,14 @@ const LoanAmortization = () => {
       name: "No Prepayment",
       extraMonthly: 0,
       lumpSum: 0,
-      lumpSumMonth: 0,
+      lumpSumFrequency: 0,
       totalMonths: baseAmortization.totalMonths,
       totalInterest: baseAmortization.totalInterest,
       savings: 0
     });
 
-    // Calculate scenario with current inputs
-    const calculateScenario = (extraMonthlyAmount: number, lumpSumAmount: number, lumpSumMonthNum: number) => {
+    // Calculate scenario with current inputs - now supports recurring lump sum payments
+    const calculateScenario = (extraMonthlyAmount: number, lumpSumAmount: number, lumpSumFrequencyMonths: number) => {
       const monthlyRate = rate / 100 / 12;
       const monthlyPayment = baseAmortization.monthlyPayment;
       
@@ -124,7 +124,9 @@ const LoanAmortization = () => {
         totalInterest += interestPayment;
         
         let paymentAmount = monthlyPayment + extraMonthlyAmount;
-        if (month === lumpSumMonthNum) {
+        
+        // Add lump sum payment if it's time for recurring payment
+        if (lumpSumAmount > 0 && lumpSumFrequencyMonths > 0 && month % lumpSumFrequencyMonths === 0) {
           paymentAmount += lumpSumAmount;
         }
         
@@ -144,37 +146,37 @@ const LoanAmortization = () => {
 
     // Current scenario
     if (extraMonthly > 0 || lumpSum > 0) {
-      const result = calculateScenario(extraMonthly, lumpSum, lumpSumMonth);
+      const result = calculateScenario(extraMonthly, lumpSum, lumpSumFrequency);
       scenarios.push({
         name: "Your Scenario",
         extraMonthly,
         lumpSum,
-        lumpSumMonth,
+        lumpSumFrequency,
         ...result
       });
     }
 
     // Preset scenarios
     const presets = [
-      { name: "₹5,000 Extra Monthly", extra: 5000, lump: 0, lumpMonth: 0 },
-      { name: "₹10,000 Extra Monthly", extra: 10000, lump: 0, lumpMonth: 0 },
-      { name: "₹1L Lump Sum (Year 1)", extra: 0, lump: 100000, lumpMonth: 12 },
-      { name: "₹2L Lump Sum (Year 2)", extra: 0, lump: 200000, lumpMonth: 24 }
+      { name: "₹5,000 Extra Monthly", extra: 5000, lump: 0, lumpFreq: 0 },
+      { name: "₹10,000 Extra Monthly", extra: 10000, lump: 0, lumpFreq: 0 },
+      { name: "₹1L Every 12 Months", extra: 0, lump: 100000, lumpFreq: 12 },
+      { name: "₹50K Every 6 Months", extra: 0, lump: 50000, lumpFreq: 6 }
     ];
 
     presets.forEach(preset => {
-      const result = calculateScenario(preset.extra, preset.lump, preset.lumpMonth);
+      const result = calculateScenario(preset.extra, preset.lump, preset.lumpFreq);
       scenarios.push({
         name: preset.name,
         extraMonthly: preset.extra,
         lumpSum: preset.lump,
-        lumpSumMonth: preset.lumpMonth,
+        lumpSumFrequency: preset.lumpFreq,
         ...result
       });
     });
 
     return scenarios;
-  }, [baseAmortization, extraMonthly, lumpSum, lumpSumMonth, interestRate, loanAmount, hasValidInputs]);
+  }, [baseAmortization, extraMonthly, lumpSum, lumpSumFrequency, interestRate, loanAmount, hasValidInputs]);
 
   const currentScenarioSchedule = useMemo(() => {
     if (!hasValidInputs) return [];
@@ -195,7 +197,9 @@ const LoanAmortization = () => {
       const interestPayment = remainingBalance * monthlyRate;
       
       let paymentAmount = monthlyPayment + extraMonthly;
-      if (month === lumpSumMonth) {
+      
+      // Add lump sum payment if it's time for recurring payment
+      if (lumpSum > 0 && lumpSumFrequency > 0 && month % lumpSumFrequency === 0) {
         paymentAmount += lumpSum;
       }
       
@@ -214,7 +218,7 @@ const LoanAmortization = () => {
     }
     
     return schedule;
-  }, [baseAmortization, extraMonthly, lumpSum, lumpSumMonth, interestRate, loanAmount, hasValidInputs]);
+  }, [baseAmortization, extraMonthly, lumpSum, lumpSumFrequency, interestRate, loanAmount, hasValidInputs]);
 
   return (
     <div className="space-y-6">
@@ -338,9 +342,9 @@ const LoanAmortization = () => {
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs p-3">
                         <p className="text-sm">
-                          <strong>Lump Sum Payment:</strong> A large one-time payment towards your loan principal. 
-                          This could be from a bonus, inheritance, or savings. It dramatically reduces your outstanding balance 
-                          and can save substantial interest.
+                          <strong>Recurring Lump Sum Payment:</strong> A large recurring payment towards your loan principal. 
+                          This could be from annual bonuses, quarterly savings, or investment returns. Making these payments regularly 
+                          dramatically reduces your outstanding balance and saves substantial interest.
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -363,27 +367,28 @@ const LoanAmortization = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="lump-sum-month" className="text-xs h-5 flex items-center gap-1">
-                        Payment in Month
+                      <Label htmlFor="lump-sum-frequency" className="text-xs h-5 flex items-center gap-1">
+                        Payment Frequency (Months)
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="w-3 h-3 text-muted-foreground cursor-help hover:text-green-600" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs p-3">
                             <p className="text-sm">
-                              <strong>Payment Month:</strong> The month number when you plan to make the lump sum payment. 
-                              For example, "12" means you'll make the payment at the end of the first year.
+                              <strong>Payment Frequency:</strong> How often you'll make this lump sum payment. 
+                              For example, "12" means every 12 months (annually), "6" means every 6 months.
                             </p>
                           </TooltipContent>
                         </Tooltip>
                       </Label>
                       <Input
-                        id="lump-sum-month"
+                        id="lump-sum-frequency"
                         type="number"
                         placeholder="e.g., 12"
                         className="h-8"
-                        value={lumpSumMonth}
-                        onChange={(e) => setLumpSumMonth(parseFloat(e.target.value) || 1)}
+                        min="1"
+                        value={lumpSumFrequency}
+                        onChange={(e) => setLumpSumFrequency(parseFloat(e.target.value) || 12)}
                       />
                     </div>
                   </div>
