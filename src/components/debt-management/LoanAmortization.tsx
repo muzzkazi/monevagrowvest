@@ -321,30 +321,29 @@ const LoanAmortization = () => {
         <>
           {/* Prepayment Options */}
           <TooltipProvider>
-            <Card className="space-y-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Prepayment Options</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Extra Monthly Payment Section */}
-                <div className="border-l-4 border-l-blue-500 bg-blue-50/50 rounded-r-lg p-4">
-                  <div className="pb-2">
-                    <h4 className="text-sm font-semibold flex items-center gap-2">
-                      <IndianRupee className="w-4 h-4 text-blue-600" />
-                      Extra Monthly Payment
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-blue-600" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs p-3">
-                          <p className="text-sm">
-                            <strong>Extra Monthly Payment:</strong> An additional amount you pay every month on top of your regular EMI. 
-                            This helps reduce the principal faster and saves significant interest over the loan term.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </h4>
-                  </div>
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold">Prepayment Options</h3>
+              
+              {/* Extra Monthly Payment Section */}
+              <Card className="border-l-4 border-l-blue-500 bg-blue-50/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <IndianRupee className="w-4 h-4 text-blue-600" />
+                    Extra Monthly Payment
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-blue-600" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs p-3">
+                        <p className="text-sm">
+                          <strong>Extra Monthly Payment:</strong> An additional amount you pay every month on top of your regular EMI. 
+                          This helps reduce the principal faster and saves significant interest over the loan term.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 pb-3">
                   <div className="max-w-xs">
                     <Label htmlFor="extra-monthly" className="text-xs">Extra Amount (₹)</Label>
                     <Input
@@ -359,28 +358,30 @@ const LoanAmortization = () => {
                       }}
                     />
                   </div>
-                </div>
+                </CardContent>
+              </Card>
 
-                {/* Lump Sum Payment Section */}
-                <div className="border-l-4 border-l-green-500 bg-green-50/50 rounded-r-lg p-4">
-                  <div className="pb-2">
-                    <h4 className="text-sm font-semibold flex items-center gap-2">
-                      <IndianRupee className="w-4 h-4 text-green-600" />
-                      Lump Sum Payment
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-green-600" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs p-3">
-                          <p className="text-sm">
-                            <strong>Recurring Lump Sum Payment:</strong> A large recurring payment towards your loan principal. 
-                            This could be from annual bonuses, quarterly savings, or investment returns. Making these payments regularly 
-                            dramatically reduces your outstanding balance and saves substantial interest.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </h4>
-                  </div>
+              {/* Lump Sum Payment Section */}
+              <Card className="border-l-4 border-l-green-500 bg-green-50/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <IndianRupee className="w-4 h-4 text-green-600" />
+                    Lump Sum Payment
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-green-600" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs p-3">
+                        <p className="text-sm">
+                          <strong>Recurring Lump Sum Payment:</strong> A large recurring payment towards your loan principal. 
+                          This could be from annual bonuses, quarterly savings, or investment returns. Making these payments regularly 
+                          dramatically reduces your outstanding balance and saves substantial interest.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 pb-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label htmlFor="lump-sum" className="text-xs h-5 flex items-center">Lump Sum Amount (₹)</Label>
@@ -428,9 +429,9 @@ const LoanAmortization = () => {
                       />
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </TooltipProvider>
 
           {/* Scenario Comparison */}
