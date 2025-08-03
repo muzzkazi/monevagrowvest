@@ -289,8 +289,8 @@ const LoanAmortization = () => {
               
               {/* Extra Monthly Payment Section */}
               <Card className="border-l-4 border-l-blue-500 bg-blue-50/50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
                     <IndianRupee className="w-4 h-4 text-blue-600" />
                     Extra Monthly Payment
                     <Tooltip>
@@ -305,15 +305,15 @@ const LoanAmortization = () => {
                       </TooltipContent>
                     </Tooltip>
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">Pay extra every month to reduce loan tenure and interest</p>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0 pb-3">
                   <div className="max-w-xs">
-                    <Label htmlFor="extra-monthly">Extra Amount (₹)</Label>
+                    <Label htmlFor="extra-monthly" className="text-xs">Extra Amount (₹)</Label>
                     <Input
                       id="extra-monthly"
                       type="text"
                       placeholder="e.g., 5,000"
+                      className="h-8"
                       value={extraMonthly ? formatInputValue(extraMonthly.toString()) : ''}
                       onChange={(e) => {
                         const formatted = formatInputValue(e.target.value);
@@ -326,8 +326,8 @@ const LoanAmortization = () => {
 
               {/* Lump Sum Payment Section */}
               <Card className="border-l-4 border-l-green-500 bg-green-50/50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
                     <IndianRupee className="w-4 h-4 text-green-600" />
                     Lump Sum Payment
                     <Tooltip>
@@ -343,16 +343,16 @@ const LoanAmortization = () => {
                       </TooltipContent>
                     </Tooltip>
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">Make a one-time large payment to reduce principal</p>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="pt-0 pb-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label htmlFor="lump-sum">Lump Sum Amount (₹)</Label>
+                      <Label htmlFor="lump-sum" className="text-xs">Lump Sum Amount (₹)</Label>
                       <Input
                         id="lump-sum"
                         type="text"
                         placeholder="e.g., 1,00,000"
+                        className="h-8"
                         value={lumpSum ? formatInputValue(lumpSum.toString()) : ''}
                         onChange={(e) => {
                           const formatted = formatInputValue(e.target.value);
@@ -361,7 +361,7 @@ const LoanAmortization = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="lump-sum-month" className="flex items-center gap-1">
+                      <Label htmlFor="lump-sum-month" className="text-xs flex items-center gap-1">
                         Payment in Month
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -379,6 +379,7 @@ const LoanAmortization = () => {
                         id="lump-sum-month"
                         type="number"
                         placeholder="e.g., 12"
+                        className="h-8"
                         value={lumpSumMonth}
                         onChange={(e) => setLumpSumMonth(parseFloat(e.target.value) || 1)}
                       />
