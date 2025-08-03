@@ -394,49 +394,44 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
 
       {/* Portfolio Summary */}
       {debts.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="border-0 shadow-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <IndianRupee className="w-4 h-4" />
-                Total Debt
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold text-destructive">
-                {formatCurrency(totalBalance)}
+        <Card className="border-l-4 border-l-destructive bg-destructive/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <IndianRupee className="w-5 h-5 text-destructive" />
+              Your Debt Summary
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">Overview of your current debt portfolio</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-card rounded-lg border">
+                <IndianRupee className="w-6 h-6 mx-auto mb-2 text-destructive" />
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Debt</p>
+                <p className="text-2xl font-bold text-destructive">
+                  {formatCurrency(totalBalance)}
+                </p>
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <CreditCard className="w-4 h-4" />
-                Min. Payments
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold">
-                {formatCurrency(totalMinPayment)}
+              
+              <div className="text-center p-4 bg-card rounded-lg border">
+                <CreditCard className="w-6 h-6 mx-auto mb-2 text-primary" />
+                <p className="text-sm font-medium text-muted-foreground mb-1">Min. Payments</p>
+                <p className="text-2xl font-bold text-primary">
+                  {formatCurrency(totalMinPayment)}
+                </p>
+                <p className="text-xs text-muted-foreground">per month</p>
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Percent className="w-4 h-4" />
-                Avg. Interest Rate
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold">
-                {weightedAvgRate.toFixed(2)}%
+              
+              <div className="text-center p-4 bg-card rounded-lg border">
+                <Percent className="w-6 h-6 mx-auto mb-2 text-orange-600" />
+                <p className="text-sm font-medium text-muted-foreground mb-1">Avg. Interest Rate</p>
+                <p className="text-2xl font-bold text-orange-600">
+                  {weightedAvgRate.toFixed(2)}%
+                </p>
+                <p className="text-xs text-muted-foreground">weighted average</p>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Extra Payment Budget - Only show after debts are added */}
