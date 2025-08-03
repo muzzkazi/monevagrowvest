@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Calculator, TrendingDown, Clock, DollarSign, IndianRupee } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
 
 interface AmortizationEntry {
   month: number;
@@ -37,7 +37,7 @@ const LoanAmortization = () => {
 
   // Check if all required inputs are provided
   const hasValidInputs = useMemo(() => {
-    const amount = parseFloat(loanAmount);
+    const amount = parseCommaNumber(loanAmount);
     const rate = parseFloat(interestRate);
     const term = parseFloat(loanTerm);
     
@@ -54,7 +54,7 @@ const LoanAmortization = () => {
       };
     }
 
-    const amount = parseFloat(loanAmount);
+    const amount = parseCommaNumber(loanAmount);
     const rate = parseFloat(interestRate);
     const term = parseFloat(loanTerm);
     
@@ -91,7 +91,7 @@ const LoanAmortization = () => {
   const prepaymentScenarios = useMemo(() => {
     if (!hasValidInputs) return [];
     
-    const amount = parseFloat(loanAmount);
+    const amount = parseCommaNumber(loanAmount);
     const rate = parseFloat(interestRate);
     
     const scenarios: PrepaymentScenario[] = [];
@@ -180,7 +180,7 @@ const LoanAmortization = () => {
       return baseAmortization.schedule;
     }
 
-    const amount = parseFloat(loanAmount);
+    const amount = parseCommaNumber(loanAmount);
     const rate = parseFloat(interestRate);
     const monthlyRate = rate / 100 / 12;
     const monthlyPayment = baseAmortization.monthlyPayment;
@@ -221,10 +221,13 @@ const LoanAmortization = () => {
           <Label htmlFor="loan-amount">Loan Amount (₹)</Label>
           <Input
             id="loan-amount"
-            type="number"
-            placeholder="e.g., 500000"
+            type="text"
+            placeholder="e.g., 5,00,000"
             value={loanAmount}
-            onChange={(e) => setLoanAmount(e.target.value)}
+            onChange={(e) => {
+              const formatted = formatInputValue(e.target.value);
+              setLoanAmount(formatted);
+            }}
           />
         </div>
         <div>
@@ -233,9 +236,15 @@ const LoanAmortization = () => {
             id="interest-rate"
             type="number"
             step="0.1"
+            max="50"
             placeholder="e.g., 8.5"
             value={interestRate}
-            onChange={(e) => setInterestRate(e.target.value)}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value);
+              if (value <= 50 || e.target.value === '') {
+                setInterestRate(e.target.value);
+              }
+            }}
           />
         </div>
         <div>
@@ -251,9 +260,9 @@ const LoanAmortization = () => {
         <div className="flex items-end">
           <div className="text-center w-full">
             <p className="text-sm text-muted-foreground">Monthly EMI</p>
-            <p className="text-lg font-bold text-primary">
-              {hasValidInputs ? formatCurrency(baseAmortization.monthlyPayment) : '₹0'}
-            </p>
+                       <p className="text-lg font-bold text-primary">
+                {hasValidInputs ? formatCurrency(baseAmortization.monthlyPayment) : '₹0'}
+              </p>
           </div>
         </div>
       </div>
@@ -280,18 +289,26 @@ const LoanAmortization = () => {
                 <Label htmlFor="extra-monthly">Extra Monthly Payment (₹)</Label>
                 <Input
                   id="extra-monthly"
-                  type="number"
-                  value={extraMonthly}
-                  onChange={(e) => setExtraMonthly(parseFloat(e.target.value) || 0)}
+                  type="text"
+                  placeholder="e.g., 5,000"
+                  value={extraMonthly ? formatInputValue(extraMonthly.toString()) : ''}
+                  onChange={(e) => {
+                    const formatted = formatInputValue(e.target.value);
+                    setExtraMonthly(parseCommaNumber(formatted));
+                  }}
                 />
               </div>
               <div>
                 <Label htmlFor="lump-sum">Lump Sum Payment (₹)</Label>
                 <Input
                   id="lump-sum"
-                  type="number"
-                  value={lumpSum}
-                  onChange={(e) => setLumpSum(parseFloat(e.target.value) || 0)}
+                  type="text"
+                  placeholder="e.g., 1,00,000"
+                  value={lumpSum ? formatInputValue(lumpSum.toString()) : ''}
+                  onChange={(e) => {
+                    const formatted = formatInputValue(e.target.value);
+                    setLumpSum(parseCommaNumber(formatted));
+                  }}
                 />
               </div>
               <div>
@@ -371,9 +388,9 @@ const LoanAmortization = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatCurrency(parseFloat(loanAmount) + currentScenarioSchedule.reduce((sum, entry) => sum + entry.interest, 0))}
-                    </div>
+                     <div className="text-2xl font-bold">
+                       {formatCurrency(parseCommaNumber(loanAmount) + currentScenarioSchedule.reduce((sum, entry) => sum + entry.interest, 0))}
+                     </div>
                   </CardContent>
                 </Card>
                 

@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2, Plus, Percent, CreditCard, Calendar, IndianRupee } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
 import type { Debt } from "../DebtManagement";
 
 interface DebtPortfolioProps {
@@ -48,13 +48,13 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
     
     // Auto-calculate EMI for fixed loans
     if (!['credit-card', 'other'].includes(updatedDebt.type) && updatedDebt.type) {
-      const principal = parseFloat(updatedDebt.originalAmount);
+      const principal = parseCommaNumber(updatedDebt.originalAmount);
       const rate = parseFloat(updatedDebt.interestRate);
       const tenureYears = parseFloat(updatedDebt.loanTenureMonths); // Now represents years
       
       if (principal && rate && tenureYears) {
         const calculatedEMI = calculateEMI(principal, rate, tenureYears);
-        updatedDebt.minimumPayment = calculatedEMI.toString();
+        updatedDebt.minimumPayment = formatInputValue(calculatedEMI.toString());
       }
     }
     
@@ -108,11 +108,11 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
     let calculatedBalance = 0;
     
     if (['credit-card', 'other'].includes(newDebt.type)) {
-      calculatedBalance = parseFloat(newDebt.balance);
+      calculatedBalance = parseCommaNumber(newDebt.balance);
     } else {
       // Calculate current balance for fixed loans
       calculatedBalance = calculateRemainingBalance(
-        parseFloat(newDebt.originalAmount),
+        parseCommaNumber(newDebt.originalAmount),
         parseFloat(newDebt.interestRate),
         parseFloat(newDebt.loanTenureMonths), // Now in years
         new Date(newDebt.startDate)
@@ -125,8 +125,8 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
       type: newDebt.type as Debt['type'],
       balance: calculatedBalance,
       interestRate: parseFloat(newDebt.interestRate),
-      minimumPayment: parseFloat(newDebt.minimumPayment),
-      originalAmount: newDebt.originalAmount ? parseFloat(newDebt.originalAmount) : undefined,
+      minimumPayment: parseCommaNumber(newDebt.minimumPayment),
+      originalAmount: newDebt.originalAmount ? parseCommaNumber(newDebt.originalAmount) : undefined,
       loanTenureMonths: newDebt.loanTenureMonths ? parseFloat(newDebt.loanTenureMonths) * 12 : undefined, // Convert years to months
       startDate: newDebt.startDate ? new Date(newDebt.startDate) : undefined
     };
@@ -215,10 +215,13 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                     <Label htmlFor="debt-balance">Current Outstanding Balance</Label>
                     <Input
                       id="debt-balance"
-                      type="number"
+                      type="text"
                       placeholder="Enter current balance"
                       value={newDebt.balance}
-                      onChange={(e) => setNewDebt({ ...newDebt, balance: e.target.value })}
+                      onChange={(e) => {
+                        const formatted = formatInputValue(e.target.value);
+                        setNewDebt({ ...newDebt, balance: formatted });
+                      }}
                     />
                   </div>
                   <div>
@@ -227,19 +230,28 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                       id="debt-rate"
                       type="number"
                       step="0.01"
+                      max="50"
                       placeholder="e.g., 18.5"
                       value={newDebt.interestRate}
-                      onChange={(e) => handleLoanDetailChange('interestRate', e.target.value)}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        if (value <= 50 || e.target.value === '') {
+                          handleLoanDetailChange('interestRate', e.target.value);
+                        }
+                      }}
                     />
                   </div>
                   <div>
                     <Label htmlFor="debt-min">Minimum Payment Due</Label>
                     <Input
                       id="debt-min"
-                      type="number"
+                      type="text"
                       placeholder="Enter minimum payment"
                       value={newDebt.minimumPayment}
-                      onChange={(e) => setNewDebt({ ...newDebt, minimumPayment: e.target.value })}
+                      onChange={(e) => {
+                        const formatted = formatInputValue(e.target.value);
+                        setNewDebt({ ...newDebt, minimumPayment: formatted });
+                      }}
                     />
                   </div>
                 </div>
@@ -251,24 +263,33 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="original-amount">Loan Amount</Label>
-                      <Input
-                        id="original-amount"
-                        type="number"
-                        placeholder="e.g., 500000"
-                        value={newDebt.originalAmount}
-                        onChange={(e) => handleLoanDetailChange('originalAmount', e.target.value)}
-                      />
+                       <Input
+                         id="original-amount"
+                         type="text"
+                         placeholder="e.g., 5,00,000"
+                         value={newDebt.originalAmount}
+                         onChange={(e) => {
+                           const formatted = formatInputValue(e.target.value);
+                           handleLoanDetailChange('originalAmount', formatted);
+                         }}
+                       />
                     </div>
                     <div>
                       <Label htmlFor="debt-rate">Interest Rate (% per annum)</Label>
-                      <Input
-                        id="debt-rate"
-                        type="number"
-                        step="0.01"
-                        placeholder="e.g., 8.5"
-                        value={newDebt.interestRate}
-                        onChange={(e) => handleLoanDetailChange('interestRate', e.target.value)}
-                      />
+                       <Input
+                         id="debt-rate"
+                         type="number"
+                         step="0.01"
+                         max="50"
+                         placeholder="e.g., 8.5"
+                         value={newDebt.interestRate}
+                         onChange={(e) => {
+                           const value = parseFloat(e.target.value);
+                           if (value <= 50 || e.target.value === '') {
+                             handleLoanDetailChange('interestRate', e.target.value);
+                           }
+                         }}
+                       />
                     </div>
                   </div>
                   
@@ -299,7 +320,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                     <Label>Monthly EMI</Label>
                     <div className="p-3 bg-muted rounded-md">
                       <p className="text-lg font-semibold text-financial-accent">
-                        {newDebt.minimumPayment ? formatCurrency(parseFloat(newDebt.minimumPayment)) : '₹0'}/month
+                        {newDebt.minimumPayment ? formatCurrency(parseCommaNumber(newDebt.minimumPayment)) : '₹0'}/month
                       </p>
                       {newDebt.originalAmount && newDebt.interestRate && newDebt.loanTenureMonths && (
                         <p className="text-xs text-muted-foreground mt-1">
@@ -451,10 +472,13 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                 <div className="relative mt-1">
                   <Input
                     id="extra-payment"
-                    type="number"
-                    placeholder="e.g., 5000"
-                    value={extraPayment}
-                    onChange={(e) => setExtraPayment(parseFloat(e.target.value) || 0)}
+                    type="text"
+                    placeholder="e.g., 5,000"
+                    value={extraPayment ? formatInputValue(extraPayment.toString()) : ''}
+                    onChange={(e) => {
+                      const formatted = formatInputValue(e.target.value);
+                      setExtraPayment(parseCommaNumber(formatted));
+                    }}
                     className="pl-8 text-lg font-semibold"
                   />
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
