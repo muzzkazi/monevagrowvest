@@ -134,6 +134,32 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
   const timeSavingsVsBaseline = noExtraPayment && betterStrategy ? noExtraPayment.totalMonths - betterStrategy.totalMonths : 0;
   const timeSavingsBetweenStrategies = snowball && avalanche ? Math.abs(snowball.totalMonths - avalanche.totalMonths) : 0;
 
+  // Calculate payment allocation for current month
+  const getPaymentAllocation = (strategy: 'snowball' | 'avalanche') => {
+    if (debts.length === 0) return [];
+    
+    // Sort debts based on strategy
+    const sortedDebts = [...debts].sort((a, b) => {
+      if (strategy === 'snowball') {
+        return a.balance - b.balance; // Smallest balance first
+      } else {
+        return b.interestRate - a.interestRate; // Highest interest rate first
+      }
+    });
+
+    // Calculate payment allocation
+    const allocation = sortedDebts.map((debt, index) => ({
+      ...debt,
+      payment: debt.minimumPayment + (index === 0 ? extraPayment : 0), // Add extra payment to first debt
+      isTarget: index === 0
+    }));
+
+    return allocation;
+  };
+
+  const snowballAllocation = getPaymentAllocation('snowball');
+  const avalancheAllocation = getPaymentAllocation('avalanche');
+
   return (
     <div className="space-y-8">
       {/* Comprehensive Savings Overview */}
@@ -330,6 +356,143 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
           </CardContent>
         </Card>
       )}
+
+      {/* Monthly Payment Plan */}
+      <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="w-5 h-5 text-primary" />
+            Your Monthly Payment Plan
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Exact payment allocation for {betterStrategy?.strategy} method with ₹{extraPayment.toLocaleString()} extra payment
+          </p>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue={betterStrategy?.strategy || 'snowball'} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="snowball">Snowball Plan</TabsTrigger>
+              <TabsTrigger value="avalanche">Avalanche Plan</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="snowball" className="space-y-3 mt-4">
+              <div className="space-y-3">
+                {snowballAllocation.map((debt, index) => (
+                  <div 
+                    key={debt.id} 
+                    className={`p-4 rounded-lg border-2 ${
+                      debt.isTarget 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-muted bg-muted/30'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{debt.name}</span>
+                        {debt.isTarget && (
+                          <Badge variant="default" className="text-xs">
+                            TARGET DEBT
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-primary">
+                          {formatCurrency(debt.payment)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">this month</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Balance</p>
+                        <p className="font-medium">{formatCurrency(debt.balance)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Minimum</p>
+                        <p className="font-medium">{formatCurrency(debt.minimumPayment)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Extra</p>
+                        <p className="font-medium text-primary">
+                          {debt.isTarget ? formatCurrency(extraPayment) : '₹0'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center font-semibold">
+                  <span>Total Monthly Payment:</span>
+                  <span className="text-lg text-primary">
+                    {formatCurrency(
+                      snowballAllocation.reduce((sum, debt) => sum + debt.payment, 0)
+                    )}
+                  </span>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="avalanche" className="space-y-3 mt-4">
+              <div className="space-y-3">
+                {avalancheAllocation.map((debt, index) => (
+                  <div 
+                    key={debt.id} 
+                    className={`p-4 rounded-lg border-2 ${
+                      debt.isTarget 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-muted bg-muted/30'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{debt.name}</span>
+                        {debt.isTarget && (
+                          <Badge variant="default" className="text-xs">
+                            TARGET DEBT
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-primary">
+                          {formatCurrency(debt.payment)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">this month</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Balance</p>
+                        <p className="font-medium">{formatCurrency(debt.balance)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Minimum</p>
+                        <p className="font-medium">{formatCurrency(debt.minimumPayment)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Extra</p>
+                        <p className="font-medium text-primary">
+                          {debt.isTarget ? formatCurrency(extraPayment) : '₹0'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center font-semibold">
+                  <span>Total Monthly Payment:</span>
+                  <span className="text-lg text-primary">
+                    {formatCurrency(
+                      avalancheAllocation.reduce((sum, debt) => sum + debt.payment, 0)
+                    )}
+                  </span>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
       {/* Detailed Timeline */}
       <Tabs defaultValue={betterStrategy?.strategy || 'snowball'} className="w-full">
