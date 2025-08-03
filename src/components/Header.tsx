@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -6,7 +6,18 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY > 20;
+      setIsScrolled(scrolled);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <>
@@ -24,7 +35,11 @@ const Header = () => {
         </div>
       </div>
       
-      <header className="sticky top-0 left-0 right-0 z-50 glass-nav">
+      <header className={`sticky top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isScrolled 
+          ? 'backdrop-blur-2xl bg-background/60 border-b border-border/30 shadow-2xl' 
+          : 'glass-nav'
+      }`}>
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
