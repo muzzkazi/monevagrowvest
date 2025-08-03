@@ -446,49 +446,93 @@ const LoanAmortization = () => {
             </TabsList>
             
             <TabsContent value="summary" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
+              {/* Comparison Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Base Scenario */}
+                <Card className="border-2 border-muted">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                      <IndianRupee className="w-4 h-4" />
-                      Total Payment
+                    <CardTitle className="text-base font-semibold text-center text-muted-foreground">
+                      Without Extra Payments
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                     <div className="text-2xl font-bold">
-                       {formatCurrency(parseCommaNumber(loanAmount) + currentScenarioSchedule.reduce((sum, entry) => sum + entry.interest, 0))}
-                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                      <TrendingDown className="w-4 h-4" />
-                      Total Interest
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-destructive">
-                      {formatCurrency(currentScenarioSchedule.reduce((sum, entry) => sum + entry.interest, 0))}
+                  <CardContent className="space-y-4">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">Total Interest</p>
+                      <p className="text-xl font-bold text-destructive">
+                        {formatCurrency(baseAmortization.totalInterest)}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">Loan Tenure</p>
+                      <p className="text-xl font-bold">
+                        {Math.floor(baseAmortization.totalMonths / 12)}y {baseAmortization.totalMonths % 12}m
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">Total Payment</p>
+                      <p className="text-lg font-semibold">
+                        {formatCurrency(parseCommaNumber(loanAmount) + baseAmortization.totalInterest)}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
-                
-                <Card>
+
+                {/* User Scenario */}
+                <Card className="border-2 border-primary bg-primary/5">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Payoff Time
+                    <CardTitle className="text-base font-semibold text-center text-primary">
+                      With Your Extra Payments
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {Math.floor(currentScenarioSchedule.length / 12)}y {currentScenarioSchedule.length % 12}m
+                  <CardContent className="space-y-4">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">Total Interest</p>
+                      <p className="text-xl font-bold text-green-600">
+                        {formatCurrency(currentScenarioSchedule.reduce((sum, entry) => sum + entry.interest, 0))}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">Loan Tenure</p>
+                      <p className="text-xl font-bold text-green-600">
+                        {Math.floor(currentScenarioSchedule.length / 12)}y {currentScenarioSchedule.length % 12}m
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">Total Payment</p>
+                      <p className="text-lg font-semibold">
+                        {formatCurrency(parseCommaNumber(loanAmount) + currentScenarioSchedule.reduce((sum, entry) => sum + entry.interest, 0))}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Savings Summary */}
+              {(extraMonthly > 0 || lumpSum > 0) && (
+                <Card className="border-2 border-green-500 bg-green-50/50">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-semibold text-center text-green-700">
+                      Your Savings Summary
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Interest Saved</p>
+                        <p className="text-2xl font-bold text-green-600">
+                          {formatCurrency(baseAmortization.totalInterest - currentScenarioSchedule.reduce((sum, entry) => sum + entry.interest, 0))}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Time Saved</p>
+                        <p className="text-2xl font-bold text-green-600">
+                          {baseAmortization.totalMonths - currentScenarioSchedule.length} months
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
             
             <TabsContent value="schedule">
