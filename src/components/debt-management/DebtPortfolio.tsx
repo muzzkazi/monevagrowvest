@@ -123,7 +123,8 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
     <div className="space-y-6">
       {/* Add New Debt Form */}
       <div className="border rounded-lg p-6 bg-muted/30">
-        <h3 className="text-lg font-semibold mb-4">Add New Debt</h3>
+        <h3 className="text-lg font-semibold mb-2">Build Your Debt Portfolio</h3>
+        <p className="text-sm text-muted-foreground mb-4">Add all your debts and loans to get personalized payoff strategies</p>
         <div className="space-y-6">
           {/* Step 1: Debt Type Selection */}
           <div>
@@ -256,14 +257,24 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
         </div>
         
         {newDebt.type && (
-          <Button onClick={addDebt} className="mt-6" disabled={
-            !newDebt.name || !newDebt.interestRate || !newDebt.minimumPayment ||
-            (['credit-card', 'other'].includes(newDebt.type) && !newDebt.balance) ||
-            (!['credit-card', 'other'].includes(newDebt.type) && (!newDebt.originalAmount || !newDebt.loanTenureMonths || !newDebt.startDate))
-          }>
-            <Plus className="w-4 h-4 mr-2" />
-            Add {newDebt.type === 'credit-card' ? 'Credit Card' : newDebt.type === 'other' ? 'Debt' : 'Loan'}
-          </Button>
+          <div className="flex gap-3">
+            <Button onClick={addDebt} className="flex-1" disabled={
+              !newDebt.name || !newDebt.interestRate || !newDebt.minimumPayment ||
+              (['credit-card', 'other'].includes(newDebt.type) && !newDebt.balance) ||
+              (!['credit-card', 'other'].includes(newDebt.type) && (!newDebt.originalAmount || !newDebt.loanTenureMonths || !newDebt.startDate))
+            }>
+              <Plus className="w-4 h-4 mr-2" />
+              Add {newDebt.type === 'credit-card' ? 'Credit Card' : newDebt.type === 'other' ? 'Debt' : 'Loan'}
+            </Button>
+            {debts.length > 0 && (
+              <Button 
+                variant="outline" 
+                onClick={() => setNewDebt({ name: "", type: "", balance: "", interestRate: "", minimumPayment: "", originalAmount: "", loanTenureMonths: "", startDate: "" })}
+              >
+                Add Another
+              </Button>
+            )}
+          </div>
         )}
       </div>
 

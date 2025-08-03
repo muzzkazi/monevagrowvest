@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { TrendingDown, TrendingUp, Clock, DollarSign } from "lucide-react";
+import { TrendingDown, TrendingUp, Clock, DollarSign, Calculator, Trophy, Zap, Target } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Debt } from "../DebtManagement";
 
@@ -26,7 +26,36 @@ interface PayoffResult {
 
 const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
   const strategies = useMemo(() => {
-    if (debts.length === 0) return { snowball: null, avalanche: null };
+    if (debts.length === 0) return { snowball: null, avalanche: null, noExtraPayment: null };
+
+    // Calculate baseline scenario (no extra payments)
+    const calculateNoExtraPayment = () => {
+      let totalInterest = 0;
+      let maxMonths = 0;
+      let totalPaid = 0;
+
+      debts.forEach(debt => {
+        const monthlyRate = debt.interestRate / 100 / 12;
+        const balance = debt.balance;
+        const minPayment = debt.minimumPayment;
+
+        if (monthlyRate === 0) {
+          const months = Math.ceil(balance / minPayment);
+          maxMonths = Math.max(maxMonths, months);
+          totalPaid += balance;
+        } else {
+          const months = Math.ceil(-Math.log(1 - (balance * monthlyRate) / minPayment) / Math.log(1 + monthlyRate));
+          const totalPayments = months * minPayment;
+          const interest = totalPayments - balance;
+          
+          maxMonths = Math.max(maxMonths, months);
+          totalInterest += interest;
+          totalPaid += totalPayments;
+        }
+      });
+
+      return { totalInterest, totalMonths: maxMonths, totalPaid };
+    };
 
     const calculatePayoff = (sortFn: (a: Debt, b: Debt) => number): PayoffResult => {
       const sortedDebts = [...debts].sort(sortFn);
@@ -79,32 +108,98 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
       };
     };
 
-    // Snowball: Sort by balance (smallest first)
+    // Calculate all scenarios
+    const noExtraPayment = calculateNoExtraPayment();
     const snowball = calculatePayoff((a, b) => a.balance - b.balance);
     snowball.strategy = 'snowball';
-
-    // Avalanche: Sort by interest rate (highest first)
     const avalanche = calculatePayoff((a, b) => b.interestRate - a.interestRate);
     avalanche.strategy = 'avalanche';
 
-    return { snowball, avalanche };
+    return { snowball, avalanche, noExtraPayment };
   }, [debts, extraPayment]);
 
   if (debts.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <TrendingDown className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <p>Add debts to see payment strategy comparisons</p>
+        <Calculator className="w-12 h-12 mx-auto mb-4 opacity-50" />
+        <p>Add debts to see comprehensive payment strategy analysis</p>
       </div>
     );
   }
 
-  const { snowball, avalanche } = strategies;
+  const { snowball, avalanche, noExtraPayment } = strategies;
   const betterStrategy = snowball && avalanche && snowball.totalInterest < avalanche.totalInterest ? snowball : avalanche;
   const interestSavings = snowball && avalanche ? Math.abs(snowball.totalInterest - avalanche.totalInterest) : 0;
+  const totalSavingsVsBaseline = noExtraPayment && betterStrategy ? noExtraPayment.totalInterest - betterStrategy.totalInterest : 0;
+  const timeSavingsVsBaseline = noExtraPayment && betterStrategy ? noExtraPayment.totalMonths - betterStrategy.totalMonths : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Comprehensive Savings Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200 dark:border-green-800">
+          <CardContent className="p-4 text-center">
+            <Trophy className="w-8 h-8 mx-auto mb-2 text-green-600" />
+            <p className="text-sm text-muted-foreground">Recommended Strategy</p>
+            <p className="font-semibold text-green-700 dark:text-green-300 capitalize">{betterStrategy?.strategy}</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
+          <CardContent className="p-4 text-center">
+            <DollarSign className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+            <p className="text-sm text-muted-foreground">Total Interest Savings</p>
+            <p className="font-semibold text-blue-700 dark:text-blue-300">{formatCurrency(totalSavingsVsBaseline)}</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-purple-200 dark:border-purple-800">
+          <CardContent className="p-4 text-center">
+            <Clock className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+            <p className="text-sm text-muted-foreground">Time Saved</p>
+            <p className="font-semibold text-purple-700 dark:text-purple-300">{timeSavingsVsBaseline} months</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800">
+          <CardContent className="p-4 text-center">
+            <Zap className="w-8 h-8 mx-auto mb-2 text-orange-600" />
+            <p className="text-sm text-muted-foreground">Extra Payment</p>
+            <p className="font-semibold text-orange-700 dark:text-orange-300">{formatCurrency(extraPayment)}/mo</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Detailed Analysis */}
+      {noExtraPayment && (
+        <Card className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950 border-red-200 dark:border-red-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-700 dark:text-red-300">
+              <Target className="w-5 h-5" />
+              Impact of Your Extra Payment Strategy
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-1">Without Extra Payments</p>
+                <p className="text-2xl font-bold text-red-600">{formatCurrency(noExtraPayment.totalInterest)}</p>
+                <p className="text-xs text-muted-foreground">Total interest over {Math.floor(noExtraPayment.totalMonths / 12)}y {noExtraPayment.totalMonths % 12}m</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-1">With {betterStrategy?.strategy} Method</p>
+                <p className="text-2xl font-bold text-green-600">{formatCurrency(betterStrategy?.totalInterest)}</p>
+                <p className="text-xs text-muted-foreground">Total interest over {Math.floor(betterStrategy?.totalMonths / 12)}y {betterStrategy?.totalMonths % 12}m</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-1">Your Savings</p>
+                <p className="text-2xl font-bold text-green-600">{formatCurrency(totalSavingsVsBaseline)}</p>
+                <p className="text-xs text-green-600">Save {timeSavingsVsBaseline} months & {((totalSavingsVsBaseline / noExtraPayment.totalInterest) * 100).toFixed(1)}% interest</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       {/* Strategy Comparison */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {snowball && (
