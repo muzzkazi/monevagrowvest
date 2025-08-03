@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, TrendingDown, Clock, DollarSign, IndianRupee } from "lucide-react";
+import { Calculator, TrendingDown, Clock, IndianRupee, Info } from "lucide-react";
 import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
 
 interface AmortizationEntry {
@@ -282,46 +283,111 @@ const LoanAmortization = () => {
       {hasValidInputs && (
         <>
           {/* Prepayment Options */}
-          <div className="border rounded-lg p-6 bg-muted/30">
-            <h3 className="text-lg font-semibold mb-4">Prepayment Options</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="extra-monthly">Extra Monthly Payment (₹)</Label>
-                <Input
-                  id="extra-monthly"
-                  type="text"
-                  placeholder="e.g., 5,000"
-                  value={extraMonthly ? formatInputValue(extraMonthly.toString()) : ''}
-                  onChange={(e) => {
-                    const formatted = formatInputValue(e.target.value);
-                    setExtraMonthly(parseCommaNumber(formatted));
-                  }}
-                />
-              </div>
-              <div>
-                <Label htmlFor="lump-sum">Lump Sum Payment (₹)</Label>
-                <Input
-                  id="lump-sum"
-                  type="text"
-                  placeholder="e.g., 1,00,000"
-                  value={lumpSum ? formatInputValue(lumpSum.toString()) : ''}
-                  onChange={(e) => {
-                    const formatted = formatInputValue(e.target.value);
-                    setLumpSum(parseCommaNumber(formatted));
-                  }}
-                />
-              </div>
-              <div>
-                <Label htmlFor="lump-sum-month">Lump Sum in Month</Label>
-                <Input
-                  id="lump-sum-month"
-                  type="number"
-                  value={lumpSumMonth}
-                  onChange={(e) => setLumpSumMonth(parseFloat(e.target.value) || 1)}
-                />
-              </div>
+          <TooltipProvider>
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold">Prepayment Options</h3>
+              
+              {/* Extra Monthly Payment Section */}
+              <Card className="border-l-4 border-l-blue-500 bg-blue-50/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <IndianRupee className="w-4 h-4 text-blue-600" />
+                    Extra Monthly Payment
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-blue-600" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs p-3">
+                        <p className="text-sm">
+                          <strong>Extra Monthly Payment:</strong> An additional amount you pay every month on top of your regular EMI. 
+                          This helps reduce the principal faster and saves significant interest over the loan term.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">Pay extra every month to reduce loan tenure and interest</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="max-w-xs">
+                    <Label htmlFor="extra-monthly">Extra Amount (₹)</Label>
+                    <Input
+                      id="extra-monthly"
+                      type="text"
+                      placeholder="e.g., 5,000"
+                      value={extraMonthly ? formatInputValue(extraMonthly.toString()) : ''}
+                      onChange={(e) => {
+                        const formatted = formatInputValue(e.target.value);
+                        setExtraMonthly(parseCommaNumber(formatted));
+                      }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Lump Sum Payment Section */}
+              <Card className="border-l-4 border-l-green-500 bg-green-50/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <IndianRupee className="w-4 h-4 text-green-600" />
+                    Lump Sum Payment
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-green-600" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs p-3">
+                        <p className="text-sm">
+                          <strong>Lump Sum Payment:</strong> A large one-time payment towards your loan principal. 
+                          This could be from a bonus, inheritance, or savings. It dramatically reduces your outstanding balance 
+                          and can save substantial interest.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">Make a one-time large payment to reduce principal</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="lump-sum">Lump Sum Amount (₹)</Label>
+                      <Input
+                        id="lump-sum"
+                        type="text"
+                        placeholder="e.g., 1,00,000"
+                        value={lumpSum ? formatInputValue(lumpSum.toString()) : ''}
+                        onChange={(e) => {
+                          const formatted = formatInputValue(e.target.value);
+                          setLumpSum(parseCommaNumber(formatted));
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lump-sum-month" className="flex items-center gap-1">
+                        Payment in Month
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="w-3 h-3 text-muted-foreground cursor-help hover:text-green-600" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs p-3">
+                            <p className="text-sm">
+                              <strong>Payment Month:</strong> The month number when you plan to make the lump sum payment. 
+                              For example, "12" means you'll make the payment at the end of the first year.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </Label>
+                      <Input
+                        id="lump-sum-month"
+                        type="number"
+                        placeholder="e.g., 12"
+                        value={lumpSumMonth}
+                        onChange={(e) => setLumpSumMonth(parseFloat(e.target.value) || 1)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </div>
+          </TooltipProvider>
 
           {/* Scenario Comparison */}
           <div className="space-y-4">
