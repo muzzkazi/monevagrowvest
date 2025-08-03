@@ -155,10 +155,10 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
     : 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Add New Debt Form */}
       <Card className="border-0 shadow-card">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-4">
           <CardTitle className="text-lg">Build Your Debt Portfolio</CardTitle>
           <p className="text-sm text-muted-foreground">Add all your debts and loans to get personalized payoff strategies</p>
         </CardHeader>
@@ -338,23 +338,33 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
 
       {/* Extra Payment Budget - Only show after debts are added */}
       {debts.length > 0 && (
-        <Card className="border-0 shadow-card">
+        <Card className="border-l-4 border-l-primary bg-primary/5">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Extra Payment Strategy</CardTitle>
-            <p className="text-sm text-muted-foreground">Add extra monthly payments to accelerate debt payoff</p>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-primary" />
+              Monthly Extra Payment Budget
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">Set your additional monthly payment to accelerate debt payoff</p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <div className="flex items-center gap-4">
-              <Label htmlFor="extra-payment" className="whitespace-nowrap">Monthly Extra Payment:</Label>
-              <Input
-                id="extra-payment"
-                type="number"
-                placeholder="Enter extra amount"
-                value={extraPayment}
-                onChange={(e) => setExtraPayment(parseFloat(e.target.value) || 0)}
-                className="max-w-xs"
-              />
-              <span className="text-muted-foreground">₹</span>
+              <div className="flex-1 max-w-xs">
+                <Label htmlFor="extra-payment" className="text-sm font-medium">Extra Payment Amount</Label>
+                <div className="relative mt-1">
+                  <Input
+                    id="extra-payment"
+                    type="number"
+                    placeholder="e.g., 5000"
+                    value={extraPayment}
+                    onChange={(e) => setExtraPayment(parseFloat(e.target.value) || 0)}
+                    className="pl-8 text-lg font-semibold"
+                  />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
+                </div>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <p>per month</p>
+              </div>
             </div>
           </CardContent>
         </Card>
