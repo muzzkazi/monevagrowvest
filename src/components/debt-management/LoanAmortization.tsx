@@ -33,6 +33,8 @@ const LoanAmortization = () => {
   const [loanAmount, setLoanAmount] = useState("");
   const [interestRate, setInterestRate] = useState("");
   const [loanTerm, setLoanTerm] = useState("");
+  const [customEMI, setCustomEMI] = useState("");
+  const [useCustomEMI, setUseCustomEMI] = useState(false);
   const [extraMonthly, setExtraMonthly] = useState(0);
   const [lumpSum, setLumpSum] = useState(0);
   const [lumpSumFrequency, setLumpSumFrequency] = useState(12);
@@ -113,7 +115,7 @@ const LoanAmortization = () => {
     // Calculate scenario with current inputs - now supports recurring lump sum payments
     const calculateScenario = (extraMonthlyAmount: number, lumpSumAmount: number, lumpSumFrequencyMonths: number) => {
       const monthlyRate = rate / 100 / 12;
-      const monthlyPayment = baseAmortization.monthlyPayment;
+      const monthlyPayment = useCustomEMI ? parseCommaNumber(customEMI) : baseAmortization.monthlyPayment;
       
       let remainingBalance = amount;
       let totalInterest = 0;
@@ -176,7 +178,7 @@ const LoanAmortization = () => {
     });
 
     return scenarios;
-  }, [baseAmortization, extraMonthly, lumpSum, lumpSumFrequency, interestRate, loanAmount, hasValidInputs]);
+  }, [baseAmortization, extraMonthly, lumpSum, lumpSumFrequency, interestRate, loanAmount, hasValidInputs, useCustomEMI, customEMI]);
 
   const currentScenarioSchedule = useMemo(() => {
     if (!hasValidInputs) return [];
@@ -188,7 +190,7 @@ const LoanAmortization = () => {
     const amount = parseCommaNumber(loanAmount);
     const rate = parseFloat(interestRate);
     const monthlyRate = rate / 100 / 12;
-    const monthlyPayment = baseAmortization.monthlyPayment;
+    const monthlyPayment = useCustomEMI ? parseCommaNumber(customEMI) : baseAmortization.monthlyPayment;
     
     const schedule: AmortizationEntry[] = [];
     let remainingBalance = amount;
@@ -218,7 +220,7 @@ const LoanAmortization = () => {
     }
     
     return schedule;
-  }, [baseAmortization, extraMonthly, lumpSum, lumpSumFrequency, interestRate, loanAmount, hasValidInputs]);
+  }, [baseAmortization, extraMonthly, lumpSum, lumpSumFrequency, interestRate, loanAmount, hasValidInputs, useCustomEMI, customEMI]);
 
   return (
     <div className="space-y-6">
@@ -264,13 +266,39 @@ const LoanAmortization = () => {
             onChange={(e) => setLoanTerm(e.target.value)}
           />
         </div>
-        <div className="flex items-end">
-          <div className="text-center w-full">
-            <p className="text-sm text-muted-foreground">Monthly EMI</p>
-                       <p className="text-lg font-bold text-primary">
-                {hasValidInputs ? formatCurrency(baseAmortization.monthlyPayment) : '₹0'}
-              </p>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm text-muted-foreground">Monthly EMI</Label>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-6 px-2"
+              onClick={() => {
+                setUseCustomEMI(!useCustomEMI);
+                if (!useCustomEMI && hasValidInputs) {
+                  setCustomEMI(Math.round(baseAmortization.monthlyPayment).toString());
+                }
+              }}
+            >
+              {useCustomEMI ? "Use Calculated" : "Edit EMI"}
+            </Button>
           </div>
+          {useCustomEMI ? (
+            <Input
+              type="text"
+              placeholder="Enter custom EMI"
+              value={customEMI ? formatInputValue(customEMI.toString()) : ''}
+              onChange={(e) => {
+                const formatted = formatInputValue(e.target.value);
+                setCustomEMI(formatted);
+              }}
+              className="text-center font-bold text-primary"
+            />
+          ) : (
+            <p className="text-lg font-bold text-primary text-center">
+              {hasValidInputs ? formatCurrency(baseAmortization.monthlyPayment) : '₹0'}
+            </p>
+          )}
         </div>
       </div>
 

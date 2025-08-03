@@ -10,9 +10,9 @@ export function formatNumber(num: number): string {
   return num.toLocaleString('en-IN')
 }
 
-// Format currency with Indian Rupee symbol and commas
+// Format currency with Indian Rupee symbol and commas (no decimals)
 export function formatCurrency(num: number): string {
-  return `₹${num.toLocaleString('en-IN')}`
+  return `₹${Math.round(num).toLocaleString('en-IN')}`
 }
 
 // Parse comma-separated input to number
