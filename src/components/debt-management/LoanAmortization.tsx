@@ -347,7 +347,7 @@ const LoanAmortization = () => {
                 <CardContent className="pt-0 pb-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label htmlFor="lump-sum" className="text-xs">Lump Sum Amount (₹)</Label>
+                      <Label htmlFor="lump-sum" className="text-xs h-5 flex items-center">Lump Sum Amount (₹)</Label>
                       <Input
                         id="lump-sum"
                         type="text"
@@ -361,7 +361,7 @@ const LoanAmortization = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="lump-sum-month" className="text-xs flex items-center gap-1">
+                      <Label htmlFor="lump-sum-month" className="text-xs h-5 flex items-center gap-1">
                         Payment in Month
                         <Tooltip>
                           <TooltipTrigger asChild>
