@@ -324,109 +324,110 @@ const LoanAmortization = () => {
             <div className="space-y-6">
               <h3 className="text-lg font-semibold">Prepayment Options</h3>
               
-              {/* Extra Monthly Payment Section */}
-              <Card className="border-l-4 border-l-blue-500 bg-blue-50/50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <IndianRupee className="w-4 h-4 text-blue-600" />
-                    Extra Monthly Payment
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-blue-600" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs p-3">
-                        <p className="text-sm">
-                          <strong>Extra Monthly Payment:</strong> An additional amount you pay every month on top of your regular EMI. 
-                          This helps reduce the principal faster and saves significant interest over the loan term.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </CardTitle>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Payment Options</CardTitle>
                 </CardHeader>
-                <CardContent className="pt-0 pb-3">
-                  <div className="max-w-xs">
-                    <Label htmlFor="extra-monthly" className="text-xs">Extra Amount (₹)</Label>
-                    <Input
-                      id="extra-monthly"
-                      type="text"
-                      placeholder="e.g., 5,000"
-                      className="h-8"
-                      value={extraMonthly ? formatInputValue(extraMonthly.toString()) : ''}
-                      onChange={(e) => {
-                        const formatted = formatInputValue(e.target.value);
-                        setExtraMonthly(parseCommaNumber(formatted));
-                      }}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Lump Sum Payment Section */}
-              <Card className="border-l-4 border-l-green-500 bg-green-50/50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <IndianRupee className="w-4 h-4 text-green-600" />
-                    Lump Sum Payment
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-green-600" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs p-3">
-                        <p className="text-sm">
-                          <strong>Recurring Lump Sum Payment:</strong> A large recurring payment towards your loan principal. 
-                          This could be from annual bonuses, quarterly savings, or investment returns. Making these payments regularly 
-                          dramatically reduces your outstanding balance and saves substantial interest.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 pb-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label htmlFor="lump-sum" className="text-xs h-5 flex items-center">Lump Sum Amount (₹)</Label>
-                      <Input
-                        id="lump-sum"
-                        type="text"
-                        placeholder="e.g., 1,00,000"
-                        className="h-8"
-                        value={lumpSum ? formatInputValue(lumpSum.toString()) : ''}
-                        onChange={(e) => {
-                          const formatted = formatInputValue(e.target.value);
-                          setLumpSum(parseCommaNumber(formatted));
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lump-sum-frequency" className="text-xs h-5 flex items-center gap-1">
-                        Payment Frequency (Months)
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Extra Monthly Payment Section */}
+                    <div className="space-y-3 p-4 border border-blue-200 rounded-lg bg-blue-50/50">
+                      <div className="flex items-center gap-2 mb-3">
+                        <IndianRupee className="w-4 h-4 text-blue-600" />
+                        <h4 className="text-sm font-semibold text-blue-800">Extra Monthly Payment</h4>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="w-3 h-3 text-muted-foreground cursor-help hover:text-green-600" />
+                            <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-blue-600" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs p-3">
                             <p className="text-sm">
-                              <strong>Payment Frequency:</strong> How often you'll make this lump sum payment. 
-                              For example, "12" means every 12 months (annually), "6" means every 6 months.
+                              <strong>Extra Monthly Payment:</strong> An additional amount you pay every month on top of your regular EMI. 
+                              This helps reduce the principal faster and saves significant interest over the loan term.
                             </p>
                           </TooltipContent>
                         </Tooltip>
-                      </Label>
-                      <Input
-                        id="lump-sum-frequency"
-                        type="number"
-                        placeholder="e.g., 12"
-                        className="h-8"
-                        min="1"
-                        max="12"
-                        value={lumpSumFrequency}
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value);
-                          if (value <= 12 || e.target.value === '') {
-                            setLumpSumFrequency(value || 12);
-                          }
-                        }}
-                      />
+                      </div>
+                      <div>
+                        <Label htmlFor="extra-monthly" className="text-xs">Extra Amount (₹)</Label>
+                        <Input
+                          id="extra-monthly"
+                          type="text"
+                          placeholder="e.g., 5,000"
+                          className="h-8"
+                          value={extraMonthly ? formatInputValue(extraMonthly.toString()) : ''}
+                          onChange={(e) => {
+                            const formatted = formatInputValue(e.target.value);
+                            setExtraMonthly(parseCommaNumber(formatted));
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Lump Sum Payment Section */}
+                    <div className="space-y-3 p-4 border border-green-200 rounded-lg bg-green-50/50">
+                      <div className="flex items-center gap-2 mb-3">
+                        <IndianRupee className="w-4 h-4 text-green-600" />
+                        <h4 className="text-sm font-semibold text-green-800">Lump Sum Payment</h4>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="w-4 h-4 text-muted-foreground cursor-help hover:text-green-600" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs p-3">
+                            <p className="text-sm">
+                              <strong>Recurring Lump Sum Payment:</strong> A large recurring payment towards your loan principal. 
+                              This could be from annual bonuses, quarterly savings, or investment returns. Making these payments regularly 
+                              dramatically reduces your outstanding balance and saves substantial interest.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor="lump-sum" className="text-xs">Lump Sum Amount (₹)</Label>
+                          <Input
+                            id="lump-sum"
+                            type="text"
+                            placeholder="e.g., 1,00,000"
+                            className="h-8"
+                            value={lumpSum ? formatInputValue(lumpSum.toString()) : ''}
+                            onChange={(e) => {
+                              const formatted = formatInputValue(e.target.value);
+                              setLumpSum(parseCommaNumber(formatted));
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="lump-sum-frequency" className="text-xs flex items-center gap-1">
+                            Payment Frequency (Months)
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Info className="w-3 h-3 text-muted-foreground cursor-help hover:text-green-600" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs p-3">
+                                <p className="text-sm">
+                                  <strong>Payment Frequency:</strong> How often you'll make this lump sum payment. 
+                                  For example, "12" means every 12 months (annually), "6" means every 6 months.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </Label>
+                          <Input
+                            id="lump-sum-frequency"
+                            type="number"
+                            placeholder="e.g., 12"
+                            className="h-8"
+                            min="1"
+                            max="12"
+                            value={lumpSumFrequency}
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value);
+                              if (value <= 12 || e.target.value === '') {
+                                setLumpSumFrequency(value || 12);
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
