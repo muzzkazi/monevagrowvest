@@ -28,10 +28,12 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
   });
 
   // Function to calculate EMI for fixed loans
-  const calculateEMI = (principal: number, annualRate: number, tenureMonths: number): number => {
-    if (!principal || !annualRate || !tenureMonths) return 0;
+  const calculateEMI = (principal: number, annualRate: number, tenureYears: number): number => {
+    if (!principal || !annualRate || !tenureYears) return 0;
     
     const monthlyRate = annualRate / 100 / 12;
+    const tenureMonths = tenureYears * 12;
+    
     if (monthlyRate === 0) return principal / tenureMonths; // No interest case
     
     const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths)) / 
@@ -48,10 +50,10 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
     if (!['credit-card', 'other'].includes(updatedDebt.type) && updatedDebt.type) {
       const principal = parseFloat(updatedDebt.originalAmount);
       const rate = parseFloat(updatedDebt.interestRate);
-      const tenure = parseFloat(updatedDebt.loanTenureMonths);
+      const tenureYears = parseFloat(updatedDebt.loanTenureMonths); // Now represents years
       
-      if (principal && rate && tenure) {
-        const calculatedEMI = calculateEMI(principal, rate, tenure);
+      if (principal && rate && tenureYears) {
+        const calculatedEMI = calculateEMI(principal, rate, tenureYears);
         updatedDebt.minimumPayment = calculatedEMI.toString();
       }
     }
@@ -63,10 +65,11 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
   const calculateRemainingBalance = (
     originalAmount: number,
     annualRate: number,
-    totalMonths: number,
+    totalYears: number,
     startDate: Date
   ): number => {
     const monthlyRate = annualRate / 100 / 12;
+    const totalMonths = totalYears * 12;
     const monthlyPayment = (originalAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / 
                           (Math.pow(1 + monthlyRate, totalMonths) - 1);
     
@@ -111,7 +114,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
       calculatedBalance = calculateRemainingBalance(
         parseFloat(newDebt.originalAmount),
         parseFloat(newDebt.interestRate),
-        parseFloat(newDebt.loanTenureMonths),
+        parseFloat(newDebt.loanTenureMonths), // Now in years
         new Date(newDebt.startDate)
       );
     }
@@ -124,7 +127,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
       interestRate: parseFloat(newDebt.interestRate),
       minimumPayment: parseFloat(newDebt.minimumPayment),
       originalAmount: newDebt.originalAmount ? parseFloat(newDebt.originalAmount) : undefined,
-      loanTenureMonths: newDebt.loanTenureMonths ? parseFloat(newDebt.loanTenureMonths) : undefined,
+      loanTenureMonths: newDebt.loanTenureMonths ? parseFloat(newDebt.loanTenureMonths) * 12 : undefined, // Convert years to months
       startDate: newDebt.startDate ? new Date(newDebt.startDate) : undefined
     };
 
@@ -152,12 +155,14 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
     : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Add New Debt Form */}
-      <div className="border rounded-lg p-6 bg-muted/30">
-        <h3 className="text-lg font-semibold mb-2">Build Your Debt Portfolio</h3>
-        <p className="text-sm text-muted-foreground mb-4">Add all your debts and loans to get personalized payoff strategies</p>
-        <div className="space-y-6">
+      <Card className="border-0 shadow-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Build Your Debt Portfolio</CardTitle>
+          <p className="text-sm text-muted-foreground">Add all your debts and loans to get personalized payoff strategies</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
           {/* Step 1: Debt Type Selection */}
           <div>
             <Label htmlFor="debt-type">Select Debt Type</Label>
@@ -178,8 +183,8 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
 
           {/* Step 2: Show relevant fields based on debt type */}
           {newDebt.type && (
-            <div className="space-y-6 border-t pt-6">
-              {/* Debt Name - Different labels based on type */}
+            <div className="space-y-4 border-t pt-4">
+              {/* Debt Name */}
               <div>
                 <Label htmlFor="debt-name">
                   {newDebt.type === 'credit-card' 
@@ -203,9 +208,9 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                 />
               </div>
 
-              {/* Financial Details - Show balance only for credit cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(['credit-card', 'other'].includes(newDebt.type)) && (
+              {/* Credit Card/Other Debt Fields */}
+              {(['credit-card', 'other'].includes(newDebt.type)) && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="debt-balance">Current Outstanding Balance</Label>
                     <Input
@@ -216,22 +221,17 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                       onChange={(e) => setNewDebt({ ...newDebt, balance: e.target.value })}
                     />
                   </div>
-                )}
-                
-                <div>
-                  <Label htmlFor="debt-rate">Interest Rate (% per annum)</Label>
-                  <Input
-                    id="debt-rate"
-                    type="number"
-                    step="0.01"
-                    placeholder="e.g., 18.5"
-                    value={newDebt.interestRate}
-                    onChange={(e) => handleLoanDetailChange('interestRate', e.target.value)}
-                  />
-                </div>
-                
-                {/* Show EMI field differently for loans vs credit cards */}
-                {['credit-card', 'other'].includes(newDebt.type) ? (
+                  <div>
+                    <Label htmlFor="debt-rate">Interest Rate (% per annum)</Label>
+                    <Input
+                      id="debt-rate"
+                      type="number"
+                      step="0.01"
+                      placeholder="e.g., 18.5"
+                      value={newDebt.interestRate}
+                      onChange={(e) => handleLoanDetailChange('interestRate', e.target.value)}
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="debt-min">Minimum Payment Due</Label>
                     <Input
@@ -242,31 +242,13 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                       onChange={(e) => setNewDebt({ ...newDebt, minimumPayment: e.target.value })}
                     />
                   </div>
-                ) : (
-                  <div>
-                    <Label htmlFor="debt-emi">Monthly EMI</Label>
-                    <Input
-                      id="debt-emi"
-                      type="number"
-                      placeholder="Will be calculated automatically"
-                      value={newDebt.minimumPayment}
-                      readOnly
-                      className="bg-muted/50 cursor-not-allowed"
-                    />
-                    {newDebt.minimumPayment && (
-                      <p className="text-xs text-green-600 mt-1">
-                        ✅ Auto-calculated: {formatCurrency(parseFloat(newDebt.minimumPayment))}/month
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
 
-              {/* Loan Details - Show only for fixed loans */}
+              {/* Fixed Loan Fields */}
               {newDebt.type && !['credit-card', 'other'].includes(newDebt.type) && (
-                <div className="border-t pt-4">
-                  <h4 className="text-sm font-medium mb-3 text-financial-accent">Loan Details (for automatic calculations)</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="original-amount">Loan Amount</Label>
                       <Input
@@ -278,11 +260,25 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                       />
                     </div>
                     <div>
-                      <Label htmlFor="loan-tenure">Loan Tenure (months)</Label>
+                      <Label htmlFor="debt-rate">Interest Rate (% per annum)</Label>
+                      <Input
+                        id="debt-rate"
+                        type="number"
+                        step="0.01"
+                        placeholder="e.g., 8.5"
+                        value={newDebt.interestRate}
+                        onChange={(e) => handleLoanDetailChange('interestRate', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="loan-tenure">Loan Tenure (years)</Label>
                       <Input
                         id="loan-tenure"
                         type="number"
-                        placeholder="e.g., 240 (20 years)"
+                        placeholder="e.g., 20"
                         value={newDebt.loanTenureMonths}
                         onChange={(e) => handleLoanDetailChange('loanTenureMonths', e.target.value)}
                       />
@@ -297,106 +293,112 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                       />
                     </div>
                   </div>
-                  <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                    <p className="text-xs text-blue-700 dark:text-blue-300">
-                      💡 <strong>Auto-calculations:</strong> EMI and current balance will be calculated automatically based on these details
-                    </p>
-                    {newDebt.originalAmount && newDebt.interestRate && newDebt.loanTenureMonths && (
-                      <div className="mt-2 text-sm">
-                        <span className="text-muted-foreground">Calculated EMI: </span>
-                        <span className="font-semibold text-financial-accent">
-                          {formatCurrency(calculateEMI(
-                            parseFloat(newDebt.originalAmount),
-                            parseFloat(newDebt.interestRate),
-                            parseFloat(newDebt.loanTenureMonths)
-                          ))}
-                        </span>
-                      </div>
-                    )}
+
+                  {/* EMI Display for Fixed Loans */}
+                  <div>
+                    <Label>Monthly EMI</Label>
+                    <div className="p-3 bg-muted rounded-md">
+                      <p className="text-lg font-semibold text-financial-accent">
+                        {newDebt.minimumPayment ? formatCurrency(parseFloat(newDebt.minimumPayment)) : '₹0'}/month
+                      </p>
+                      {newDebt.originalAmount && newDebt.interestRate && newDebt.loanTenureMonths && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          ✅ Auto-calculated based on loan details
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           )}
-        </div>
         
-        {newDebt.type && (
-          <div className="flex gap-3">
-            <Button onClick={addDebt} className="flex-1" disabled={
-              !newDebt.name || !newDebt.interestRate || !newDebt.minimumPayment ||
-              (['credit-card', 'other'].includes(newDebt.type) && !newDebt.balance) ||
-              (!['credit-card', 'other'].includes(newDebt.type) && (!newDebt.originalAmount || !newDebt.loanTenureMonths || !newDebt.startDate))
-            }>
-              <Plus className="w-4 h-4 mr-2" />
-              Add {newDebt.type === 'credit-card' ? 'Credit Card' : newDebt.type === 'other' ? 'Debt' : 'Loan'}
-            </Button>
-            {debts.length > 0 && (
-              <Button 
-                variant="outline" 
-                onClick={() => setNewDebt({ name: "", type: "", balance: "", interestRate: "", minimumPayment: "", originalAmount: "", loanTenureMonths: "", startDate: "" })}
-              >
-                Add Another
+          {newDebt.type && (
+            <div className="flex gap-3 pt-2">
+              <Button onClick={addDebt} className="flex-1" disabled={
+                !newDebt.name || !newDebt.interestRate || !newDebt.minimumPayment ||
+                (['credit-card', 'other'].includes(newDebt.type) && !newDebt.balance) ||
+                (!['credit-card', 'other'].includes(newDebt.type) && (!newDebt.originalAmount || !newDebt.loanTenureMonths || !newDebt.startDate))
+              }>
+                <Plus className="w-4 h-4 mr-2" />
+                Add {newDebt.type === 'credit-card' ? 'Credit Card' : newDebt.type === 'other' ? 'Debt' : 'Loan'}
               </Button>
-            )}
-          </div>
-        )}
-      </div>
+              {debts.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => setNewDebt({ name: "", type: "", balance: "", interestRate: "", minimumPayment: "", originalAmount: "", loanTenureMonths: "", startDate: "" })}
+                >
+                  Add Another
+                </Button>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Extra Payment Setting */}
-      <div className="border rounded-lg p-6 bg-muted/30">
-        <h3 className="text-lg font-semibold mb-4">Extra Payment Budget</h3>
-        <div className="flex items-center gap-4">
-          <Label htmlFor="extra-payment" className="whitespace-nowrap">Monthly Extra Payment:</Label>
-          <Input
-            id="extra-payment"
-            type="number"
-            value={extraPayment}
-            onChange={(e) => setExtraPayment(parseFloat(e.target.value) || 0)}
-            className="max-w-xs"
-          />
-          <span className="text-muted-foreground">₹</span>
-        </div>
-      </div>
+      {/* Extra Payment Budget - Only show after debts are added */}
+      {debts.length > 0 && (
+        <Card className="border-0 shadow-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Extra Payment Strategy</CardTitle>
+            <p className="text-sm text-muted-foreground">Add extra monthly payments to accelerate debt payoff</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-4">
+              <Label htmlFor="extra-payment" className="whitespace-nowrap">Monthly Extra Payment:</Label>
+              <Input
+                id="extra-payment"
+                type="number"
+                placeholder="Enter extra amount"
+                value={extraPayment}
+                onChange={(e) => setExtraPayment(parseFloat(e.target.value) || 0)}
+                className="max-w-xs"
+              />
+              <span className="text-muted-foreground">₹</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Portfolio Summary */}
       {debts.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
+          <Card className="border-0 shadow-card">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <DollarSign className="w-4 h-4" />
                 Total Debt
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <div className="text-2xl font-bold text-destructive">
                 {formatCurrency(totalBalance)}
               </div>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="pb-3">
+          <Card className="border-0 shadow-card">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <CreditCard className="w-4 h-4" />
                 Min. Payments
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <div className="text-2xl font-bold">
                 {formatCurrency(totalMinPayment)}
               </div>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="pb-3">
+          <Card className="border-0 shadow-card">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Percent className="w-4 h-4" />
                 Avg. Interest Rate
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <div className="text-2xl font-bold">
                 {weightedAvgRate.toFixed(2)}%
               </div>
@@ -407,13 +409,13 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
 
       {/* Debt List */}
       {debts.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <h3 className="text-lg font-semibold">Your Debts</h3>
           {debts.map((debt) => (
-            <Card key={debt.id} className="hover:shadow-md transition-shadow">
+            <Card key={debt.id} className="border-0 shadow-card hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 space-y-2">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold">{debt.name}</p>
@@ -443,7 +445,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                       {debt.loanTenureMonths && (
                         <div>
                           <p className="text-muted-foreground">Tenure</p>
-                          <p className="font-medium">{debt.loanTenureMonths} months</p>
+                          <p className="font-medium">{Math.round(debt.loanTenureMonths / 12)} years</p>
                         </div>
                       )}
                       {debt.startDate && (
