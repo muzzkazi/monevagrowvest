@@ -78,11 +78,11 @@ const Contact = () => {
   return (
     <section id="contact" className="py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
-            Get In <span className="text-financial-accent">Touch</span>
+        <div className="text-center mb-16 animate-fade-in">
+          <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
+            Get In <span className="text-shimmer">Touch</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
             Ready to take control of your financial future? Get AI-powered recommendations and start your personalized investment journey now. Contact our expert advisors for comprehensive financial planning solutions.
           </p>
         </div>
@@ -90,7 +90,7 @@ const Contact = () => {
         <div className="grid lg:grid-cols-3 gap-8 mb-16">
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <Card className="bg-gradient-card border-0 shadow-financial">
+            <Card className="glass-card card-float border-0 shadow-financial">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-financial-accent" />
@@ -165,7 +165,7 @@ const Contact = () => {
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full bg-financial-accent hover:bg-financial-accent/90 text-white">
+                  <Button type="submit" className="btn-enhance w-full bg-financial-accent hover:bg-financial-accent/90 text-white shadow-financial">
                     Send Message
                   </Button>
                 </form>
@@ -175,7 +175,7 @@ const Contact = () => {
 
           {/* Contact Information */}
           <div className="space-y-6">
-            <Card className="bg-gradient-card border-0 shadow-card">
+            <Card className="glass-card card-float border-0 shadow-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-financial-accent" />
@@ -187,7 +187,7 @@ const Contact = () => {
                   Prefer to talk directly? Schedule a free 30-minute consultation with our financial experts.
                 </p>
                 <Button 
-                  className="w-full bg-financial-gold hover:bg-financial-gold/90 text-financial-primary"
+                  className="btn-enhance w-full bg-financial-gold hover:bg-financial-gold/90 text-financial-primary shadow-gold"
                   onClick={() => setIsModalOpen(true)}
                 >
                   Book Free Consultation

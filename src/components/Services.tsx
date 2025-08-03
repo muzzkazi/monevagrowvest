@@ -63,44 +63,47 @@ const Services = () => {
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service, index) => (
-            <Card key={index} className="group bg-gradient-card border-0 shadow-card hover:shadow-financial transition-all duration-300 hover:-translate-y-2">
-              <CardContent className="p-8">
-                <div className="mb-6">
-                  <div className="w-16 h-16 bg-gradient-gold rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <service.icon className="w-8 h-8 text-financial-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-4 text-foreground">{service.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed mb-6">{service.description}</p>
+            <Card key={index} className="card-float glass-card group border-0 shadow-card hover:shadow-financial overflow-hidden">
+              <CardContent className="p-8 relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-gold opacity-5 rounded-full -translate-y-16 translate-x-16"></div>
+                <div className="relative z-10">
+                  <div className="mb-6">
+                    <div className="w-16 h-16 bg-gradient-gold rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-500 shadow-gold">
+                      <service.icon className="w-8 h-8 text-financial-primary" />
+                    </div>
+                    <h3 className="text-xl font-display font-semibold mb-4 text-foreground group-hover:text-financial-accent transition-colors duration-300">{service.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed mb-6">{service.description}</p>
+                    
+                    <div className="space-y-3 mb-6">
+                      {service.features.map((feature, featureIndex) => (
+                        <div key={featureIndex} className="flex items-center gap-3 group/item">
+                          <CheckCircle className="w-4 h-4 text-financial-accent flex-shrink-0 group-hover/item:scale-110 transition-transform duration-200" />
+                          <span className="text-sm text-muted-foreground">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
                   
-                  <div className="space-y-2 mb-6">
-                    {service.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-financial-accent flex-shrink-0" />
-                        <span className="text-sm text-muted-foreground">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {service.title === "Financial Planning Tools" ? (
-                    <Link to="/calculators">
-                      <Button variant="outline" className="w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                    {service.title === "Financial Planning Tools" ? (
+                      <Link to="/calculators">
+                        <Button variant="outline" className="btn-enhance w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                          {service.cta}
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                    ) : service.title === "Research Based Investment" || service.title === "Goal-Based Planning" ? (
+                      <Link to="/ai-planning">
+                        <Button variant="outline" className="btn-enhance w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                          {service.cta}
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button variant="outline" className="btn-enhance w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
                         {service.cta}
                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
-                    </Link>
-                  ) : service.title === "Research Based Investment" || service.title === "Goal-Based Planning" ? (
-                    <Link to="/ai-planning">
-                      <Button variant="outline" className="w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
-                        {service.cta}
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button variant="outline" className="w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
-                      {service.cta}
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  )}
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

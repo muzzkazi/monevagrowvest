@@ -2,56 +2,71 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-financial-primary text-white py-16">
-      <div className="container mx-auto px-4">
+    <footer className="bg-gradient-primary text-white py-16 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')]"></div>
+      <div className="container mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <img 
                 src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
                 alt="Moneva Logo" 
-                className="h-10 w-auto"
-                style={{ filter: 'brightness(0) saturate(100%) invert(12%) sepia(94%) saturate(7481%) hue-rotate(246deg) brightness(97%) contrast(149%)' }}
+                className="h-12 w-auto transition-transform duration-300 hover:scale-105"
+                style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }}
               />
             </div>
-            <p className="text-white/70">
-              Your trusted partner in financial planning and wealth management - Moneva Growvest Pvt. Ltd.
+            <p className="text-white/80 leading-relaxed font-light">
+              Your trusted partner in financial planning and wealth management. Building prosperity through intelligent investment strategies.
             </p>
+            <div className="flex space-x-4 pt-2">
+              <div className="w-2 h-2 bg-financial-gold rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-financial-gold rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
+              <div className="w-2 h-2 bg-financial-gold rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+            </div>
           </div>
           
           <div>
-            <h4 className="font-semibold mb-4">Services</h4>
-            <ul className="space-y-2 text-white/70">
-              <li><Link to="/services" className="hover:text-financial-gold transition-colors">Investment Planning</Link></li>
-              <li><Link to="/services" className="hover:text-financial-gold transition-colors">Retirement Planning</Link></li>
-              <li><Link to="/services" className="hover:text-financial-gold transition-colors">Tax Planning</Link></li>
-              <li><Link to="/services" className="hover:text-financial-gold transition-colors">Portfolio Management</Link></li>
+            <h4 className="font-display font-semibold mb-6 text-lg">Premium Services</h4>
+            <ul className="space-y-3 text-white/80">
+              <li><Link to="/services" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Investment Planning</Link></li>
+              <li><Link to="/services" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Retirement Planning</Link></li>
+              <li><Link to="/services" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Tax Planning</Link></li>
+              <li><Link to="/services" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Portfolio Management</Link></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
-            <ul className="space-y-2 text-white/70">
-              <li><Link to="/calculators" className="hover:text-financial-gold transition-colors">SIP Calculator</Link></li>
-              <li><Link to="/calculators" className="hover:text-financial-gold transition-colors">EMI Calculator</Link></li>
-              <li><Link to="/calculators" className="hover:text-financial-gold transition-colors">Tax Calculator</Link></li>
-              <li><Link to="/blog" className="hover:text-financial-gold transition-colors">Blog</Link></li>
+            <h4 className="font-display font-semibold mb-6 text-lg">Smart Tools</h4>
+            <ul className="space-y-3 text-white/80">
+              <li><Link to="/calculators" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">SIP Calculator</Link></li>
+              <li><Link to="/calculators" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">EMI Calculator</Link></li>
+              <li><Link to="/debt-management" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Debt Management</Link></li>
+              <li><Link to="/ai-planning" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">AI Financial Planning</Link></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-semibold mb-4">Contact</h4>
-            <ul className="space-y-2 text-white/70">
-              <li>invest@moneva.in</li>
-              <li>
-                <a href="tel:+918087855185" className="hover:text-financial-gold transition-colors">
+            <h4 className="font-display font-semibold mb-6 text-lg">Connect With Us</h4>
+            <div className="space-y-4 text-white/80">
+              <div className="group">
+                <p className="text-sm opacity-70 mb-1">Email us at</p>
+                <a href="mailto:invest@moneva.in" className="hover:text-financial-gold transition-colors font-medium">invest@moneva.in</a>
+              </div>
+              <div className="group">
+                <p className="text-sm opacity-70 mb-1">Call us at</p>
+                <a href="tel:+918087855185" className="hover:text-financial-gold transition-colors font-medium text-lg">
                   +91 80878 55185
                 </a>
-              </li>
-              <li>Unit no. 611, Reliables Pride</li>
-              <li>Anand Nagar Opp. Heera Panna</li>
-              <li>Jogeshwari West, Mumbai – 400102</li>
-            </ul>
+              </div>
+              <div className="pt-2">
+                <p className="text-sm mb-2 opacity-70">Visit our office</p>
+                <address className="text-sm leading-relaxed not-italic">
+                  Unit no. 611, Reliables Pride<br/>
+                  Anand Nagar Opp. Heera Panna<br/>
+                  Jogeshwari West, Mumbai – 400102
+                </address>
+              </div>
+            </div>
           </div>
         </div>
         

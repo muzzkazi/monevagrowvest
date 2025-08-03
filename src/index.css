@@ -173,6 +173,61 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+
+  /* Enhanced glassmorphism effects */
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/80 dark:bg-card/80 border border-white/20 dark:border-white/10;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .glass-nav {
+    @apply backdrop-blur-xl bg-background/85 border-b border-border/50;
+  }
+
+  /* Enhanced button animations */
+  .btn-enhance {
+    @apply transition-all duration-300 ease-smooth;
+    transform-style: preserve-3d;
+  }
+  
+  .btn-enhance:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Smooth text animations */
+  .text-shimmer {
+    background: linear-gradient(90deg, 
+      hsl(var(--foreground)) 25%, 
+      hsl(var(--financial-accent)) 50%, 
+      hsl(var(--foreground)) 75%);
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2s ease-in-out infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Enhanced card hover effects */
+  .card-float {
+    @apply transition-all duration-500 ease-smooth;
+  }
+  
+  .card-float:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+}
 }

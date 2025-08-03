@@ -161,6 +161,11 @@ export default {
 			},
 			transitionTimingFunction: {
 				'smooth': 'var(--transition-smooth)'
+			},
+			fontFamily: {
+				'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+				'serif': ['Playfair Display', 'ui-serif', 'Georgia'],
+				'display': ['Playfair Display', 'ui-serif', 'Georgia']
 			}
 		}
 	},
