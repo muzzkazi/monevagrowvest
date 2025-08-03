@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { TrendingDown, TrendingUp, Clock, DollarSign, Calculator, Trophy, Zap, Target } from "lucide-react";
+import { TrendingDown, TrendingUp, Clock, DollarSign, Calculator, Trophy, Zap, Target, IndianRupee } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Debt } from "../DebtManagement";
 
@@ -148,7 +148,7 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
         
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
           <CardContent className="p-4 text-center">
-            <DollarSign className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+            <IndianRupee className="w-8 h-8 mx-auto mb-2 text-blue-600" />
             <p className="text-sm text-muted-foreground">Total Interest Savings</p>
             <p className="font-semibold text-blue-700 dark:text-blue-300">{formatCurrency(totalSavingsVsBaseline)}</p>
           </CardContent>
