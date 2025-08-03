@@ -125,118 +125,146 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
       <div className="border rounded-lg p-6 bg-muted/30">
         <h3 className="text-lg font-semibold mb-4">Add New Debt</h3>
         <div className="space-y-6">
-          {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="debt-name">Debt Name</Label>
-              <Input
-                id="debt-name"
-                placeholder="Credit Card 1"
-                value={newDebt.name}
-                onChange={(e) => setNewDebt({ ...newDebt, name: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="debt-type">Debt Type</Label>
-              <Select value={newDebt.type} onValueChange={(value) => setNewDebt({ ...newDebt, type: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select debt type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="credit-card">Credit Card</SelectItem>
-                  <SelectItem value="personal-loan">Personal Loan</SelectItem>
-                  <SelectItem value="car-loan">Car Loan</SelectItem>
-                  <SelectItem value="mortgage">Home Mortgage</SelectItem>
-                  <SelectItem value="gold-loan">Gold Loan</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {(['credit-card', 'other'].includes(newDebt.type) || !newDebt.type) && (
+          {/* Step 1: Debt Type Selection */}
+          <div>
+            <Label htmlFor="debt-type">Select Debt Type</Label>
+            <Select value={newDebt.type} onValueChange={(value) => setNewDebt({ ...newDebt, type: value, name: "", balance: "", minimumPayment: "", originalAmount: "", loanTenureMonths: "", startDate: "" })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose the type of debt" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="credit-card">Credit Card</SelectItem>
+                <SelectItem value="personal-loan">Personal Loan</SelectItem>
+                <SelectItem value="car-loan">Car Loan</SelectItem>
+                <SelectItem value="mortgage">Home Mortgage</SelectItem>
+                <SelectItem value="gold-loan">Gold Loan</SelectItem>
+                <SelectItem value="other">Other Debt</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Step 2: Show relevant fields based on debt type */}
+          {newDebt.type && (
+            <div className="space-y-6 border-t pt-6">
+              {/* Debt Name - Different labels based on type */}
               <div>
-                <Label htmlFor="debt-balance">Current Balance</Label>
+                <Label htmlFor="debt-name">
+                  {newDebt.type === 'credit-card' 
+                    ? 'Credit Card Name' 
+                    : newDebt.type === 'other' 
+                    ? 'Debt Name'
+                    : 'Bank/Lender Name'
+                  }
+                </Label>
                 <Input
-                  id="debt-balance"
-                  type="number"
-                  placeholder="10000"
-                  value={newDebt.balance}
-                  onChange={(e) => setNewDebt({ ...newDebt, balance: e.target.value })}
+                  id="debt-name"
+                  placeholder={
+                    newDebt.type === 'credit-card' 
+                      ? 'e.g., HDFC Regalia, SBI SimplyCLICK' 
+                      : newDebt.type === 'other'
+                      ? 'Enter debt name'
+                      : 'e.g., HDFC Bank, SBI, ICICI Bank'
+                  }
+                  value={newDebt.name}
+                  onChange={(e) => setNewDebt({ ...newDebt, name: e.target.value })}
                 />
               </div>
-            )}
-          </div>
 
-          {/* Financial Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="debt-rate">Interest Rate (%)</Label>
-              <Input
-                id="debt-rate"
-                type="number"
-                step="0.01"
-                placeholder="18.5"
-                value={newDebt.interestRate}
-                onChange={(e) => setNewDebt({ ...newDebt, interestRate: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="debt-min">Minimum Payment</Label>
-              <Input
-                id="debt-min"
-                type="number"
-                placeholder="300"
-                value={newDebt.minimumPayment}
-                onChange={(e) => setNewDebt({ ...newDebt, minimumPayment: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* Conditional fields for fixed loans */}
-          {newDebt.type && !['credit-card', 'other'].includes(newDebt.type) && (
-            <div className="border-t pt-4">
-              <h4 className="text-sm font-medium mb-3 text-muted-foreground">Loan Details (for accurate calculations)</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Financial Details - Show balance only for credit cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(['credit-card', 'other'].includes(newDebt.type)) && (
+                  <div>
+                    <Label htmlFor="debt-balance">Current Outstanding Balance</Label>
+                    <Input
+                      id="debt-balance"
+                      type="number"
+                      placeholder="Enter current balance"
+                      value={newDebt.balance}
+                      onChange={(e) => setNewDebt({ ...newDebt, balance: e.target.value })}
+                    />
+                  </div>
+                )}
+                
                 <div>
-                  <Label htmlFor="original-amount">Original Loan Amount</Label>
+                  <Label htmlFor="debt-rate">Interest Rate (% per annum)</Label>
                   <Input
-                    id="original-amount"
+                    id="debt-rate"
                     type="number"
-                    placeholder="100000"
-                    value={newDebt.originalAmount}
-                    onChange={(e) => setNewDebt({ ...newDebt, originalAmount: e.target.value })}
+                    step="0.01"
+                    placeholder="e.g., 18.5"
+                    value={newDebt.interestRate}
+                    onChange={(e) => setNewDebt({ ...newDebt, interestRate: e.target.value })}
                   />
                 </div>
+                
                 <div>
-                  <Label htmlFor="loan-tenure">Total Tenure (months)</Label>
+                  <Label htmlFor="debt-min">
+                    {newDebt.type === 'credit-card' ? 'Minimum Payment Due' : 'Monthly EMI'}
+                  </Label>
                   <Input
-                    id="loan-tenure"
+                    id="debt-min"
                     type="number"
-                    placeholder="60"
-                    value={newDebt.loanTenureMonths}
-                    onChange={(e) => setNewDebt({ ...newDebt, loanTenureMonths: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="start-date">Loan Start Date</Label>
-                  <Input
-                    id="start-date"
-                    type="date"
-                    value={newDebt.startDate}
-                    onChange={(e) => setNewDebt({ ...newDebt, startDate: e.target.value })}
+                    placeholder={newDebt.type === 'credit-card' ? 'Enter minimum payment' : 'Enter EMI amount'}
+                    value={newDebt.minimumPayment}
+                    onChange={(e) => setNewDebt({ ...newDebt, minimumPayment: e.target.value })}
                   />
                 </div>
               </div>
+
+              {/* Loan Details - Show only for fixed loans */}
+              {newDebt.type && !['credit-card', 'other'].includes(newDebt.type) && (
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-medium mb-3 text-financial-accent">Loan Details (for accurate balance calculation)</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="original-amount">Original Loan Amount</Label>
+                      <Input
+                        id="original-amount"
+                        type="number"
+                        placeholder="e.g., 500000"
+                        value={newDebt.originalAmount}
+                        onChange={(e) => setNewDebt({ ...newDebt, originalAmount: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="loan-tenure">Loan Tenure (months)</Label>
+                      <Input
+                        id="loan-tenure"
+                        type="number"
+                        placeholder="e.g., 240 (20 years)"
+                        value={newDebt.loanTenureMonths}
+                        onChange={(e) => setNewDebt({ ...newDebt, loanTenureMonths: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="start-date">Loan Start Date</Label>
+                      <Input
+                        id="start-date"
+                        type="date"
+                        value={newDebt.startDate}
+                        onChange={(e) => setNewDebt({ ...newDebt, startDate: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    💡 Current balance will be calculated automatically based on these details
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
-        <Button onClick={addDebt} className="mt-6" disabled={
-          !newDebt.name || !newDebt.type || !newDebt.interestRate || !newDebt.minimumPayment ||
-          (['credit-card', 'other'].includes(newDebt.type) && !newDebt.balance) ||
-          (!['credit-card', 'other'].includes(newDebt.type) && (!newDebt.originalAmount || !newDebt.loanTenureMonths || !newDebt.startDate))
-        }>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Debt
-        </Button>
+        
+        {newDebt.type && (
+          <Button onClick={addDebt} className="mt-6" disabled={
+            !newDebt.name || !newDebt.interestRate || !newDebt.minimumPayment ||
+            (['credit-card', 'other'].includes(newDebt.type) && !newDebt.balance) ||
+            (!['credit-card', 'other'].includes(newDebt.type) && (!newDebt.originalAmount || !newDebt.loanTenureMonths || !newDebt.startDate))
+          }>
+            <Plus className="w-4 h-4 mr-2" />
+            Add {newDebt.type === 'credit-card' ? 'Credit Card' : newDebt.type === 'other' ? 'Debt' : 'Loan'}
+          </Button>
+        )}
       </div>
 
       {/* Extra Payment Setting */}
