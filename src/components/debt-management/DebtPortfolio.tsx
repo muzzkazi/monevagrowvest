@@ -336,87 +336,6 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
         </CardContent>
       </Card>
 
-      {/* Extra Payment Budget - Only show after debts are added */}
-      {debts.length > 0 && (
-        <Card className="border-l-4 border-l-primary bg-primary/5">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-primary" />
-              Monthly Extra Payment Budget
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">Set your additional monthly payment to accelerate debt payoff</p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="flex-1 max-w-xs">
-                <Label htmlFor="extra-payment" className="text-sm font-medium">Extra Payment Amount</Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="extra-payment"
-                    type="number"
-                    placeholder="e.g., 5000"
-                    value={extraPayment}
-                    onChange={(e) => setExtraPayment(parseFloat(e.target.value) || 0)}
-                    className="pl-8 text-lg font-semibold"
-                  />
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
-                </div>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                <p>per month</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Portfolio Summary */}
-      {debts.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="border-0 shadow-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Total Debt
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold text-destructive">
-                {formatCurrency(totalBalance)}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <CreditCard className="w-4 h-4" />
-                Min. Payments
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold">
-                {formatCurrency(totalMinPayment)}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Percent className="w-4 h-4" />
-                Avg. Interest Rate
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold">
-                {weightedAvgRate.toFixed(2)}%
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
       {/* Debt List */}
       {debts.length > 0 && (
         <div className="space-y-3">
@@ -472,6 +391,88 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
           ))}
         </div>
       )}
+
+      {/* Portfolio Summary */}
+      {debts.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="border-0 shadow-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <DollarSign className="w-4 h-4" />
+                Total Debt
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-2xl font-bold text-destructive">
+                {formatCurrency(totalBalance)}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-0 shadow-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <CreditCard className="w-4 h-4" />
+                Min. Payments
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-2xl font-bold">
+                {formatCurrency(totalMinPayment)}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-0 shadow-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Percent className="w-4 h-4" />
+                Avg. Interest Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-2xl font-bold">
+                {weightedAvgRate.toFixed(2)}%
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Extra Payment Budget - Only show after debts are added */}
+      {debts.length > 0 && (
+        <Card className="border-l-4 border-l-primary bg-primary/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-primary" />
+              Monthly Extra Payment Budget
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">Set your additional monthly payment to accelerate debt payoff</p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <div className="flex-1 max-w-xs">
+                <Label htmlFor="extra-payment" className="text-sm font-medium">Extra Payment Amount</Label>
+                <div className="relative mt-1">
+                  <Input
+                    id="extra-payment"
+                    type="number"
+                    placeholder="e.g., 5000"
+                    value={extraPayment}
+                    onChange={(e) => setExtraPayment(parseFloat(e.target.value) || 0)}
+                    className="pl-8 text-lg font-semibold"
+                  />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
+                </div>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <p>per month</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
 
       {debts.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
