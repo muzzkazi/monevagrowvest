@@ -25,7 +25,7 @@ const DebtManagement = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent leading-tight py-1">
           Debt Management Tools
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
