@@ -387,8 +387,14 @@ const LoanAmortization = () => {
                         placeholder="e.g., 12"
                         className="h-8"
                         min="1"
+                        max="12"
                         value={lumpSumFrequency}
-                        onChange={(e) => setLumpSumFrequency(parseFloat(e.target.value) || 12)}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (value <= 12 || e.target.value === '') {
+                            setLumpSumFrequency(value || 12);
+                          }
+                        }}
                       />
                     </div>
                   </div>
