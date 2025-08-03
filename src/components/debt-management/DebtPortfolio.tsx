@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, DollarSign, Percent, CreditCard, Calendar, IndianRupee } from "lucide-react";
+import { Trash2, Plus, Percent, CreditCard, Calendar, IndianRupee } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Debt } from "../DebtManagement";
 
@@ -398,7 +398,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
           <Card className="border-0 shadow-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
+                <IndianRupee className="w-4 h-4" />
                 Total Debt
               </CardTitle>
             </CardHeader>

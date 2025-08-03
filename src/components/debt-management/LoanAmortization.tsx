@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, TrendingDown, Clock, DollarSign } from "lucide-react";
+import { Calculator, TrendingDown, Clock, DollarSign, IndianRupee } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 interface AmortizationEntry {
@@ -366,7 +366,7 @@ const LoanAmortization = () => {
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
+                      <IndianRupee className="w-4 h-4" />
                       Total Payment
                     </CardTitle>
                   </CardHeader>

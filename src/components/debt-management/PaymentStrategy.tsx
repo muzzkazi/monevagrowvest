@@ -329,7 +329,7 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
         <Card className="bg-muted/30">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-green-600" />
+              <IndianRupee className="w-5 h-5 text-green-600" />
               Potential Savings
             </CardTitle>
           </CardHeader>
