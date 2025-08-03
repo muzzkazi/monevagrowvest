@@ -27,16 +27,68 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
     startDate: ""
   });
 
+  // Function to calculate remaining balance for fixed loans
+  const calculateRemainingBalance = (
+    originalAmount: number,
+    annualRate: number,
+    totalMonths: number,
+    startDate: Date
+  ): number => {
+    const monthlyRate = annualRate / 100 / 12;
+    const monthlyPayment = (originalAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / 
+                          (Math.pow(1 + monthlyRate, totalMonths) - 1);
+    
+    const currentDate = new Date();
+    const monthsElapsed = Math.max(0, 
+      (currentDate.getFullYear() - startDate.getFullYear()) * 12 + 
+      (currentDate.getMonth() - startDate.getMonth())
+    );
+    
+    if (monthsElapsed >= totalMonths) return 0;
+    
+    // Calculate remaining balance using amortization formula
+    const remainingBalance = originalAmount * 
+      (Math.pow(1 + monthlyRate, totalMonths) - Math.pow(1 + monthlyRate, monthsElapsed)) / 
+      (Math.pow(1 + monthlyRate, totalMonths) - 1);
+    
+    return Math.max(0, remainingBalance);
+  };
+
   const addDebt = () => {
-    if (!newDebt.name || !newDebt.type || !newDebt.balance || !newDebt.interestRate || !newDebt.minimumPayment) {
+    if (!newDebt.name || !newDebt.type || !newDebt.interestRate || !newDebt.minimumPayment) {
       return;
+    }
+
+    // For credit cards and other revolving debt, require manual balance input
+    if (['credit-card', 'other'].includes(newDebt.type) && !newDebt.balance) {
+      return;
+    }
+
+    // For fixed loans, require loan details to calculate balance
+    if (!['credit-card', 'other'].includes(newDebt.type) && 
+        (!newDebt.originalAmount || !newDebt.loanTenureMonths || !newDebt.startDate)) {
+      return;
+    }
+
+    let calculatedBalance = 0;
+    
+    if (['credit-card', 'other'].includes(newDebt.type)) {
+      calculatedBalance = parseFloat(newDebt.balance);
+    } else {
+      // Calculate current balance for fixed loans
+      calculatedBalance = calculateRemainingBalance(
+        parseFloat(newDebt.originalAmount),
+        parseFloat(newDebt.interestRate),
+        parseFloat(newDebt.loanTenureMonths),
+        new Date(newDebt.startDate)
+      );
     }
 
     const debt: Debt = {
       id: Date.now().toString(),
       name: newDebt.name,
       type: newDebt.type as Debt['type'],
-      balance: parseFloat(newDebt.balance),
+      balance: calculatedBalance,
       interestRate: parseFloat(newDebt.interestRate),
       minimumPayment: parseFloat(newDebt.minimumPayment),
       originalAmount: newDebt.originalAmount ? parseFloat(newDebt.originalAmount) : undefined,
@@ -100,16 +152,18 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="debt-balance">Current Balance</Label>
-              <Input
-                id="debt-balance"
-                type="number"
-                placeholder="10000"
-                value={newDebt.balance}
-                onChange={(e) => setNewDebt({ ...newDebt, balance: e.target.value })}
-              />
-            </div>
+            {(['credit-card', 'other'].includes(newDebt.type) || !newDebt.type) && (
+              <div>
+                <Label htmlFor="debt-balance">Current Balance</Label>
+                <Input
+                  id="debt-balance"
+                  type="number"
+                  placeholder="10000"
+                  value={newDebt.balance}
+                  onChange={(e) => setNewDebt({ ...newDebt, balance: e.target.value })}
+                />
+              </div>
+            )}
           </div>
 
           {/* Financial Details */}
@@ -175,7 +229,11 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
             </div>
           )}
         </div>
-        <Button onClick={addDebt} className="mt-6" disabled={!newDebt.name || !newDebt.type || !newDebt.balance}>
+        <Button onClick={addDebt} className="mt-6" disabled={
+          !newDebt.name || !newDebt.type || !newDebt.interestRate || !newDebt.minimumPayment ||
+          (['credit-card', 'other'].includes(newDebt.type) && !newDebt.balance) ||
+          (!['credit-card', 'other'].includes(newDebt.type) && (!newDebt.originalAmount || !newDebt.loanTenureMonths || !newDebt.startDate))
+        }>
           <Plus className="w-4 h-4 mr-2" />
           Add Debt
         </Button>
