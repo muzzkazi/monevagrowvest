@@ -69,6 +69,24 @@ const DebtManagement = () => {
             </CardContent>
           </Card>
 
+          {/* Payment Strategy Results */}
+          {debts.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Optimal Strategy Comparison</CardTitle>
+                <CardDescription>
+                  See which method works best for your specific situation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PaymentStrategy 
+                  debts={debts} 
+                  extraPayment={extraPayment}
+                />
+              </CardContent>
+            </Card>
+          )}
+
           {/* Strategy Explanation */}
           {debts.length > 0 && (
             <Card>
@@ -106,24 +124,6 @@ const DebtManagement = () => {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Payment Strategy Results */}
-          {debts.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Optimal Strategy Comparison</CardTitle>
-                <CardDescription>
-                  See which method works best for your specific situation
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PaymentStrategy 
-                  debts={debts} 
-                  extraPayment={extraPayment}
-                />
               </CardContent>
             </Card>
           )}
