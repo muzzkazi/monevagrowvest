@@ -132,6 +132,7 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
   const interestSavings = snowball && avalanche ? Math.abs(snowball.totalInterest - avalanche.totalInterest) : 0;
   const totalSavingsVsBaseline = noExtraPayment && betterStrategy ? noExtraPayment.totalInterest - betterStrategy.totalInterest : 0;
   const timeSavingsVsBaseline = noExtraPayment && betterStrategy ? noExtraPayment.totalMonths - betterStrategy.totalMonths : 0;
+  const timeSavingsBetweenStrategies = snowball && avalanche ? Math.abs(snowball.totalMonths - avalanche.totalMonths) : 0;
 
   return (
     <div className="space-y-8">
@@ -314,6 +315,9 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
                 </p>
                 <p className="text-2xl font-bold text-green-600">
                   {formatCurrency(interestSavings)}
+                </p>
+                <p className="text-sm text-green-600 mt-1">
+                  and {timeSavingsBetweenStrategies} {timeSavingsBetweenStrategies === 1 ? 'month' : 'months'}
                 </p>
               </div>
               <div className="text-right">
