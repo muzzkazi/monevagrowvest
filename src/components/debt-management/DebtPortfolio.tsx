@@ -27,6 +27,38 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
     startDate: ""
   });
 
+  // Function to calculate EMI for fixed loans
+  const calculateEMI = (principal: number, annualRate: number, tenureMonths: number): number => {
+    if (!principal || !annualRate || !tenureMonths) return 0;
+    
+    const monthlyRate = annualRate / 100 / 12;
+    if (monthlyRate === 0) return principal / tenureMonths; // No interest case
+    
+    const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths)) / 
+                (Math.pow(1 + monthlyRate, tenureMonths) - 1);
+    
+    return Math.round(emi);
+  };
+
+  // Auto-calculate EMI when loan details change
+  const handleLoanDetailChange = (field: string, value: string) => {
+    const updatedDebt = { ...newDebt, [field]: value };
+    
+    // Auto-calculate EMI for fixed loans
+    if (!['credit-card', 'other'].includes(updatedDebt.type) && updatedDebt.type) {
+      const principal = parseFloat(updatedDebt.originalAmount);
+      const rate = parseFloat(updatedDebt.interestRate);
+      const tenure = parseFloat(updatedDebt.loanTenureMonths);
+      
+      if (principal && rate && tenure) {
+        const calculatedEMI = calculateEMI(principal, rate, tenure);
+        updatedDebt.minimumPayment = calculatedEMI.toString();
+      }
+    }
+    
+    setNewDebt(updatedDebt);
+  };
+
   // Function to calculate remaining balance for fixed loans
   const calculateRemainingBalance = (
     originalAmount: number,
@@ -194,37 +226,55 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                     step="0.01"
                     placeholder="e.g., 18.5"
                     value={newDebt.interestRate}
-                    onChange={(e) => setNewDebt({ ...newDebt, interestRate: e.target.value })}
+                    onChange={(e) => handleLoanDetailChange('interestRate', e.target.value)}
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="debt-min">
-                    {newDebt.type === 'credit-card' ? 'Minimum Payment Due' : 'Monthly EMI'}
-                  </Label>
-                  <Input
-                    id="debt-min"
-                    type="number"
-                    placeholder={newDebt.type === 'credit-card' ? 'Enter minimum payment' : 'Enter EMI amount'}
-                    value={newDebt.minimumPayment}
-                    onChange={(e) => setNewDebt({ ...newDebt, minimumPayment: e.target.value })}
-                  />
-                </div>
+                {/* Show EMI field differently for loans vs credit cards */}
+                {['credit-card', 'other'].includes(newDebt.type) ? (
+                  <div>
+                    <Label htmlFor="debt-min">Minimum Payment Due</Label>
+                    <Input
+                      id="debt-min"
+                      type="number"
+                      placeholder="Enter minimum payment"
+                      value={newDebt.minimumPayment}
+                      onChange={(e) => setNewDebt({ ...newDebt, minimumPayment: e.target.value })}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <Label htmlFor="debt-emi">Monthly EMI</Label>
+                    <Input
+                      id="debt-emi"
+                      type="number"
+                      placeholder="Will be calculated automatically"
+                      value={newDebt.minimumPayment}
+                      readOnly
+                      className="bg-muted/50 cursor-not-allowed"
+                    />
+                    {newDebt.minimumPayment && (
+                      <p className="text-xs text-green-600 mt-1">
+                        ✅ Auto-calculated: {formatCurrency(parseFloat(newDebt.minimumPayment))}/month
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Loan Details - Show only for fixed loans */}
               {newDebt.type && !['credit-card', 'other'].includes(newDebt.type) && (
                 <div className="border-t pt-4">
-                  <h4 className="text-sm font-medium mb-3 text-financial-accent">Loan Details (for accurate balance calculation)</h4>
+                  <h4 className="text-sm font-medium mb-3 text-financial-accent">Loan Details (for automatic calculations)</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="original-amount">Original Loan Amount</Label>
+                      <Label htmlFor="original-amount">Loan Amount</Label>
                       <Input
                         id="original-amount"
                         type="number"
                         placeholder="e.g., 500000"
                         value={newDebt.originalAmount}
-                        onChange={(e) => setNewDebt({ ...newDebt, originalAmount: e.target.value })}
+                        onChange={(e) => handleLoanDetailChange('originalAmount', e.target.value)}
                       />
                     </div>
                     <div>
@@ -234,7 +284,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                         type="number"
                         placeholder="e.g., 240 (20 years)"
                         value={newDebt.loanTenureMonths}
-                        onChange={(e) => setNewDebt({ ...newDebt, loanTenureMonths: e.target.value })}
+                        onChange={(e) => handleLoanDetailChange('loanTenureMonths', e.target.value)}
                       />
                     </div>
                     <div>
@@ -243,13 +293,27 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                         id="start-date"
                         type="date"
                         value={newDebt.startDate}
-                        onChange={(e) => setNewDebt({ ...newDebt, startDate: e.target.value })}
+                        onChange={(e) => handleLoanDetailChange('startDate', e.target.value)}
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    💡 Current balance will be calculated automatically based on these details
-                  </p>
+                  <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                    <p className="text-xs text-blue-700 dark:text-blue-300">
+                      💡 <strong>Auto-calculations:</strong> EMI and current balance will be calculated automatically based on these details
+                    </p>
+                    {newDebt.originalAmount && newDebt.interestRate && newDebt.loanTenureMonths && (
+                      <div className="mt-2 text-sm">
+                        <span className="text-muted-foreground">Calculated EMI: </span>
+                        <span className="font-semibold text-financial-accent">
+                          {formatCurrency(calculateEMI(
+                            parseFloat(newDebt.originalAmount),
+                            parseFloat(newDebt.interestRate),
+                            parseFloat(newDebt.loanTenureMonths)
+                          ))}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
