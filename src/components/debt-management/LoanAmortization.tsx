@@ -267,7 +267,7 @@ const LoanAmortization = () => {
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-sm text-muted-foreground">Monthly EMI</Label>
+          <Label className="text-sm text-muted-foreground text-center block">Monthly EMI</Label>
           {useCustomEMI ? (
             <Input
               type="text"
