@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, DollarSign, Percent, CreditCard, Calendar } from "lucide-react";
+import { Trash2, Plus, DollarSign, Percent, CreditCard, Calendar, IndianRupee } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Debt } from "../DebtManagement";
 
@@ -444,7 +444,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
         <Card className="border-l-4 border-l-primary bg-primary/5">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-primary" />
+              <IndianRupee className="w-5 h-5 text-primary" />
               Monthly Extra Payment Budget
             </CardTitle>
             <p className="text-sm text-muted-foreground">Set your additional monthly payment to accelerate debt payoff</p>
