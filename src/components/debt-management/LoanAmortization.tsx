@@ -321,18 +321,18 @@ const LoanAmortization = () => {
         <>
           {/* Prepayment Options */}
           <TooltipProvider>
-            <div className="space-y-6">
+            <div className="space-y-4">
               <h3 className="text-lg font-semibold">Prepayment Options</h3>
               
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <CardTitle className="text-base">Payment Options</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Extra Monthly Payment Section */}
-                    <div className="space-y-3 p-4 border border-blue-200 rounded-lg bg-blue-50/50">
-                      <div className="flex items-center gap-2 mb-3">
+                    <div className="space-y-2 p-3 border border-blue-200 rounded-lg bg-blue-50/50">
+                      <div className="flex items-center gap-2 mb-2">
                         <IndianRupee className="w-4 h-4 text-blue-600" />
                         <h4 className="text-sm font-semibold text-blue-800">Extra Monthly Payment</h4>
                         <Tooltip>
@@ -364,8 +364,8 @@ const LoanAmortization = () => {
                     </div>
 
                     {/* Lump Sum Payment Section */}
-                    <div className="space-y-3 p-4 border border-green-200 rounded-lg bg-green-50/50">
-                      <div className="flex items-center gap-2 mb-3">
+                    <div className="space-y-2 p-3 border border-green-200 rounded-lg bg-green-50/50">
+                      <div className="flex items-center gap-2 mb-2">
                         <IndianRupee className="w-4 h-4 text-green-600" />
                         <h4 className="text-sm font-semibold text-green-800">Lump Sum Payment</h4>
                         <Tooltip>
@@ -381,7 +381,7 @@ const LoanAmortization = () => {
                           </TooltipContent>
                         </Tooltip>
                       </div>
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         <div>
                           <Label htmlFor="lump-sum" className="text-xs">Lump Sum Amount (₹)</Label>
                           <Input
