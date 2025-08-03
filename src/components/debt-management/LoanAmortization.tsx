@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, TrendingDown, Clock, IndianRupee, Info } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Calculator, TrendingDown, Clock, IndianRupee, Info, ChevronDown, ChevronUp } from "lucide-react";
 import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
 
 interface AmortizationEntry {
@@ -35,6 +36,7 @@ const LoanAmortization = () => {
   const [extraMonthly, setExtraMonthly] = useState(0);
   const [lumpSum, setLumpSum] = useState(0);
   const [lumpSumMonth, setLumpSumMonth] = useState(12);
+  const [isScenariosCollapsed, setIsScenariosCollapsed] = useState(false);
 
   // Check if all required inputs are provided
   const hasValidInputs = useMemo(() => {
@@ -391,52 +393,69 @@ const LoanAmortization = () => {
           </TooltipProvider>
 
           {/* Scenario Comparison */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Prepayment Scenarios Comparison</h3>
-            <div className="grid gap-4">
-              {prepaymentScenarios.map((scenario, index) => (
-                <Card key={index} className={scenario.name === "Your Scenario" ? "ring-2 ring-primary" : ""}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold">{scenario.name}</h4>
-                      {scenario.savings > 0 && (
-                        <Badge variant="secondary" className="text-green-600">
-                          Save {formatCurrency(scenario.savings)}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Total Months</p>
-                        <p className="font-medium flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {scenario.totalMonths}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Total Interest</p>
-                        <p className="font-medium text-destructive">
-                          {formatCurrency(scenario.totalInterest)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Time Saved</p>
-                        <p className="font-medium text-green-600">
-                          {baseAmortization.totalMonths - scenario.totalMonths} months
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Interest Saved</p>
-                        <p className="font-medium text-green-600">
-                          {formatCurrency(scenario.savings)}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+          <Collapsible open={!isScenariosCollapsed} onOpenChange={(open) => setIsScenariosCollapsed(!open)}>
+            <div className="space-y-4">
+              <CollapsibleTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-between text-lg font-semibold p-0 h-auto hover:bg-transparent"
+                >
+                  <span>Prepayment Scenarios Comparison</span>
+                  {isScenariosCollapsed ? (
+                    <ChevronDown className="w-5 h-5" />
+                  ) : (
+                    <ChevronUp className="w-5 h-5" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              
+              <CollapsibleContent className="space-y-4">
+                <div className="grid gap-4">
+                  {prepaymentScenarios.map((scenario, index) => (
+                    <Card key={index} className={scenario.name === "Your Scenario" ? "ring-2 ring-primary" : ""}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold">{scenario.name}</h4>
+                          {scenario.savings > 0 && (
+                            <Badge variant="secondary" className="text-green-600">
+                              Save {formatCurrency(scenario.savings)}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <p className="text-muted-foreground">Total Months</p>
+                            <p className="font-medium flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {scenario.totalMonths}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Total Interest</p>
+                            <p className="font-medium text-destructive">
+                              {formatCurrency(scenario.totalInterest)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Time Saved</p>
+                            <p className="font-medium text-green-600">
+                              {baseAmortization.totalMonths - scenario.totalMonths} months
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Interest Saved</p>
+                            <p className="font-medium text-green-600">
+                              {formatCurrency(scenario.savings)}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CollapsibleContent>
             </div>
-          </div>
+          </Collapsible>
 
           {/* Amortization Schedule */}
           <Tabs defaultValue="summary" className="w-full">
