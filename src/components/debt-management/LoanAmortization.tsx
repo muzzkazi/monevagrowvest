@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Calculator, TrendingDown, Clock, IndianRupee, Info, ChevronDown, ChevronUp } from "lucide-react";
+import { Calculator, TrendingDown, Clock, IndianRupee, Info, ChevronDown, ChevronUp, Edit3 } from "lucide-react";
 import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
 
 interface AmortizationEntry {
@@ -267,22 +267,7 @@ const LoanAmortization = () => {
           />
         </div>
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm text-muted-foreground">Monthly EMI</Label>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs h-6 px-2"
-              onClick={() => {
-                setUseCustomEMI(!useCustomEMI);
-                if (!useCustomEMI && hasValidInputs) {
-                  setCustomEMI(Math.round(baseAmortization.monthlyPayment).toString());
-                }
-              }}
-            >
-              {useCustomEMI ? "Use Calculated" : "Edit EMI"}
-            </Button>
-          </div>
+          <Label className="text-sm text-muted-foreground">Monthly EMI</Label>
           {useCustomEMI ? (
             <Input
               type="text"
@@ -298,6 +283,24 @@ const LoanAmortization = () => {
             <p className="text-lg font-bold text-primary text-center">
               {hasValidInputs ? formatCurrency(baseAmortization.monthlyPayment) : '₹0'}
             </p>
+          )}
+          {hasValidInputs && (
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-7 px-3 gap-1"
+                onClick={() => {
+                  setUseCustomEMI(!useCustomEMI);
+                  if (!useCustomEMI && hasValidInputs) {
+                    setCustomEMI(Math.round(baseAmortization.monthlyPayment).toString());
+                  }
+                }}
+              >
+                <Edit3 className="w-3 h-3" />
+                {useCustomEMI ? "Use Calculated" : "Edit"}
+              </Button>
+            </div>
           )}
         </div>
       </div>
