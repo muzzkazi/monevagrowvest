@@ -423,29 +423,29 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
             </CardTitle>
             <p className="text-sm text-muted-foreground">Overview of your current debt portfolio</p>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-card rounded-lg border">
-                <IndianRupee className="w-6 h-6 mx-auto mb-2 text-destructive" />
-                <p className="text-sm font-medium text-muted-foreground mb-1">Total Debt</p>
-                <p className="text-2xl font-bold text-destructive">
+          <CardContent className="pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="text-center p-3 bg-card rounded-lg border">
+                <IndianRupee className="w-5 h-5 mx-auto mb-1 text-destructive" />
+                <p className="text-xs font-medium text-muted-foreground mb-1">Total Debt</p>
+                <p className="text-xl font-bold text-destructive">
                   {formatCurrency(totalBalance)}
                 </p>
               </div>
               
-              <div className="text-center p-4 bg-card rounded-lg border">
-                <CreditCard className="w-6 h-6 mx-auto mb-2 text-primary" />
-                <p className="text-sm font-medium text-muted-foreground mb-1">Min. Payments</p>
-                <p className="text-2xl font-bold text-primary">
+              <div className="text-center p-3 bg-card rounded-lg border">
+                <CreditCard className="w-5 h-5 mx-auto mb-1 text-primary" />
+                <p className="text-xs font-medium text-muted-foreground mb-1">Min. Payments</p>
+                <p className="text-xl font-bold text-primary">
                   {formatCurrency(totalMinPayment)}
                 </p>
                 <p className="text-xs text-muted-foreground">per month</p>
               </div>
               
-              <div className="text-center p-4 bg-card rounded-lg border">
-                <Percent className="w-6 h-6 mx-auto mb-2 text-orange-600" />
-                <p className="text-sm font-medium text-muted-foreground mb-1">Avg. Interest Rate</p>
-                <p className="text-2xl font-bold text-orange-600">
+              <div className="text-center p-3 bg-card rounded-lg border">
+                <Percent className="w-5 h-5 mx-auto mb-1 text-orange-600" />
+                <p className="text-xs font-medium text-muted-foreground mb-1">Avg. Interest Rate</p>
+                <p className="text-xl font-bold text-orange-600">
                   {weightedAvgRate.toFixed(2)}%
                 </p>
                 <p className="text-xs text-muted-foreground">weighted average</p>
