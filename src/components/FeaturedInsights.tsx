@@ -37,20 +37,20 @@ const FeaturedInsights = () => {
   ];
 
   return (
-    <section className="py-20 bg-financial-muted">
+    <section className="section-spacing bg-gradient-subtle">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">
             Market <span className="text-financial-accent">Insights</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Stay ahead with our expert analysis and actionable investment strategies
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid lg:grid-cols-3 gap-6 mb-10">
           {insights.map((insight, index) => (
-            <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
+            <Card key={index} className="border-minimal shadow-minimal overflow-hidden card-float">
               <div className="relative">
                 <img
                   src={insight.image}
@@ -90,11 +90,11 @@ const FeaturedInsights = () => {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          <Card className="bg-gradient-gold border-0 shadow-card text-center p-6">
-            <BarChart3 className="w-12 h-12 text-financial-primary mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-financial-primary mb-2">Market Updates</h3>
-            <p className="text-financial-secondary text-sm mb-4">Daily market analysis and fund performance updates</p>
+        <div className="grid md:grid-cols-3 gap-6">
+          <Card className="bg-gradient-gold border-minimal shadow-minimal text-center p-5">
+            <BarChart3 className="w-10 h-10 text-financial-primary mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-financial-primary mb-2">Market Updates</h3>
+            <p className="text-financial-secondary text-sm mb-3">Daily market analysis and fund performance updates</p>
             <Button 
               variant="outline" 
               className="border-financial-primary text-financial-primary hover:bg-financial-primary hover:text-white"
@@ -107,10 +107,10 @@ const FeaturedInsights = () => {
             </Button>
           </Card>
 
-          <Card className="bg-gradient-card border-0 shadow-card text-center p-6">
-            <TrendingUp className="w-12 h-12 text-financial-accent mx-auto mb-4" />
-            <h3 className="text-xl font-bold mb-2">Portfolio Review</h3>
-            <p className="text-muted-foreground text-sm mb-4">Get your portfolio analyzed by our experts for free</p>
+          <Card className="border-minimal shadow-minimal text-center p-5">
+            <TrendingUp className="w-10 h-10 text-financial-accent mx-auto mb-3" />
+            <h3 className="text-lg font-bold mb-2">Portfolio Review</h3>
+            <p className="text-muted-foreground text-sm mb-3">Get your portfolio analyzed by our experts for free</p>
             <Button 
               className="bg-financial-accent hover:bg-financial-accent/90 text-white"
               onClick={() => window.location.href = '/contact'}
@@ -119,10 +119,10 @@ const FeaturedInsights = () => {
             </Button>
           </Card>
 
-          <Card className="bg-gradient-card border-0 shadow-card text-center p-6">
-            <Clock className="w-12 h-12 text-financial-accent mx-auto mb-4" />
-            <h3 className="text-xl font-bold mb-2">Weekly Webinars</h3>
-            <p className="text-muted-foreground text-sm mb-4">Join our live sessions on investment strategies</p>
+          <Card className="border-minimal shadow-minimal text-center p-5">
+            <Clock className="w-10 h-10 text-financial-accent mx-auto mb-3" />
+            <h3 className="text-lg font-bold mb-2">Weekly Webinars</h3>
+            <p className="text-muted-foreground text-sm mb-3">Join our live sessions on investment strategies</p>
             <Button 
               variant="outline" 
               className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"

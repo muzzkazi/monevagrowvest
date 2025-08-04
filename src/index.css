@@ -9,7 +9,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 249 24% 98%;
+    --background: 0 0% 99%;
     --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
@@ -21,11 +21,11 @@ All colors MUST be HSL.
     --primary: 222 47% 11%;
     --primary-foreground: 48 96% 89%;
 
-    --secondary: 210 40% 96%;
+    --secondary: 0 0% 97%;
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 220 13% 50%;
 
     --accent: 45 93% 58%;
     --accent-foreground: 222 47% 11%;
@@ -33,8 +33,8 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
+    --border: 220 13% 94%;
+    --input: 220 13% 96%;
     --ring: 222 47% 11%;
 
     /* Premium financial color palette */
@@ -46,16 +46,18 @@ All colors MUST be HSL.
     --financial-accent: 213 84% 58%;
     --financial-muted: 210 14% 89%;
 
-    /* Gradients */
+    /* Minimal gradients */
     --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(210 20% 25%) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(45 93% 58%) 0%, hsl(48 96% 89%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(222 47% 11% / 0.05) 0%, hsl(213 84% 58% / 0.05) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 14% 97%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(0 0% 99%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 99%) 0%, hsl(0 0% 97%) 100%);
 
-    /* Shadows */
-    --shadow-financial: 0 4px 20px hsl(222 47% 11% / 0.08);
+    /* Minimal shadows */
+    --shadow-financial: 0 2px 12px hsl(222 47% 11% / 0.04);
     --shadow-gold: 0 4px 20px hsl(45 93% 58% / 0.15);
-    --shadow-card: 0 1px 3px hsl(222 47% 11% / 0.05);
+    --shadow-card: 0 1px 2px hsl(222 47% 11% / 0.03);
+    --shadow-minimal: 0 1px 3px hsl(222 47% 11% / 0.02);
 
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -181,14 +183,14 @@ All colors MUST be HSL.
     @apply font-display;
   }
 
-  /* Enhanced glassmorphism effects */
+  /* Minimal glassmorphism effects */
   .glass-card {
-    @apply backdrop-blur-xl bg-white/80 dark:bg-card/80 border border-white/20 dark:border-white/10;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    @apply backdrop-blur-lg bg-white/90 dark:bg-card/90 border border-white/30 dark:border-white/10;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
   }
   
   .glass-nav {
-    @apply backdrop-blur-xl bg-background/85 border-b border-border/50;
+    @apply backdrop-blur-lg bg-background/95 border-b border-border/30;
   }
 
   /* Enhanced button animations */
@@ -220,13 +222,23 @@ All colors MUST be HSL.
     100% { background-position: -200% 0; }
   }
 
-  /* Enhanced card hover effects */
+  /* Minimal card hover effects */
   .card-float {
-    @apply transition-all duration-500 ease-smooth;
+    @apply transition-all duration-300 ease-smooth;
   }
   
   .card-float:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Clean section spacing */
+  .section-spacing {
+    @apply py-16 lg:py-20;
+  }
+
+  /* Minimal border styles */
+  .border-minimal {
+    @apply border border-border/40;
   }
 }

@@ -42,43 +42,42 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-20 bg-financial-muted">
+    <section className="section-spacing bg-gradient-subtle">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">
             What Our <span className="text-financial-accent">Clients Say</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Over 500+ satisfied clients started their financial journey with us in our first year
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="bg-gradient-card border-0 shadow-card hover-scale">
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
+            <Card key={index} className="border-minimal shadow-minimal hover:shadow-card transition-all duration-300">
+              <CardContent className="p-5">
+                <div className="flex items-center mb-3">
                   <img
                     src={testimonial.image}
                     alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover mr-4"
+                    className="w-10 h-10 rounded-full object-cover mr-3"
                   />
                   <div>
-                    <h4 className="font-semibold">{testimonial.name}</h4>
-                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                    <h4 className="font-medium text-sm">{testimonial.name}</h4>
+                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center mb-3">
+                <div className="flex items-center mb-2">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-financial-accent text-financial-accent" />
+                    <Star key={i} className="w-3 h-3 fill-financial-accent text-financial-accent" />
                   ))}
                 </div>
 
-                <Quote className="w-6 h-6 text-financial-accent mb-3" />
-                <p className="text-sm text-muted-foreground mb-4">{testimonial.text}</p>
+                <p className="text-sm text-foreground mb-3 leading-relaxed">{testimonial.text}</p>
                 
-                <div className="text-xs font-medium text-financial-accent bg-financial-accent/10 px-3 py-1 rounded-full inline-block">
+                <div className="text-xs font-medium text-financial-accent bg-financial-accent/5 px-2 py-1 rounded-md inline-block">
                   {testimonial.investment}
                 </div>
               </CardContent>

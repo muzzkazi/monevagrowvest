@@ -55,53 +55,49 @@ const SuccessStories = () => {
   ];
 
   return (
-    <section className="py-20 bg-background">
+    <section className="section-spacing bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">
             Real Stories, <span className="text-financial-accent">Real Success</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover how our clients transformed their financial lives with smart planning and disciplined investing
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 gap-6 mb-10">
           {stories.map((story, index) => (
-            <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
+            <Card key={index} className="border-minimal shadow-minimal overflow-hidden card-float">
               <div className="relative">
                 <img
                   src={story.image}
                   alt={story.title}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-40 object-cover"
                 />
-                <div className="absolute top-4 left-4 bg-white/90 p-2 rounded-lg">
+                <div className="absolute top-3 left-3 bg-white/95 p-2 rounded-lg shadow-minimal">
                   {story.icon}
                 </div>
               </div>
               
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold">{story.title}</h3>
-                    <p className="text-sm text-financial-accent">{story.story}</p>
-                  </div>
-                </CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-bold">{story.title}</CardTitle>
+                <p className="text-sm text-financial-accent font-medium">{story.story}</p>
               </CardHeader>
               
-              <CardContent>
-                <p className="text-muted-foreground mb-6">{story.description}</p>
+              <CardContent className="pt-0">
+                <p className="text-muted-foreground mb-4 text-sm leading-relaxed">{story.description}</p>
                 
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className="text-center">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center bg-muted/30 rounded-lg p-2">
                     <p className="text-sm font-medium text-financial-accent">{story.metrics.timeline}</p>
                     <p className="text-xs text-muted-foreground">Timeline</p>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center bg-muted/30 rounded-lg p-2">
                     <p className="text-sm font-medium text-financial-accent">{story.metrics.investment}</p>
                     <p className="text-xs text-muted-foreground">Investment</p>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center bg-muted/30 rounded-lg p-2">
                     <p className="text-sm font-medium text-financial-accent">{story.metrics.result}</p>
                     <p className="text-xs text-muted-foreground">Result</p>
                   </div>
