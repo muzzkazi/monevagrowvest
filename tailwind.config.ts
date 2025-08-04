@@ -152,14 +152,12 @@ export default {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-gold': 'var(--gradient-gold)',
 				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-card': 'var(--gradient-card)',
-				'gradient-subtle': 'var(--gradient-subtle)'
+				'gradient-card': 'var(--gradient-card)'
 			},
 			boxShadow: {
 				'financial': 'var(--shadow-financial)',
 				'gold': 'var(--shadow-gold)',
-				'card': 'var(--shadow-card)',
-				'minimal': 'var(--shadow-minimal)'
+				'card': 'var(--shadow-card)'
 			},
 			transitionTimingFunction: {
 				'smooth': 'var(--transition-smooth)'
