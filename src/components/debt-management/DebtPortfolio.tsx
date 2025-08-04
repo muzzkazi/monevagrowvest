@@ -416,7 +416,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
       {/* Portfolio Summary */}
       {debts.length > 0 && (
         <Card className="border-l-4 border-l-destructive bg-destructive/5">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <IndianRupee className="w-5 h-5 text-destructive" />
               Your Debt Summary
