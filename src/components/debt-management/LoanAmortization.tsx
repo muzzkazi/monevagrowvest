@@ -38,7 +38,7 @@ const LoanAmortization = () => {
   const [extraMonthly, setExtraMonthly] = useState(0);
   const [lumpSum, setLumpSum] = useState(0);
   const [lumpSumFrequency, setLumpSumFrequency] = useState(12);
-  const [isScenariosCollapsed, setIsScenariosCollapsed] = useState(false);
+  const [isScenariosCollapsed, setIsScenariosCollapsed] = useState(true);
 
   // Check if all required inputs are provided
   const hasValidInputs = useMemo(() => {
@@ -436,21 +436,29 @@ const LoanAmortization = () => {
           </TooltipProvider>
 
           {/* Scenario Comparison */}
-          <Collapsible open={!isScenariosCollapsed} onOpenChange={(open) => setIsScenariosCollapsed(!open)}>
-            <div className="space-y-4">
-              <CollapsibleTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-between text-lg font-semibold p-0 h-auto hover:bg-transparent"
-                >
-                  <span>Prepayment Scenarios Comparison</span>
-                  {isScenariosCollapsed ? (
-                    <ChevronDown className="w-5 h-5" />
-                  ) : (
-                    <ChevronUp className="w-5 h-5" />
+          <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
+            <CardContent className="p-4">
+              <Collapsible open={!isScenariosCollapsed} onOpenChange={(open) => setIsScenariosCollapsed(!open)}>
+                <div className="space-y-3">
+                  <CollapsibleTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-between text-base font-semibold h-12 border-primary/30 hover:bg-primary/10 hover:border-primary"
+                    >
+                      <span>📊 Explore More Payment Scenarios</span>
+                      {isScenariosCollapsed ? (
+                        <ChevronDown className="w-5 h-5" />
+                      ) : (
+                        <ChevronUp className="w-5 h-5" />
+                      )}
+                    </Button>
+                  </CollapsibleTrigger>
+                  
+                  {isScenariosCollapsed && (
+                    <p className="text-sm text-muted-foreground text-center">
+                      Click above to compare different prepayment strategies and see potential savings
+                    </p>
                   )}
-                </Button>
-              </CollapsibleTrigger>
               
               <CollapsibleContent className="space-y-4">
                 <div className="grid gap-4">
@@ -496,9 +504,11 @@ const LoanAmortization = () => {
                     </Card>
                   ))}
                 </div>
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
+                  </CollapsibleContent>
+                </div>
+              </Collapsible>
+            </CardContent>
+          </Card>
 
           {/* Amortization Schedule */}
           <Tabs defaultValue="summary" className="w-full">
