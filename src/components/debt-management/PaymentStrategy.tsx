@@ -22,6 +22,12 @@ interface PayoffResult {
     monthsPaid: number;
     interestPaid: number;
   }>;
+  debtDetails: Array<{
+    debt: Debt;
+    originalInterest: number;
+    finalInterest: number;
+    interestSavings: number;
+  }>;
 }
 
 const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
@@ -57,21 +63,43 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
       return { totalInterest, totalMonths: maxMonths, totalPaid };
     };
 
+    // Calculate original interest for each debt without extra payments
+    const calculateOriginalInterest = (debt: Debt) => {
+      const monthlyRate = debt.interestRate / 100 / 12;
+      const balance = debt.balance;
+      const minPayment = debt.minimumPayment;
+
+      if (monthlyRate === 0) {
+        return 0;
+      } else {
+        const months = Math.ceil(-Math.log(1 - (balance * monthlyRate) / minPayment) / Math.log(1 + monthlyRate));
+        const totalPayments = months * minPayment;
+        return totalPayments - balance;
+      }
+    };
+
     const calculatePayoff = (sortFn: (a: Debt, b: Debt) => number): PayoffResult => {
       const sortedDebts = [...debts].sort(sortFn);
       const payoffOrder: PayoffResult['payoffOrder'] = [];
+      const debtInterestTracker = new Map<string, number>();
       let totalMonths = 0;
       let totalInterest = 0;
       let remainingDebts = sortedDebts.map(debt => ({ ...debt }));
       let availableExtra = extraPayment;
 
+      // Initialize interest tracker for each debt
+      debts.forEach(debt => {
+        debtInterestTracker.set(debt.id, 0);
+      });
+
       while (remainingDebts.length > 0) {
         totalMonths++;
         
-        // Pay minimum on all debts
+        // Pay minimum on all debts and track interest for each
         remainingDebts.forEach(debt => {
           const monthlyInterest = (debt.balance * debt.interestRate) / (100 * 12);
           totalInterest += monthlyInterest;
+          debtInterestTracker.set(debt.id, (debtInterestTracker.get(debt.id) || 0) + monthlyInterest);
           debt.balance = Math.max(0, debt.balance - debt.minimumPayment + monthlyInterest);
         });
 
@@ -89,7 +117,7 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
           payoffOrder.push({
             debt: originalDebt,
             monthsPaid: totalMonths,
-            interestPaid: 0 // Simplified calculation
+            interestPaid: debtInterestTracker.get(debt.id) || 0
           });
         });
         
@@ -99,12 +127,27 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
         if (totalMonths > 600) break;
       }
 
+      // Calculate debt details with original vs final interest
+      const debtDetails = debts.map(debt => {
+        const originalInterest = calculateOriginalInterest(debt);
+        const finalInterest = debtInterestTracker.get(debt.id) || 0;
+        const interestSavings = originalInterest - finalInterest;
+        
+        return {
+          debt,
+          originalInterest,
+          finalInterest,
+          interestSavings
+        };
+      });
+
       return {
         strategy: '',
         totalMonths,
         totalInterest,
         totalPaid: debts.reduce((sum, debt) => sum + debt.balance, 0) + totalInterest,
-        payoffOrder
+        payoffOrder,
+        debtDetails
       };
     };
 
@@ -353,6 +396,139 @@ const PaymentStrategy = ({ debts, extraPayment }: PaymentStrategyProps) => {
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Interest Comparison by Debt */}
+      {betterStrategy && (
+        <Card className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950 dark:to-green-950 border-emerald-200 dark:border-emerald-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-emerald-600" />
+              Interest Comparison by Debt ({betterStrategy.strategy})
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Compare original interest vs final interest for each debt with your extra payment strategy
+            </p>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue={betterStrategy.strategy} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="snowball">Snowball Method</TabsTrigger>
+                <TabsTrigger value="avalanche">Avalanche Method</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="snowball" className="space-y-3 mt-4">
+                {snowball?.debtDetails.map((detail) => (
+                  <Card key={detail.debt.id} className="border border-blue-200 bg-blue-50/30">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-blue-900">{detail.debt.name}</h4>
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                          {detail.debt.interestRate}% APR
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
+                          <p className="text-red-600 font-medium mb-1">Original Interest</p>
+                          <p className="text-lg font-bold text-red-700">
+                            {formatCurrency(detail.originalInterest)}
+                          </p>
+                          <p className="text-xs text-red-600">Without extra payments</p>
+                        </div>
+                        
+                        <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+                          <p className="text-orange-600 font-medium mb-1">Final Interest</p>
+                          <p className="text-lg font-bold text-orange-700">
+                            {formatCurrency(detail.finalInterest)}
+                          </p>
+                          <p className="text-xs text-orange-600">With snowball method</p>
+                        </div>
+                        
+                        <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                          <p className="text-green-600 font-medium mb-1">Savings</p>
+                          <p className="text-lg font-bold text-green-700">
+                            {formatCurrency(detail.interestSavings)}
+                          </p>
+                          <p className="text-xs text-green-600">
+                            {detail.originalInterest > 0 ? 
+                              `${((detail.interestSavings / detail.originalInterest) * 100).toFixed(1)}% saved` : 
+                              'No interest'
+                            }
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {detail.interestSavings > 0 && (
+                        <div className="mt-3">
+                          <Progress 
+                            value={(detail.interestSavings / detail.originalInterest) * 100} 
+                            className="h-2"
+                          />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </TabsContent>
+              
+              <TabsContent value="avalanche" className="space-y-3 mt-4">
+                {avalanche?.debtDetails.map((detail) => (
+                  <Card key={detail.debt.id} className="border border-purple-200 bg-purple-50/30">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-purple-900">{detail.debt.name}</h4>
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                          {detail.debt.interestRate}% APR
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
+                          <p className="text-red-600 font-medium mb-1">Original Interest</p>
+                          <p className="text-lg font-bold text-red-700">
+                            {formatCurrency(detail.originalInterest)}
+                          </p>
+                          <p className="text-xs text-red-600">Without extra payments</p>
+                        </div>
+                        
+                        <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+                          <p className="text-orange-600 font-medium mb-1">Final Interest</p>
+                          <p className="text-lg font-bold text-orange-700">
+                            {formatCurrency(detail.finalInterest)}
+                          </p>
+                          <p className="text-xs text-orange-600">With avalanche method</p>
+                        </div>
+                        
+                        <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                          <p className="text-green-600 font-medium mb-1">Savings</p>
+                          <p className="text-lg font-bold text-green-700">
+                            {formatCurrency(detail.interestSavings)}
+                          </p>
+                          <p className="text-xs text-green-600">
+                            {detail.originalInterest > 0 ? 
+                              `${((detail.interestSavings / detail.originalInterest) * 100).toFixed(1)}% saved` : 
+                              'No interest'
+                            }
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {detail.interestSavings > 0 && (
+                        <div className="mt-3">
+                          <Progress 
+                            value={(detail.interestSavings / detail.originalInterest) * 100} 
+                            className="h-2"
+                          />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       )}
