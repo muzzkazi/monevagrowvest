@@ -20,7 +20,8 @@ import {
   LineChart,
   Info,
   MessageCircle,
-  Phone
+  Phone,
+  PiggyBank
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ContactFormModal from "../ContactFormModal";
@@ -38,9 +39,18 @@ interface FinancialGoal {
   currentSavings: number;
 }
 
+interface SIPData {
+  monthlyAmount: number;
+  wantsTaxBenefits: boolean;
+  taxBracket: string;
+  timeHorizon: number;
+}
+
 interface AIRecommendationsProps {
-  goals: FinancialGoal[];
+  goals?: FinancialGoal[];
+  sipData?: SIPData;
   riskProfile: string;
+  planningMode: "goals" | "sip";
   onComplete: () => void;
 }
 
@@ -90,7 +100,7 @@ interface BehavioralInsights {
   disciplineScore: number;
 }
 
-const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendationsProps) => {
+const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onComplete }: AIRecommendationsProps) => {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(true);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -125,25 +135,37 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
     return Math.round(monthlySIP);
   };
 
-  // Calculate individual SIPs for each goal using consistent expected return
-  const goalSIPs = goals.map(goal => ({
-    ...goal,
-    monthlySIP: calculateMonthlySIP(goal.targetAmount, goal.currentSavings, goal.timeHorizon)
-  }));
+  // Calculate data based on planning mode
+  let totalMonthlySIP = 0;
+  let totalTargetAmount = 0;
+  let goalSIPs: (FinancialGoal & { monthlySIP: number })[] = [];
+
+  if (planningMode === "goals") {
+    // Calculate individual SIPs for each goal using consistent expected return
+    goalSIPs = goals.map(goal => ({
+      ...goal,
+      monthlySIP: calculateMonthlySIP(goal.targetAmount, goal.currentSavings, goal.timeHorizon)
+    }));
+    
+    totalMonthlySIP = goalSIPs.reduce((total, goal) => total + goal.monthlySIP, 0);
+    totalTargetAmount = goals.reduce((total, goal) => total + goal.targetAmount, 0);
+  } else if (planningMode === "sip" && sipData) {
+    // Use SIP data directly
+    totalMonthlySIP = sipData.monthlyAmount;
+    // Calculate projected value based on SIP amount and time horizon
+    const monthlyReturn = expectedReturn / 100 / 12;
+    const totalMonths = sipData.timeHorizon * 12;
+    totalTargetAmount = sipData.monthlyAmount * (((Math.pow(1 + monthlyReturn, totalMonths) - 1) / monthlyReturn) * (1 + monthlyReturn));
+  }
 
   // Debug logging
   console.log("=== AI Planning Debug ===");
+  console.log("Planning Mode:", planningMode);
   console.log("Risk Profile:", riskProfile);
   console.log("Expected Return:", expectedReturn + "%");
   console.log("Goals:", goals);
+  console.log("SIP Data:", sipData);
   console.log("Goal SIPs:", goalSIPs);
-
-  // Calculate total monthly SIP required using proper compound interest formula
-  const totalMonthlySIP = goalSIPs.reduce((total, goal) => total + goal.monthlySIP, 0);
-
-  // Calculate total target amount for all goals
-  const totalTargetAmount = goals.reduce((total, goal) => total + goal.targetAmount, 0);
-
   console.log("Total Monthly SIP:", totalMonthlySIP);
   console.log("Total Target Amount:", totalTargetAmount);
 
@@ -289,9 +311,15 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
 
   // Generate investment projection data using consistent return rate
   const generateProjectionData = () => {
-    const maxTimeHorizon = Math.max(...goals.map(g => g.timeHorizon));
-    const data = [];
+    let maxTimeHorizon = 10; // Default 10 years for SIP planning
     
+    if (planningMode === "goals" && goals.length > 0) {
+      maxTimeHorizon = Math.max(...goals.map(g => g.timeHorizon));
+    } else if (planningMode === "sip" && sipData) {
+      maxTimeHorizon = sipData.timeHorizon;
+    }
+    
+    const data = [];
     const monthlyReturn = expectedReturn / 100 / 12;
     
     for (let month = 0; month <= maxTimeHorizon * 12; month++) {
@@ -306,13 +334,16 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
       }
       
       // Add current savings growth for any existing savings
-      const currentSavingsGrowth = goals.reduce((total, goal) => {
-        const yearsElapsed = month / 12;
-        if (yearsElapsed <= goal.timeHorizon) {
-          return total + goal.currentSavings * Math.pow(1 + expectedReturn / 100, yearsElapsed);
-        }
-        return total + goal.currentSavings * Math.pow(1 + expectedReturn / 100, goal.timeHorizon);
-      }, 0);
+      let currentSavingsGrowth = 0;
+      if (planningMode === "goals") {
+        currentSavingsGrowth = goals.reduce((total, goal) => {
+          const yearsElapsed = month / 12;
+          if (yearsElapsed <= goal.timeHorizon) {
+            return total + goal.currentSavings * Math.pow(1 + expectedReturn / 100, yearsElapsed);
+          }
+          return total + goal.currentSavings * Math.pow(1 + expectedReturn / 100, goal.timeHorizon);
+        }, 0);
+      }
       
       const totalPortfolioValue = portfolioValue + currentSavingsGrowth;
 
@@ -975,34 +1006,55 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
       </div>
 
       <div className="space-y-6">
-      {/* Goal Summary Section */}
-      <Card className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/20 dark:to-blue-950/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-financial-accent" />
-            Investment Summary Based on Your Goals
-          </CardTitle>
-        </CardHeader>
+       {/* Investment Summary Section */}
+       <Card className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/20 dark:to-blue-950/20">
+         <CardHeader>
+           <CardTitle className="flex items-center gap-2">
+             {planningMode === "goals" ? (
+               <>
+                 <Target className="h-5 w-5 text-financial-accent" />
+                 Investment Summary Based on Your Goals
+               </>
+             ) : (
+               <>
+                 <PiggyBank className="h-5 w-5 text-financial-accent" />
+                 SIP Investment Summary
+               </>
+             )}
+           </CardTitle>
+         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="text-center">
-              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalMonthlySIP)}</h4>
-              <p className="text-sm text-muted-foreground">Monthly SIP Required</p>
-            </div>
-            <div className="text-center">
-              <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalTargetAmount)}</h4>
-              <p className="text-sm text-muted-foreground">Total Target Amount</p>
-            </div>
-            <div className="text-center">
-              <h4 className="text-2xl font-bold text-financial-accent">{Math.max(...goals.map(g => g.timeHorizon))}</h4>
-              <p className="text-sm text-muted-foreground">Max Investment Horizon (Years)</p>
-            </div>
+             <div className="text-center">
+               <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalMonthlySIP)}</h4>
+               <p className="text-sm text-muted-foreground">
+                 {planningMode === "goals" ? "Monthly SIP Required" : "Monthly SIP Amount"}
+               </p>
+             </div>
+             <div className="text-center">
+               <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalTargetAmount)}</h4>
+               <p className="text-sm text-muted-foreground">
+                 {planningMode === "goals" ? "Total Target Amount" : "Projected Portfolio Value"}
+               </p>
+             </div>
+             <div className="text-center">
+               <h4 className="text-2xl font-bold text-financial-accent">
+                 {planningMode === "goals" && goals.length > 0 
+                   ? Math.max(...goals.map(g => g.timeHorizon))
+                   : sipData 
+                   ? sipData.timeHorizon
+                   : 10
+                 }
+               </h4>
+               <p className="text-sm text-muted-foreground">Investment Horizon (Years)</p>
+             </div>
           </div>
           
-          {/* Individual Goal Breakdown */}
-          <div className="space-y-3">
-            <h4 className="font-semibold mb-3">Goal-wise SIP Breakdown:</h4>
-            {goalSIPs.map((goal) => {
+           {/* Individual Goal Breakdown - Only for Goal Planning */}
+           {planningMode === "goals" && (
+             <div className="space-y-3">
+               <h4 className="font-semibold mb-3">Goal-wise SIP Breakdown:</h4>
+               {goalSIPs.map((goal) => {
               return (
                 <div key={goal.id} className="flex justify-between items-center p-3 bg-white/60 dark:bg-black/20 rounded-lg">
                   <div>
@@ -1015,9 +1067,10 @@ const AIRecommendations = ({ goals, riskProfile, onComplete }: AIRecommendations
                   </div>
                 </div>
               );
-            })}
-          </div>
-        </CardContent>
+             })}
+           </div>
+           )}
+         </CardContent>
       </Card>
 
       {/* Header */}

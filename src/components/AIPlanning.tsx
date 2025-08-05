@@ -20,11 +20,19 @@ interface FinancialGoal {
   currentSavings: number;
 }
 
+interface SIPData {
+  monthlyAmount: number;
+  wantsTaxBenefits: boolean;
+  taxBracket: string;
+  timeHorizon: number;
+}
+
 const AIPlanning = () => {
   const [planningMode, setPlanningMode] = useState<"goals" | "sip" | null>(null);
   const [currentStep, setCurrentStep] = useState("selection");
   const [completionProgress, setCompletionProgress] = useState(0);
   const [userGoals, setUserGoals] = useState<FinancialGoal[]>([]);
+  const [sipData, setSipData] = useState<SIPData | null>(null);
   const [riskProfile, setRiskProfile] = useState<string>("");
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false);
@@ -77,6 +85,7 @@ const AIPlanning = () => {
     setCurrentStep("selection");
     setCompletionProgress(0);
     setUserGoals([]);
+    setSipData(null);
     setRiskProfile("");
     setCompletedSteps(new Set());
   };
@@ -284,13 +293,14 @@ const AIPlanning = () => {
                   Plan Your Monthly SIP
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <SIPPlanning onComplete={(sipData) => {
-                  setCompletedSteps(prev => new Set([...prev, "sip"]));
-                  setCompletionProgress(33);
-                  setCurrentStep("risk");
-                }} />
-              </CardContent>
+               <CardContent>
+                 <SIPPlanning onComplete={(data) => {
+                   setSipData(data);
+                   setCompletedSteps(prev => new Set([...prev, "sip"]));
+                   setCompletionProgress(33);
+                   setCurrentStep("risk");
+                 }} />
+               </CardContent>
             </Card>
           </TabsContent>
 
@@ -377,8 +387,10 @@ const AIPlanning = () => {
                   </CardHeader>
                   <CardContent>
                     <AIRecommendations 
-                      goals={userGoals} 
-                      riskProfile={riskProfile} 
+                      goals={planningMode === "goals" ? userGoals : undefined}
+                      sipData={planningMode === "sip" ? sipData : undefined}
+                      riskProfile={riskProfile}
+                      planningMode={planningMode}
                       onComplete={() => {
                         setCompletedSteps(prev => new Set([...prev, "recommendations"]));
                         setCompletionProgress(100);

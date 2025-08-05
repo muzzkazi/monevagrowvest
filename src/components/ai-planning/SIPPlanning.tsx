@@ -20,8 +20,15 @@ import {
   CheckCircle
 } from "lucide-react";
 
+interface SIPData {
+  monthlyAmount: number;
+  wantsTaxBenefits: boolean;
+  taxBracket: string;
+  timeHorizon: number;
+}
+
 interface SIPPlanningProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: SIPData) => void;
 }
 
 interface Fund {
@@ -148,6 +155,14 @@ const SIPPlanning = ({ onComplete }: SIPPlanningProps) => {
   const handlePlanSIP = () => {
     if (!monthlyAmount || !taxBenefit) return;
     setShowRecommendations(true);
+    
+    // Call onComplete with SIP data
+    onComplete({
+      monthlyAmount: parseFloat(monthlyAmount),
+      wantsTaxBenefits: taxBenefit === 'yes',
+      taxBracket: "30%", // Could be made configurable later
+      timeHorizon: parseFloat(investmentPeriod)
+    });
   };
 
   const portfolio = getPortfolioRecommendation(taxBenefit === 'yes');
@@ -530,7 +545,7 @@ const SIPPlanning = ({ onComplete }: SIPPlanningProps) => {
             Modify Plan
           </Button>
           <Button 
-            onClick={() => onComplete({ monthlyAmount, taxBenefit, portfolio, returns })}
+            onClick={() => window.location.href = '/contact'}
             className="bg-financial-accent hover:bg-financial-accent/90"
           >
             Start SIP Investment
