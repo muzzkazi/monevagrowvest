@@ -169,8 +169,42 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
   console.log("Total Monthly SIP:", totalMonthlySIP);
   console.log("Total Target Amount:", totalTargetAmount);
 
-  // Dynamic asset allocation based on risk profile
+  // Dynamic asset allocation based on risk profile and tax preferences
   const getRiskBasedAllocation = () => {
+    // For SIP planning with tax benefits, prioritize ELSS and tax-efficient funds
+    if (planningMode === "sip" && sipData?.wantsTaxBenefits) {
+      const allocations = {
+        Conservative: [
+          { category: "ELSS (Tax Saving)", percentage: 30, color: "#10b981", instruments: ["Axis Long Term Equity Fund", "Mirae Asset Tax Saver Fund", "Invesco India Tax Plan"] },
+          { category: "Short Duration Debt Funds", percentage: 25, color: "#059669", instruments: ["HDFC Short Term Debt Fund", "ICICI Pru Short Term Fund", "SBI Short Term Debt Fund"] },
+          { category: "Large Cap Equity Funds", percentage: 20, color: "#3b82f6", instruments: ["HDFC Top 100 Fund", "ICICI Pru Bluechip Fund", "SBI Large Cap Fund"] },
+          { category: "Conservative Hybrid Funds", percentage: 15, color: "#6366f1", instruments: ["HDFC Balanced Advantage Fund", "ICICI Pru Balanced Advantage Fund", "SBI Conservative Hybrid Fund"] },
+          { category: "Gold Funds", percentage: 10, color: "#fbbf24", instruments: ["HDFC Gold Fund", "SBI Gold Fund", "Nippon India Gold Savings Fund"] }
+        ],
+        Moderate: [
+          { category: "ELSS (Tax Saving)", percentage: 35, color: "#10b981", instruments: ["Axis Long Term Equity Fund", "Mirae Asset Tax Saver Fund", "Invesco India Tax Plan"] },
+          { category: "Large Cap Equity Funds", percentage: 25, color: "#3b82f6", instruments: ["HDFC Top 100 Fund", "ICICI Pru Bluechip Fund", "SBI Large Cap Fund"] },
+          { category: "Balanced Advantage Funds", percentage: 20, color: "#6366f1", instruments: ["HDFC Balanced Advantage Fund", "ICICI Pru Balanced Advantage Fund", "SBI Dynamic Asset Allocation Fund"] },
+          { category: "Short Duration Debt Funds", percentage: 10, color: "#059669", instruments: ["HDFC Short Term Debt Fund", "ICICI Pru Short Term Fund", "SBI Short Term Debt Fund"] },
+          { category: "Gold Funds", percentage: 10, color: "#fbbf24", instruments: ["HDFC Gold Fund", "SBI Gold Fund", "Nippon India Gold Savings Fund"] }
+        ],
+        Balanced: [
+          { category: "ELSS (Tax Saving)", percentage: 40, color: "#10b981", instruments: ["Axis Long Term Equity Fund", "Mirae Asset Tax Saver Fund", "Invesco India Tax Plan"] },
+          { category: "Flexi Cap Funds", percentage: 30, color: "#8b5cf6", instruments: ["Parag Parikh Flexi Cap Fund", "HDFC Flexi Cap Fund", "ICICI Pru Flexi Cap Fund"] },
+          { category: "Large & Mid Cap Funds", percentage: 20, color: "#3b82f6", instruments: ["HDFC Large and Mid Cap Fund", "ICICI Pru Large & Mid Cap Fund", "SBI Large & Midcap Fund"] },
+          { category: "Gold Funds", percentage: 10, color: "#fbbf24", instruments: ["HDFC Gold Fund", "SBI Gold Fund", "Nippon India Gold Savings Fund"] }
+        ],
+        Aggressive: [
+          { category: "ELSS (Tax Saving)", percentage: 30, color: "#10b981", instruments: ["Axis Long Term Equity Fund", "Mirae Asset Tax Saver Fund", "Invesco India Tax Plan"] },
+          { category: "Mid Cap Funds", percentage: 35, color: "#8b5cf6", instruments: ["Kotak Emerging Equity Fund", "HDFC Mid-Cap Opportunities Fund", "DSP Midcap Fund"] },
+          { category: "Small Cap Funds", percentage: 20, color: "#ef4444", instruments: ["Axis Small Cap Fund", "SBI Small Cap Fund", "HDFC Small Cap Fund"] },
+          { category: "Flexi Cap Funds", percentage: 15, color: "#6366f1", instruments: ["Parag Parikh Flexi Cap Fund", "HDFC Flexi Cap Fund", "ICICI Pru Flexi Cap Fund"] }
+        ]
+      };
+      return allocations[riskProfile as keyof typeof allocations] || allocations.Moderate;
+    }
+
+    // Default allocations for goal-based planning or SIP without tax benefits
     const allocations = {
       Conservative: [
         { category: "Short Duration Debt Funds", percentage: 40, color: "#10b981", instruments: ["HDFC Short Term Debt Fund", "ICICI Pru Short Term Fund", "SBI Short Term Debt Fund"] },
@@ -229,26 +263,31 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
   const getFundDatabase = (): { [key: string]: RiskProfileFunds } => {
     return {
       Conservative: {
+        "ELSS (Tax Saving)": { name: "Axis Long Term Equity Fund", score: 91, expenseRatio: "1.25%", fundSize: "₹22,500 Cr", managerTenure: "8 years", taxEfficiency: "High", expectedReturn: "12-15%", alternativeFund: "Mirae Asset Tax Saver Fund" },
         "Short Duration Debt Funds": { name: "HDFC Short Term Debt Fund", score: 92, expenseRatio: "0.35%", fundSize: "₹8,500 Cr", managerTenure: "6 years", taxEfficiency: "High", expectedReturn: "6-8%", alternativeFund: "ICICI Pru Short Term Fund" },
         "Corporate Bond Funds": { name: "ICICI Pru Corporate Bond Fund", score: 89, expenseRatio: "0.42%", fundSize: "₹4,200 Cr", managerTenure: "4 years", taxEfficiency: "High", expectedReturn: "7-9%", alternativeFund: "Aditya Birla Corporate Bond Fund" },
         "Conservative Hybrid Funds": { name: "HDFC Balanced Advantage Fund", score: 87, expenseRatio: "0.95%", fundSize: "₹12,500 Cr", managerTenure: "8 years", taxEfficiency: "Medium", expectedReturn: "9-11%", alternativeFund: "ICICI Pru Balanced Advantage Fund" },
         "Arbitrage Funds": { name: "ICICI Pru Arbitrage Fund", score: 85, expenseRatio: "0.65%", fundSize: "₹3,200 Cr", managerTenure: "5 years", taxEfficiency: "High", expectedReturn: "5-7%", alternativeFund: "Kotak Equity Arbitrage Fund" },
         "Large Cap Equity Funds": { name: "HDFC Top 100 Fund", score: 94, expenseRatio: "1.25%", fundSize: "₹25,600 Cr", managerTenure: "12 years", taxEfficiency: "Medium", expectedReturn: "12-14%", alternativeFund: "ICICI Pru Bluechip Fund" },
-        "Gold ETF": { name: "HDFC Gold ETF", score: 83, expenseRatio: "0.50%", fundSize: "₹1,800 Cr", managerTenure: "6 years", taxEfficiency: "Low", expectedReturn: "8-10%", alternativeFund: "SBI Gold ETF" }
+        "Gold ETF": { name: "HDFC Gold ETF", score: 83, expenseRatio: "0.50%", fundSize: "₹1,800 Cr", managerTenure: "6 years", taxEfficiency: "Low", expectedReturn: "8-10%", alternativeFund: "SBI Gold ETF" },
+        "Gold Funds": { name: "HDFC Gold Fund", score: 85, expenseRatio: "0.55%", fundSize: "₹1,800 Cr", managerTenure: "5 years", taxEfficiency: "Low", expectedReturn: "8-10%", alternativeFund: "SBI Gold Fund" }
       },
       Moderate: {
+        "ELSS (Tax Saving)": { name: "Mirae Asset Tax Saver Fund", score: 93, expenseRatio: "1.05%", fundSize: "₹18,200 Cr", managerTenure: "7 years", taxEfficiency: "High", expectedReturn: "13-16%", alternativeFund: "Invesco India Tax Plan" },
         "Balanced Advantage Funds": { name: "HDFC Balanced Advantage Fund", score: 91, expenseRatio: "0.95%", fundSize: "₹12,500 Cr", managerTenure: "8 years", taxEfficiency: "Medium", expectedReturn: "10-12%", alternativeFund: "SBI Dynamic Asset Allocation Fund" },
         "Large Cap Equity Funds": { name: "ICICI Pru Bluechip Fund", score: 93, expenseRatio: "1.05%", fundSize: "₹18,200 Cr", managerTenure: "10 years", taxEfficiency: "Medium", expectedReturn: "12-15%", alternativeFund: "SBI Large Cap Fund" },
         "Short Duration Debt Funds": { name: "HDFC Short Term Debt Fund", score: 92, expenseRatio: "0.35%", fundSize: "₹8,500 Cr", managerTenure: "6 years", taxEfficiency: "High", expectedReturn: "6-8%", alternativeFund: "ICICI Pru Short Term Fund" },
         "Gold Funds": { name: "HDFC Gold Fund", score: 85, expenseRatio: "0.55%", fundSize: "₹1,800 Cr", managerTenure: "5 years", taxEfficiency: "Low", expectedReturn: "8-10%", alternativeFund: "SBI Gold Fund" }
       },
       Balanced: {
+        "ELSS (Tax Saving)": { name: "Invesco India Tax Plan", score: 89, expenseRatio: "1.15%", fundSize: "₹12,800 Cr", managerTenure: "9 years", taxEfficiency: "High", expectedReturn: "14-17%", alternativeFund: "Axis Long Term Equity Fund" },
         "Flexi Cap Funds": { name: "Parag Parikh Flexi Cap Fund", score: 95, expenseRatio: "0.68%", fundSize: "₹35,600 Cr", managerTenure: "15 years", taxEfficiency: "Medium", expectedReturn: "14-16%", alternativeFund: "HDFC Flexi Cap Fund" },
         "Large & Mid Cap Funds": { name: "HDFC Large and Mid Cap Fund", score: 90, expenseRatio: "1.45%", fundSize: "₹8,900 Cr", managerTenure: "7 years", taxEfficiency: "Medium", expectedReturn: "13-16%", alternativeFund: "ICICI Pru Large & Mid Cap Fund" },
         "Hybrid Equity Funds": { name: "SBI Equity Hybrid Fund", score: 88, expenseRatio: "1.15%", fundSize: "₹6,500 Cr", managerTenure: "9 years", taxEfficiency: "Medium", expectedReturn: "11-13%", alternativeFund: "HDFC Hybrid Equity Fund" },
         "Gold Funds": { name: "Nippon India Gold Savings Fund", score: 86, expenseRatio: "0.65%", fundSize: "₹2,100 Cr", managerTenure: "6 years", taxEfficiency: "Low", expectedReturn: "8-10%", alternativeFund: "SBI Gold Fund" }
       },
       Aggressive: {
+        "ELSS (Tax Saving)": { name: "Axis Long Term Equity Fund", score: 91, expenseRatio: "1.25%", fundSize: "₹22,500 Cr", managerTenure: "8 years", taxEfficiency: "High", expectedReturn: "15-18%", alternativeFund: "Mirae Asset Tax Saver Fund" },
         "Mid Cap Funds": { name: "Kotak Emerging Equity Fund", score: 92, expenseRatio: "1.85%", fundSize: "₹12,800 Cr", managerTenure: "11 years", taxEfficiency: "Medium", expectedReturn: "16-20%", alternativeFund: "DSP Midcap Fund" },
         "Small Cap Funds": { name: "Axis Small Cap Fund", score: 89, expenseRatio: "2.15%", fundSize: "₹8,600 Cr", managerTenure: "8 years", taxEfficiency: "Medium", expectedReturn: "18-25%", alternativeFund: "SBI Small Cap Fund" },
         "Flexi Cap Funds": { name: "HDFC Flexi Cap Fund", score: 91, expenseRatio: "1.35%", fundSize: "₹18,500 Cr", managerTenure: "9 years", taxEfficiency: "Medium", expectedReturn: "14-18%", alternativeFund: "ICICI Pru Flexi Cap Fund" },
