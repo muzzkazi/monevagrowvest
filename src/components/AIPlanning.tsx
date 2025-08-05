@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
-import { Brain, Target, TrendingUp, Shield, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Brain, Target, TrendingUp, Shield, AlertCircle, ChevronDown, ChevronUp, PiggyBank } from "lucide-react";
 import GoalSetting from "./ai-planning/GoalSetting";
 import RiskAssessment from "./ai-planning/RiskAssessment";
 import AIRecommendations from "./ai-planning/AIRecommendations";
+import SIPPlanning from "./ai-planning/SIPPlanning";
 interface FinancialGoal {
   id: string;
   name: string;
@@ -30,6 +31,11 @@ const AIPlanning = () => {
     icon: Target,
     completed: completedSteps.has("goals")
   }, {
+    id: "sip",
+    label: "SIP Planning",
+    icon: PiggyBank,
+    completed: completedSteps.has("sip")
+  }, {
     id: "risk",
     label: "Risk Assessment",
     icon: Shield,
@@ -41,9 +47,9 @@ const AIPlanning = () => {
     completed: completedSteps.has("recommendations")
   }];
   const isStepAccessible = (stepId: string) => {
-    if (stepId === "goals") return true;
-    if (stepId === "risk") return completedSteps.has("goals");
-    if (stepId === "recommendations") return completedSteps.has("goals") && completedSteps.has("risk");
+    if (stepId === "goals" || stepId === "sip") return true;
+    if (stepId === "risk") return completedSteps.has("goals") || completedSteps.has("sip");
+    if (stepId === "recommendations") return (completedSteps.has("goals") || completedSteps.has("sip")) && completedSteps.has("risk");
     return false;
   };
   return <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
@@ -72,7 +78,7 @@ const AIPlanning = () => {
         {/* Main Content */}
         <Tabs value={currentStep} className="w-full">
           {/* Step Navigation */}
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             {steps.map(step => {
             const Icon = step.icon;
             const isAccessible = isStepAccessible(step.id);
@@ -98,7 +104,26 @@ const AIPlanning = () => {
                 <GoalSetting onComplete={goals => {
                 setUserGoals(goals);
                 setCompletedSteps(prev => new Set([...prev, "goals"]));
-                setCompletionProgress(33);
+                setCompletionProgress(25);
+                setCurrentStep("sip");
+              }} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* SIP Planning Tab */}
+          <TabsContent value="sip" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PiggyBank className="h-5 w-5 text-financial-accent" />
+                  Plan Your Monthly SIP
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SIPPlanning onComplete={sipData => {
+                setCompletedSteps(prev => new Set([...prev, "sip"]));
+                setCompletionProgress(50);
                 setCurrentStep("risk");
               }} />
               </CardContent>
@@ -107,12 +132,12 @@ const AIPlanning = () => {
 
           {/* Risk Assessment Tab */}
           <TabsContent value="risk" className="space-y-6">
-            {!completedSteps.has("goals") ? <Card className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
+            {!completedSteps.has("goals") && !completedSteps.has("sip") ? <Card className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
                 <CardContent className="pt-6 text-center">
                   <Shield className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Complete Your Goals First</h3>
+                  <h3 className="text-lg font-semibold mb-2">Complete Previous Step</h3>
                   <p className="text-muted-foreground">
-                    Please define your financial goals before proceeding to risk assessment.
+                    Please complete either financial goals or SIP planning before proceeding to risk assessment.
                   </p>
                 </CardContent>
               </Card> : <div className="space-y-6">
@@ -122,20 +147,30 @@ const AIPlanning = () => {
                       <Shield className="h-5 w-5 text-financial-accent" />
                       Risk Profile Assessment
                     </CardTitle>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setCurrentStep("goals")}
-                      className="flex items-center gap-2"
-                    >
-                      Edit Goals
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setCurrentStep("goals")}
+                        className="flex items-center gap-2"
+                      >
+                        Edit Goals
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setCurrentStep("sip")}
+                        className="flex items-center gap-2"
+                      >
+                        Edit SIP Plan
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <RiskAssessment onComplete={profile => {
                   setRiskProfile(profile);
                   setCompletedSteps(prev => new Set([...prev, "risk"]));
-                  setCompletionProgress(66);
+                  setCompletionProgress(75);
                   setCurrentStep("recommendations");
                 }} />
                   </CardContent>
@@ -145,16 +180,19 @@ const AIPlanning = () => {
 
           {/* AI Recommendations Tab */}
           <TabsContent value="recommendations" className="space-y-6">
-            {!completedSteps.has("goals") || !completedSteps.has("risk") ? <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
+            {(!completedSteps.has("goals") && !completedSteps.has("sip")) || !completedSteps.has("risk") ? <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
                 <CardContent className="pt-6 text-center">
                   <Brain className="h-12 w-12 text-red-600 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Complete Previous Steps</h3>
                   <p className="text-muted-foreground">
-                    Please complete your financial goals and risk assessment before viewing AI recommendations.
+                    Please complete either goals/SIP planning and risk assessment before viewing AI recommendations.
                   </p>
                   <div className="mt-4 space-y-2">
                     <div className={`flex items-center gap-2 ${completedSteps.has("goals") ? 'text-green-600' : 'text-red-600'}`}>
                       {completedSteps.has("goals") ? '✓' : '✗'} Financial Goals
+                    </div>
+                    <div className={`flex items-center gap-2 ${completedSteps.has("sip") ? 'text-green-600' : 'text-red-600'}`}>
+                      {completedSteps.has("sip") ? '✓' : '✗'} SIP Planning
                     </div>
                     <div className={`flex items-center gap-2 ${completedSteps.has("risk") ? 'text-green-600' : 'text-red-600'}`}>
                       {completedSteps.has("risk") ? '✓' : '✗'} Risk Assessment
@@ -176,6 +214,14 @@ const AIPlanning = () => {
                         className="flex items-center gap-2"
                       >
                         Edit Risk Profile
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setCurrentStep("sip")}
+                        className="flex items-center gap-2"
+                      >
+                        Edit SIP Plan
                       </Button>
                       <Button 
                         variant="outline" 
