@@ -1064,27 +1064,27 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
          </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
-              <div className="text-center">
-                <h4 className="text-4xl font-black text-financial-accent tracking-tight leading-none">{formatCurrencyInCard(totalMonthlySIP)}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {planningMode === "goals" ? "Monthly SIP Required" : "Monthly SIP Amount"}
-                </p>
-              </div>
-              <div className="text-center">
-                <h4 className="text-4xl font-black text-financial-accent tracking-tight leading-none">{formatCurrencyInCard(totalTargetAmount)}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {planningMode === "goals" ? "Total Target Amount" : "Projected Portfolio Value"}
-                </p>
-              </div>
-              <div className="text-center">
-                <h4 className="text-4xl font-black text-financial-accent tracking-tight leading-none">
-                  {planningMode === "goals" && goals.length > 0 
-                    ? Math.max(...goals.map(g => g.timeHorizon))
-                    : sipData 
-                    ? sipData.timeHorizon
-                    : 10
-                  }
-                </h4>
+             <div className="text-center">
+               <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalMonthlySIP)}</h4>
+               <p className="text-sm text-muted-foreground">
+                 {planningMode === "goals" ? "Monthly SIP Required" : "Monthly SIP Amount"}
+               </p>
+             </div>
+             <div className="text-center">
+               <h4 className="text-2xl font-bold text-financial-accent">{formatCurrencyInCard(totalTargetAmount)}</h4>
+               <p className="text-sm text-muted-foreground">
+                 {planningMode === "goals" ? "Total Target Amount" : "Projected Portfolio Value"}
+               </p>
+             </div>
+             <div className="text-center">
+               <h4 className="text-2xl font-bold text-financial-accent">
+                 {planningMode === "goals" && goals.length > 0 
+                   ? Math.max(...goals.map(g => g.timeHorizon))
+                   : sipData 
+                   ? sipData.timeHorizon
+                   : 10
+                 }
+               </h4>
                <p className="text-sm text-muted-foreground">Investment Horizon (Years)</p>
              </div>
           </div>
@@ -1101,8 +1101,8 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                     <span className="text-sm text-muted-foreground ml-2">({goal.timeHorizon} years)</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold tracking-wide">{formatCurrencyInCard(goal.monthlySIP)}/month</div>
-                    <div className="text-sm font-medium text-muted-foreground">Target: {formatCurrencyInCard(goal.targetAmount)}</div>
+                    <div className="font-semibold">{formatCurrencyInCard(goal.monthlySIP)}/month</div>
+                    <div className="text-xs text-muted-foreground">Target: {formatCurrencyInCard(goal.targetAmount)}</div>
                   </div>
                 </div>
               );
@@ -1159,7 +1159,7 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                     <div key={asset.category} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="font-medium">{asset.category}</span>
-                        <span className="text-base font-semibold text-financial-accent">
+                        <span className="text-sm text-muted-foreground">
                           {asset.percentage}% ({formatCurrencyInCard(asset.amount)})
                         </span>
                       </div>
@@ -1312,7 +1312,7 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center gap-3">
                       <h4 className="font-semibold text-lg">{rec.name}</h4>
-                       <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-base font-bold px-3 py-1">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                         Score: {rec.score}/100
                       </Badge>
                       <Badge variant={rec.riskLevel === "Low" ? "secondary" : rec.riskLevel === "Medium" ? "default" : "destructive"}>
@@ -1327,11 +1327,11 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                       </div>
                       <div>
                         <span className="font-medium text-muted-foreground">Expense Ratio:</span>
-                        <p className="text-green-600 font-bold text-lg">{rec.expenseRatio}</p>
+                        <p className="text-green-600 font-medium">{rec.expenseRatio}</p>
                       </div>
                       <div>
                         <span className="font-medium text-muted-foreground">Fund Size:</span>
-                        <p className="font-bold text-lg text-financial-accent">{rec.fundSize}</p>
+                        <p>{rec.fundSize}</p>
                       </div>
                       <div>
                         <span className="font-medium text-muted-foreground">Manager Tenure:</span>
@@ -1342,9 +1342,9 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                     <p className="text-sm text-muted-foreground">{rec.reason}</p>
                     
                     <div className="flex items-center gap-6 text-sm bg-financial-muted p-3 rounded-lg">
-                      <span><strong>Allocation:</strong> <span className="text-lg font-bold text-financial-accent">{rec.allocation}%</span></span>
-                      <span><strong>Expected Return:</strong> <span className="text-lg font-bold text-green-600">{rec.expectedReturn}</span></span>
-                      <span><strong>Monthly SIP:</strong> <span className="text-lg font-bold text-financial-accent">{formatCurrencyInCard(rec.sipAmount || 0)}</span></span>
+                      <span><strong>Allocation:</strong> {rec.allocation}%</span>
+                      <span><strong>Expected Return:</strong> {rec.expectedReturn}</span>
+                      <span><strong>Monthly SIP:</strong> {formatCurrencyInCard(rec.sipAmount || 0)}</span>
                       <span><strong>Tax Efficiency:</strong> 
                         <Badge variant="outline" className={`ml-1 ${rec.taxEfficiency === 'High' ? 'bg-green-50 text-green-700' : rec.taxEfficiency === 'Medium' ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700'}`}>
                           {rec.taxEfficiency}
@@ -1378,7 +1378,7 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                     <TooltipTrigger asChild>
                       <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg cursor-help border border-green-200 hover:border-green-300 transition-colors">
                         <div className="flex items-center justify-center gap-2 mb-2">
-                          <h4 className="text-2xl font-bold text-green-700 dark:text-green-400 tracking-wide">
+                          <h4 className="text-lg font-semibold text-green-700 dark:text-green-400">
                             {formatCurrencyInCard(taxOptimization.elssRecommendation || 0)}
                           </h4>
                           <Info className="h-4 w-4 text-green-600" />
@@ -1400,7 +1400,7 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                     <TooltipTrigger asChild>
                       <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg cursor-help border border-blue-200 hover:border-blue-300 transition-colors">
                         <div className="flex items-center justify-center gap-2 mb-2">
-                          <h4 className="text-2xl font-bold text-blue-700 dark:text-blue-400 tracking-wide">
+                          <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-400">
                             {formatCurrencyInCard(taxOptimization.taxSavingPotential || 0)}
                           </h4>
                           <Info className="h-4 w-4 text-blue-600" />
@@ -1422,7 +1422,7 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                     <TooltipTrigger asChild>
                       <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg cursor-help border border-yellow-200 hover:border-yellow-300 transition-colors">
                         <div className="flex items-center justify-center gap-2 mb-2">
-                          <h4 className="text-2xl font-bold text-yellow-700 dark:text-yellow-400 tracking-wide">
+                          <h4 className="text-lg font-semibold text-yellow-700 dark:text-yellow-400">
                             ₹1,00,000
                           </h4>
                           <Info className="h-4 w-4 text-yellow-600" />
