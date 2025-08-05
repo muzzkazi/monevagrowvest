@@ -1368,46 +1368,137 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-financial-accent" />
-                Tax Optimization Strategy
+                Simple Tax Benefits Guide
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                  <h4 className="text-lg font-semibold text-green-700 dark:text-green-400">
-                    {formatCurrencyInCard(taxOptimization.elssRecommendation || 0)}
-                  </h4>
-                  <p className="text-sm text-muted-foreground">ELSS Investment Recommended</p>
-                </div>
-                <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                  <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-400">
-                    {formatCurrencyInCard(taxOptimization.taxSavingPotential || 0)}
-                  </h4>
-                  <p className="text-sm text-muted-foreground">Annual Tax Savings (80C)</p>
-                </div>
-                <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg">
-                  <h4 className="text-lg font-semibold text-yellow-700 dark:text-yellow-400">
-                    ₹1,00,000
-                  </h4>
-                  <p className="text-sm text-muted-foreground">LTCG Exemption (Annual)</p>
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg cursor-help border border-green-200 hover:border-green-300 transition-colors">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <h4 className="text-lg font-semibold text-green-700 dark:text-green-400">
+                            {formatCurrencyInCard(taxOptimization.elssRecommendation || 0)}
+                          </h4>
+                          <Info className="h-4 w-4 text-green-600" />
+                        </div>
+                        <p className="text-sm text-muted-foreground">Tax-Saving Investment</p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>ELSS Funds:</strong> Invest this amount to save tax under Section 80C. 
+                        Maximum benefit up to ₹1.5 lakh per year. These funds have a 3-year lock-in period.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg cursor-help border border-blue-200 hover:border-blue-300 transition-colors">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-400">
+                            {formatCurrencyInCard(taxOptimization.taxSavingPotential || 0)}
+                          </h4>
+                          <Info className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <p className="text-sm text-muted-foreground">Money You Save on Tax</p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>Tax Savings:</strong> This is the actual money you'll save on your income tax 
+                        by investing in ELSS funds. Calculated based on your tax bracket.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg cursor-help border border-yellow-200 hover:border-yellow-300 transition-colors">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <h4 className="text-lg font-semibold text-yellow-700 dark:text-yellow-400">
+                            ₹1,00,000
+                          </h4>
+                          <Info className="h-4 w-4 text-yellow-600" />
+                        </div>
+                        <p className="text-sm text-muted-foreground">Tax-Free Profit (Annual)</p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>Long-term Capital Gains:</strong> You can make up to ₹1 lakh profit 
+                        from selling your investments without paying any tax (after holding for 1+ year).
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               
               <div className="space-y-4">
-                <h4 className="font-semibold">Tax-Efficient Fund Recommendations:</h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-semibold">Best Tax-Saving Funds for You:</h4>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-sm">
+                          These ELSS funds are selected based on your risk profile and have good track records. 
+                          They help you save tax and grow your money at the same time.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <div className="grid gap-3">
                   {taxOptimization.taxEfficientFunds?.map((fund, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-financial-muted rounded-lg">
                       <span className="font-medium">{fund}</span>
-                      <Badge variant="outline" className="bg-green-50 text-green-700">ELSS - 3 Year Lock-in</Badge>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Badge variant="outline" className="bg-green-50 text-green-700 cursor-help">
+                              Tax Saver Fund
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-sm">3-year lock-in period • Saves tax under 80C</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   ))}
                 </div>
               </div>
               
-              <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">LTCG Strategy:</h4>
-                <p className="text-sm text-muted-foreground">{taxOptimization.ltcgStrategy}</p>
+              <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200">
+                <div className="flex items-start gap-2">
+                  <h4 className="font-semibold mb-2">Smart Tax Strategy:</h4>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-4 w-4 text-blue-600 cursor-help mt-1" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-sm">
+                          This strategy helps you minimize taxes on your investment profits by timing 
+                          when you sell your investments.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Hold your investments for more than 1 year to qualify for tax-free profits up to ₹1 lakh annually. 
+                  Consider selling some profitable investments each year to utilize this benefit.
+                </p>
               </div>
             </CardContent>
           </Card>
