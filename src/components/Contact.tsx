@@ -63,7 +63,7 @@ const Contact = () => {
     },
     {
       question: "How do you charge for your services?",
-      answer: "We offer transparent fee-based advisory services. No hidden charges or commissions from fund houses."
+      answer: "We offer transparent fee-based advisory services. No hidden charges."
     },
     {
       question: "Do you provide tax planning services?",
