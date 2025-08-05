@@ -1101,8 +1101,8 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                     <span className="text-sm text-muted-foreground ml-2">({goal.timeHorizon} years)</span>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold">{formatCurrencyInCard(goal.monthlySIP)}/month</div>
-                    <div className="text-xs text-muted-foreground">Target: {formatCurrencyInCard(goal.targetAmount)}</div>
+                    <div className="text-lg font-bold text-financial-accent">{formatCurrencyInCard(goal.monthlySIP)}/month</div>
+                    <div className="text-sm font-medium text-muted-foreground">Target: {formatCurrencyInCard(goal.targetAmount)}</div>
                   </div>
                 </div>
               );
@@ -1159,7 +1159,7 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                     <div key={asset.category} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="font-medium">{asset.category}</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-base font-bold text-financial-accent">
                           {asset.percentage}% ({formatCurrencyInCard(asset.amount)})
                         </span>
                       </div>
@@ -1327,11 +1327,11 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                       </div>
                       <div>
                         <span className="font-medium text-muted-foreground">Expense Ratio:</span>
-                        <p className="text-green-600 font-medium">{rec.expenseRatio}</p>
+                        <p className="text-green-600 font-bold text-base">{rec.expenseRatio}</p>
                       </div>
                       <div>
                         <span className="font-medium text-muted-foreground">Fund Size:</span>
-                        <p>{rec.fundSize}</p>
+                        <p className="font-bold text-base">{rec.fundSize}</p>
                       </div>
                       <div>
                         <span className="font-medium text-muted-foreground">Manager Tenure:</span>
@@ -1341,10 +1341,10 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
                     
                     <p className="text-sm text-muted-foreground">{rec.reason}</p>
                     
-                    <div className="flex items-center gap-6 text-sm bg-financial-muted p-3 rounded-lg">
-                      <span><strong>Allocation:</strong> {rec.allocation}%</span>
-                      <span><strong>Expected Return:</strong> {rec.expectedReturn}</span>
-                      <span><strong>Monthly SIP:</strong> {formatCurrencyInCard(rec.sipAmount || 0)}</span>
+                    <div className="flex items-center gap-6 text-base bg-financial-muted p-3 rounded-lg">
+                      <span><strong>Allocation:</strong> <span className="font-bold text-financial-accent">{rec.allocation}%</span></span>
+                      <span><strong>Expected Return:</strong> <span className="font-bold text-financial-accent">{rec.expectedReturn}</span></span>
+                      <span><strong>Monthly SIP:</strong> <span className="font-bold text-financial-accent">{formatCurrencyInCard(rec.sipAmount || 0)}</span></span>
                       <span><strong>Tax Efficiency:</strong> 
                         <Badge variant="outline" className={`ml-1 ${rec.taxEfficiency === 'High' ? 'bg-green-50 text-green-700' : rec.taxEfficiency === 'Medium' ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700'}`}>
                           {rec.taxEfficiency}
