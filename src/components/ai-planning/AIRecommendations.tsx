@@ -1065,19 +1065,19 @@ const AIRecommendations = ({ goals = [], sipData, riskProfile, planningMode, onC
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
               <div className="text-center">
-                <h4 className="text-4xl font-black text-financial-accent">{formatCurrencyInCard(totalMonthlySIP)}</h4>
+                <h4 className="text-4xl font-black font-serif text-financial-accent">{formatCurrencyInCard(totalMonthlySIP)}</h4>
                 <p className="text-sm text-muted-foreground">
                   {planningMode === "goals" ? "Monthly SIP Required" : "Monthly SIP Amount"}
                 </p>
               </div>
               <div className="text-center">
-                <h4 className="text-4xl font-black text-financial-accent">{formatCurrencyInCard(totalTargetAmount)}</h4>
+                <h4 className="text-4xl font-black font-serif text-financial-accent">{formatCurrencyInCard(totalTargetAmount)}</h4>
                 <p className="text-sm text-muted-foreground">
                   {planningMode === "goals" ? "Total Target Amount" : "Projected Portfolio Value"}
                 </p>
               </div>
               <div className="text-center">
-                <h4 className="text-4xl font-black text-financial-accent">
+                <h4 className="text-4xl font-black font-serif text-financial-accent">
                   {planningMode === "goals" && goals.length > 0 
                     ? Math.max(...goals.map(g => g.timeHorizon))
                     : sipData 
