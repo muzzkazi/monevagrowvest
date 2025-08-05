@@ -115,22 +115,32 @@ const AIPlanning = () => {
                     Please define your financial goals before proceeding to risk assessment.
                   </p>
                 </CardContent>
-              </Card> : <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-financial-accent" />
-                    Risk Profile Assessment
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RiskAssessment onComplete={profile => {
-                setRiskProfile(profile);
-                setCompletedSteps(prev => new Set([...prev, "risk"]));
-                setCompletionProgress(66);
-                setCurrentStep("recommendations");
-              }} />
-                </CardContent>
-              </Card>}
+              </Card> : <div className="space-y-6">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-financial-accent" />
+                      Risk Profile Assessment
+                    </CardTitle>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setCurrentStep("goals")}
+                      className="flex items-center gap-2"
+                    >
+                      Edit Goals
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    <RiskAssessment onComplete={profile => {
+                  setRiskProfile(profile);
+                  setCompletedSteps(prev => new Set([...prev, "risk"]));
+                  setCompletionProgress(66);
+                  setCurrentStep("recommendations");
+                }} />
+                  </CardContent>
+                </Card>
+              </div>}
           </TabsContent>
 
           {/* AI Recommendations Tab */}
@@ -151,20 +161,40 @@ const AIPlanning = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card> : <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-5 w-5 text-financial-accent" />
-                    Your Personalized Investment Strategy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <AIRecommendations goals={userGoals} riskProfile={riskProfile} onComplete={() => {
-                setCompletedSteps(prev => new Set([...prev, "recommendations"]));
-                setCompletionProgress(100);
-              }} />
-                </CardContent>
-              </Card>}
+              </Card> : <div className="space-y-6">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="h-5 w-5 text-financial-accent" />
+                      Your Personalized Investment Strategy
+                    </CardTitle>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setCurrentStep("risk")}
+                        className="flex items-center gap-2"
+                      >
+                        Edit Risk Profile
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setCurrentStep("goals")}
+                        className="flex items-center gap-2"
+                      >
+                        Edit Goals
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <AIRecommendations goals={userGoals} riskProfile={riskProfile} onComplete={() => {
+                  setCompletedSteps(prev => new Set([...prev, "recommendations"]));
+                  setCompletionProgress(100);
+                }} />
+                  </CardContent>
+                </Card>
+              </div>}
           </TabsContent>
         </Tabs>
 
