@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -91,14 +97,24 @@ const Header = () => {
             >
               Debt Management
             </Link>
-            <Link 
-              to="/ai-planning" 
-              className={`transition-colors cursor-pointer ${
-                location.pathname === '/ai-planning' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
-              }`}
-            >
-              AI Planning
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors cursor-pointer ${
+                location.pathname.startsWith('/ai-planning') || location.pathname === '/mutual-fund-comparison' 
+                  ? 'text-financial-accent' 
+                  : 'text-foreground hover:text-financial-accent'
+              }`}>
+                AI Planning
+                <ChevronDown className="h-3 w-3" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem asChild>
+                  <Link to="/ai-planning">AI Planning</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/mutual-fund-comparison">Mutual Fund Comparison</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link 
               to="/contact" 
               className={`transition-colors cursor-pointer ${
@@ -193,6 +209,15 @@ const Header = () => {
                 }`}
               >
                 AI Planning
+              </Link>
+              <Link 
+                to="/mutual-fund-comparison" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block w-full text-left transition-colors py-2 ml-4 ${
+                  location.pathname === '/mutual-fund-comparison' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                Mutual Fund Comparison
               </Link>
               <Link 
                 to="/contact" 

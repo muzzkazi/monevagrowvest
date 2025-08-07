@@ -13,6 +13,7 @@ import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import AIPlanning from "./pages/AIPlanning";
 import DebtManagement from "./pages/DebtManagement";
+import MutualFundComparison from "./pages/MutualFundComparison";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/ai-planning" element={<AIPlanning />} />
           <Route path="/debt-management" element={<DebtManagement />} />
+          <Route path="/mutual-fund-comparison" element={<MutualFundComparison />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
