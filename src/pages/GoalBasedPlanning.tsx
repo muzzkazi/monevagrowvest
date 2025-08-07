@@ -6,8 +6,23 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Target, Calendar, TrendingUp, Calculator } from "lucide-react";
+import { useState } from "react";
+import { formatInputValue, parseCommaNumber } from "@/lib/utils";
 
 const GoalBasedPlanning = () => {
+  const [formData, setFormData] = useState({
+    goalName: "",
+    goalType: "",
+    targetAmount: "",
+    timeHorizon: "",
+    currentSavings: "",
+    riskTolerance: ""
+  });
+
+  const handleNumberInput = (field: string, value: string) => {
+    const formatted = formatInputValue(value);
+    setFormData(prev => ({ ...prev, [field]: formatted }));
+  };
   return (
     <PageLayout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-financial-accent/5">
@@ -48,11 +63,16 @@ const GoalBasedPlanning = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="goalName">Goal Name</Label>
-                        <Input id="goalName" placeholder="e.g., Dream Home, Child Education" />
+                        <Input 
+                          id="goalName" 
+                          placeholder="e.g., Dream Home, Child Education"
+                          value={formData.goalName}
+                          onChange={(e) => setFormData(prev => ({ ...prev, goalName: e.target.value }))}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="goalType">Goal Type</Label>
-                        <Select>
+                        <Select value={formData.goalType} onValueChange={(value) => setFormData(prev => ({ ...prev, goalType: value }))}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select goal type" />
                           </SelectTrigger>
@@ -68,19 +88,35 @@ const GoalBasedPlanning = () => {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="targetAmount">Target Amount (₹)</Label>
-                        <Input id="targetAmount" type="number" placeholder="1000000" />
+                        <Input 
+                          id="targetAmount" 
+                          placeholder="10,00,000"
+                          value={formData.targetAmount}
+                          onChange={(e) => handleNumberInput('targetAmount', e.target.value)}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="timeHorizon">Time Horizon (Years)</Label>
-                        <Input id="timeHorizon" type="number" placeholder="10" />
+                        <Input 
+                          id="timeHorizon" 
+                          type="number" 
+                          placeholder="10"
+                          value={formData.timeHorizon}
+                          onChange={(e) => setFormData(prev => ({ ...prev, timeHorizon: e.target.value }))}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="currentSavings">Current Savings (₹)</Label>
-                        <Input id="currentSavings" type="number" placeholder="100000" />
+                        <Input 
+                          id="currentSavings" 
+                          placeholder="1,00,000"
+                          value={formData.currentSavings}
+                          onChange={(e) => handleNumberInput('currentSavings', e.target.value)}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="riskTolerance">Risk Tolerance</Label>
-                        <Select>
+                        <Select value={formData.riskTolerance} onValueChange={(value) => setFormData(prev => ({ ...prev, riskTolerance: value }))}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select risk level" />
                           </SelectTrigger>
