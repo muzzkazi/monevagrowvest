@@ -16,7 +16,7 @@ function CalendarWithDropdowns({
 }: CalendarWithDropdownsProps) {
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - 50; // Allow selection from 50 years ago
-  const endYear = currentYear + 10; // Allow selection up to 10 years in future
+  const endYear = currentYear; // Only allow current year and earlier
 
   const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
   const months = [
