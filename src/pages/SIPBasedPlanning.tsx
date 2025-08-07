@@ -6,8 +6,47 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, Repeat, Calculator, PiggyBank } from "lucide-react";
+import { useState } from "react";
+import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
 
 const SIPBasedPlanning = () => {
+  const [formData, setFormData] = useState({
+    sipAmount: "",
+    investmentPeriod: "",
+    expectedReturn: "",
+    sipFrequency: ""
+  });
+  
+  const [sipResult, setSipResult] = useState<{
+    totalInvestment: number;
+    expectedReturns: number;
+    maturityValue: number;
+  } | null>(null);
+
+  const handleNumberInput = (field: string, value: string) => {
+    const formatted = formatInputValue(value);
+    setFormData(prev => ({ ...prev, [field]: formatted }));
+  };
+
+  const calculateSIP = () => {
+    const monthlyAmount = parseCommaNumber(formData.sipAmount);
+    const years = parseInt(formData.investmentPeriod);
+    const annualReturn = parseFloat(formData.expectedReturn);
+    
+    if (!monthlyAmount || !years || !annualReturn) return;
+    
+    const monthlyRate = annualReturn / 100 / 12;
+    const totalMonths = years * 12;
+    const maturityValue = monthlyAmount * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate) * (1 + monthlyRate);
+    const totalInvestment = monthlyAmount * totalMonths;
+    const expectedReturns = maturityValue - totalInvestment;
+    
+    setSipResult({
+      totalInvestment: Math.round(totalInvestment),
+      expectedReturns: Math.round(expectedReturns),
+      maturityValue: Math.round(maturityValue)
+    });
+  };
   return (
     <PageLayout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-financial-accent/5">
@@ -48,15 +87,26 @@ const SIPBasedPlanning = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="sipAmount">Monthly SIP Amount (₹)</Label>
-                        <Input id="sipAmount" type="number" placeholder="5000" />
+                        <Input 
+                          id="sipAmount" 
+                          placeholder="5,000"
+                          value={formData.sipAmount}
+                          onChange={(e) => handleNumberInput('sipAmount', e.target.value)}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="investmentPeriod">Investment Period (Years)</Label>
-                        <Input id="investmentPeriod" type="number" placeholder="10" />
+                        <Input 
+                          id="investmentPeriod" 
+                          type="number" 
+                          placeholder="10"
+                          value={formData.investmentPeriod}
+                          onChange={(e) => setFormData(prev => ({ ...prev, investmentPeriod: e.target.value }))}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="expectedReturn">Expected Annual Return (%)</Label>
-                        <Select>
+                        <Select value={formData.expectedReturn} onValueChange={(value) => setFormData(prev => ({ ...prev, expectedReturn: value }))}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select return rate" />
                           </SelectTrigger>
@@ -70,7 +120,7 @@ const SIPBasedPlanning = () => {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="sipFrequency">SIP Frequency</Label>
-                        <Select>
+                        <Select value={formData.sipFrequency} onValueChange={(value) => setFormData(prev => ({ ...prev, sipFrequency: value }))}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select frequency" />
                           </SelectTrigger>
@@ -83,23 +133,28 @@ const SIPBasedPlanning = () => {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-accent/50 rounded-lg">
-                      <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Total Investment</p>
-                        <p className="text-2xl font-bold text-financial-accent">₹6,00,000</p>
+                    {sipResult && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-accent/50 rounded-lg">
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground">Total Investment</p>
+                          <p className="text-2xl font-bold text-financial-accent">{formatCurrency(sipResult.totalInvestment)}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground">Expected Returns</p>
+                          <p className="text-2xl font-bold text-green-600">{formatCurrency(sipResult.expectedReturns)}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground">Maturity Value</p>
+                          <p className="text-2xl font-bold text-primary">{formatCurrency(sipResult.maturityValue)}</p>
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Expected Returns</p>
-                        <p className="text-2xl font-bold text-green-600">₹3,27,941</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Maturity Value</p>
-                        <p className="text-2xl font-bold text-primary">₹9,27,941</p>
-                      </div>
-                    </div>
+                    )}
                     
-                    <Button className="w-full bg-financial-accent hover:bg-financial-accent/90 text-white">
-                      Start SIP Investment
+                    <Button 
+                      onClick={calculateSIP}
+                      className="w-full bg-financial-accent hover:bg-financial-accent/90 text-white"
+                    >
+                      Calculate SIP Returns
                     </Button>
                   </TabsContent>
                   

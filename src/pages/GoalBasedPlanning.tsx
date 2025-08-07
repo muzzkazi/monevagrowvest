@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Target, Calendar, TrendingUp, Calculator } from "lucide-react";
 import { useState } from "react";
-import { formatInputValue, parseCommaNumber } from "@/lib/utils";
+import { formatInputValue, parseCommaNumber, formatCurrency } from "@/lib/utils";
 
 const GoalBasedPlanning = () => {
   const [formData, setFormData] = useState({
@@ -128,7 +128,21 @@ const GoalBasedPlanning = () => {
                         </Select>
                       </div>
                     </div>
-                    <Button className="w-full bg-financial-accent hover:bg-financial-accent/90 text-white">
+                    <Button 
+                      onClick={() => {
+                        // Basic goal calculation logic
+                        const targetAmt = parseCommaNumber(formData.targetAmount);
+                        const currentSav = parseCommaNumber(formData.currentSavings);
+                        const years = parseInt(formData.timeHorizon);
+                        
+                        if (targetAmt && years) {
+                          const requiredAmount = targetAmt - currentSav;
+                          const monthlyRequired = requiredAmount / (years * 12);
+                          alert(`To achieve your goal of ${formatCurrency(targetAmt)} in ${years} years, you need to save approximately ${formatCurrency(monthlyRequired)} per month.`);
+                        }
+                      }}
+                      className="w-full bg-financial-accent hover:bg-financial-accent/90 text-white"
+                    >
                       Calculate Goal Plan
                     </Button>
                   </TabsContent>
