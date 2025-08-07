@@ -309,6 +309,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                       <Input
                         id="start-date"
                         type="date"
+                        max={new Date().toISOString().split('T')[0]}
                         value={newDebt.startDate}
                         onChange={(e) => handleLoanDetailChange('startDate', e.target.value)}
                       />
