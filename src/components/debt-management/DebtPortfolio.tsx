@@ -4,8 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, Percent, CreditCard, Calendar, IndianRupee } from "lucide-react";
-import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Trash2, Plus, Percent, CreditCard, Calendar as CalendarIcon, IndianRupee } from "lucide-react";
+import { formatCurrency, formatInputValue, parseCommaNumber, cn } from "@/lib/utils";
+import { format } from "date-fns";
 import type { Debt } from "../DebtManagement";
 
 interface DebtPortfolioProps {
@@ -306,13 +309,34 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                     </div>
                     <div>
                       <Label htmlFor="start-date">Loan Start Date</Label>
-                      <Input
-                        id="start-date"
-                        type="date"
-                        max={new Date().toISOString().split('T')[0]}
-                        value={newDebt.startDate}
-                        onChange={(e) => handleLoanDetailChange('startDate', e.target.value)}
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !newDebt.startDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {newDebt.startDate ? format(new Date(newDebt.startDate), "PPP") : <span>Select loan start date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-popover z-50" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={newDebt.startDate ? new Date(newDebt.startDate) : undefined}
+                            onSelect={(date) => {
+                              if (date) {
+                                handleLoanDetailChange('startDate', date.toISOString().split('T')[0]);
+                              }
+                            }}
+                            disabled={(date) => date > new Date()}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
 
