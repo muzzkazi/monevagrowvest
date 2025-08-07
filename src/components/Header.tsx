@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -91,14 +97,43 @@ const Header = () => {
             >
               Debt Management
             </Link>
-            <Link 
-              to="/ai-planning" 
-              className={`transition-colors cursor-pointer ${
-                location.pathname === '/ai-planning' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
-              }`}
-            >
-              AI Planning
-            </Link>
+            <div className="relative group">
+              <span className={`transition-colors cursor-pointer ${
+                location.pathname.startsWith('/ai-planning') || location.pathname === '/mutual-fund-comparison' || location.pathname === '/goal-based-planning' || location.pathname === '/sip-based-planning'
+                  ? 'text-financial-accent' 
+                  : 'text-foreground hover:text-financial-accent'
+              }`}>
+                AI Planning
+              </span>
+              <div className="absolute top-full left-0 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pt-2 z-50">
+                <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
+                  <Link 
+                    to="/ai-planning" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    AI Planning
+                  </Link>
+                  <Link 
+                    to="/goal-based-planning" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    Goal Based Planning
+                  </Link>
+                  <Link 
+                    to="/sip-based-planning" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    SIP Based Planning
+                  </Link>
+                  <Link 
+                    to="/mutual-fund-comparison" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    Mutual Fund Comparison
+                  </Link>
+                </div>
+              </div>
+            </div>
             <Link 
               to="/contact" 
               className={`transition-colors cursor-pointer ${
@@ -193,6 +228,33 @@ const Header = () => {
                 }`}
               >
                 AI Planning
+              </Link>
+              <Link 
+                to="/goal-based-planning" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block w-full text-left transition-colors py-2 ml-4 ${
+                  location.pathname === '/goal-based-planning' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                Goal Based Planning
+              </Link>
+              <Link 
+                to="/sip-based-planning" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block w-full text-left transition-colors py-2 ml-4 ${
+                  location.pathname === '/sip-based-planning' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                SIP Based Planning
+              </Link>
+              <Link 
+                to="/mutual-fund-comparison" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block w-full text-left transition-colors py-2 ml-4 ${
+                  location.pathname === '/mutual-fund-comparison' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                Mutual Fund Comparison
               </Link>
               <Link 
                 to="/contact" 
