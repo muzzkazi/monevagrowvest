@@ -97,24 +97,31 @@ const Header = () => {
             >
               Debt Management
             </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors cursor-pointer ${
+            <div className="relative group">
+              <span className={`transition-colors cursor-pointer ${
                 location.pathname.startsWith('/ai-planning') || location.pathname === '/mutual-fund-comparison' 
                   ? 'text-financial-accent' 
                   : 'text-foreground hover:text-financial-accent'
               }`}>
                 AI Planning
-                <ChevronDown className="h-3 w-3" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem asChild>
-                  <Link to="/ai-planning">AI Planning</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/mutual-fund-comparison">Mutual Fund Comparison</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </span>
+              <div className="absolute top-full left-0 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pt-2">
+                <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
+                  <Link 
+                    to="/ai-planning" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    AI Planning
+                  </Link>
+                  <Link 
+                    to="/mutual-fund-comparison" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    Mutual Fund Comparison
+                  </Link>
+                </div>
+              </div>
+            </div>
             <Link 
               to="/contact" 
               className={`transition-colors cursor-pointer ${
