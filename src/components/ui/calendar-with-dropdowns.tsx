@@ -24,24 +24,27 @@ function CalendarWithDropdowns({
     "July", "August", "September", "October", "November", "December"
   ];
 
+  const [currentMonth, setCurrentMonth] = React.useState(new Date());
+
   const customCaption = ({ displayMonth }: { displayMonth: Date }) => {
     const year = displayMonth.getFullYear();
     const month = displayMonth.getMonth();
 
     return (
-      <div className="flex items-center justify-between w-full px-8">
+      <div className="flex items-center justify-center w-full">
         <div className="flex items-center space-x-2">
           <Select
             value={month.toString()}
             onValueChange={(value) => {
               const newDate = new Date(year, parseInt(value));
+              setCurrentMonth(newDate);
               if (props.onMonthChange) {
                 props.onMonthChange(newDate);
               }
             }}
           >
             <SelectTrigger className="w-[110px] h-7 text-sm">
-              <SelectValue />
+              <SelectValue placeholder={months[month]} />
             </SelectTrigger>
             <SelectContent>
               {months.map((monthName, index) => (
@@ -56,16 +59,17 @@ function CalendarWithDropdowns({
             value={year.toString()}
             onValueChange={(value) => {
               const newDate = new Date(parseInt(value), month);
+              setCurrentMonth(newDate);
               if (props.onMonthChange) {
                 props.onMonthChange(newDate);
               }
             }}
           >
             <SelectTrigger className="w-[80px] h-7 text-sm">
-              <SelectValue />
+              <SelectValue placeholder={year.toString()} />
             </SelectTrigger>
             <SelectContent className="max-h-[200px]">
-              {years.reverse().map((yearOption) => (
+              {[...years].reverse().map((yearOption) => (
                 <SelectItem key={yearOption} value={yearOption.toString()}>
                   {yearOption}
                 </SelectItem>
@@ -79,6 +83,7 @@ function CalendarWithDropdowns({
 
   return (
     <DayPicker
+      month={currentMonth}
       showOutsideDays={showOutsideDays}
       className={cn("p-3 pointer-events-auto", className)}
       classNames={{
