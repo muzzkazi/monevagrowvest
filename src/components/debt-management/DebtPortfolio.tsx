@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { CalendarWithDropdowns } from "@/components/ui/calendar-with-dropdowns";
 import { Trash2, Plus, Percent, CreditCard, Calendar as CalendarIcon, IndianRupee } from "lucide-react";
 import { formatCurrency, formatInputValue, parseCommaNumber, cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -323,7 +323,7 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0 bg-popover z-50" align="start">
-                          <Calendar
+                          <CalendarWithDropdowns
                             mode="single"
                             selected={newDebt.startDate ? new Date(newDebt.startDate) : undefined}
                             onSelect={(date) => {
@@ -333,7 +333,6 @@ const DebtPortfolio = ({ debts, setDebts, extraPayment, setExtraPayment }: DebtP
                             }}
                             disabled={(date) => date > new Date()}
                             initialFocus
-                            className="p-3 pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
