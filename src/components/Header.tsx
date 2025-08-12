@@ -57,46 +57,106 @@ const Header = () => {
             </div>
           
           <nav className="hidden md:flex items-center space-x-8">
-            <Link 
-              to="/" 
-              className={`transition-colors cursor-pointer ${
-                location.pathname === '/' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
-              }`}
-            >
-              Home
-            </Link>
-            <Link 
-              to="/about" 
-              className={`transition-colors cursor-pointer ${
-                location.pathname === '/about' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
-              }`}
-            >
-              About
-            </Link>
-            <Link 
-              to="/services" 
-              className={`transition-colors cursor-pointer ${
-                location.pathname === '/services' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
-              }`}
-            >
-              Services
-            </Link>
-            <Link 
-              to="/calculators" 
-              className={`transition-colors cursor-pointer ${
-                location.pathname === '/calculators' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
-              }`}
-            >
-              Calculators
-            </Link>
-            <Link 
-              to="/debt-management" 
-              className={`transition-colors cursor-pointer ${
-                location.pathname === '/debt-management' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
-              }`}
-            >
-              Debt Management
-            </Link>
+            <div className="relative group">
+              <Link 
+                to="/" 
+                className={`transition-colors cursor-pointer ${
+                  location.pathname === '/' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                Home
+              </Link>
+              <div className="absolute top-full left-0 pt-2 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
+                <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
+                  <Link 
+                    to="/" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    Home
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="relative group">
+              <Link 
+                to="/about" 
+                className={`transition-colors cursor-pointer ${
+                  location.pathname === '/about' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                About
+              </Link>
+              <div className="absolute top-full left-0 pt-2 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
+                <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
+                  <Link 
+                    to="/about" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    About Us
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="relative group">
+              <Link 
+                to="/services" 
+                className={`transition-colors cursor-pointer ${
+                  location.pathname === '/services' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                Services
+              </Link>
+              <div className="absolute top-full left-0 pt-2 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
+                <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
+                  <Link 
+                    to="/services" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    View Services
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="relative group">
+              <Link 
+                to="/calculators" 
+                className={`transition-colors cursor-pointer ${
+                  location.pathname === '/calculators' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                Calculators
+              </Link>
+              <div className="absolute top-full left-0 pt-2 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
+                <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
+                  <Link 
+                    to="/calculators" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    Open Calculators
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="relative group">
+              <Link 
+                to="/debt-management" 
+                className={`transition-colors cursor-pointer ${
+                  location.pathname === '/debt-management' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                Debt Management
+              </Link>
+              <div className="absolute top-full left-0 pt-2 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
+                <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
+                  <Link 
+                    to="/debt-management" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    Debt Management
+                  </Link>
+                </div>
+              </div>
+            </div>
             <div className="relative group">
               <span className={`transition-colors cursor-pointer ${
                 location.pathname.startsWith('/ai-planning') || location.pathname === '/mutual-fund-comparison' || location.pathname === '/goal-based-planning' || location.pathname === '/sip-based-planning'
@@ -106,7 +166,7 @@ const Header = () => {
                 AI Planning
               </span>
               <div className="absolute top-full left-0 pt-2 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
-                <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
+                <div className="bg-background border border-border rounded-md shadow-lg min-w-[220px]">
                   <Link 
                     to="/ai-planning" 
                     className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -134,14 +194,26 @@ const Header = () => {
                 </div>
               </div>
             </div>
-            <Link 
-              to="/contact" 
-              className={`transition-colors cursor-pointer ${
-                location.pathname === '/contact' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
-              }`}
-            >
-              Contact
-            </Link>
+            <div className="relative group">
+              <Link 
+                to="/contact" 
+                className={`transition-colors cursor-pointer ${
+                  location.pathname === '/contact' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                Contact
+              </Link>
+              <div className="absolute top-full left-0 pt-2 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
+                <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
+                  <Link 
+                    to="/contact" 
+                    className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    Contact Us
+                  </Link>
+                </div>
+              </div>
+            </div>
           </nav>
             
             {/* Mobile menu button */}
