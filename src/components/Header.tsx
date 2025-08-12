@@ -105,7 +105,7 @@ const Header = () => {
               }`}>
                 AI Planning
               </span>
-              <div className="absolute top-full left-0 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pt-2 z-50">
+              <div className="absolute top-full left-0 pt-2 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
                 <div className="bg-background border border-border rounded-md shadow-lg min-w-[200px]">
                   <Link 
                     to="/ai-planning" 
