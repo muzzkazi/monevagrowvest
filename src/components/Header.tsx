@@ -46,7 +46,7 @@ const Header = () => {
           ? 'backdrop-blur-2xl bg-background/60 border-b border-border/30 shadow-2xl' 
           : 'glass-nav'
       }`}>
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto max-w-screen-2xl px-3 md:px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <img 
