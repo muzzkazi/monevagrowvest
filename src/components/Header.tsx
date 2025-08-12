@@ -56,7 +56,7 @@ const Header = () => {
               />
             </div>
           
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-8 md:ml-6 lg:ml-10 xl:ml-12">
             <Link 
               to="/" 
               className={`transition-colors cursor-pointer ${
