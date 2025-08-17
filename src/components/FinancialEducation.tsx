@@ -202,9 +202,9 @@ const FinancialEducation = () => {
               <div>
                 <div className="flex justify-between text-sm mb-2">
                   <span>Progress to Level {userProgress.level + 1}</span>
-                  <span>{Math.round((userProgress.xp / userProgress.totalXP) * 100)}%</span>
+                  <span>{Math.min(100, Math.round((userProgress.xp / userProgress.totalXP) * 100))}%</span>
                 </div>
-                <Progress value={(userProgress.xp / userProgress.totalXP) * 100} className="h-3" />
+                <Progress value={Math.min(100, (userProgress.xp / userProgress.totalXP) * 100)} className="h-3" />
               </div>
               
               <div className="flex items-center justify-between">
