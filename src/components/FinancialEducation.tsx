@@ -23,6 +23,11 @@ const FinancialEducation = () => {
   const [currentQuiz, setCurrentQuiz] = useState(0);
   const [score, setScore] = useState(0);
   const [activeModule, setActiveModule] = useState<string | null>(null);
+  const [gameState, setGameState] = useState({
+    piggyBank: { coins: 0, target: 100 },
+    budgetBuilder: { income: 1000, expenses: 0, savings: 0 },
+    investmentSim: { portfolio: 1000, growth: 0 }
+  });
   const [userProgress, setUserProgress] = useState({
     level: 1,
     xp: 50,
@@ -432,6 +437,228 @@ const FinancialEducation = () => {
           </Card>
         </div>
 
+        {/* Game Interface */}
+        {selectedGame && (
+          <div className="mb-16">
+            <Card className="glass-card max-w-4xl mx-auto">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center">
+                    {React.createElement(games.find(g => g.id === selectedGame)?.icon || Play, {
+                      className: "w-6 h-6 mr-2 text-financial-accent"
+                    })}
+                    {games.find(g => g.id === selectedGame)?.title}
+                  </CardTitle>
+                  <Button variant="outline" size="sm" onClick={() => setSelectedGame(null)}>
+                    ✕ Close
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {selectedGame === 'piggy-bank' && (
+                  <div className="text-center space-y-6">
+                    <div className="text-6xl mb-4">🐷</div>
+                    <h4 className="text-xl font-bold">Piggy Bank Challenge</h4>
+                    <div className="bg-muted/30 rounded-lg p-6">
+                      <div className="text-3xl font-bold text-financial-accent mb-2">
+                        ${gameState.piggyBank.coins}
+                      </div>
+                      <div className="text-sm text-muted-foreground mb-4">
+                        Goal: ${gameState.piggyBank.target}
+                      </div>
+                      <Progress 
+                        value={(gameState.piggyBank.coins / gameState.piggyBank.target) * 100} 
+                        className="h-4 mb-4" 
+                      />
+                      <div className="flex justify-center space-x-3">
+                        <Button 
+                          onClick={() => {
+                            setGameState(prev => ({
+                              ...prev,
+                              piggyBank: { ...prev.piggyBank, coins: prev.piggyBank.coins + 5 }
+                            }));
+                          }}
+                        >
+                          Add $5
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            setGameState(prev => ({
+                              ...prev,
+                              piggyBank: { ...prev.piggyBank, coins: prev.piggyBank.coins + 10 }
+                            }));
+                          }}
+                        >
+                          Add $10
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            setGameState(prev => ({
+                              ...prev,
+                              piggyBank: { ...prev.piggyBank, coins: prev.piggyBank.coins + 25 }
+                            }));
+                          }}
+                        >
+                          Add $25
+                        </Button>
+                      </div>
+                      {gameState.piggyBank.coins >= gameState.piggyBank.target && (
+                        <div className="mt-4 p-4 bg-financial-accent/20 rounded-lg">
+                          <div className="text-lg font-bold text-financial-accent">🎉 Goal Reached!</div>
+                          <Button 
+                            className="mt-2"
+                            onClick={() => {
+                              setUserProgress(prev => ({ ...prev, xp: prev.xp + 25 }));
+                              setSelectedGame(null);
+                            }}
+                          >
+                            Collect Reward (+25 XP)
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {selectedGame === 'budget-builder' && (
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <div className="text-4xl mb-4">💰</div>
+                      <h4 className="text-xl font-bold">Budget Builder</h4>
+                      <p className="text-muted-foreground">Create a balanced budget!</p>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <Card className="p-4">
+                        <h5 className="font-bold text-financial-accent mb-2">Income</h5>
+                        <div className="text-2xl font-bold">${gameState.budgetBuilder.income}</div>
+                      </Card>
+                      <Card className="p-4">
+                        <h5 className="font-bold text-red-500 mb-2">Expenses</h5>
+                        <div className="text-2xl font-bold">${gameState.budgetBuilder.expenses}</div>
+                        <div className="space-y-2 mt-4">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setGameState(prev => ({
+                                ...prev,
+                                budgetBuilder: { ...prev.budgetBuilder, expenses: prev.budgetBuilder.expenses + 100 }
+                              }));
+                            }}
+                          >
+                            Rent (+$100)
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setGameState(prev => ({
+                                ...prev,
+                                budgetBuilder: { ...prev.budgetBuilder, expenses: prev.budgetBuilder.expenses + 50 }
+                              }));
+                            }}
+                          >
+                            Food (+$50)
+                          </Button>
+                        </div>
+                      </Card>
+                      <Card className="p-4">
+                        <h5 className="font-bold text-financial-accent mb-2">Savings</h5>
+                        <div className="text-2xl font-bold">
+                          ${gameState.budgetBuilder.income - gameState.budgetBuilder.expenses}
+                        </div>
+                        {(gameState.budgetBuilder.income - gameState.budgetBuilder.expenses) > 0 && (
+                          <div className="mt-4">
+                            <div className="text-sm text-financial-accent font-medium">Great job! 🎉</div>
+                            <Button 
+                              size="sm" 
+                              className="mt-2"
+                              onClick={() => {
+                                setUserProgress(prev => ({ ...prev, xp: prev.xp + 50 }));
+                                setSelectedGame(null);
+                              }}
+                            >
+                              Complete (+50 XP)
+                            </Button>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  </div>
+                )}
+
+                {selectedGame === 'investment-simulator' && (
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <div className="text-4xl mb-4">📈</div>
+                      <h4 className="text-xl font-bold">Investment Simulator</h4>
+                      <p className="text-muted-foreground">Watch your money grow!</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg p-6 text-center">
+                      <div className="text-3xl font-bold text-financial-accent mb-2">
+                        ${gameState.investmentSim.portfolio}
+                      </div>
+                      <div className="text-sm text-muted-foreground mb-4">Portfolio Value</div>
+                      <div className="flex justify-center space-x-3 mb-4">
+                        <Button 
+                          onClick={() => {
+                            const growth = Math.random() > 0.5 ? 50 : -25;
+                            setGameState(prev => ({
+                              ...prev,
+                              investmentSim: { 
+                                ...prev.investmentSim, 
+                                portfolio: Math.max(0, prev.investmentSim.portfolio + growth),
+                                growth: growth
+                              }
+                            }));
+                          }}
+                        >
+                          Invest in Stocks
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={() => {
+                            const growth = 25;
+                            setGameState(prev => ({
+                              ...prev,
+                              investmentSim: { 
+                                ...prev.investmentSim, 
+                                portfolio: prev.investmentSim.portfolio + growth,
+                                growth: growth
+                              }
+                            }));
+                          }}
+                        >
+                          Safe Savings
+                        </Button>
+                      </div>
+                      {gameState.investmentSim.growth !== 0 && (
+                        <div className={`p-3 rounded-lg ${gameState.investmentSim.growth > 0 ? 'bg-financial-accent/20' : 'bg-red-500/20'}`}>
+                          <div className={`font-bold ${gameState.investmentSim.growth > 0 ? 'text-financial-accent' : 'text-red-500'}`}>
+                            {gameState.investmentSim.growth > 0 ? '+' : ''}${gameState.investmentSim.growth}
+                          </div>
+                        </div>
+                      )}
+                      {gameState.investmentSim.portfolio >= 1200 && (
+                        <div className="mt-4">
+                          <Button 
+                            onClick={() => {
+                              setUserProgress(prev => ({ ...prev, xp: prev.xp + 75 }));
+                              setSelectedGame(null);
+                            }}
+                          >
+                            Cash Out (+75 XP)
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Educational Games */}
         <div>
           <h3 className="text-2xl font-bold mb-8 text-center">Educational Games</h3>
@@ -455,14 +682,7 @@ const FinancialEducation = () => {
                   </div>
                   <Button 
                     className="w-full group-hover:bg-financial-accent transition-colors"
-                    onClick={() => {
-                      // Simple game launch simulation
-                      alert(`Starting ${game.title}! This would open the game interface.`);
-                      setUserProgress(prev => ({
-                        ...prev,
-                        xp: prev.xp + game.xp
-                      }));
-                    }}
+                    onClick={() => setSelectedGame(game.id)}
                   >
                     <Play className="w-4 h-4 mr-2" />
                     Play Game
