@@ -180,19 +180,22 @@ const FinancialEducation = () => {
   ];
 
   const handleQuizAnswer = (selectedOption: number) => {
-    if (selectedOption === quizQuestions[currentQuiz].correct) {
-      setScore(score + 1);
+    const isCorrect = selectedOption === quizQuestions[currentQuiz].correct;
+    const newScore = isCorrect ? score + 1 : score;
+    
+    if (isCorrect) {
+      setScore(newScore);
     }
     
     setTimeout(() => {
       if (currentQuiz < quizQuestions.length - 1) {
         setCurrentQuiz(currentQuiz + 1);
       } else {
-        // Quiz completed
+        // Quiz completed - use the updated score
         setUserProgress(prev => ({
           ...prev,
           xp: prev.xp + 25,
-          completedModules: prev.completedModules + (score >= 2 ? 1 : 0)
+          completedModules: prev.completedModules + (newScore >= 2 ? 1 : 0)
         }));
       }
     }, 1000);
