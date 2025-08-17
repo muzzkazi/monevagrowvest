@@ -191,7 +191,9 @@ const FinancialEducation = () => {
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-financial-accent">{userProgress.xp} XP</div>
-                <div className="text-sm text-muted-foreground">Next level: {userProgress.totalXP - userProgress.xp} XP</div>
+                <div className="text-sm text-muted-foreground">
+                  Next level: {Math.max(0, userProgress.totalXP - userProgress.xp)} XP
+                </div>
               </div>
             </div>
           </CardHeader>
