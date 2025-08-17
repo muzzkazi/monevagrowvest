@@ -22,6 +22,7 @@ const FinancialEducation = () => {
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [currentQuiz, setCurrentQuiz] = useState(0);
   const [score, setScore] = useState(0);
+  const [activeModule, setActiveModule] = useState<string | null>(null);
   const [userProgress, setUserProgress] = useState({
     level: 1,
     xp: 50,
@@ -39,7 +40,14 @@ const FinancialEducation = () => {
       level: 'Beginner',
       xp: 50,
       completed: false,
-      color: 'bg-financial-gold'
+      color: 'bg-financial-gold',
+      content: {
+        lessons: [
+          { title: 'What is Money?', content: 'Money is a tool we use to buy things we need and want.' },
+          { title: 'Types of Money', content: 'Cash, coins, and digital money in banks.' },
+          { title: 'Money vs Goods', content: 'We trade money for products and services.' }
+        ]
+      }
     },
     {
       id: 'saving',
@@ -49,7 +57,14 @@ const FinancialEducation = () => {
       level: 'Beginner',
       xp: 75,
       completed: false,
-      color: 'bg-financial-accent'
+      color: 'bg-financial-accent',
+      content: {
+        lessons: [
+          { title: 'Why Save Money?', content: 'Saving helps you buy bigger things later and be prepared for emergencies.' },
+          { title: 'Where to Save', content: 'Piggy banks, savings accounts, and safe places.' },
+          { title: 'Setting Savings Goals', content: 'Decide what you want to save for and how much you need.' }
+        ]
+      }
     },
     {
       id: 'budgeting',
@@ -59,7 +74,14 @@ const FinancialEducation = () => {
       level: 'Intermediate',
       xp: 100,
       completed: false,
-      color: 'bg-accent'
+      color: 'bg-accent',
+      content: {
+        lessons: [
+          { title: 'What is a Budget?', content: 'A plan that shows how much money you have and how to spend it wisely.' },
+          { title: 'Income vs Expenses', content: 'Money coming in (income) and money going out (expenses).' },
+          { title: 'Making Your Budget', content: 'Write down your money and plan how to use it.' }
+        ]
+      }
     },
     {
       id: 'investing',
@@ -69,7 +91,14 @@ const FinancialEducation = () => {
       level: 'Intermediate',
       xp: 125,
       completed: false,
-      color: 'bg-financial-primary'
+      color: 'bg-financial-primary',
+      content: {
+        lessons: [
+          { title: 'What is Investing?', content: 'Putting money into things that can grow in value over time.' },
+          { title: 'Types of Investments', content: 'Stocks, bonds, and savings accounts that earn interest.' },
+          { title: 'Risk and Reward', content: 'Higher rewards often come with higher risks.' }
+        ]
+      }
     }
   ];
 
@@ -270,15 +299,7 @@ const FinancialEducation = () => {
                     <Button 
                       size="sm" 
                       className="w-full"
-                      onClick={() => {
-                        // Simple module completion simulation
-                        alert(`Starting ${module.title} module!`);
-                        setUserProgress(prev => ({
-                          ...prev,
-                          xp: prev.xp + module.xp,
-                          completedModules: prev.completedModules + 1
-                        }));
-                      }}
+                      onClick={() => setActiveModule(module.id)}
                     >
                       Start Learning
                     </Button>
@@ -288,6 +309,74 @@ const FinancialEducation = () => {
             ))}
           </div>
         </div>
+
+        {/* Module Content Interface */}
+        {activeModule && (
+          <div className="mb-16">
+            <Card className="glass-card max-w-4xl mx-auto">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center">
+                    {React.createElement(educationModules.find(m => m.id === activeModule)?.icon || BookOpen, {
+                      className: "w-6 h-6 mr-2 text-financial-accent"
+                    })}
+                    {educationModules.find(m => m.id === activeModule)?.title}
+                  </CardTitle>
+                  <Button variant="outline" size="sm" onClick={() => setActiveModule(null)}>
+                    ✕ Close
+                  </Button>
+                </div>
+                <CardDescription>
+                  Learn at your own pace through these interactive lessons
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {educationModules.find(m => m.id === activeModule)?.content.lessons.map((lesson, index) => (
+                    <Card key={index} className="border border-border/50">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-financial-accent rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
+                            {index + 1}
+                          </div>
+                          <CardTitle className="text-lg">{lesson.title}</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-muted-foreground mb-4">{lesson.content}</p>
+                        <div className="flex items-center text-sm text-financial-accent">
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Lesson Complete
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  
+                  <div className="text-center pt-4">
+                    <Button 
+                      size="lg"
+                      onClick={() => {
+                        const module = educationModules.find(m => m.id === activeModule);
+                        if (module) {
+                          setUserProgress(prev => ({
+                            ...prev,
+                            xp: prev.xp + module.xp,
+                            completedModules: prev.completedModules + 1
+                          }));
+                          // Mark module as completed
+                          module.completed = true;
+                        }
+                        setActiveModule(null);
+                      }}
+                    >
+                      Complete Module (+{educationModules.find(m => m.id === activeModule)?.xp} XP)
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Interactive Quiz Section */}
         <div className="mb-16">
