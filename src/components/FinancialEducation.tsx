@@ -24,10 +24,10 @@ const FinancialEducation = () => {
   const [score, setScore] = useState(0);
   const [userProgress, setUserProgress] = useState({
     level: 1,
-    xp: 150,
+    xp: 50,
     totalXP: 300,
-    badges: ['first-quiz', 'saving-star'],
-    completedModules: 3
+    badges: ['first-quiz'],
+    completedModules: 0
   });
 
   const educationModules = [
@@ -38,7 +38,7 @@ const FinancialEducation = () => {
       icon: Coins,
       level: 'Beginner',
       xp: 50,
-      completed: true,
+      completed: false,
       color: 'bg-financial-gold'
     },
     {
@@ -48,7 +48,7 @@ const FinancialEducation = () => {
       icon: PiggyBank,
       level: 'Beginner',
       xp: 75,
-      completed: true,
+      completed: false,
       color: 'bg-financial-accent'
     },
     {
@@ -58,7 +58,7 @@ const FinancialEducation = () => {
       icon: Target,
       level: 'Intermediate',
       xp: 100,
-      completed: true,
+      completed: false,
       color: 'bg-accent'
     },
     {
@@ -133,16 +133,18 @@ const FinancialEducation = () => {
       setScore(score + 1);
     }
     
-    if (currentQuiz < quizQuestions.length - 1) {
-      setCurrentQuiz(currentQuiz + 1);
-    } else {
-      // Quiz completed
-      setUserProgress(prev => ({
-        ...prev,
-        xp: prev.xp + 25,
-        completedModules: prev.completedModules + (score >= 2 ? 1 : 0)
-      }));
-    }
+    setTimeout(() => {
+      if (currentQuiz < quizQuestions.length - 1) {
+        setCurrentQuiz(currentQuiz + 1);
+      } else {
+        // Quiz completed
+        setUserProgress(prev => ({
+          ...prev,
+          xp: prev.xp + 25,
+          completedModules: prev.completedModules + (score >= 2 ? 1 : 0)
+        }));
+      }
+    }, 1000);
   };
 
   const resetQuiz = () => {
@@ -263,7 +265,19 @@ const FinancialEducation = () => {
                       <span className="text-sm">Completed</span>
                     </div>
                   ) : (
-                    <Button size="sm" className="w-full">
+                    <Button 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => {
+                        // Simple module completion simulation
+                        alert(`Starting ${module.title} module!`);
+                        setUserProgress(prev => ({
+                          ...prev,
+                          xp: prev.xp + module.xp,
+                          completedModules: prev.completedModules + 1
+                        }));
+                      }}
+                    >
                       Start Learning
                     </Button>
                   )}
@@ -348,7 +362,17 @@ const FinancialEducation = () => {
                       <span className="text-sm font-medium">{game.xp} XP</span>
                     </div>
                   </div>
-                  <Button className="w-full group-hover:bg-financial-accent transition-colors">
+                  <Button 
+                    className="w-full group-hover:bg-financial-accent transition-colors"
+                    onClick={() => {
+                      // Simple game launch simulation
+                      alert(`Starting ${game.title}! This would open the game interface.`);
+                      setUserProgress(prev => ({
+                        ...prev,
+                        xp: prev.xp + game.xp
+                      }));
+                    }}
+                  >
                     <Play className="w-4 h-4 mr-2" />
                     Play Game
                   </Button>
