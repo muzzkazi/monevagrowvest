@@ -16,6 +16,7 @@ import DebtManagement from "./pages/DebtManagement";
 import MutualFundComparison from "./pages/MutualFundComparison";
 import GoalBasedPlanning from "./pages/GoalBasedPlanning";
 import SIPBasedPlanning from "./pages/SIPBasedPlanning";
+import FinancialEducationPage from "./pages/FinancialEducation";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/mutual-fund-comparison" element={<MutualFundComparison />} />
           <Route path="/goal-based-planning" element={<GoalBasedPlanning />} />
           <Route path="/sip-based-planning" element={<SIPBasedPlanning />} />
+          <Route path="/financial-education" element={<FinancialEducationPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

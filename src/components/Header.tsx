@@ -135,6 +135,14 @@ const Header = () => {
               </div>
             </div>
             <Link 
+              to="/financial-education" 
+              className={`transition-colors cursor-pointer ${
+                location.pathname === '/financial-education' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+              }`}
+            >
+              Education
+            </Link>
+            <Link 
               to="/contact" 
               className={`transition-colors cursor-pointer ${
                 location.pathname === '/contact' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
@@ -255,6 +263,15 @@ const Header = () => {
                 }`}
               >
                 Mutual Fund Comparison
+              </Link>
+              <Link 
+                to="/financial-education" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block w-full text-left transition-colors py-2 ${
+                  location.pathname === '/financial-education' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                Education
               </Link>
               <Link 
                 to="/contact" 
