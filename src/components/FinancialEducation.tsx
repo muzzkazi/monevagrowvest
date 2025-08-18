@@ -41,6 +41,7 @@ import {
 import { useUserProgress } from '@/hooks/useUserProgress';
 import { useModuleGenerator } from '@/hooks/useModuleGenerator';
 import { useBadgeSystem } from '@/hooks/useBadgeSystem';
+import InvestmentSimulation from './InvestmentSimulation';
 
 interface ScenarioStep {
   id: string;
@@ -501,31 +502,7 @@ const FinancialEducation = () => {
               <p className="text-muted-foreground">Experience 20 years of market volatility in 5 minutes</p>
             </div>
             
-            <Card className="glass-card max-w-4xl mx-auto">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <LineChart className="w-6 h-6 mr-2 text-financial-accent" />
-                  Market Simulation Game
-                </CardTitle>
-                <CardDescription>
-                  Start with $10,000 and see how different investment strategies perform over time
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Calculator className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground mb-6">
-                    Investment simulation coming soon! This will let you experience market ups and downs,
-                    learn about compound interest, and see the impact of different investment strategies.
-                  </p>
-                  <Button disabled>
-                    <Timer className="w-4 h-4 mr-2" />
-                    Under Development
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <InvestmentSimulation /></TabsContent>
 
           {/* Learning Modules Tab */}
           <TabsContent value="modules" className="space-y-8">
