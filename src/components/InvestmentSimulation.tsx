@@ -57,73 +57,73 @@ const InvestmentSimulation = () => {
   const marketEvents: MarketEvent[] = [
     {
       year: 1,
-      event: '2014: Oil Price Crash',
-      return: 0.08,
-      description: 'Global oil prices plummet, affecting energy markets',
-      news: '🛢️ Crude oil falls 50%, mixed impact on emerging markets'
+      event: '2014: Modi Wave',
+      return: 0.29,
+      description: 'BJP victory and reform expectations drive massive rally',
+      news: '🗳️ Sensex hits record highs on Modi victory, FII inflows surge'
     },
     {
       year: 2,
-      event: '2015: Greece Crisis',
-      return: -0.15,
-      description: 'European debt crisis creates global market uncertainty',
-      news: '🇬🇷 Greece debt crisis spreads fear across global markets'
+      event: '2015: Rate Cut Cycle',
+      return: 0.05,
+      description: 'RBI cuts rates but global headwinds limit gains',
+      news: '🏦 RBI cuts repo rate, but China slowdown weighs on markets'
     },
     {
       year: 3,
-      event: '2016: Brexit & Trump',
-      return: 0.12,
-      description: 'Political surprises create volatility but markets adapt',
-      news: '🗳️ Brexit vote and Trump election initially shock markets'
+      event: '2016: Demonetization',
+      return: 0.02,
+      description: 'Currency ban creates uncertainty, markets flat',
+      news: '💸 Demonetization shocks economy, markets remain volatile'
     },
     {
       year: 4,
-      event: '2017: Bull Run',
-      return: 0.21,
-      description: 'Synchronized global growth drives strong returns',
-      news: '🚀 Global economies fire on all cylinders, markets soar'
+      event: '2017: GST Implementation',
+      return: 0.28,
+      description: 'GST launch and global liquidity drive strong gains',
+      news: '📊 GST rollout smooth, Sensex crosses 30,000 for first time'
     },
     {
       year: 5,
-      event: '2018: Trade War Fears',
-      return: -0.06,
-      description: 'US-China trade tensions dampen market sentiment',
-      news: '⚔️ Trade war escalates, tariffs hit global growth prospects'
+      event: '2018: NBFC Crisis',
+      return: 0.03,
+      description: 'IL&FS default triggers NBFC sector crisis',
+      news: '🏛️ IL&FS default sparks liquidity crisis in shadow banking'
     },
     {
       year: 6,
-      event: '2019: Recovery',
-      return: 0.16,
-      description: 'Central bank support helps markets recover',
-      news: '🏦 Fed cuts rates, trade tensions ease, markets rebound'
+      event: '2019: Election Volatility',
+      return: 0.14,
+      description: 'Modi re-election and rate cuts support markets',
+      news: '🎯 Modi 2.0 victory rally, RBI cuts rates aggressively'
     },
     {
       year: 7,
       event: '2020: COVID Crash',
       return: -0.24,
-      description: 'Global pandemic triggers historic market crash',
-      news: '🦠 COVID-19 lockdowns crash markets, worst since 2008'
+      description: 'Pandemic and lockdown crash Indian markets',
+      news: '🦠 Sensex crashes 38% in March, worst fall since 2008'
     },
     {
       year: 8,
-      event: '2021: Stimulus Rally',
-      return: 0.27,
-      description: 'Massive stimulus and vaccine rollout drive recovery',
-      news: '💉 Vaccines and stimulus create historic market rally'
+      event: '2021: Retail Boom',
+      return: 0.23,
+      description: 'Retail investor surge and liquidity drive rally',
+      news: '📱 Zerodha crosses 6 million users, Sensex hits 60,000'
     },
     {
       year: 9,
-      event: '2022: War & Inflation',
-      return: -0.18,
-      description: 'Russia-Ukraine war and inflation fears hit markets',
-      news: '🌍 War in Ukraine and 8% inflation shock global markets'
+      event: '2022: Rate Hike Cycle',
+      return: 0.04,
+      description: 'RBI hikes rates aggressively to combat inflation',
+      news: '📈 RBI hikes repo rate 190 bps, FIIs sell ₹1.2 lakh crore'
     },
     {
       year: 10,
-      event: '2023: Banking Concerns',
-      return: 0.09,
-      description: 'Regional bank failures create cautious recovery',
-      news: '🏛️ SVB and Credit Suisse failures create market volatility'
+      event: '2023: Resilient India',
+      return: 0.20,
+      description: 'India outperforms global markets amid growth optimism',
+      news: '🇮🇳 India fastest growing major economy, markets at record highs'
     }
   ];
 
