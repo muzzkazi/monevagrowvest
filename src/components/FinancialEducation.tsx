@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,14 +15,21 @@ import {
   Star,
   Award,
   Brain,
-  Lightbulb
+  Lightbulb,
+  Lock,
+  Gift
 } from 'lucide-react';
+import { useUserProgress } from '@/hooks/useUserProgress';
+import { useModuleGenerator } from '@/hooks/useModuleGenerator';
+import { useBadgeSystem } from '@/hooks/useBadgeSystem';
 
 const FinancialEducation = () => {
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [currentQuiz, setCurrentQuiz] = useState(0);
   const [score, setScore] = useState(0);
   const [activeModule, setActiveModule] = useState<string | null>(null);
+  const [completedModuleIds, setCompletedModuleIds] = useState<string[]>([]);
+  const [earnedBadgeIds, setEarnedBadgeIds] = useState<string[]>([]);
   const [gameState, setGameState] = useState({
     shoppingBudget: { 
       budget: 200, 
@@ -45,84 +52,36 @@ const FinancialEducation = () => {
       totalEarnings: 0
     }
   });
-  const [userProgress, setUserProgress] = useState({
-    level: 1,
-    xp: 50,
-    totalXP: 300,
-    badges: ['first-quiz'],
-    completedModules: 0
-  });
 
-  const educationModules = [
-    {
-      id: 'basics',
-      title: 'Money Basics',
-      description: 'Learn what money is and how it works',
-      icon: Coins,
-      level: 'Beginner',
-      xp: 50,
-      completed: false,
-      color: 'bg-financial-gold',
-      content: {
-        lessons: [
-          { title: 'What is Money?', content: 'Money is a tool we use to buy things we need and want.' },
-          { title: 'Types of Money', content: 'Cash, coins, and digital money in banks.' },
-          { title: 'Money vs Goods', content: 'We trade money for products and services.' }
-        ]
-      }
-    },
-    {
-      id: 'saving',
-      title: 'Smart Saving',
-      description: 'Discover the power of saving money',
-      icon: PiggyBank,
-      level: 'Beginner',
-      xp: 75,
-      completed: false,
-      color: 'bg-financial-accent',
-      content: {
-        lessons: [
-          { title: 'Why Save Money?', content: 'Saving helps you buy bigger things later and be prepared for emergencies.' },
-          { title: 'Where to Save', content: 'Piggy banks, savings accounts, and safe places.' },
-          { title: 'Setting Savings Goals', content: 'Decide what you want to save for and how much you need.' }
-        ]
-      }
-    },
-    {
-      id: 'budgeting',
-      title: 'Budget Like a Pro',
-      description: 'Create and manage your first budget',
-      icon: Target,
-      level: 'Intermediate',
-      xp: 100,
-      completed: false,
-      color: 'bg-accent',
-      content: {
-        lessons: [
-          { title: 'What is a Budget?', content: 'A plan that shows how much money you have and how to spend it wisely.' },
-          { title: 'Income vs Expenses', content: 'Money coming in (income) and money going out (expenses).' },
-          { title: 'Making Your Budget', content: 'Write down your money and plan how to use it.' }
-        ]
-      }
-    },
-    {
-      id: 'investing',
-      title: 'Investment Adventures',
-      description: 'Learn how money can grow over time',
-      icon: TrendingUp,
-      level: 'Intermediate',
-      xp: 125,
-      completed: false,
-      color: 'bg-financial-primary',
-      content: {
-        lessons: [
-          { title: 'What is Investing?', content: 'Putting money into things that can grow in value over time.' },
-          { title: 'Types of Investments', content: 'Stocks, bonds, and savings accounts that earn interest.' },
-          { title: 'Risk and Reward', content: 'Higher rewards often come with higher risks.' }
-        ]
+  // Use the new dynamic system
+  const userProgressHook = useUserProgress();
+  const { availableModules, nextModules, progressionTips } = useModuleGenerator(
+    userProgressHook.progress.behavior, 
+    completedModuleIds
+  );
+  const { earnedBadges, nextBadges, progressTips: badgeProgressTips } = useBadgeSystem(
+    userProgressHook.progress.behavior, 
+    earnedBadgeIds
+  );
+
+  // Auto-update badge earnings when criteria are met
+  useEffect(() => {
+    const newlyEarnedBadges = earnedBadges
+      .filter(badge => badge.earned && !earnedBadgeIds.includes(badge.id))
+      .map(badge => badge.id);
+    
+    if (newlyEarnedBadges.length > 0) {
+      setEarnedBadgeIds(prev => [...prev, ...newlyEarnedBadges]);
+      // Award XP for newly earned badges
+      const totalBadgeXP = earnedBadges
+        .filter(badge => newlyEarnedBadges.includes(badge.id))
+        .reduce((total, badge) => total + badge.xpReward, 0);
+      
+      if (totalBadgeXP > 0) {
+        userProgressHook.addXP(totalBadgeXP);
       }
     }
-  ];
+  }, [earnedBadges, earnedBadgeIds, userProgressHook]);
 
   const quizQuestions = [
     {
@@ -172,12 +131,16 @@ const FinancialEducation = () => {
     }
   ];
 
-  const badges = [
-    { id: 'first-quiz', name: 'Quiz Master', icon: Brain, earned: true },
-    { id: 'saving-star', name: 'Saving Star', icon: Star, earned: true },
-    { id: 'budget-boss', name: 'Budget Boss', icon: Trophy, earned: false },
-    { id: 'investment-pro', name: 'Investment Pro', icon: Award, earned: false }
-  ];
+  // Get rarity color for badges
+  const getRarityColor = (rarity: string) => {
+    switch (rarity) {
+      case 'Common': return 'bg-muted text-muted-foreground';
+      case 'Rare': return 'bg-blue-500 text-white';
+      case 'Epic': return 'bg-purple-500 text-white';
+      case 'Legendary': return 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
 
   const handleQuizAnswer = (selectedOption: number) => {
     const isCorrect = selectedOption === quizQuestions[currentQuiz].correct;
@@ -191,12 +154,8 @@ const FinancialEducation = () => {
       if (currentQuiz < quizQuestions.length - 1) {
         setCurrentQuiz(currentQuiz + 1);
       } else {
-        // Quiz completed - use the updated score
-        setUserProgress(prev => ({
-          ...prev,
-          xp: prev.xp + 25,
-          completedModules: prev.completedModules + (newScore >= 2 ? 1 : 0)
-        }));
+        // Quiz completed - use the new progress system
+        userProgressHook.completeQuiz(newScore, quizQuestions.length);
       }
     }, 1000);
   };
@@ -241,12 +200,12 @@ const FinancialEducation = () => {
                   <Trophy className="w-6 h-6 mr-2 text-financial-gold" />
                   Your Progress
                 </CardTitle>
-                <CardDescription>Level {userProgress.level} Student</CardDescription>
+                <CardDescription>Level {userProgressHook.progress.level} Student</CardDescription>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-financial-accent">{userProgress.xp} XP</div>
+                <div className="text-2xl font-bold text-financial-accent">{userProgressHook.progress.xp} XP</div>
                 <div className="text-sm text-muted-foreground">
-                  Next level: {Math.max(0, userProgress.totalXP - userProgress.xp)} XP
+                  Next level: {Math.max(0, userProgressHook.progress.totalXP - userProgressHook.progress.xp)} XP
                 </div>
               </div>
             </div>
@@ -255,39 +214,58 @@ const FinancialEducation = () => {
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span>Progress to Level {userProgress.level + 1}</span>
-                  <span>{Math.min(100, Math.round((userProgress.xp / userProgress.totalXP) * 100))}%</span>
+                  <span>Progress to Level {userProgressHook.progress.level + 1}</span>
+                  <span>{Math.min(100, Math.round((userProgressHook.progress.xp / userProgressHook.progress.totalXP) * 100))}%</span>
                 </div>
-                <Progress value={Math.min(100, (userProgress.xp / userProgress.totalXP) * 100)} className="h-3" />
+                <Progress value={Math.min(100, (userProgressHook.progress.xp / userProgressHook.progress.totalXP) * 100)} className="h-3" />
               </div>
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center">
                     <BookOpen className="w-4 h-4 mr-1 text-financial-accent" />
-                    <span className="text-sm">{userProgress.completedModules} modules completed</span>
+                    <span className="text-sm">{completedModuleIds.length} modules completed</span>
                   </div>
                   <div className="flex items-center">
                     <Award className="w-4 h-4 mr-1 text-financial-gold" />
-                    <span className="text-sm">{badges.filter(b => b.earned).length} badges earned</span>
+                    <span className="text-sm">{earnedBadges.length} badges earned</span>
                   </div>
                 </div>
                 
                 <div className="flex space-x-1">
-                  {badges.slice(0, 4).map((badge) => (
+                  {earnedBadges.slice(0, 4).map((badge) => (
                     <div
                       key={badge.id}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        badge.earned 
-                          ? 'bg-financial-gold text-financial-primary' 
-                          : 'bg-muted text-muted-foreground'
-                      }`}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${getRarityColor(badge.rarity)}`}
+                      title={badge.name}
                     >
                       <badge.icon className="w-4 h-4" />
                     </div>
                   ))}
+                  {earnedBadges.length > 4 && (
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold">
+                      +{earnedBadges.length - 4}
+                    </div>
+                  )}
                 </div>
               </div>
+              
+              {/* Progress Tips */}
+              {(progressionTips.length > 0 || badgeProgressTips.length > 0) && (
+                <div className="border-t pt-4">
+                  <h6 className="text-sm font-medium mb-2 flex items-center">
+                    <Gift className="w-4 h-4 mr-1 text-financial-accent" />
+                    Progress Tips
+                  </h6>
+                  <div className="space-y-1">
+                    {[...progressionTips, ...badgeProgressTips].slice(0, 3).map((tip, index) => (
+                      <div key={index} className="text-xs text-muted-foreground bg-muted/30 rounded px-2 py-1">
+                        {tip}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -296,7 +274,7 @@ const FinancialEducation = () => {
         <div className="mb-16">
           <h3 className="text-2xl font-bold mb-8 text-center">Learning Modules</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {educationModules.map((module) => (
+            {availableModules.map((module) => (
               <Card key={module.id} className="glass-card card-float group cursor-pointer">
                 <CardHeader className="text-center">
                   <div className={`w-16 h-16 ${module.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
@@ -312,7 +290,7 @@ const FinancialEducation = () => {
                     </Badge>
                     <div className="flex items-center">
                       <Coins className="w-4 h-4 mr-1 text-financial-gold" />
-                      <span className="text-sm font-medium">{module.xp} XP</span>
+                      <span className="text-sm font-medium">{module.personalizedXP} XP</span>
                     </div>
                   </div>
                   {module.completed ? (
@@ -324,11 +302,40 @@ const FinancialEducation = () => {
                     <Button 
                       size="sm" 
                       className="w-full"
-                      onClick={() => setActiveModule(module.id)}
+                      onClick={() => {
+                        setActiveModule(module.id);
+                        userProgressHook.startModule(module.id);
+                      }}
                     >
                       Start Learning
                     </Button>
                   )}
+                </CardContent>
+              </Card>
+            ))}
+            
+            {/* Next modules (locked) */}
+            {nextModules.slice(0, 2).map((module) => (
+              <Card key={`locked-${module.id}`} className="glass-card opacity-60 cursor-not-allowed">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <CardTitle className="text-lg text-muted-foreground">{module.title}</CardTitle>
+                  <CardDescription>{module.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge variant="secondary">{module.level}</Badge>
+                    <div className="flex items-center">
+                      <Coins className="w-4 h-4 mr-1 text-muted-foreground" />
+                      <span className="text-sm font-medium text-muted-foreground">{module.baseXP} XP</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center text-muted-foreground">
+                    <Lock className="w-4 h-4 mr-1" />
+                    <span className="text-sm">Locked</span>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -342,10 +349,10 @@ const FinancialEducation = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center">
-                    {React.createElement(educationModules.find(m => m.id === activeModule)?.icon || BookOpen, {
+                    {React.createElement(availableModules.find(m => m.id === activeModule)?.icon || BookOpen, {
                       className: "w-6 h-6 mr-2 text-financial-accent"
                     })}
-                    {educationModules.find(m => m.id === activeModule)?.title}
+                    {availableModules.find(m => m.id === activeModule)?.title}
                   </CardTitle>
                   <Button variant="outline" size="sm" onClick={() => setActiveModule(null)}>
                     ✕ Close
@@ -357,7 +364,7 @@ const FinancialEducation = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {educationModules.find(m => m.id === activeModule)?.content.lessons.map((lesson, index) => (
+                  {availableModules.find(m => m.id === activeModule)?.content.lessons.map((lesson, index) => (
                     <Card key={index} className="border border-border/50">
                       <CardHeader className="pb-3">
                         <div className="flex items-center">
@@ -381,20 +388,15 @@ const FinancialEducation = () => {
                     <Button 
                       size="lg"
                       onClick={() => {
-                        const module = educationModules.find(m => m.id === activeModule);
+                        const module = availableModules.find(m => m.id === activeModule);
                         if (module) {
-                          setUserProgress(prev => ({
-                            ...prev,
-                            xp: prev.xp + module.xp,
-                            completedModules: prev.completedModules + 1
-                          }));
-                          // Mark module as completed
-                          module.completed = true;
+                          userProgressHook.completeModule(module.personalizedXP);
+                          setCompletedModuleIds(prev => [...prev, module.id]);
                         }
                         setActiveModule(null);
                       }}
                     >
-                      Complete Module (+{educationModules.find(m => m.id === activeModule)?.xp} XP)
+                      Complete Module (+{availableModules.find(m => m.id === activeModule)?.personalizedXP} XP)
                     </Button>
                   </div>
                 </div>
@@ -577,14 +579,14 @@ const FinancialEducation = () => {
                            gameState.shoppingBudget.spent <= gameState.shoppingBudget.budget && (
                             <div className="text-center">
                               <div className="text-financial-accent font-bold mb-2">🎉 Great job! You got all essentials within budget!</div>
-                              <Button 
-                                onClick={() => {
-                                  setUserProgress(prev => ({ ...prev, xp: prev.xp + 25 }));
-                                  setSelectedGame(null);
-                                }}
-                              >
-                                Complete Shopping (+25 XP)
-                              </Button>
+                             <Button 
+                               onClick={() => {
+                                 userProgressHook.completeGame('shopping-budget', 25);
+                                 setSelectedGame(null);
+                               }}
+                             >
+                               Complete Shopping (+25 XP)
+                             </Button>
                             </div>
                           )}
                         </div>
@@ -685,7 +687,7 @@ const FinancialEducation = () => {
                             </p>
                             <Button 
                               onClick={() => {
-                                setUserProgress(prev => ({ ...prev, xp: prev.xp + 50 }));
+                                userProgressHook.completeGame('emergency-fund', 50);
                                 setSelectedGame(null);
                               }}
                             >
@@ -773,7 +775,7 @@ const FinancialEducation = () => {
                             <div className="text-center mt-6">
                               <Button 
                                 onClick={() => {
-                                  setUserProgress(prev => ({ ...prev, xp: prev.xp + 75 }));
+                                  userProgressHook.completeGame('career-choices', 75);
                                   setSelectedGame(null);
                                 }}
                               >
@@ -814,7 +816,10 @@ const FinancialEducation = () => {
                   </div>
                   <Button 
                     className="w-full group-hover:bg-financial-accent transition-colors"
-                    onClick={() => setSelectedGame(game.id)}
+                    onClick={() => {
+                      setSelectedGame(game.id);
+                      userProgressHook.playGame(game.id);
+                    }}
                   >
                     <Play className="w-4 h-4 mr-2" />
                     Play Game
