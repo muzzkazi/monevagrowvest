@@ -57,73 +57,73 @@ const InvestmentSimulation = () => {
   const marketEvents: MarketEvent[] = [
     {
       year: 1,
-      event: 'Steady Growth',
+      event: '2014: Oil Price Crash',
       return: 0.08,
-      description: 'Markets showing healthy growth with low inflation',
-      news: '📈 Economic indicators positive, steady corporate earnings growth'
+      description: 'Global oil prices plummet, affecting energy markets',
+      news: '🛢️ Crude oil falls 50%, mixed impact on emerging markets'
     },
     {
       year: 2,
-      event: 'Tech Crash',
-      return: -0.18,
-      description: 'Technology sector bubble bursts, major correction',
-      news: '📉 Tech stocks plummet 40%, fear spreads across markets'
+      event: '2015: Greece Crisis',
+      return: -0.15,
+      description: 'European debt crisis creates global market uncertainty',
+      news: '🇬🇷 Greece debt crisis spreads fear across global markets'
     },
     {
       year: 3,
-      event: 'Recovery Begins',
-      return: 0.15,
-      description: 'Markets bounce back as investors regain confidence',
-      news: '🚀 Strong quarterly earnings drive market recovery'
+      event: '2016: Brexit & Trump',
+      return: 0.12,
+      description: 'Political surprises create volatility but markets adapt',
+      news: '🗳️ Brexit vote and Trump election initially shock markets'
     },
     {
       year: 4,
-      event: 'Inflation Spike',
-      return: 0.02,
-      description: 'High inflation dampens returns despite growth',
-      news: '⚠️ Central banks raise rates to combat 6% inflation'
+      event: '2017: Bull Run',
+      return: 0.21,
+      description: 'Synchronized global growth drives strong returns',
+      news: '🚀 Global economies fire on all cylinders, markets soar'
     },
     {
       year: 5,
-      event: 'Golden Period',
-      return: 0.22,
-      description: 'Perfect storm of innovation and low rates',
-      news: '⭐ AI revolution drives unprecedented market gains'
+      event: '2018: Trade War Fears',
+      return: -0.06,
+      description: 'US-China trade tensions dampen market sentiment',
+      news: '⚔️ Trade war escalates, tariffs hit global growth prospects'
     },
     {
       year: 6,
-      event: 'Global Crisis',
-      return: -0.25,
-      description: 'International conflict disrupts global markets',
-      news: '🌍 Geopolitical tensions cause major market selloff'
+      event: '2019: Recovery',
+      return: 0.16,
+      description: 'Central bank support helps markets recover',
+      news: '🏦 Fed cuts rates, trade tensions ease, markets rebound'
     },
     {
       year: 7,
-      event: 'Slow Recovery',
-      return: 0.06,
-      description: 'Gradual improvement as tensions ease',
-      news: '🔄 Markets slowly recover as diplomacy prevails'
+      event: '2020: COVID Crash',
+      return: -0.24,
+      description: 'Global pandemic triggers historic market crash',
+      news: '🦠 COVID-19 lockdowns crash markets, worst since 2008'
     },
     {
       year: 8,
-      event: 'Innovation Boom',
-      return: 0.19,
-      description: 'New technologies drive productivity gains',
-      news: '💡 Breakthrough innovations fuel market optimism'
+      event: '2021: Stimulus Rally',
+      return: 0.27,
+      description: 'Massive stimulus and vaccine rollout drive recovery',
+      news: '💉 Vaccines and stimulus create historic market rally'
     },
     {
       year: 9,
-      event: 'Market Correction',
-      return: -0.12,
-      description: 'Overvaluation leads to healthy correction',
-      news: '📊 Markets cool down after extended bull run'
+      event: '2022: War & Inflation',
+      return: -0.18,
+      description: 'Russia-Ukraine war and inflation fears hit markets',
+      news: '🌍 War in Ukraine and 8% inflation shock global markets'
     },
     {
       year: 10,
-      event: 'Mature Growth',
-      return: 0.11,
-      description: 'Stable, sustainable economic growth',
-      news: '🏢 Mature economy delivers consistent returns'
+      event: '2023: Banking Concerns',
+      return: 0.09,
+      description: 'Regional bank failures create cautious recovery',
+      news: '🏛️ SVB and Credit Suisse failures create market volatility'
     }
   ];
 
@@ -209,9 +209,9 @@ const InvestmentSimulation = () => {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -233,7 +233,7 @@ const InvestmentSimulation = () => {
                 Investment Time Machine
               </CardTitle>
               <CardDescription>
-                Experience 10 years of market volatility with $10,000 in each strategy
+                Experience 10 years of market volatility with ₹10,000 in each strategy
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
