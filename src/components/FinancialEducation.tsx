@@ -12,21 +12,16 @@ import {
   BarChart3,
   Brain
 } from 'lucide-react';
-import { useUserProgress } from '@/hooks/useUserProgress';
+
 import InvestmentSimulation from './InvestmentSimulation';
 import RiskProfiler from './education/RiskProfiler';
 import MarketExplorer from './education/MarketExplorer';
 
 const FinancialEducation = () => {
   const [activeTab, setActiveTab] = useState('time-machine');
-  const [riskProfile, setRiskProfile] = useState<string | null>(null);
-
-  // Use the dynamic system
-  const userProgressHook = useUserProgress();
 
   const handleRiskProfileComplete = (profile: string, score: number) => {
-    setRiskProfile(profile);
-    userProgressHook.addXP(20); // Award XP for completing risk assessment
+    // Risk profile completed
   };
 
   return (
@@ -55,42 +50,6 @@ const FinancialEducation = () => {
           </p>
         </div>
 
-        {/* User Progress Dashboard */}
-        <Card className="glass-card mb-8 max-w-4xl mx-auto">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center">
-                  <Trophy className="w-6 h-6 mr-2 text-financial-gold" />
-                  Investor Level {userProgressHook.progress.level}
-                </CardTitle>
-                <CardDescription>
-                  {riskProfile ? `Risk Profile: ${riskProfile}` : 'Take the risk profiler to get started'}
-                </CardDescription>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-financial-accent">{userProgressHook.progress.xp} XP</div>
-                <div className="text-sm text-muted-foreground">Experience Points</div>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
-              <div className="flex items-center space-x-2">
-                <Brain className="w-5 h-5 text-financial-accent" />
-                <span className="text-sm">Simulations completed</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Target className="w-5 h-5 text-financial-gold" />
-                <span className="text-sm">{riskProfile ? 'Risk assessed' : 'Risk pending'}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Zap className="w-5 h-5 text-accent" />
-                <span className="text-sm">Market insights gained</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto">
