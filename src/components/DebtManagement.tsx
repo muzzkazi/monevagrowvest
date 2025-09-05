@@ -4,8 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DebtPortfolio from "./debt-management/DebtPortfolio";
 import PaymentStrategy from "./debt-management/PaymentStrategy";
 import LoanAmortization from "./debt-management/LoanAmortization";
-import BudgetTracker from "./debt-management/BudgetTracker";
-import { CreditCard, TrendingDown, Calculator, Wallet } from "lucide-react";
+
+import { CreditCard, TrendingDown, Calculator } from "lucide-react";
 
 export interface Debt {
   id: string;
@@ -35,16 +35,11 @@ const DebtManagement = () => {
       </div>
 
       <Tabs defaultValue="debt-analysis" className="space-y-8">
-        <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
+        <TabsList className="grid w-full grid-cols-2 max-w-xl mx-auto">
           <TabsTrigger value="debt-analysis" className="flex items-center gap-2">
             <TrendingDown className="w-4 h-4" />
             <span className="hidden sm:inline">Debt Analysis</span>
             <span className="sm:hidden">Analysis</span>
-          </TabsTrigger>
-          <TabsTrigger value="budget-tracker" className="flex items-center gap-2">
-            <Wallet className="w-4 h-4" />
-            <span className="hidden sm:inline">Budget Tracker</span>
-            <span className="sm:hidden">Budget</span>
           </TabsTrigger>
           <TabsTrigger value="amortization" className="flex items-center gap-2">
             <Calculator className="w-4 h-4" />
@@ -135,19 +130,6 @@ const DebtManagement = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="budget-tracker" className="animate-fade-in">
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Budget Tracker</CardTitle>
-              <CardDescription>
-                Track your income and expenses to better manage your finances and debt
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <BudgetTracker />
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="amortization" className="animate-fade-in">
           <Card>
