@@ -34,9 +34,15 @@ interface MarketData {
 
 const MarketExplorer = () => {
   const [selectedIndex, setSelectedIndex] = useState<'nifty' | 'sensex'>('nifty');
-  const [timeframe, setTimeframe] = useState<'5y' | '10y' | '15y'>('10y');
+  const [timeframe, setTimeframe] = useState<'5y' | '10y' | '20y'>('10y');
 
   const marketData: MarketData[] = [
+    { year: 2004, nifty: 2080, sensex: 6603, event: 'Economic Boom', description: 'India growth story begins' },
+    { year: 2005, nifty: 2837, sensex: 9398, event: 'Bull Run', description: 'Strong economic fundamentals' },
+    { year: 2006, nifty: 3966, sensex: 13787, event: 'Peak Rally', description: 'FII inflows drive markets' },
+    { year: 2007, nifty: 6287, sensex: 20873, event: 'All-time High', description: 'Global liquidity boom' },
+    { year: 2008, nifty: 3035, sensex: 9647, event: 'Global Crisis', description: 'Lehman Brothers collapse' },
+    { year: 2009, nifty: 5201, sensex: 17465, event: 'Recovery Begins', description: 'Stimulus measures help' },
     { year: 2010, nifty: 6134, sensex: 20509, event: 'Post-Crisis Recovery', description: 'Markets recover from 2008 crisis' },
     { year: 2011, nifty: 4624, sensex: 15455, event: 'European Debt Crisis', description: 'Global uncertainty affects markets' },
     { year: 2012, nifty: 5905, sensex: 19427, event: 'QE Boost', description: 'Global liquidity drives recovery' },
@@ -56,7 +62,7 @@ const MarketExplorer = () => {
 
   const getTimeframeData = () => {
     const currentYear = 2024;
-    const years = timeframe === '5y' ? 5 : timeframe === '10y' ? 10 : 15;
+    const years = timeframe === '5y' ? 5 : timeframe === '10y' ? 10 : 20;
     return marketData.filter(d => d.year >= currentYear - years);
   };
 
@@ -146,10 +152,10 @@ const MarketExplorer = () => {
               </Button>
               <Button
                 size="sm"
-                variant={timeframe === '15y' ? 'default' : 'outline'}
-                onClick={() => setTimeframe('15y')}
+                variant={timeframe === '20y' ? 'default' : 'outline'}
+                onClick={() => setTimeframe('20y')}
               >
-                15Y
+                20Y
               </Button>
             </div>
           </div>
