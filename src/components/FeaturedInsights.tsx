@@ -2,54 +2,78 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Clock, ArrowRight, BarChart3 } from "lucide-react";
+import { TrendingUp, Clock, ArrowRight, BarChart3, RefreshCw, Activity } from "lucide-react";
 import ContactFormModal from "@/components/ContactFormModal";
+import { useMarketInsights } from "@/hooks/useMarketInsights";
 
 const FeaturedInsights = () => {
   const [showContactForm, setShowContactForm] = useState(false);
   const [actionType, setActionType] = useState<"download" | "implement" | "subscribe" | "webinar">("subscribe");
-  
-  const insights = [
-    {
-      category: "Market Analysis",
-      title: "Why Small Cap Funds Are Outperforming in 2024",
-      excerpt: "Small cap mutual funds have delivered exceptional returns this year. Here's our analysis on the trend and which funds to consider.",
-      image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop",
-      readTime: "5 min read",
-      trending: true
-    },
-    {
-      category: "Tax Planning",
-      title: "New Tax Regime vs Old: Which Saves You More in 2024?",
-      excerpt: "Complete comparison with real examples. Find out which tax regime works better for your salary bracket and investments.",
-      image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop",
-      readTime: "7 min read",
-      trending: false
-    },
-    {
-      category: "SIP Strategy",
-      title: "Step-Up SIP: The Secret to Building ₹1 Crore Faster",
-      excerpt: "Learn how increasing your SIP amount annually can help you reach your financial goals 3-5 years earlier than traditional SIPs.",
-      image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=250&fit=crop",
-      readTime: "4 min read",
-      trending: true
-    }
-  ];
+  const { insights, marketData, isLoading, error, refreshInsights } = useMarketInsights();
 
   return (
     <section className="py-20 bg-financial-muted">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
-            Market <span className="text-financial-accent">Insights</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <h2 className="text-4xl font-bold">
+              Market <span className="text-financial-accent">Insights</span>
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refreshInsights}
+              disabled={isLoading}
+              className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-4">
             Stay ahead with our expert analysis and actionable investment strategies
           </p>
+          
+          {marketData && (
+            <div className="flex items-center justify-center gap-8 text-sm">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-financial-accent" />
+                <span className="font-medium">SENSEX:</span>
+                <span className="font-bold">{marketData.sensex.current.toLocaleString()}</span>
+                <span className={`font-medium ${marketData.sensex.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {marketData.sensex.change >= 0 ? '+' : ''}{marketData.sensex.change.toFixed(2)} ({marketData.sensex.changePercent.toFixed(2)}%)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-financial-accent" />
+                <span className="font-medium">NIFTY:</span>
+                <span className="font-bold">{marketData.nifty.current.toLocaleString()}</span>
+                <span className={`font-medium ${marketData.nifty.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {marketData.nifty.change >= 0 ? '+' : ''}{marketData.nifty.change.toFixed(2)} ({marketData.nifty.changePercent.toFixed(2)}%)
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
+        {isLoading && (
+          <div className="text-center py-8">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-financial-accent" />
+            <p className="text-muted-foreground">Loading fresh market insights...</p>
+          </div>
+        )}
+        
+        {error && (
+          <div className="text-center py-8">
+            <p className="text-red-500 mb-4">{error}</p>
+            <Button onClick={refreshInsights} variant="outline">
+              Try Again
+            </Button>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          {insights.map((insight, index) => (
+          {!isLoading && !error && insights.map((insight, index) => (
             <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
               <div className="relative">
                 <img
@@ -75,11 +99,19 @@ const FeaturedInsights = () => {
               <CardContent>
                 <p className="text-muted-foreground mb-4 text-sm">{insight.excerpt}</p>
                 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center text-xs text-muted-foreground">
                     <Clock className="w-3 h-3 mr-1" />
                     {insight.readTime}
                   </div>
+                  <Badge variant="outline" className="text-xs">
+                    {insight.source}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(insight.publishedAt).toLocaleDateString()}
+                  </span>
                   <Button variant="ghost" size="sm" className="text-financial-accent hover:text-financial-accent/80">
                     Read More
                     <ArrowRight className="w-3 h-3 ml-1" />
