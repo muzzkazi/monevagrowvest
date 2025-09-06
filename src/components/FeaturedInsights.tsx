@@ -122,7 +122,7 @@ const FeaturedInsights = () => {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-5 gap-6">
           <Card className="bg-gradient-gold border-0 shadow-card text-center p-6">
             <BarChart3 className="w-12 h-12 text-financial-primary mx-auto mb-4" />
             <h3 className="text-xl font-bold text-financial-primary mb-2">Market Updates</h3>
@@ -164,6 +164,35 @@ const FeaturedInsights = () => {
               }}
             >
               Join Live
+            </Button>
+          </Card>
+
+          <Card className="bg-gradient-card border-0 shadow-card text-center p-6">
+            <Activity className="w-12 h-12 text-financial-accent mx-auto mb-4" />
+            <h3 className="text-xl font-bold mb-2">Tax Planning</h3>
+            <p className="text-muted-foreground text-sm mb-4">Optimize your tax savings with expert guidance</p>
+            <Button 
+              variant="outline" 
+              className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"
+              onClick={() => {
+                setActionType("implement");
+                setShowContactForm(true);
+              }}
+            >
+              Get Started
+            </Button>
+          </Card>
+
+          <Card className="bg-gradient-card border-0 shadow-card text-center p-6">
+            <RefreshCw className="w-12 h-12 text-financial-accent mx-auto mb-4" />
+            <h3 className="text-xl font-bold mb-2">SIP Calculator</h3>
+            <p className="text-muted-foreground text-sm mb-4">Plan your systematic investment journey</p>
+            <Button 
+              variant="outline" 
+              className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"
+              onClick={() => window.location.href = '/calculators'}
+            >
+              Calculate Now
             </Button>
           </Card>
         </div>
