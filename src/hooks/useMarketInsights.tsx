@@ -74,6 +74,26 @@ export const useMarketInsights = () => {
         trending: false,
         source: "Economic Times",
         publishedAt: currentDate
+      },
+      {
+        category: "Commodity Focus",
+        title: "Gold Prices Surge as Rupee Weakens Against Dollar",
+        excerpt: "Gold futures hit new highs as currency depreciation and inflation fears drive investor interest in precious metals as a hedge.",
+        image: "https://images.unsplash.com/photo-1610375461246-83df859d849d?w=400&h=250&fit=crop",
+        readTime: "5 min read",
+        trending: true,
+        source: "Commodity Online",
+        publishedAt: currentDate
+      },
+      {
+        category: "IPO Watch",
+        title: "Upcoming IPOs: Tech Startups Lead the Pipeline",
+        excerpt: "Several technology companies are planning to go public this quarter. Market appetite for new-age tech IPOs remains strong despite volatility.",
+        image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop",
+        readTime: "8 min read",
+        trending: true,
+        source: "IPO Central",
+        publishedAt: currentDate
       }
     ];
   };
