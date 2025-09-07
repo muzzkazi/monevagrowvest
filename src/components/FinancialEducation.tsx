@@ -58,13 +58,13 @@ const FinancialEducation = () => {
               <LineChart className="w-4 h-4 mr-2" />
               Time Machine
             </TabsTrigger>
-            <TabsTrigger value="risk-profiler" className="flex items-center">
-              <Target className="w-4 h-4 mr-2" />
-              Risk Profiler
-            </TabsTrigger>
             <TabsTrigger value="market-explorer" className="flex items-center">
               <BarChart3 className="w-4 h-4 mr-2" />
               Market Explorer
+            </TabsTrigger>
+            <TabsTrigger value="risk-profiler" className="flex items-center">
+              <Target className="w-4 h-4 mr-2" />
+              Risk Profiler
             </TabsTrigger>
           </TabsList>
 
