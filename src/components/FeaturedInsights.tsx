@@ -72,7 +72,7 @@ const FeaturedInsights = () => {
           </div>
         )}
 
-        <div className="grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-6 mb-12">
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-6 mb-12">
           {!isLoading && !error && insights.map((insight, index) => (
             <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
               <div className="relative">

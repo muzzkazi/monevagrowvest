@@ -94,6 +94,16 @@ export const useMarketInsights = () => {
         trending: true,
         source: "IPO Central",
         publishedAt: currentDate
+      },
+      {
+        category: "Crypto Update",
+        title: "Bitcoin ETF Impact on Indian Cryptocurrency Market",
+        excerpt: "Global Bitcoin ETF approvals are creating ripple effects in Indian crypto markets. Regulatory clarity expected to boost institutional adoption.",
+        image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop",
+        readTime: "6 min read",
+        trending: true,
+        source: "Crypto Times",
+        publishedAt: currentDate
       }
     ];
   };
