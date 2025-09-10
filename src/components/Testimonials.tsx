@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { EnhancedCard, EnhancedCardContent } from "@/components/ui/enhanced-card";
 import { Star, Quote } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
 
@@ -42,7 +42,7 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-20 bg-financial-muted">
+    <section className="py-24 bg-gradient-hero interactive-bg relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-6">
@@ -55,34 +55,36 @@ const Testimonials = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="bg-gradient-card border-0 shadow-card hover-scale">
-              <CardContent className="p-6">
+            <EnhancedCard key={index} variant="premium" className="border-0 shadow-card">
+              <EnhancedCardContent className="p-8">
                 <div className="flex items-center mb-4">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover mr-4"
-                  />
+                  <div className="w-16 h-16 rounded-full overflow-hidden mr-4 glow-on-hover">
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    />
+                  </div>
                   <div>
-                    <h4 className="font-semibold">{testimonial.name}</h4>
-                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                    <h4 className="font-bold text-lg">{testimonial.name}</h4>
+                    <p className="text-muted-foreground font-medium">{testimonial.location}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center mb-3">
+                <div className="flex items-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-financial-accent text-financial-accent" />
+                    <Star key={i} className="w-5 h-5 fill-financial-gold text-financial-gold animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
                   ))}
                 </div>
 
-                <Quote className="w-6 h-6 text-financial-accent mb-3" />
-                <p className="text-sm text-muted-foreground mb-4">{testimonial.text}</p>
+                <Quote className="w-8 h-8 text-financial-accent mb-4 opacity-60" />
+                <p className="text-foreground mb-6 leading-relaxed text-lg">{testimonial.text}</p>
                 
-                <div className="text-xs font-medium text-financial-accent bg-financial-accent/10 px-3 py-1 rounded-full inline-block">
+                <div className="text-sm font-semibold text-financial-gold bg-gradient-to-r from-financial-gold/20 to-financial-accent/20 px-4 py-2 rounded-full inline-block">
                   {testimonial.investment}
                 </div>
-              </CardContent>
-            </Card>
+              </EnhancedCardContent>
+            </EnhancedCard>
           ))}
         </div>
 
