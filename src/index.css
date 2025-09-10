@@ -38,35 +38,24 @@ All colors MUST be HSL.
     --ring: 222 47% 11%;
 
     /* Premium financial color palette */
-    --financial-primary: 220 26% 14%;
-    --financial-secondary: 220 20% 20%;
-    --financial-dark: 220 30% 8%;
-    --financial-gold: 43 96% 56%;
-    --financial-gold-light: 47 100% 91%;
-    --financial-accent: 214 100% 59%;
-    --financial-accent-light: 214 100% 85%;
-    --financial-muted: 210 16% 93%;
-    --financial-success: 142 76% 36%;
-    --financial-warning: 38 92% 50%;
-    --financial-premium: 259 94% 51%;
+    --financial-primary: 222 47% 11%;
+    --financial-secondary: 210 20% 25%;
+    --financial-dark: 222 47% 6%;
+    --financial-gold: 45 93% 58%;
+    --financial-gold-light: 48 96% 89%;
+    --financial-accent: 213 84% 58%;
+    --financial-muted: 210 14% 89%;
 
-    /* Advanced Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(220 26% 14%) 0%, hsl(220 20% 20%) 50%, hsl(220 30% 8%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(43 96% 56%) 0%, hsl(47 100% 91%) 50%, hsl(43 96% 56%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(220 26% 14% / 0.02) 0%, hsl(214 100% 59% / 0.03) 50%, hsl(259 94% 51% / 0.02) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 16% 98%) 50%, hsl(214 100% 98%) 100%);
-    --gradient-premium: linear-gradient(135deg, hsl(259 94% 51%) 0%, hsl(214 100% 59%) 50%, hsl(43 96% 56%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 76% 50%) 100%);
-    --gradient-radial: radial-gradient(circle at 50% 50%, hsl(214 100% 59% / 0.1) 0%, transparent 70%);
-    --gradient-mesh: conic-gradient(from 45deg at 50% 50%, hsl(259 94% 51% / 0.1), hsl(214 100% 59% / 0.1), hsl(43 96% 56% / 0.1), hsl(259 94% 51% / 0.1));
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(210 20% 25%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45 93% 58%) 0%, hsl(48 96% 89%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11% / 0.05) 0%, hsl(213 84% 58% / 0.05) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 14% 97%) 100%);
 
-    /* Advanced Shadows */
-    --shadow-financial: 0 8px 40px hsl(220 26% 14% / 0.12), 0 2px 8px hsl(220 26% 14% / 0.08);
-    --shadow-gold: 0 8px 32px hsl(43 96% 56% / 0.25), 0 2px 8px hsl(43 96% 56% / 0.15);
-    --shadow-card: 0 4px 24px hsl(220 26% 14% / 0.06), 0 1px 4px hsl(220 26% 14% / 0.04);
-    --shadow-premium: 0 12px 48px hsl(259 94% 51% / 0.3), 0 4px 16px hsl(259 94% 51% / 0.2);
-    --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.1), inset 0 1px 0 hsl(0 0% 100% / 0.2);
-    --shadow-floating: 0 16px 64px hsl(220 26% 14% / 0.15), 0 4px 16px hsl(220 26% 14% / 0.1);
+    /* Shadows */
+    --shadow-financial: 0 4px 20px hsl(222 47% 11% / 0.08);
+    --shadow-gold: 0 4px 20px hsl(45 93% 58% / 0.15);
+    --shadow-card: 0 1px 3px hsl(222 47% 11% / 0.05);
 
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -144,44 +133,38 @@ All colors MUST be HSL.
   }
 
   @keyframes scroll {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
   }
 
   @keyframes continuous-scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-33.333%); }
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-33.333%);
+    }
   }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    33% { transform: translateY(-10px) rotate(1deg); }
-    66% { transform: translateY(-5px) rotate(-1deg); }
+  .animate-scroll {
+    animation: scroll 15s linear infinite;
   }
 
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px hsl(var(--financial-accent) / 0.3); }
-    50% { box-shadow: 0 0 40px hsl(var(--financial-accent) / 0.6); }
+  .animate-scroll-fast {
+    animation: scroll 10s linear infinite;
   }
 
-  @keyframes gradient-shift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+  .animate-scroll-2x {
+    animation: scroll 5s linear infinite;
   }
 
-  @keyframes morph {
-    0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-    50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  .animate-marquee {
+    animation: marquee 120s linear infinite;
   }
-
-  .animate-scroll { animation: scroll 15s linear infinite; }
-  .animate-scroll-fast { animation: scroll 10s linear infinite; }
-  .animate-scroll-2x { animation: scroll 5s linear infinite; }
-  .animate-marquee { animation: marquee 120s linear infinite; }
-  .animate-float { animation: float 6s ease-in-out infinite; }
-  .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
-  .animate-gradient { animation: gradient-shift 8s ease infinite; background-size: 200% 200%; }
-  .animate-morph { animation: morph 8s ease-in-out infinite; }
 }
 
 @layer base {
@@ -198,54 +181,25 @@ All colors MUST be HSL.
     @apply font-display;
   }
 
-  /* Premium glassmorphism effects */
+  /* Enhanced glassmorphism effects */
   .glass-card {
-    @apply backdrop-blur-2xl bg-white/90 dark:bg-card/90 border border-white/30 dark:border-white/20;
-    box-shadow: var(--shadow-glass);
+    @apply backdrop-blur-xl bg-white/80 dark:bg-card/80 border border-white/20 dark:border-white/10;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
   
   .glass-nav {
-    @apply backdrop-blur-2xl bg-background/90 border-b border-border/50;
-    box-shadow: 0 4px 24px hsl(var(--background) / 0.1);
+    @apply backdrop-blur-xl bg-background/85 border-b border-border/50;
   }
 
-  .glass-premium {
-    @apply backdrop-blur-3xl bg-gradient-to-br from-white/95 to-white/85 dark:from-card/95 dark:to-card/85;
-    border: 1px solid hsl(var(--border) / 0.5);
-    box-shadow: var(--shadow-floating), inset 0 1px 0 hsl(0 0% 100% / 0.3);
-  }
-
-  /* Premium button animations */
+  /* Enhanced button animations */
   .btn-enhance {
-    @apply transition-all duration-500 ease-smooth relative overflow-hidden;
+    @apply transition-all duration-300 ease-smooth;
     transform-style: preserve-3d;
   }
   
   .btn-enhance:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: var(--shadow-floating);
-  }
-
-  .btn-enhance:before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent;
-    transform: translateX(-100%);
-    transition: transform 0.6s ease;
-  }
-
-  .btn-enhance:hover:before {
-    transform: translateX(100%);
-  }
-
-  .btn-premium {
-    @apply relative overflow-hidden;
-    background: var(--gradient-premium);
-    box-shadow: var(--shadow-premium);
-  }
-
-  .btn-premium:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: var(--shadow-floating);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   }
 
   /* Smooth text animations */
@@ -266,56 +220,13 @@ All colors MUST be HSL.
     100% { background-position: -200% 0; }
   }
 
-  /* Premium card hover effects */
+  /* Enhanced card hover effects */
   .card-float {
-    @apply transition-all duration-700 ease-smooth relative;
-    transform-origin: center;
+    @apply transition-all duration-500 ease-smooth;
   }
   
   .card-float:hover {
-    transform: translateY(-12px) scale(1.03) rotateX(2deg);
-    box-shadow: var(--shadow-floating);
-  }
-
-  .card-premium {
-    @apply relative overflow-hidden;
-    background: var(--gradient-card);
-    border: 1px solid hsl(var(--border) / 0.3);
-  }
-
-  .card-premium:before {
-    content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
-    background: var(--gradient-radial);
-  }
-
-  .card-premium:hover:before {
-    opacity: 1;
-  }
-
-  .card-premium:hover {
-    transform: translateY(-16px) scale(1.05);
-    box-shadow: var(--shadow-floating);
-    border-color: hsl(var(--financial-accent) / 0.3);
-  }
-
-  /* Interactive elements */
-  .interactive-bg {
-    background: var(--gradient-mesh);
-  }
-
-  .text-gradient {
-    background: var(--gradient-premium);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .glow-on-hover {
-    @apply transition-all duration-300;
-  }
-
-  .glow-on-hover:hover {
-    filter: drop-shadow(0 0 20px hsl(var(--financial-accent) / 0.5));
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   }
 }

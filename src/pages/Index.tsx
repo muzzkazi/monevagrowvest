@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import SecondaryBand from "@/components/SecondaryBand";
 import WhatsAppButton from "@/components/shared/WhatsAppButton";
 
-import PremiumHero from "@/components/PremiumHero";
+import Hero from "@/components/Hero";
 import Testimonials from "@/components/Testimonials";
 import SuccessStories from "@/components/SuccessStories";
 import Partners from "@/components/Partners";
@@ -16,7 +16,7 @@ const Index = () => {
       <Header />
       <SecondaryBand />
       <main id="home">
-        <PremiumHero />
+        <Hero />
         <Testimonials />
         <SuccessStories />
         <Partners />
