@@ -140,7 +140,7 @@ const Header = () => {
                 location.pathname === '/financial-education' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
               }`}
             >
-              Education
+              Learning Hub
             </Link>
             <Link 
               to="/contact" 
@@ -271,7 +271,7 @@ const Header = () => {
                   location.pathname === '/financial-education' ? 'text-financial-accent' : 'text-foreground hover:text-financial-accent'
                 }`}
               >
-                Education
+                Learning Hub
               </Link>
               <Link 
                 to="/contact" 
