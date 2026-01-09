@@ -10,6 +10,7 @@ import FeaturedInsights from "@/components/FeaturedInsights";
 import StockRecommendations from "@/components/StockRecommendations";
 import CallToAction from "@/components/CallToAction";
 import Footer from "@/components/Footer";
+import { AnimatedSection } from "@/hooks/useScrollAnimation";
 
 const Index = () => {
   return (
@@ -18,12 +19,30 @@ const Index = () => {
       <SecondaryBand />
       <main id="home">
         <Hero />
-        <Testimonials />
-        <SuccessStories />
-        <Partners />
-        <StockRecommendations />
-        <FeaturedInsights />
-        <CallToAction />
+        
+        <AnimatedSection animation="fade-in">
+          <Testimonials />
+        </AnimatedSection>
+        
+        <AnimatedSection animation="slide-right" delay={0.1}>
+          <SuccessStories />
+        </AnimatedSection>
+        
+        <AnimatedSection animation="scale-in">
+          <Partners />
+        </AnimatedSection>
+        
+        <AnimatedSection animation="fade-in" delay={0.1}>
+          <StockRecommendations />
+        </AnimatedSection>
+        
+        <AnimatedSection animation="slide-left" delay={0.1}>
+          <FeaturedInsights />
+        </AnimatedSection>
+        
+        <AnimatedSection animation="scale-in">
+          <CallToAction />
+        </AnimatedSection>
       </main>
       <Footer />
       <WhatsAppButton message="Hi! I'm interested in your financial planning services" />
