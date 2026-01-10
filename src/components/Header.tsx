@@ -82,17 +82,9 @@ const Header = () => {
               >
                 Calculators
               </Link>
-              <Link 
-                to="/debt-management" 
-                className={`text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-financial-accent after:transition-all after:duration-300 hover:after:w-full ${
-                  location.pathname === '/debt-management' ? 'text-financial-accent after:w-full' : 'text-foreground hover:text-financial-accent'
-                }`}
-              >
-                Debt
-              </Link>
               <div className="relative group">
                 <span className={`text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-financial-accent after:transition-all after:duration-300 group-hover:after:w-full ${
-                  location.pathname.startsWith('/ai-planning') || location.pathname === '/mutual-fund-comparison' || location.pathname === '/goal-based-planning' || location.pathname === '/sip-based-planning'
+                  location.pathname.startsWith('/ai-planning') || location.pathname === '/mutual-fund-comparison' || location.pathname === '/goal-based-planning' || location.pathname === '/sip-based-planning' || location.pathname === '/debt-management'
                     ? 'text-financial-accent after:w-full' 
                     : 'text-foreground hover:text-financial-accent'
                 }`}>
@@ -123,6 +115,12 @@ const Header = () => {
                       className="block px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
                       Mutual Fund Comparison
+                    </Link>
+                    <Link 
+                      to="/debt-management" 
+                      className="block px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                    >
+                      Debt Management
                     </Link>
                   </div>
                 </div>
