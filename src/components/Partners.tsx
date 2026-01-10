@@ -15,9 +15,9 @@ const Partners = () => {
     },
     {
       name: "Asset Plus",
-      logo: "/lovable-uploads/assetplus-logo.png", // Replace with actual logo
-      type: "Investment Partner", 
-      description: "Comprehensive investment solutions"
+      logo: "/lovable-uploads/assetplus-logo.png",
+      type: "Mutual Fund Partner", 
+      description: "Exclusive platform for mutual fund investments"
     }
   ];
 
