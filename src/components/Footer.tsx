@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { Linkedin, Instagram } from "lucide-react";
 
 const Footer = () => {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
@@ -21,10 +22,36 @@ const Footer = () => {
             <p className="text-white/80 text-sm leading-snug font-light">
               Your trusted partner in financial planning and wealth management. Building prosperity through intelligent investment strategies.
             </p>
-            <div className="flex space-x-3 pt-1">
-              <div className="w-1.5 h-1.5 bg-financial-gold rounded-full animate-pulse"></div>
-              <div className="w-1.5 h-1.5 bg-financial-gold rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
-              <div className="w-1.5 h-1.5 bg-financial-gold rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+            <div className="flex items-center gap-3 pt-2">
+              <a 
+                href="https://linkedin.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-white/10 hover:bg-financial-gold hover:text-slate-900 transition-all duration-300 hover:scale-110"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-4 w-4" />
+              </a>
+              <a 
+                href="https://twitter.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-white/10 hover:bg-financial-gold hover:text-slate-900 transition-all duration-300 hover:scale-110"
+                aria-label="X (Twitter)"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+              <a 
+                href="https://instagram.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-white/10 hover:bg-financial-gold hover:text-slate-900 transition-all duration-300 hover:scale-110"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-4 w-4" />
+              </a>
             </div>
           </div>
           
