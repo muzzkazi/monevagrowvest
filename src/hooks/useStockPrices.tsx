@@ -62,8 +62,8 @@ export const useStockPrices = (symbols: string[]): UseStockPricesResult => {
   useEffect(() => {
     fetchPrices();
 
-    // Refresh prices every 60 seconds
-    const interval = setInterval(fetchPrices, 60000);
+    // Refresh prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000);
 
     return () => clearInterval(interval);
   }, [fetchPrices]);

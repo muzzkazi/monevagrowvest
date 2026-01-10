@@ -135,11 +135,11 @@ const SecondaryBand = () => {
     fetchStockPrices();
     fetchIndices();
 
-    // Refresh every 60 seconds
+    // Refresh prices every 30 seconds
     const interval = setInterval(() => {
       fetchStockPrices();
       fetchIndices();
-    }, 60000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
