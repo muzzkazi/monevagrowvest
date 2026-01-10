@@ -1,66 +1,159 @@
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface StockQuote {
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: number;
+}
+
+interface IndexData {
+  name: string;
+  symbol: string;
+  value: string;
+  change: string;
+  changePercent: string;
+}
+
+interface StockData {
+  symbol: string;
+  price: string;
+  change: string;
+  percent: string;
+}
+
+// Default indices with fallback values
+const defaultIndices: IndexData[] = [
+  { name: "NIFTY 50", symbol: "^NSEI", value: "24,837.00", change: "-225.10", changePercent: "-0.90%" },
+  { name: "SENSEX", symbol: "^BSESN", value: "81,463.09", change: "-721.08", changePercent: "-0.88%" },
+  { name: "NIFTY BANK", symbol: "^NSEBANK", value: "56,528.90", change: "-534.20", changePercent: "-0.94%" },
+  { name: "NIFTY IT", symbol: "^CNXIT", value: "44,256.85", change: "-187.45", changePercent: "-0.42%" },
+];
+
+// NIFTY 50 stock symbols to fetch
+const stockSymbols = [
+  "RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK", "HINDUNILVR", "ITC", "SBIN",
+  "BHARTIARTL", "KOTAKBANK", "LT", "ASIANPAINT", "MARUTI", "TITAN", "WIPRO",
+  "NESTLEIND", "POWERGRID", "NTPC", "ONGC", "COALINDIA", "HCLTECH", "TECHM",
+  "BAJFINANCE", "BAJAJFINSV", "SUNPHARMA", "DRREDDY", "CIPLA", "DIVISLAB",
+  "HEROMOTOCO", "M&M", "TATAMOTORS", "TATASTEEL", "JSWSTEEL", "HINDALCO",
+  "ADANIPORTS", "ULTRACEMCO", "GRASIM", "SBILIFE", "HDFCLIFE", "INDUSINDBK",
+  "AXISBANK", "APOLLOHOSP", "BRITANNIA", "TATACONSUM", "EICHERMOT", "BPCL"
+];
 
 const SecondaryBand = () => {
-  const indices = [
-    { name: "NIFTY 50", value: "24,837.00", change: "-225.10", changePercent: "-0.90%" },
-    { name: "SENSEX", value: "81,463.09", change: "-721.08", changePercent: "-0.88%" },
-    { name: "NIFTY BANK", value: "56,528.90", change: "-534.20", changePercent: "-0.94%" },
-    { name: "NIFTY IT", value: "44,256.85", change: "-187.45", changePercent: "-0.42%" },
-    { name: "NIFTY AUTO", value: "23,678.50", change: "+156.30", changePercent: "+0.66%" }
-  ];
+  const [indices, setIndices] = useState<IndexData[]>(defaultIndices);
+  const [stocks, setStocks] = useState<StockData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const nifty50Stocks = [
-    { symbol: "RELIANCE", price: "2,456.30", change: "+12.50", percent: "+0.51%" },
-    { symbol: "TCS", price: "3,789.45", change: "-23.80", percent: "-0.62%" },
-    { symbol: "HDFCBANK", price: "1,623.75", change: "+8.90", percent: "+0.55%" },
-    { symbol: "INFY", price: "1,834.20", change: "-15.60", percent: "-0.84%" },
-    { symbol: "ICICIBANK", price: "1,156.80", change: "+7.30", percent: "+0.64%" },
-    { symbol: "HINDUNILVR", price: "2,678.90", change: "+18.40", percent: "+0.69%" },
-    { symbol: "ITC", price: "456.75", change: "-3.20", percent: "-0.69%" },
-    { symbol: "SBIN", price: "823.45", change: "+12.80", percent: "+1.58%" },
-    { symbol: "BHARTIARTL", price: "1,234.60", change: "-8.90", percent: "-0.72%" },
-    { symbol: "KOTAKBANK", price: "1,789.30", change: "+15.70", percent: "+0.88%" },
-    { symbol: "LT", price: "3,456.80", change: "-45.60", percent: "-1.30%" },
-    { symbol: "ASIANPAINT", price: "2,890.45", change: "+23.80", percent: "+0.83%" },
-    { symbol: "MARUTI", price: "11,234.70", change: "-78.90", percent: "-0.70%" },
-    { symbol: "TITAN", price: "3,456.20", change: "+34.50", percent: "+1.01%" },
-    { symbol: "WIPRO", price: "567.80", change: "-4.30", percent: "-0.75%" },
-    { symbol: "NESTLEIND", price: "2,456.90", change: "+45.20", percent: "+1.87%" },
-    { symbol: "POWERGRID", price: "234.50", change: "-2.10", percent: "-0.89%" },
-    { symbol: "NTPC", price: "345.80", change: "+5.40", percent: "+1.59%" },
-    { symbol: "ONGC", price: "189.45", change: "-1.80", percent: "-0.94%" },
-    { symbol: "COALINDIA", price: "412.30", change: "+8.70", percent: "+2.16%" },
-    { symbol: "HCLTECH", price: "1,567.20", change: "-12.40", percent: "-0.78%" },
-    { symbol: "TECHM", price: "1,234.80", change: "+18.90", percent: "+1.55%" },
-    { symbol: "BAJFINANCE", price: "6,789.50", change: "-89.20", percent: "-1.30%" },
-    { symbol: "BAJAJFINSV", price: "1,678.90", change: "+23.40", percent: "+1.41%" },
-    { symbol: "SUNPHARMA", price: "1,234.70", change: "+15.60", percent: "+1.28%" },
-    { symbol: "DRREDDY", price: "5,678.20", change: "-45.80", percent: "-0.80%" },
-    { symbol: "CIPLA", price: "1,089.40", change: "+12.30", percent: "+1.14%" },
-    { symbol: "DIVISLAB", price: "4,567.80", change: "-56.70", percent: "-1.23%" },
-    { symbol: "HEROMOTOCO", price: "4,234.50", change: "+34.20", percent: "+0.81%" },
-    { symbol: "BAJAJ-AUTO", price: "8,901.20", change: "-78.40", percent: "-0.87%" },
-    { symbol: "M&M", price: "2,345.60", change: "+23.80", percent: "+1.03%" },
-    { symbol: "TATAMOTORS", price: "890.30", change: "-8.90", percent: "-0.99%" },
-    { symbol: "TATASTEEL", price: "134.70", change: "+2.40", percent: "+1.81%" },
-    { symbol: "JSWSTEEL", price: "789.20", change: "-5.60", percent: "-0.70%" },
-    { symbol: "HINDALCO", price: "567.80", change: "+8.90", percent: "+1.59%" },
-    { symbol: "VEDL", price: "234.50", change: "-3.20", percent: "-1.35%" },
-    { symbol: "ADANIPORTS", price: "789.40", change: "+12.30", percent: "+1.58%" },
-    { symbol: "ULTRACEMCO", price: "8,234.50", change: "-89.60", percent: "-1.08%" },
-    { symbol: "GRASIM", price: "2,345.80", change: "+34.70", percent: "+1.50%" },
-    { symbol: "SHRIRAMFIN", price: "2,789.30", change: "-23.40", percent: "-0.83%" },
-    { symbol: "SBILIFE", price: "1,456.20", change: "+18.90", percent: "+1.31%" },
-    { symbol: "HDFCLIFE", price: "678.90", change: "-8.70", percent: "-1.27%" },
-    { symbol: "INDUSINDBK", price: "1,234.50", change: "+15.60", percent: "+1.28%" },
-    { symbol: "AXISBANK", price: "1,089.70", change: "-12.30", percent: "-1.12%" },
-    { symbol: "APOLLOHOSP", price: "5,678.20", change: "+67.80", percent: "+1.21%" },
-    { symbol: "BRITANNIA", price: "4,890.30", change: "-45.60", percent: "-0.92%" },
-    { symbol: "TATACONSUM", price: "890.40", change: "+8.70", percent: "+0.99%" },
-    { symbol: "EICHERMOT", price: "4,567.80", change: "-56.90", percent: "-1.23%" },
-    { symbol: "BPCL", price: "345.60", change: "+4.50", percent: "+1.32%" },
-    { symbol: "IOC", price: "123.80", change: "-1.90", percent: "-1.51%" }
-  ];
+  const formatPrice = (price: number): string => {
+    return price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  const formatChange = (change: number): string => {
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}${change.toFixed(2)}`;
+  };
+
+  const formatPercent = (percent: number): string => {
+    const sign = percent >= 0 ? '+' : '';
+    return `${sign}${percent.toFixed(2)}%`;
+  };
+
+  const fetchStockPrices = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('stock-prices', {
+        body: { symbols: stockSymbols }
+      });
+
+      if (error) {
+        console.error('Error fetching stock prices:', error);
+        return;
+      }
+
+      if (data?.quotes) {
+        const formattedStocks: StockData[] = data.quotes.map((quote: StockQuote) => ({
+          symbol: quote.symbol,
+          price: formatPrice(quote.price),
+          change: formatChange(quote.change),
+          percent: formatPercent(quote.changePercent)
+        }));
+        setStocks(formattedStocks);
+      }
+    } catch (error) {
+      console.error('Error fetching stock prices:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchIndices = async () => {
+    try {
+      // Fetch index data using common ETFs/proxies
+      const indexSymbols = ["NIFTYBEES", "BANKBEES", "ITBEES"];
+      const { data, error } = await supabase.functions.invoke('stock-prices', {
+        body: { symbols: indexSymbols }
+      });
+
+      if (error || !data?.quotes) return;
+
+      // Map ETF data to approximate index values
+      const updatedIndices = [...defaultIndices];
+      data.quotes.forEach((quote: StockQuote) => {
+        if (quote.symbol === "NIFTYBEES") {
+          // NIFTYBEES tracks NIFTY 50 at ~1/100th value
+          updatedIndices[0] = {
+            ...updatedIndices[0],
+            value: formatPrice(quote.price * 100),
+            change: formatChange(quote.change * 100),
+            changePercent: formatPercent(quote.changePercent)
+          };
+        }
+        if (quote.symbol === "BANKBEES") {
+          updatedIndices[2] = {
+            ...updatedIndices[2],
+            value: formatPrice(quote.price * 100),
+            change: formatChange(quote.change * 100),
+            changePercent: formatPercent(quote.changePercent)
+          };
+        }
+        if (quote.symbol === "ITBEES") {
+          updatedIndices[3] = {
+            ...updatedIndices[3],
+            value: formatPrice(quote.price * 100),
+            change: formatChange(quote.change * 100),
+            changePercent: formatPercent(quote.changePercent)
+          };
+        }
+      });
+      setIndices(updatedIndices);
+    } catch (error) {
+      console.error('Error fetching indices:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Initial fetch
+    fetchStockPrices();
+    fetchIndices();
+
+    // Refresh every 60 seconds
+    const interval = setInterval(() => {
+      fetchStockPrices();
+      fetchIndices();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Show loading skeleton or fallback data while loading
+  const displayStocks = stocks.length > 0 ? stocks : stockSymbols.slice(0, 20).map(symbol => ({
+    symbol,
+    price: "---",
+    change: "---",
+    percent: "---"
+  }));
 
   return (
     <div className="bg-financial-primary text-white pt-4 pb-2 w-full z-20 overflow-hidden flex flex-col justify-center">
@@ -92,19 +185,26 @@ const SecondaryBand = () => {
       <div className="relative overflow-hidden">
         <div className="flex animate-scroll-fast will-change-transform">
           {/* Continuous loop - multiple copies for seamless scrolling */}
-          {[...nifty50Stocks, ...nifty50Stocks, ...nifty50Stocks, ...nifty50Stocks].map((stock, index) => {
+          {[...displayStocks, ...displayStocks, ...displayStocks, ...displayStocks].map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
+            const isLoaded = stock.price !== "---";
             return (
               <div key={`stock-${index}`} className="flex items-center whitespace-nowrap flex-shrink-0">
                 <div className="flex items-center gap-2 px-3">
                   <span className="font-medium text-xs text-white/90">{stock.symbol}</span>
-                  <span className="text-sm font-semibold">{stock.price}</span>
-                  <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                    {stock.change}
+                  <span className={`text-sm font-semibold ${!isLoaded ? 'animate-pulse' : ''}`}>
+                    {isLoaded ? `₹${stock.price}` : stock.price}
                   </span>
-                  <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                    ({stock.percent})
-                  </span>
+                  {isLoaded && (
+                    <>
+                      <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                        {stock.change}
+                      </span>
+                      <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                        ({stock.percent})
+                      </span>
+                    </>
+                  )}
                 </div>
                 <span className="text-white/30 mx-2">•</span>
               </div>
@@ -112,6 +212,14 @@ const SecondaryBand = () => {
           })}
         </div>
       </div>
+
+      {/* Live indicator */}
+      {stocks.length > 0 && (
+        <div className="absolute top-1 right-2 flex items-center gap-1">
+          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+          <span className="text-xs text-white/60">Live</span>
+        </div>
+      )}
     </div>
   );
 };
