@@ -178,7 +178,7 @@ const SecondaryBand = () => {
   }));
 
   return (
-    <div className="bg-financial-primary text-white pt-4 pb-2 w-full z-20 overflow-hidden flex flex-col justify-center relative">
+    <div className="bg-slate-900/80 backdrop-blur-sm text-white pt-4 pb-2 w-full z-20 overflow-hidden flex flex-col justify-center relative border-b border-white/10">
       {/* Controls Row */}
       <div className="absolute top-1 left-2 flex items-center gap-2 z-30">
         {/* Filter Toggle */}
