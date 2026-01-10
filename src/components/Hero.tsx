@@ -62,20 +62,20 @@ const Hero = () => {
       <div className="absolute inset-0 bg-gradient-to-t from-financial-primary/20 via-transparent to-transparent" />
       
       {/* Animated gradient orbs with scroll parallax only */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
-          className="absolute top-1/4 left-1/4 w-64 h-64 bg-financial-gold/10 rounded-full blur-3xl animate-float parallax-layer"
+          className="absolute top-1/4 left-1/4 w-40 h-40 bg-financial-gold/10 rounded-full blur-2xl animate-float parallax-layer"
           style={getScrollParallaxStyle(0.05)}
         />
         <div 
-          className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-financial-accent/10 rounded-full blur-2xl animate-float parallax-layer" 
+          className="absolute bottom-1/3 right-1/4 w-32 h-32 bg-financial-accent/10 rounded-full blur-xl animate-float parallax-layer" 
           style={{ 
             animationDelay: '1s',
             ...getScrollParallaxStyle(0.08)
           }}
         />
         <div 
-          className="absolute top-1/2 right-1/3 w-32 h-32 bg-financial-gold/8 rounded-full blur-xl animate-float parallax-layer" 
+          className="absolute top-1/2 right-1/3 w-24 h-24 bg-financial-gold/8 rounded-full blur-lg animate-float parallax-layer" 
           style={{ 
             animationDelay: '2s',
             ...getScrollParallaxStyle(0.04)
