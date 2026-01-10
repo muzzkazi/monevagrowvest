@@ -18,6 +18,7 @@ import MutualFundComparison from "./pages/MutualFundComparison";
 import GoalBasedPlanning from "./pages/GoalBasedPlanning";
 import SIPBasedPlanning from "./pages/SIPBasedPlanning";
 import FinancialEducationPage from "./pages/FinancialEducation";
+import DesktopOnlyNotice from "./components/DesktopOnlyNotice";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <TooltipProvider>
+        <DesktopOnlyNotice />
         <Toaster />
         <Sonner />
         <BrowserRouter>
