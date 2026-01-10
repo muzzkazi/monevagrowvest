@@ -9,9 +9,9 @@ const Partners = () => {
   const featuredPartners = [
     {
       name: "AngelOne",
-      logo: "/lovable-uploads/angelone-logo.png", // Replace with actual logo
-      type: "Trading Partner",
-      description: "Leading digital trading platform"
+      logo: "/lovable-uploads/angelone-logo.png",
+      type: "Investment & Trading Partner",
+      description: "Complete platform for stocks, mutual funds & investments"
     },
     {
       name: "Asset Plus",
