@@ -117,7 +117,7 @@ const Hero = () => {
               </Button>
             </div>
             
-            <div className="flex items-center justify-center gap-12 pt-6">
+            <div className="flex items-center justify-center w-full gap-12 pt-6">
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
                 <div className="text-3xl font-bold text-financial-accent">
                   100%
