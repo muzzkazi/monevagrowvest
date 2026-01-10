@@ -11,51 +11,38 @@ import StockRecommendations from "@/components/StockRecommendations";
 import CallToAction from "@/components/CallToAction";
 import Footer from "@/components/Footer";
 import { AnimatedSection } from "@/hooks/useScrollAnimation";
-import { ParallaxWrapper } from "@/hooks/useCSSParallax";
 
 const Index = () => {
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="min-h-screen">
       <Header />
       <SecondaryBand />
       <main id="home">
         <Hero />
         
-        <ParallaxWrapper speed={0.08} direction="up">
-          <AnimatedSection animation="fade-in">
-            <Testimonials />
-          </AnimatedSection>
-        </ParallaxWrapper>
+        <AnimatedSection animation="fade-in">
+          <Testimonials />
+        </AnimatedSection>
         
-        <ParallaxWrapper speed={0.05} direction="up">
-          <AnimatedSection animation="slide-right" delay={0.1}>
-            <SuccessStories />
-          </AnimatedSection>
-        </ParallaxWrapper>
+        <AnimatedSection animation="slide-right" delay={0.1}>
+          <SuccessStories />
+        </AnimatedSection>
         
-        <ParallaxWrapper speed={0.1} direction="up">
-          <AnimatedSection animation="scale-in">
-            <Partners />
-          </AnimatedSection>
-        </ParallaxWrapper>
+        <AnimatedSection animation="scale-in">
+          <Partners />
+        </AnimatedSection>
         
-        <ParallaxWrapper speed={0.06} direction="up">
-          <AnimatedSection animation="fade-in" delay={0.1}>
-            <StockRecommendations />
-          </AnimatedSection>
-        </ParallaxWrapper>
+        <AnimatedSection animation="fade-in" delay={0.1}>
+          <StockRecommendations />
+        </AnimatedSection>
         
-        <ParallaxWrapper speed={0.08} direction="up">
-          <AnimatedSection animation="slide-left" delay={0.1}>
-            <FeaturedInsights />
-          </AnimatedSection>
-        </ParallaxWrapper>
+        <AnimatedSection animation="slide-left" delay={0.1}>
+          <FeaturedInsights />
+        </AnimatedSection>
         
-        <ParallaxWrapper speed={0.04} direction="up">
-          <AnimatedSection animation="scale-in">
-            <CallToAction />
-          </AnimatedSection>
-        </ParallaxWrapper>
+        <AnimatedSection animation="scale-in">
+          <CallToAction />
+        </AnimatedSection>
       </main>
       <Footer />
       <WhatsAppButton message="Hi! I'm interested in your financial planning services" />

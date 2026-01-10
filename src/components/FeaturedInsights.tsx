@@ -12,11 +12,11 @@ const FeaturedInsights = () => {
   const { insights, marketData, isLoading, error, refreshInsights } = useMarketInsights();
 
   return (
-    <section className="py-8 sm:py-12 bg-financial-muted">
-      <div className="container mx-auto px-3 sm:px-4">
-        <div className="text-center mb-6 sm:mb-10">
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+    <section className="py-12 bg-financial-muted">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-10">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <h2 className="text-4xl font-bold">
               Market <span className="text-financial-accent">Insights</span>
             </h2>
             <Button
@@ -30,12 +30,12 @@ const FeaturedInsights = () => {
               Refresh
             </Button>
           </div>
-          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto mb-3 sm:mb-4">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-4">
             Stay ahead with our expert analysis and actionable investment strategies
           </p>
           
           {marketData && (
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm">
+            <div className="flex items-center justify-center gap-8 text-sm">
               <div className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-financial-accent" />
                 <span className="font-medium">SENSEX:</span>
@@ -72,14 +72,14 @@ const FeaturedInsights = () => {
           </div>
         )}
 
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 sm:gap-5 mb-6 sm:mb-8">
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-5 mb-8">
           {!isLoading && !error && insights.map((insight, index) => (
             <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
               <div className="relative">
                 <img
                   src={insight.image}
                   alt={insight.title}
-                  className="w-full h-36 sm:h-44 object-cover"
+                  className="w-full h-48 object-cover"
                 />
                 {insight.trending && (
                   <Badge className="absolute top-4 left-4 bg-financial-accent text-white">
@@ -92,12 +92,12 @@ const FeaturedInsights = () => {
                 </Badge>
               </div>
               
-              <CardHeader className="py-3 px-4">
-                <CardTitle className="text-base sm:text-lg leading-tight">{insight.title}</CardTitle>
+              <CardHeader>
+                <CardTitle className="text-lg leading-tight">{insight.title}</CardTitle>
               </CardHeader>
               
-              <CardContent className="px-4 pb-4 pt-0">
-                <p className="text-muted-foreground mb-3 text-xs sm:text-sm">{insight.excerpt}</p>
+              <CardContent>
+                <p className="text-muted-foreground mb-4 text-sm">{insight.excerpt}</p>
                 
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center text-xs text-muted-foreground">
@@ -122,11 +122,11 @@ const FeaturedInsights = () => {
           ))}
         </div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-          <Card className="bg-gradient-gold border-0 shadow-card text-center p-4 sm:p-5">
-            <BarChart3 className="w-10 h-10 sm:w-12 sm:h-12 text-financial-primary mx-auto mb-3" />
-            <h3 className="text-lg sm:text-xl font-bold text-financial-primary mb-2">Market Updates</h3>
-            <p className="text-financial-secondary text-xs sm:text-sm mb-3">Daily market analysis and fund performance updates</p>
+        <div className="grid md:grid-cols-3 gap-6">
+          <Card className="bg-gradient-gold border-0 shadow-card text-center p-6">
+            <BarChart3 className="w-12 h-12 text-financial-primary mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-financial-primary mb-2">Market Updates</h3>
+            <p className="text-financial-secondary text-sm mb-4">Daily market analysis and fund performance updates</p>
             <Button 
               variant="outline" 
               className="border-financial-primary text-financial-primary hover:bg-financial-primary hover:text-white"
@@ -139,11 +139,11 @@ const FeaturedInsights = () => {
             </Button>
           </Card>
 
-          <Card className="bg-gradient-card border-0 shadow-card text-center p-4 sm:p-5">
-            <TrendingUp className="w-10 h-10 sm:w-12 sm:h-12 text-financial-accent mx-auto mb-3" />
-            <h3 className="text-lg sm:text-xl font-bold mb-2">Portfolio Review</h3>
-            <p className="text-muted-foreground text-xs sm:text-sm mb-3">Get your portfolio analyzed by our experts for free</p>
-            <Button
+          <Card className="bg-gradient-card border-0 shadow-card text-center p-6">
+            <TrendingUp className="w-12 h-12 text-financial-accent mx-auto mb-4" />
+            <h3 className="text-xl font-bold mb-2">Portfolio Review</h3>
+            <p className="text-muted-foreground text-sm mb-4">Get your portfolio analyzed by our experts for free</p>
+            <Button 
               className="bg-financial-accent hover:bg-financial-accent/90 text-white"
               onClick={() => window.location.href = '/contact'}
             >
@@ -151,11 +151,11 @@ const FeaturedInsights = () => {
             </Button>
           </Card>
 
-          <Card className="bg-gradient-card border-0 shadow-card text-center p-4 sm:p-5">
-            <Clock className="w-10 h-10 sm:w-12 sm:h-12 text-financial-accent mx-auto mb-3" />
-            <h3 className="text-lg sm:text-xl font-bold mb-2">Weekly Webinars</h3>
-            <p className="text-muted-foreground text-xs sm:text-sm mb-3">Join our live sessions on investment strategies</p>
-            <Button
+          <Card className="bg-gradient-card border-0 shadow-card text-center p-6">
+            <Clock className="w-12 h-12 text-financial-accent mx-auto mb-4" />
+            <h3 className="text-xl font-bold mb-2">Weekly Webinars</h3>
+            <p className="text-muted-foreground text-sm mb-4">Join our live sessions on investment strategies</p>
+            <Button 
               variant="outline" 
               className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"
               onClick={() => {

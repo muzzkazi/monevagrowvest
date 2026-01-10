@@ -55,55 +55,55 @@ const SuccessStories = () => {
   ];
 
   return (
-    <section className="py-8 sm:py-12 bg-background">
-      <div className="container mx-auto px-3 sm:px-4">
-        <div className="text-center mb-6 sm:mb-10">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">
+    <section className="py-12 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-bold mb-4">
             Real Stories, <span className="text-financial-accent">Real Success</span>
           </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Discover how our clients transformed their financial lives with smart planning and disciplined investing
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
           {stories.map((story, index) => (
             <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
               <div className="relative">
                 <img
                   src={story.image}
                   alt={story.title}
-                  className="w-full h-36 sm:h-44 object-cover"
+                  className="w-full h-48 object-cover"
                 />
-                <div className="absolute top-3 left-3 bg-white/90 p-1.5 rounded-lg">
+                <div className="absolute top-4 left-4 bg-white/90 p-2 rounded-lg">
                   {story.icon}
                 </div>
               </div>
               
-              <CardHeader className="py-3 px-4">
+              <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-base sm:text-lg font-bold">{story.title}</h3>
-                    <p className="text-xs sm:text-sm text-financial-accent">{story.story}</p>
+                    <h3 className="text-lg font-bold">{story.title}</h3>
+                    <p className="text-sm text-financial-accent">{story.story}</p>
                   </div>
                 </CardTitle>
               </CardHeader>
               
-              <CardContent className="px-4 pb-4 pt-0">
-                <p className="text-sm text-muted-foreground mb-4">{story.description}</p>
+              <CardContent>
+                <p className="text-muted-foreground mb-6">{story.description}</p>
                 
-                <div className="grid grid-cols-3 gap-3 mb-3">
+                <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm font-medium text-financial-accent">{story.metrics.timeline}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">Timeline</p>
+                    <p className="text-sm font-medium text-financial-accent">{story.metrics.timeline}</p>
+                    <p className="text-xs text-muted-foreground">Timeline</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm font-medium text-financial-accent">{story.metrics.investment}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">Investment</p>
+                    <p className="text-sm font-medium text-financial-accent">{story.metrics.investment}</p>
+                    <p className="text-xs text-muted-foreground">Investment</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm font-medium text-financial-accent">{story.metrics.result}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">Result</p>
+                    <p className="text-sm font-medium text-financial-accent">{story.metrics.result}</p>
+                    <p className="text-xs text-muted-foreground">Result</p>
                   </div>
                 </div>
               </CardContent>
@@ -113,7 +113,7 @@ const SuccessStories = () => {
 
         <div className="text-center">
           <Button 
-            className="bg-financial-accent hover:bg-financial-accent/90 text-white px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base"
+            className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-3"
             onClick={() => window.location.href = '/contact'}
           >
             Start Your Success Story

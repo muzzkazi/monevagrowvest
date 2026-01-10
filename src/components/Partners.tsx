@@ -59,16 +59,16 @@ const Partners = () => {
   const { ref: carouselRef, isVisible: carouselVisible } = useScrollAnimation({ threshold: 0.1 });
 
   return (
-    <section className="py-8 sm:py-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-3 sm:px-4">
+    <section className="py-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4">
         <div 
           ref={headerRef}
-          className={`text-center mb-6 sm:mb-8 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          className={`text-center mb-8 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
             Our <span className="text-financial-accent">Trusted Partners</span>
           </h2>
-          <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             We partner with India's leading financial institutions to provide you with the best investment opportunities and trading platforms.
           </p>
         </div>
@@ -76,7 +76,7 @@ const Partners = () => {
         {/* Featured Partners - Highlighted */}
         <div 
           ref={featuredRef}
-          className={`grid sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8 transition-all duration-700 delay-100 ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          className={`grid md:grid-cols-2 gap-6 mb-8 transition-all duration-700 delay-100 ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           {featuredPartners.map((partner, index) => (
             <Card 
@@ -84,12 +84,12 @@ const Partners = () => {
               className="group hover-scale hover:shadow-xl transition-all duration-300 border-2 border-financial-accent/20"
               style={{ transitionDelay: `${index * 150}ms` }}
             >
-              <CardContent className="p-4 sm:p-5 text-center">
-                <div className="relative mb-3 sm:mb-4">
+              <CardContent className="p-6 text-center">
+                <div className="relative mb-4">
                   <img
                     src={partner.logo}
                     alt={`${partner.name} logo`}
-                    className="h-12 sm:h-14 w-auto mx-auto object-contain group-hover:scale-110 transition-transform duration-300"
+                    className="h-16 w-auto mx-auto object-contain group-hover:scale-110 transition-transform duration-300"
                     onError={(e) => {
                       // Fallback to text if logo doesn't load
                       const target = e.currentTarget as HTMLImageElement;
@@ -98,18 +98,18 @@ const Partners = () => {
                       if (fallback) fallback.style.display = 'block';
                     }}
                   />
-                  <div className="hidden h-12 w-28 mx-auto bg-financial-muted rounded-lg flex items-center justify-center">
+                  <div className="hidden h-16 w-32 mx-auto bg-financial-muted rounded-lg flex items-center justify-center">
                     <span className="text-sm font-bold text-financial-accent">{partner.name}</span>
                   </div>
                   <Badge className="absolute -top-2 -right-2 bg-financial-accent text-white">
                     Featured
                   </Badge>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1.5">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   {partner.name}
                 </h3>
-                <p className="text-financial-accent font-semibold text-sm sm:text-base mb-1.5">{partner.type}</p>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">{partner.description}</p>
+                <p className="text-financial-accent font-semibold mb-2">{partner.type}</p>
+                <p className="text-gray-600 dark:text-gray-300">{partner.description}</p>
               </CardContent>
             </Card>
           ))}
@@ -120,32 +120,32 @@ const Partners = () => {
           ref={carouselRef}
           className={`transition-all duration-700 delay-200 ${carouselVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <div className="text-center mb-4 sm:mb-6">
-            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
               Authorized Distributor for Leading Mutual Funds
             </h3>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
+            <p className="text-gray-600 dark:text-gray-300">
               We are authorized distributors for all major mutual fund houses in India
             </p>
           </div>
 
-          <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+          <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <div className="flex transition-transform duration-500 ease-in-out"
                style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
             {Array.from({ length: Math.ceil(mutualFundPartners.length / 6) }).map((_, slideIndex) => (
               <div key={slideIndex} className="w-full flex-shrink-0">
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                   {mutualFundPartners
                     .slice(slideIndex * 6, (slideIndex + 1) * 6)
                     .map((partner, index) => (
                     <div
                       key={partner.name}
-                      className="group flex flex-col items-center p-2 sm:p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 hover-scale"
+                      className="group flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 hover-scale"
                     >
                       <img
                         src={partner.logo}
                         alt={`${partner.name} logo`}
-                        className="h-8 sm:h-10 w-auto object-contain mb-2 group-hover:scale-110 transition-transform duration-300"
+                        className="h-12 w-auto object-contain mb-3 group-hover:scale-110 transition-transform duration-300"
                         onError={(e) => {
                           // Fallback to text if logo doesn't load
                           const target = e.currentTarget as HTMLImageElement;
@@ -154,10 +154,10 @@ const Partners = () => {
                           if (fallback) fallback.style.display = 'block';
                         }}
                       />
-                      <div className="hidden h-8 w-16 bg-financial-muted rounded flex items-center justify-center mb-2">
+                      <div className="hidden h-12 w-20 bg-financial-muted rounded flex items-center justify-center mb-3">
                         <span className="text-xs font-bold text-financial-accent text-center">{partner.name.split(' ')[0]}</span>
                       </div>
-                      <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
                         {partner.name}
                       </p>
                     </div>
@@ -168,7 +168,7 @@ const Partners = () => {
           </div>
 
           {/* Carousel Indicators */}
-          <div className="flex justify-center mt-4 sm:mt-6 space-x-2">
+          <div className="flex justify-center mt-6 space-x-2">
             {Array.from({ length: Math.ceil(mutualFundPartners.length / 6) }).map((_, index) => (
               <button
                 key={index}
@@ -185,8 +185,8 @@ const Partners = () => {
         </div>
 
         {/* Regulatory Information */}
-        <div className="mt-4 sm:mt-6 text-center">
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Authorized Mutual Fund Distributor | 
             ARN: ARN-305935 | All investments are subject to market risks.
           </p>
