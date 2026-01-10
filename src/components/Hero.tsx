@@ -30,7 +30,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-[calc(100vh-120px)] overflow-hidden">
+    <section id="home" className="relative min-h-[calc(100vh-120px)] lg:min-h-[calc(100vh-120px)] overflow-hidden">
       {/* Video Background with Parallax */}
       <div 
         className="absolute inset-0 parallax-layer"
@@ -83,26 +83,26 @@ const Hero = () => {
         />
       </div>
       
-      <div className="container mx-auto px-4 py-12 relative">
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
+      <div className="container mx-auto px-3 sm:px-4 py-8 sm:py-12 relative">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           {/* Left content */}
-          <div className="space-y-6 animate-fade-in">
-            <div className="space-y-3">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+          <div className="space-y-4 sm:space-y-6 animate-fade-in">
+            <div className="space-y-2 sm:space-y-3">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl xl:text-7xl font-bold leading-tight">
                 Take control of your{" "}
                 <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent animate-pulse">
                   financial destiny
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
+              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl">
                 Whether you're saving for a new home, planning your child's education, or growing your retirement fund, we're here to support you in reaching your financial goals.
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button 
                 size="lg" 
-                className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-8 py-4 text-lg shadow-lg"
+                className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg shadow-lg"
                 onClick={() => window.location.href = '/contact'}
               >
                 Start Your Journey
@@ -110,38 +110,37 @@ const Hero = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="px-8 py-4 text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white hover:scale-105 transition-all duration-300"
+                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white hover:scale-105 transition-all duration-300"
                 onClick={() => window.location.href = '/contact'}
               >
                 Schedule Consultation
               </Button>
             </div>
             
-            <div className="flex items-center gap-6 pt-4">
+            <div className="flex items-center gap-4 sm:gap-6 pt-3 sm:pt-4">
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-financial-accent">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-financial-accent">
                   100%
                 </div>
-                <div className="text-sm text-muted-foreground">Research Based</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Research Based</div>
               </div>
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">
+                <div ref={clientsCount.ref} className="text-xl sm:text-2xl lg:text-3xl font-bold text-financial-accent">
                   {clientsCount.value}
                 </div>
-                <div className="text-sm text-muted-foreground">Happy Clients</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Happy Clients</div>
               </div>
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div ref={aumCount.ref} className="text-3xl font-bold text-financial-accent">
+                <div ref={aumCount.ref} className="text-xl sm:text-2xl lg:text-3xl font-bold text-financial-accent">
                   {aumCount.value}
                 </div>
-                <div className="text-sm text-muted-foreground">Assets Managed</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Assets Managed</div>
               </div>
             </div>
           </div>
           
           {/* Right image */}
-          <div 
-            className="relative animate-slide-up parallax-layer"
+          <div className="relative animate-slide-up parallax-layer hidden lg:block"
             style={getScrollParallaxStyle(-0.05)}
           >
             <div className="relative group">
@@ -151,12 +150,12 @@ const Hero = () => {
                 alt="Financial Success" 
                 className="relative w-full h-auto rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute -top-4 -right-4 bg-gradient-gold p-6 rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
+              <div className="absolute -top-3 -right-3 bg-gradient-gold p-4 rounded-xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
                 <div className="text-center">
-                  <div ref={returnsCount.ref} className="text-2xl font-bold text-financial-primary">
+                  <div ref={returnsCount.ref} className="text-xl font-bold text-financial-primary">
                     {returnsCount.value}
                   </div>
-                  <div className="text-sm text-financial-secondary">Avg. Returns</div>
+                  <div className="text-xs text-financial-secondary">Avg. Returns</div>
                 </div>
               </div>
             </div>
