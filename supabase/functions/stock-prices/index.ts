@@ -32,65 +32,92 @@ serve(async (req) => {
 
     console.log('Fetching prices for symbols:', symbols);
 
-    // Fetch prices from Yahoo Finance API (works with .NS suffix for NSE stocks)
+    // Fetch prices from Yahoo Finance quote API (batch-friendly)
     const quotes: StockQuote[] = [];
-    
-    for (const symbol of symbols) {
-      try {
-        // Handle index symbols differently - they use Yahoo's format directly
-        let yahooSymbol = symbol;
-        
-        // Check if it's an index symbol (starts with ^) or a stock
-        if (!symbol.startsWith('^')) {
-          yahooSymbol = `${symbol}.NS`;
+
+    const toYahooSymbol = (symbol: string) => {
+      // Index symbols use Yahoo's format directly (e.g. ^NSEI)
+      if (symbol.startsWith('^')) return symbol;
+      // Stocks: NSE uses .NS
+      return `${symbol}.NS`;
+    };
+
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+
+    const requestedAt = new Date();
+    const lastUpdated = requestedAt.toISOString();
+
+    const yahooSymbols = symbols.map(toYahooSymbol);
+
+    // Yahoo quote endpoint supports multiple symbols in one call; keep batches small to avoid URL limits
+    const BATCH_SIZE = 25;
+    const resultsByYahooSymbol = new Map<string, any>();
+
+    for (let i = 0; i < yahooSymbols.length; i += BATCH_SIZE) {
+      const batch = yahooSymbols.slice(i, i + BATCH_SIZE);
+      const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${batch.map(encodeURIComponent).join(',')}`;
+
+      console.log(`Fetching batch ${i / BATCH_SIZE + 1} (${batch.length} symbols) from Yahoo Finance quote API...`);
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'application/json,text/plain,*/*'
         }
-        
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=1d&range=1d`;
-        
-        console.log(`Fetching ${yahooSymbol} from Yahoo Finance...`);
-        
-        const response = await fetch(url, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
-        });
+      });
 
-        if (!response.ok) {
-          console.error(`Failed to fetch ${symbol}: ${response.status}`);
-          continue;
-        }
-
-        const data = await response.json();
-        const result = data.chart?.result?.[0];
-        
-        if (result) {
-          const meta = result.meta;
-          const price = meta.regularMarketPrice || 0;
-          const previousClose = meta.previousClose || meta.chartPreviousClose || price;
-          const change = price - previousClose;
-          const changePercent = previousClose > 0 ? (change / previousClose) * 100 : 0;
-
-          quotes.push({
-            symbol,
-            price: Math.round(price * 100) / 100,
-            change: Math.round(change * 100) / 100,
-            changePercent: Math.round(changePercent * 100) / 100,
-            previousClose: Math.round(previousClose * 100) / 100,
-            lastUpdated: new Date().toISOString()
-          });
-
-          console.log(`${symbol}: ₹${price.toFixed(2)} (${change >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`);
-        }
-      } catch (error) {
-        console.error(`Error fetching ${symbol}:`, error);
+      if (!response.ok) {
+        console.error(`Failed to fetch batch: ${response.status}`);
+        continue;
       }
+
+      const data = await response.json();
+      const results = data?.quoteResponse?.result ?? [];
+
+      for (const r of results) {
+        if (r?.symbol) resultsByYahooSymbol.set(r.symbol, r);
+      }
+    }
+
+    for (let i = 0; i < symbols.length; i++) {
+      const symbol = symbols[i];
+      const yahooSymbol = yahooSymbols[i];
+
+      const q = resultsByYahooSymbol.get(yahooSymbol);
+      if (!q) {
+        console.error(`No quote returned for ${symbol} (${yahooSymbol})`);
+        continue;
+      }
+
+      const price = Number(q.regularMarketPrice ?? q.postMarketPrice ?? 0);
+      const previousClose = Number(q.regularMarketPreviousClose ?? q.previousClose ?? price);
+      const change = Number(q.regularMarketChange ?? (price - previousClose));
+      const changePercent = Number(
+        q.regularMarketChangePercent ?? (previousClose > 0 ? (change / previousClose) * 100 : 0)
+      );
+
+      if (!Number.isFinite(price) || price <= 0) {
+        console.error(`Invalid price for ${symbol} (${yahooSymbol}):`, price);
+        continue;
+      }
+
+      quotes.push({
+        symbol,
+        price: round2(price),
+        change: round2(change),
+        changePercent: round2(changePercent),
+        previousClose: round2(previousClose),
+        lastUpdated
+      });
+
+      console.log(`${symbol}: ₹${price.toFixed(2)} (${change >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`);
     }
 
     console.log(`Successfully fetched ${quotes.length}/${symbols.length} quotes`);
 
     return new Response(
-      JSON.stringify({ quotes, timestamp: new Date().toISOString() }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ quotes, timestamp: lastUpdated }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0' } }
     );
   } catch (error) {
     console.error('Error in stock-prices function:', error);
