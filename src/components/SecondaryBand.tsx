@@ -144,8 +144,8 @@ const SecondaryBand = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Show loading skeleton or fallback data while loading
-  const displayStocks = stocks.length > 0 ? stocks : stockSymbols.slice(0, 20).map(symbol => ({
+  // Show loading skeleton or fallback data while loading - show ALL symbols
+  const displayStocks = stocks.length > 0 ? stocks : stockSymbols.map(symbol => ({
     symbol,
     price: "---",
     change: "---",
@@ -157,8 +157,8 @@ const SecondaryBand = () => {
       {/* First line - Indices */}
       <div className="relative mb-2 overflow-hidden">
         <div className="flex animate-scroll will-change-transform">
-          {/* Continuous loop - multiple copies for seamless scrolling */}
-          {[...indices, ...indices, ...indices, ...indices].map((item, index) => {
+          {/* Continuous loop - 3 copies for seamless scrolling with 33.333% translation */}
+          {[...indices, ...indices, ...indices].map((item, index) => {
             const isPositive = !item.change.startsWith('-');
             return (
               <div key={`index-${index}`} className="flex items-center whitespace-nowrap flex-shrink-0">
@@ -181,8 +181,8 @@ const SecondaryBand = () => {
       {/* Second line - NIFTY 50 Stocks */}
       <div className="relative overflow-hidden">
         <div className="flex animate-scroll-fast will-change-transform">
-          {/* Continuous loop - multiple copies for seamless scrolling */}
-          {[...displayStocks, ...displayStocks, ...displayStocks, ...displayStocks].map((stock, index) => {
+          {/* Continuous loop - 3 copies for seamless scrolling with 33.333% translation */}
+          {[...displayStocks, ...displayStocks, ...displayStocks].map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
             const isLoaded = stock.price !== "---";
             return (
