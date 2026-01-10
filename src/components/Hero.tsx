@@ -67,9 +67,10 @@ const statItemVariants = {
 };
 
 const Hero = () => {
-  const clientsCount = useCountUp({ end: 500, suffix: '+', duration: 2500, delay: 800 });
-  const aumCount = useCountUp({ end: 12, prefix: '₹', suffix: 'Cr+', duration: 3000, delay: 1100 });
-  const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 1400 });
+  const researchCount = useCountUp({ end: 100, suffix: '%', duration: 2000, delay: 1000 });
+  const clientsCount = useCountUp({ end: 500, suffix: '+', duration: 2500, delay: 1200 });
+  const aumCount = useCountUp({ end: 12, prefix: '₹', suffix: 'Cr+', duration: 3000, delay: 1400 });
+  const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 800 });
   
   const { smoothScrollY } = useBackgroundParallax(0.3);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -236,8 +237,8 @@ const Hero = () => {
               className="text-center transform hover:scale-110 transition-transform duration-300"
               variants={statItemVariants}
             >
-              <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-financial-accent">
-                100%
+              <div ref={researchCount.ref} className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-financial-accent">
+                {researchCount.value}
               </div>
               <div className="text-xs sm:text-sm md:text-base text-muted-foreground">Research Based</div>
             </motion.div>
