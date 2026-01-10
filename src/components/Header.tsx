@@ -96,7 +96,7 @@ const Header = () => {
                       to="/ai-planning" 
                       className="block px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
-                      AI Planning
+                      AI Planner Overview
                     </Link>
                     <Link 
                       to="/goal-based-planning" 
