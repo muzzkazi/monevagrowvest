@@ -153,7 +153,7 @@ const SecondaryBand = () => {
   }));
 
   return (
-    <div className="bg-gradient-to-r from-blue-950/50 via-slate-900/35 to-blue-950/50 backdrop-blur-md text-white py-1.5 w-full z-20 overflow-hidden flex flex-col justify-center relative border-b border-blue-400/10">
+    <div className="bg-gradient-to-r from-slate-900 via-blue-950/80 to-slate-900 backdrop-blur-md text-white py-1.5 w-full z-20 overflow-hidden flex flex-col justify-center relative border-y border-blue-500/20 shadow-lg shadow-blue-950/50">
       {/* First line - Indices */}
       <div className="relative mb-1 overflow-hidden">
         <div className="inline-flex w-max animate-scroll-indices will-change-transform hover:[animation-play-state:paused]">
