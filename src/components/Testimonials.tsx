@@ -46,23 +46,23 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-12 bg-financial-muted">
-      <div className="container mx-auto px-4">
+    <section className="py-8 sm:py-12 bg-financial-muted">
+      <div className="container mx-auto px-3 sm:px-4">
         <div 
           ref={headerRef}
-          className={`text-center mb-10 transition-all duration-700 ease-out ${
+          className={`text-center mb-6 sm:mb-10 transition-all duration-700 ease-out ${
             headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <h2 className="text-4xl font-bold mb-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">
             What Our <span className="text-financial-accent">Clients Say</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
             Over 500+ satisfied clients started their financial journey with us in our first year
           </p>
         </div>
 
-        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {testimonials.map((testimonial, index) => (
             <Card 
               key={index} 
@@ -71,27 +71,27 @@ const Testimonials = () => {
               }`}
               style={{ transitionDelay: gridVisible ? `${index * 100}ms` : '0ms' }}
             >
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex items-center mb-3">
                   <img
                     src={testimonial.image}
                     alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover mr-4"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mr-3"
                   />
                   <div>
-                    <h4 className="font-semibold">{testimonial.name}</h4>
-                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                    <h4 className="font-semibold text-sm sm:text-base">{testimonial.name}</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{testimonial.location}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center mb-3">
+                <div className="flex items-center mb-2">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-financial-accent text-financial-accent" />
+                    <Star key={i} className="w-3.5 h-3.5 fill-financial-accent text-financial-accent" />
                   ))}
                 </div>
 
-                <Quote className="w-6 h-6 text-financial-accent mb-3" />
-                <p className="text-sm text-muted-foreground mb-4">{testimonial.text}</p>
+                <Quote className="w-5 h-5 text-financial-accent mb-2" />
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3">{testimonial.text}</p>
                 
                 <div className="text-xs font-medium text-financial-accent bg-financial-accent/10 px-3 py-1 rounded-full inline-block">
                   {testimonial.investment}
@@ -103,22 +103,22 @@ const Testimonials = () => {
 
         <div 
           ref={statsRef}
-          className={`text-center mt-8 transition-all duration-700 ease-out ${
+          className={`text-center mt-6 sm:mt-8 transition-all duration-700 ease-out ${
             statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+          <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-xl mx-auto">
             <div>
-              <p ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">{clientsCount.value}</p>
-              <p className="text-sm text-muted-foreground">Happy Clients</p>
+              <p ref={clientsCount.ref} className="text-xl sm:text-2xl lg:text-3xl font-bold text-financial-accent">{clientsCount.value}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Happy Clients</p>
             </div>
             <div>
-              <p ref={aumCount.ref} className="text-3xl font-bold text-financial-accent">{aumCount.value}</p>
-              <p className="text-sm text-muted-foreground">Assets Managed</p>
+              <p ref={aumCount.ref} className="text-xl sm:text-2xl lg:text-3xl font-bold text-financial-accent">{aumCount.value}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Assets Managed</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-financial-accent">12%</p>
-              <p className="text-sm text-muted-foreground">Avg Returns</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-financial-accent">12%</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Avg Returns</p>
             </div>
           </div>
         </div>
