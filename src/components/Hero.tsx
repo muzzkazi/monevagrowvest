@@ -84,7 +84,8 @@ const Hero = () => {
       </div>
       
       <div className="container mx-auto px-8 py-16 relative max-w-7xl">
-        <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 gap-16 items-center">
+          {/* Left content */}
           <div className="space-y-8 animate-fade-in">
             <div className="space-y-4">
               <h1 className="text-6xl font-bold leading-tight">
@@ -93,12 +94,12 @@ const Hero = () => {
                   financial destiny
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
                 Whether you're saving for a new home, planning your child's education, or growing your retirement fund, we're here to support you in reaching your financial goals.
               </p>
             </div>
             
-            <div className="flex flex-row justify-center gap-4">
+            <div className="flex flex-row gap-4">
               <Button 
                 size="lg" 
                 className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-8 py-4 text-lg shadow-lg"
@@ -116,7 +117,7 @@ const Hero = () => {
               </Button>
             </div>
             
-            <div className="flex items-center justify-center gap-12 pt-6">
+            <div className="flex items-center gap-12 pt-6">
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
                 <div className="text-3xl font-bold text-financial-accent">
                   100%
@@ -135,11 +136,28 @@ const Hero = () => {
                 </div>
                 <div className="text-sm text-muted-foreground">Assets Managed</div>
               </div>
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div ref={returnsCount.ref} className="text-3xl font-bold text-financial-accent">
-                  {returnsCount.value}
+            </div>
+          </div>
+          
+          {/* Right image */}
+          <div 
+            className="relative animate-slide-up parallax-layer"
+            style={getScrollParallaxStyle(-0.05)}
+          >
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+              <img 
+                src={heroImage} 
+                alt="Financial Success" 
+                className="relative w-full h-auto rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute -top-4 -right-4 bg-gradient-gold p-6 rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
+                <div className="text-center">
+                  <div ref={returnsCount.ref} className="text-2xl font-bold text-financial-primary">
+                    {returnsCount.value}
+                  </div>
+                  <div className="text-sm text-financial-secondary">Avg. Returns</div>
                 </div>
-                <div className="text-sm text-muted-foreground">Avg. Returns</div>
               </div>
             </div>
           </div>
