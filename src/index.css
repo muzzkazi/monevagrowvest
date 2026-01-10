@@ -168,7 +168,7 @@ All colors MUST be HSL.
   }
 
   .animate-scroll-stocks {
-    animation: scroll-stocks 45s linear infinite;
+    animation: scroll-stocks 60s linear infinite;
   }
 
   .animate-scroll-stocks-slow {
