@@ -13,7 +13,7 @@ const Hero = () => {
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 1400 });
   
   const { smoothScrollY } = useBackgroundParallax(0.3);
-  const { getMouseParallaxStyle } = useMouseParallax({ strength: 15, smoothing: 0.08 });
+  const { getMouseParallaxStyle } = useMouseParallax({ strength: 8, smoothing: 0.12 });
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
 
@@ -41,7 +41,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen pt-20 overflow-hidden">
+    <section id="home" className="relative min-h-[calc(100vh-120px)] overflow-hidden">
       {/* Video Background with Parallax */}
       <div 
         className="absolute inset-0 parallax-layer"
@@ -75,30 +75,22 @@ const Hero = () => {
       {/* Animated gradient orbs with combined scroll + mouse parallax */}
       <div className="absolute inset-0 overflow-hidden">
         <div 
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-financial-gold/15 rounded-full blur-3xl animate-float parallax-layer"
-          style={getCombinedParallaxStyle(0.15, 0.8)}
+          className="absolute top-1/4 left-1/4 w-64 h-64 bg-financial-gold/10 rounded-full blur-3xl animate-float parallax-layer"
+          style={getCombinedParallaxStyle(0.08, 0.4)}
         />
         <div 
-          className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-financial-accent/15 rounded-full blur-2xl animate-float parallax-layer" 
+          className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-financial-accent/10 rounded-full blur-2xl animate-float parallax-layer" 
           style={{ 
             animationDelay: '1s',
-            ...getCombinedParallaxStyle(0.2, -0.6)
+            ...getCombinedParallaxStyle(0.1, -0.3)
           }}
         />
         <div 
-          className="absolute top-1/2 right-1/3 w-48 h-48 bg-financial-gold/10 rounded-full blur-xl animate-float parallax-layer" 
+          className="absolute top-1/2 right-1/3 w-32 h-32 bg-financial-gold/8 rounded-full blur-xl animate-float parallax-layer" 
           style={{ 
             animationDelay: '2s',
-            ...getCombinedParallaxStyle(0.12, 1.0)
+            ...getCombinedParallaxStyle(0.06, 0.5)
           }}
-        />
-        <div 
-          className="absolute top-10 right-20 w-32 h-32 bg-financial-accent/10 rounded-full blur-lg parallax-layer"
-          style={getCombinedParallaxStyle(0.25, -0.5)}
-        />
-        <div 
-          className="absolute bottom-20 left-10 w-56 h-56 bg-financial-gold/12 rounded-full blur-2xl parallax-layer"
-          style={getCombinedParallaxStyle(0.18, 0.7)}
         />
       </div>
       
