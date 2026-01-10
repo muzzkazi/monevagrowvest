@@ -86,7 +86,7 @@ const Hero = () => {
       <div className="container mx-auto px-8 py-16 relative max-w-7xl">
         <div className="grid grid-cols-2 gap-16 items-center">
           {/* Left content */}
-          <div className="space-y-8 animate-fade-in">
+          <div className="space-y-8 animate-fade-in flex flex-col items-center text-center">
             <div className="space-y-4">
               <h1 className="text-6xl font-bold leading-tight">
                 Take control of your{" "}
