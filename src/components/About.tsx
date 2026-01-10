@@ -1,8 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Award, Users2, TrendingUp, Shield } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const About = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
+  const { ref: storyRef, isVisible: storyVisible } = useScrollAnimation({ threshold: 0.15 });
+  const { ref: valuesRef, isVisible: valuesVisible } = useScrollAnimation({ threshold: 0.1 });
+  const { ref: teamRef, isVisible: teamVisible } = useScrollAnimation({ threshold: 0.1 });
   const clientsCount = useCountUp({ end: 500, duration: 2000, suffix: "+" });
   const aumValue = useCountUp({ end: 12, duration: 2000, prefix: "₹", suffix: "Cr+" });
 
@@ -35,7 +40,12 @@ const About = () => {
   return (
     <section id="about" className="py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-16 transition-all duration-700 ease-out ${
+            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h2 className="text-4xl font-bold mb-6">
             About <span className="text-financial-accent">Moneva</span>
           </h2>
@@ -45,7 +55,12 @@ const About = () => {
         </div>
 
         {/* Our Story */}
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+        <div 
+          ref={storyRef}
+          className={`grid lg:grid-cols-2 gap-12 items-center mb-20 transition-all duration-700 ease-out ${
+            storyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <div className="space-y-6">
             <h3 className="text-3xl font-bold text-foreground">Our Story</h3>
             <div className="space-y-4 text-muted-foreground">
@@ -79,8 +94,12 @@ const About = () => {
         </div>
 
         {/* Our Values */}
-        <div className="mb-20">
-          <div className="text-center mb-12">
+        <div ref={valuesRef} className="mb-20">
+          <div 
+            className={`text-center mb-12 transition-all duration-700 ease-out ${
+              valuesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
+          >
             <h3 className="text-3xl font-bold mb-4">Our Values</h3>
             <p className="text-xl text-muted-foreground">
               The principles that guide everything we do
@@ -89,7 +108,13 @@ const About = () => {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value, index) => (
-              <Card key={index} className="bg-gradient-card border-0 shadow-card hover:shadow-financial transition-all duration-300 hover:-translate-y-2">
+              <Card 
+                key={index} 
+                className={`bg-gradient-card border-0 shadow-card hover:shadow-financial transition-all duration-500 hover:-translate-y-2 ${
+                  valuesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+                }`}
+                style={{ transitionDelay: valuesVisible ? `${index * 100}ms` : '0ms' }}
+              >
                 <CardContent className="p-6">
                   <h4 className="text-lg font-semibold mb-3 text-financial-accent">{value.title}</h4>
                   <p className="text-sm text-muted-foreground">{value.description}</p>
@@ -100,7 +125,12 @@ const About = () => {
         </div>
 
         {/* Team Section */}
-        <div className="text-center">
+        <div 
+          ref={teamRef}
+          className={`text-center transition-all duration-700 ease-out ${
+            teamVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h3 className="text-3xl font-bold mb-6">Meet Our Expert Team</h3>
           <p className="text-xl text-muted-foreground mb-8">
             Certified professionals with decades of combined experience in financial planning and wealth management

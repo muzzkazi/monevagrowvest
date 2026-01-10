@@ -2,8 +2,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Shield, Users, Calculator, PieChart, Target, ArrowRight, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Services = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
+  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
   const services = [
     {
       icon: TrendingUp,
@@ -52,7 +55,12 @@ const Services = () => {
   return (
     <section id="services" className="py-20 bg-financial-muted">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-16 transition-all duration-700 ease-out ${
+            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h2 className="text-4xl font-bold mb-6">
             Our <span className="text-financial-accent">Services</span>
           </h2>
@@ -61,9 +69,18 @@ const Services = () => {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div 
+          ref={gridRef}
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
           {services.map((service, index) => (
-            <Card key={index} className="card-float glass-card group border-0 shadow-card hover:shadow-financial overflow-hidden">
+            <Card 
+              key={index} 
+              className={`card-float glass-card group border-0 shadow-card hover:shadow-financial overflow-hidden transition-all duration-500 ease-out ${
+                gridVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              }`}
+              style={{ transitionDelay: gridVisible ? `${index * 100}ms` : '0ms' }}
+            >
               <CardContent className="p-8 relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-gold opacity-5 rounded-full -translate-y-16 translate-x-16"></div>
                 <div className="relative z-10">

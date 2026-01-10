@@ -1,8 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Testimonials = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
+  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
+  const { ref: statsRef, isVisible: statsVisible } = useScrollAnimation({ threshold: 0.3 });
   const clientsCount = useCountUp({ end: 500, suffix: "+", duration: 2000 });
   const aumCount = useCountUp({ end: 12, prefix: "₹", suffix: "Cr+", duration: 2500 });
   const returnsCount = useCountUp({ end: 12, suffix: "%", duration: 2200 });
@@ -44,7 +48,12 @@ const Testimonials = () => {
   return (
     <section className="py-20 bg-financial-muted">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-16 transition-all duration-700 ease-out ${
+            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h2 className="text-4xl font-bold mb-6">
             What Our <span className="text-financial-accent">Clients Say</span>
           </h2>
@@ -53,9 +62,15 @@ const Testimonials = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="bg-gradient-card border-0 shadow-card hover-scale">
+            <Card 
+              key={index} 
+              className={`bg-gradient-card border-0 shadow-card hover-scale transition-all duration-500 ease-out ${
+                gridVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              }`}
+              style={{ transitionDelay: gridVisible ? `${index * 100}ms` : '0ms' }}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
                   <img
@@ -86,7 +101,12 @@ const Testimonials = () => {
           ))}
         </div>
 
-        <div className="text-center mt-12">
+        <div 
+          ref={statsRef}
+          className={`text-center mt-12 transition-all duration-700 ease-out ${
+            statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
             <div>
               <p ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">{clientsCount.value}</p>
