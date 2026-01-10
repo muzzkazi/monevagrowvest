@@ -12,11 +12,11 @@ const FeaturedInsights = () => {
   const { insights, marketData, isLoading, error, refreshInsights } = useMarketInsights();
 
   return (
-    <section className="py-12 bg-financial-muted">
+    <section className="py-10 sm:py-14 bg-financial-muted">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <h2 className="text-4xl font-bold">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-4 mb-3">
+            <h2 className="text-3xl sm:text-4xl font-bold">
               Market <span className="text-financial-accent">Insights</span>
             </h2>
             <Button
@@ -30,7 +30,7 @@ const FeaturedInsights = () => {
               Refresh
             </Button>
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-4">
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-3">
             Stay ahead with our expert analysis and actionable investment strategies
           </p>
           
@@ -72,7 +72,7 @@ const FeaturedInsights = () => {
           </div>
         )}
 
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-5 mb-8">
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 mb-6">
           {!isLoading && !error && insights.map((insight, index) => (
             <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
               <div className="relative">
@@ -122,7 +122,7 @@ const FeaturedInsights = () => {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-4">
           <Card className="bg-gradient-gold border-0 shadow-card text-center p-6">
             <BarChart3 className="w-12 h-12 text-financial-primary mx-auto mb-4" />
             <h3 className="text-xl font-bold text-financial-primary mb-2">Market Updates</h3>

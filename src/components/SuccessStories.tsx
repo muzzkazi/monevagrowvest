@@ -55,18 +55,18 @@ const SuccessStories = () => {
   ];
 
   return (
-    <section className="py-12 bg-background">
+    <section className="py-10 sm:py-14 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-bold mb-4">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-3">
             Real Stories, <span className="text-financial-accent">Real Success</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
             Discover how our clients transformed their financial lives with smart planning and disciplined investing
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 gap-5 mb-6">
           {stories.map((story, index) => (
             <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
               <div className="relative">
