@@ -11,13 +11,15 @@ const Partners = () => {
       name: "AngelOne",
       logo: "/lovable-uploads/angelone-logo.png",
       type: "Investment & Trading Partner",
-      description: "Complete platform for stocks, mutual funds & investments"
+      description: "Complete platform for stocks, mutual funds & investments",
+      link: "https://stockbroker.angelone.in/angel-one-ltd-moneva-growvest-private-limited-stock-broker-jogeshwari-west-mumbai-373541/Home"
     },
     {
       name: "Asset Plus",
       logo: "/lovable-uploads/assetplus-logo.png",
       type: "Mutual Fund Partner", 
-      description: "Exclusive platform for mutual fund investments"
+      description: "Exclusive platform for mutual fund investments",
+      link: null
     }
   ];
 
@@ -78,12 +80,8 @@ const Partners = () => {
           ref={featuredRef}
           className={`grid md:grid-cols-2 gap-5 mb-6 transition-all duration-700 delay-100 ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          {featuredPartners.map((partner, index) => (
-            <Card 
-              key={partner.name} 
-              className="group hover-scale hover:shadow-xl transition-all duration-300 border-2 border-financial-accent/20"
-              style={{ transitionDelay: `${index * 150}ms` }}
-            >
+          {featuredPartners.map((partner, index) => {
+            const cardContent = (
               <CardContent className="p-6 text-center">
                 <div className="relative mb-4">
                   <img
@@ -91,7 +89,6 @@ const Partners = () => {
                     alt={`${partner.name} logo`}
                     className="h-16 w-auto mx-auto object-contain group-hover:scale-110 transition-transform duration-300"
                     onError={(e) => {
-                      // Fallback to text if logo doesn't load
                       const target = e.currentTarget as HTMLImageElement;
                       const fallback = target.nextElementSibling as HTMLElement;
                       target.style.display = 'none';
@@ -111,8 +108,31 @@ const Partners = () => {
                 <p className="text-financial-accent font-semibold mb-2">{partner.type}</p>
                 <p className="text-gray-600 dark:text-gray-300">{partner.description}</p>
               </CardContent>
-            </Card>
-          ))}
+            );
+
+            return partner.link ? (
+              <a
+                key={partner.name}
+                href={partner.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+                style={{ transitionDelay: `${index * 150}ms` }}
+              >
+                <Card className="group hover-scale hover:shadow-xl transition-all duration-300 border-2 border-financial-accent/20 h-full cursor-pointer">
+                  {cardContent}
+                </Card>
+              </a>
+            ) : (
+              <Card 
+                key={partner.name} 
+                className="group hover-scale hover:shadow-xl transition-all duration-300 border-2 border-financial-accent/20"
+                style={{ transitionDelay: `${index * 150}ms` }}
+              >
+                {cardContent}
+              </Card>
+            );
+          })}
         </div>
 
         {/* Mutual Fund Partners - Carousel */}
