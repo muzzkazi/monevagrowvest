@@ -5,16 +5,23 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Clock, ArrowRight, BarChart3, RefreshCw, Activity } from "lucide-react";
 import ContactFormModal from "@/components/ContactFormModal";
 import { useMarketInsights } from "@/hooks/useMarketInsights";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const FeaturedInsights = () => {
   const [showContactForm, setShowContactForm] = useState(false);
   const [actionType, setActionType] = useState<"download" | "implement" | "subscribe" | "webinar">("subscribe");
   const { insights, marketData, isLoading, error, refreshInsights } = useMarketInsights();
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
+  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
+  const { ref: cardsRef, isVisible: cardsVisible } = useScrollAnimation({ threshold: 0.1 });
 
   return (
-    <section className="py-10 sm:py-14 bg-financial-muted">
+    <section className="py-12 sm:py-16 bg-financial-muted">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-8 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           <div className="flex items-center justify-center gap-4 mb-3">
             <h2 className="text-3xl sm:text-4xl font-bold">
               Market <span className="text-financial-accent">Insights</span>
@@ -72,9 +79,13 @@ const FeaturedInsights = () => {
           </div>
         )}
 
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 mb-6">
+        <div ref={gridRef} className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 mb-6">
           {!isLoading && !error && insights.map((insight, index) => (
-            <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
+            <Card 
+              key={index} 
+              className={`bg-gradient-card border-0 shadow-card overflow-hidden hover-scale transition-all duration-500 ${gridVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+              style={{ transitionDelay: gridVisible ? `${index * 100}ms` : '0ms' }}
+            >
               <div className="relative">
                 <img
                   src={insight.image}
@@ -122,8 +133,8 @@ const FeaturedInsights = () => {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          <Card className="bg-gradient-gold border-0 shadow-card text-center p-6">
+        <div ref={cardsRef} className="grid md:grid-cols-3 gap-4">
+          <Card className={`bg-gradient-gold border-0 shadow-card text-center p-6 transition-all duration-500 ${cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
             <BarChart3 className="w-12 h-12 text-financial-primary mx-auto mb-4" />
             <h3 className="text-xl font-bold text-financial-primary mb-2">Market Updates</h3>
             <p className="text-financial-secondary text-sm mb-4">Daily market analysis and fund performance updates</p>
@@ -139,7 +150,7 @@ const FeaturedInsights = () => {
             </Button>
           </Card>
 
-          <Card className="bg-gradient-card border-0 shadow-card text-center p-6">
+          <Card className={`bg-gradient-card border-0 shadow-card text-center p-6 transition-all duration-500 ${cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: cardsVisible ? '100ms' : '0ms' }}>
             <TrendingUp className="w-12 h-12 text-financial-accent mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">Portfolio Review</h3>
             <p className="text-muted-foreground text-sm mb-4">Get your portfolio analyzed by our experts for free</p>
@@ -151,7 +162,7 @@ const FeaturedInsights = () => {
             </Button>
           </Card>
 
-          <Card className="bg-gradient-card border-0 shadow-card text-center p-6">
+          <Card className={`bg-gradient-card border-0 shadow-card text-center p-6 transition-all duration-500 ${cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: cardsVisible ? '200ms' : '0ms' }}>
             <Clock className="w-12 h-12 text-financial-accent mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">Weekly Webinars</h3>
             <p className="text-muted-foreground text-sm mb-4">Join our live sessions on investment strategies</p>

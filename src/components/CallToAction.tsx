@@ -6,7 +6,7 @@ const CallToAction = () => {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.2 });
 
   return (
-    <section className="py-10 sm:py-14 bg-gradient-primary relative overflow-hidden">
+    <section className="py-14 sm:py-20 bg-gradient-primary relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-financial-primary/90 to-financial-secondary/90"></div>
       <FloatingParticles count={15} />
       <div ref={ref} className="container mx-auto px-4 relative z-10">
