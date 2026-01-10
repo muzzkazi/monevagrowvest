@@ -154,14 +154,6 @@ const SecondaryBand = () => {
 
   return (
     <div className="bg-gradient-to-r from-blue-950/50 via-slate-900/35 to-blue-950/50 backdrop-blur-md text-white pt-4 pb-2 w-full z-20 overflow-hidden flex flex-col justify-center relative border-b border-blue-400/10">
-      {/* Live indicator */}
-      {stocks.length > 0 && (
-        <div className="absolute top-1 right-2 flex items-center gap-1 z-30">
-          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-          <span className="text-xs text-white/60">Live</span>
-        </div>
-      )}
-
       {/* First line - Indices */}
       <div className="relative mb-2 overflow-hidden mt-6">
         <div className="inline-flex w-max animate-scroll-indices will-change-transform hover:[animation-play-state:paused]">
