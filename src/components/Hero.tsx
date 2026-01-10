@@ -4,9 +4,9 @@ import heroVideo from "@/assets/hero-video.mp4";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
 import { useRef, useEffect, useState } from "react";
-import { ArrowRight, Shield, TrendingUp, Users } from "lucide-react";
 
 const Hero = () => {
+  const researchCount = useCountUp({ end: 100, suffix: '%', duration: 2000, delay: 500 });
   const clientsCount = useCountUp({ end: 500, suffix: '+', duration: 2500, delay: 800 });
   const aumCount = useCountUp({ end: 12, prefix: '₹', suffix: 'Cr+', duration: 3000, delay: 1100 });
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 1400 });
@@ -15,6 +15,7 @@ const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
 
+  // Helper to get smooth scroll parallax transforms
   const getScrollParallaxStyle = (multiplier: number) => ({
     transform: `translate3d(0, ${smoothScrollY * multiplier}px, 0)`,
     willChange: 'transform',
@@ -22,20 +23,22 @@ const Hero = () => {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => {
+        // Autoplay might be blocked, that's okay
+      });
     }
   }, []);
 
   return (
-    <section id="home" className="relative min-h-[85vh] flex items-center overflow-hidden">
-      {/* Full-screen Video Background */}
+    <section id="home" className="relative overflow-hidden">
+      {/* Video Background with Parallax */}
       <div 
         className="absolute inset-0 parallax-layer"
         style={getScrollParallaxStyle(0.1)}
       >
         <video
           ref={videoRef}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 w-full h-full object-cover scale-110 transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
           autoPlay
           muted
           loop
@@ -46,98 +49,123 @@ const Hero = () => {
           <source src={heroVideo} type="video/mp4" />
         </video>
         
+        {/* Fallback image while video loads */}
         <div 
           className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`}
           style={{ backgroundImage: `url(${heroImage})` }}
         />
       </div>
 
-      {/* Light Professional Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/70" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
+      {/* Multi-layer gradient overlays for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background/90" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/60" />
+      <div className="absolute inset-0 bg-gradient-to-t from-financial-primary/20 via-transparent to-transparent" />
       
-      {/* Subtle accent line */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-financial-accent to-transparent opacity-40" />
-
-      {/* Content */}
-      <div className="container mx-auto px-4 sm:px-8 py-12 sm:py-20 relative z-10 max-w-7xl">
-        <div className="max-w-3xl">
-          {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 bg-financial-accent/10 backdrop-blur-sm border border-financial-accent/20 rounded-full px-4 py-2 mb-6 animate-fade-in">
-            <Shield className="w-4 h-4 text-financial-accent" />
-            <span className="text-sm text-foreground/80 font-medium">SEBI Registered Investment Advisor</span>
+      {/* Animated gradient orbs with scroll parallax only */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div 
+          className="absolute top-1/4 left-1/4 w-64 h-64 bg-financial-gold/10 rounded-full blur-3xl animate-float parallax-layer"
+          style={getScrollParallaxStyle(0.05)}
+        />
+        <div 
+          className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-financial-accent/10 rounded-full blur-2xl animate-float parallax-layer" 
+          style={{ 
+            animationDelay: '1s',
+            ...getScrollParallaxStyle(0.08)
+          }}
+        />
+        <div 
+          className="absolute top-1/2 right-1/3 w-32 h-32 bg-financial-gold/8 rounded-full blur-xl animate-float parallax-layer" 
+          style={{ 
+            animationDelay: '2s',
+            ...getScrollParallaxStyle(0.04)
+          }}
+        />
+      </div>
+      
+      <div className="container mx-auto px-4 sm:px-8 pt-8 sm:pt-16 pb-8 relative max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+          {/* Left content */}
+          <div className="space-y-6 sm:space-y-8 animate-fade-in flex flex-col items-center text-center order-2 lg:order-1">
+            <div className="space-y-3 sm:space-y-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                Take control of your{" "}
+                <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent animate-pulse">
+                  financial destiny
+                </span>
+              </h1>
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto">
+                Whether you're saving for a new home, planning your child's education, or growing your retirement fund, we're here to support you in reaching your financial goals.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+              <Button 
+                size="lg" 
+                className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg shadow-lg w-full sm:w-auto"
+                onClick={() => window.location.href = '/contact'}
+              >
+                Start Your Journey
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                onClick={() => window.location.href = '/contact'}
+              >
+                Schedule Consultation
+              </Button>
+            </div>
           </div>
-
-          {/* Main Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-6 animate-fade-in">
-            Building Wealth with{" "}
-            <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">
-              Research-Driven
-            </span>{" "}
-            Financial Planning
-          </h1>
           
-          {/* Subheadline */}
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            Partner with experienced advisors who prioritize your financial goals. 
-            From retirement planning to wealth creation, we deliver personalized strategies backed by thorough research.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <Button 
-              size="lg" 
-              className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-6 text-lg font-semibold shadow-lg group transition-all duration-300"
-              onClick={() => window.location.href = '/contact'}
-            >
-              Schedule Free Consultation
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white px-8 py-6 text-lg transition-all duration-300"
-              onClick={() => window.location.href = '/services'}
-            >
-              Explore Our Services
-            </Button>
+          {/* Right image */}
+          <div 
+            className="relative animate-slide-up parallax-layer order-1 lg:order-2"
+            style={getScrollParallaxStyle(-0.05)}
+          >
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-2xl sm:rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+              <img 
+                src={heroImage} 
+                alt="Financial Success" 
+                className="relative w-full h-auto rounded-2xl sm:rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-gradient-gold p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
+                <div className="text-center">
+                  <div ref={returnsCount.ref} className="text-xl sm:text-2xl font-bold text-financial-primary">
+                    {returnsCount.value}
+                  </div>
+                  <div className="text-xs sm:text-sm text-financial-secondary">Avg. Returns</div>
+                </div>
+              </div>
+            </div>
           </div>
-
-          {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-8 border-t border-border animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <Users className="w-5 h-5 text-financial-accent hidden sm:block" />
-                <span ref={clientsCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
-                  {clientsCount.value}
-                </span>
+        </div>
+        
+        {/* Stats section - centered on page */}
+        <div className="flex justify-center pt-6 sm:pt-8">
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-16">
+            <div className="text-center transform hover:scale-110 transition-transform duration-300">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
+                100%
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground">Happy Clients</p>
+              <div className="text-sm sm:text-base text-muted-foreground">Research Based</div>
             </div>
-            <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <TrendingUp className="w-5 h-5 text-financial-accent hidden sm:block" />
-                <span ref={aumCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
-                  {aumCount.value}
-                </span>
+            <div className="text-center transform hover:scale-110 transition-transform duration-300">
+              <div ref={clientsCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
+                {clientsCount.value}
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground">Assets Managed</p>
+              <div className="text-sm sm:text-base text-muted-foreground">Happy Clients</div>
             </div>
-            <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <Shield className="w-5 h-5 text-financial-accent hidden sm:block" />
-                <span ref={returnsCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
-                  {returnsCount.value}
-                </span>
+            <div className="text-center transform hover:scale-110 transition-transform duration-300">
+              <div ref={aumCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
+                {aumCount.value}
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground">Avg. Returns</p>
+              <div className="text-sm sm:text-base text-muted-foreground">Assets Managed</div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 };
