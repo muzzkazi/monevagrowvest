@@ -1,6 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { TrendingUp, TrendingDown } from "lucide-react";
 
 interface StockQuote {
   symbol: string;
@@ -53,13 +52,10 @@ const stockSymbols = [
   "AXISBANK", "APOLLOHOSP", "BRITANNIA", "TATACONSUM", "EICHERMOT", "BPCL"
 ];
 
-type FilterMode = "all" | "gainers" | "losers";
-
 const SecondaryBand = () => {
   const [indices, setIndices] = useState<IndexData[]>(defaultIndices);
   const [stocks, setStocks] = useState<StockData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filterMode, setFilterMode] = useState<FilterMode>("all");
 
   const formatPrice = (price: number): string => {
     return price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -148,28 +144,7 @@ const SecondaryBand = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Filter and sort stocks based on mode
-  const filteredStocks = useMemo(() => {
-    const baseStocks = stocks.length > 0 ? stocks : stockSymbols.map(symbol => ({
-      symbol,
-      price: "---",
-      change: "---",
-      percent: "---",
-      rawChangePercent: 0
-    }));
-
-    if (filterMode === "all") return baseStocks;
-    
-    const sorted = [...baseStocks].sort((a, b) => b.rawChangePercent - a.rawChangePercent);
-    
-    if (filterMode === "gainers") {
-      return sorted.filter(s => s.rawChangePercent > 0).slice(0, 15);
-    } else {
-      return sorted.filter(s => s.rawChangePercent < 0).slice(-15).reverse();
-    }
-  }, [stocks, filterMode]);
-
-  const displayStocks = filteredStocks.length > 0 ? filteredStocks : stockSymbols.map(symbol => ({
+  const displayStocks = stocks.length > 0 ? stocks : stockSymbols.map(symbol => ({
     symbol,
     price: "---",
     change: "---",
@@ -179,40 +154,6 @@ const SecondaryBand = () => {
 
   return (
     <div className="bg-gradient-to-r from-blue-950/50 via-slate-900/35 to-blue-950/50 backdrop-blur-md text-white pt-4 pb-2 w-full z-20 overflow-hidden flex flex-col justify-center relative border-b border-blue-400/10">
-      {/* Controls Row */}
-      <div className="absolute top-1 left-2 flex items-center gap-2 z-30">
-        {/* Filter Toggle */}
-        <div className="flex items-center bg-black/30 rounded-full p-0.5">
-          <button
-            onClick={() => setFilterMode("all")}
-            className={`px-2 py-0.5 text-xs rounded-full transition-colors ${
-              filterMode === "all" ? "bg-white/20 text-white" : "text-white/60 hover:text-white"
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setFilterMode("gainers")}
-            className={`px-2 py-0.5 text-xs rounded-full transition-colors flex items-center gap-1 ${
-              filterMode === "gainers" ? "bg-green-500/30 text-green-400" : "text-white/60 hover:text-green-400"
-            }`}
-          >
-            <TrendingUp className="w-3 h-3" />
-            Gainers
-          </button>
-          <button
-            onClick={() => setFilterMode("losers")}
-            className={`px-2 py-0.5 text-xs rounded-full transition-colors flex items-center gap-1 ${
-              filterMode === "losers" ? "bg-red-500/30 text-red-400" : "text-white/60 hover:text-red-400"
-            }`}
-          >
-            <TrendingDown className="w-3 h-3" />
-            Losers
-          </button>
-        </div>
-      </div>
-
-
       {/* Live indicator */}
       {stocks.length > 0 && (
         <div className="absolute top-1 right-2 flex items-center gap-1 z-30">
