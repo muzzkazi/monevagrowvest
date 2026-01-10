@@ -155,7 +155,7 @@ const SecondaryBand = () => {
   return (
     <div className="bg-gradient-to-r from-blue-950/50 via-slate-900/35 to-blue-950/50 backdrop-blur-md text-white py-1.5 w-full z-20 overflow-hidden flex flex-col justify-center relative border-b border-blue-400/10">
       {/* First line - Indices */}
-      <div className="relative mb-2 overflow-hidden mt-6">
+      <div className="relative mb-1 overflow-hidden">
         <div className="inline-flex w-max animate-scroll-indices will-change-transform hover:[animation-play-state:paused]">
           {[...indices, ...indices].map((item, index) => {
             const isPositive = !item.change.startsWith('-');
