@@ -164,7 +164,7 @@ const SecondaryBand = () => {
                 <div className="flex items-center gap-2 px-6">
                   <span className="font-medium text-sm">{item.name}</span>
                   <span className="text-base font-bold">{item.value}</span>
-                  <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                  <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-300'}`}>
                     <span>{isPositive ? '↗' : '↘'}</span>
                     <span>{item.change}</span>
                     <span>({item.changePercent})</span>
@@ -192,10 +192,10 @@ const SecondaryBand = () => {
                   </span>
                   {isLoaded && (
                     <>
-                      <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                      <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-300'}`}>
                         {stock.change}
                       </span>
-                      <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                      <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-300'}`}>
                         ({stock.percent})
                       </span>
                     </>
