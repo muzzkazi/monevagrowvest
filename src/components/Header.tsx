@@ -39,20 +39,20 @@ const Header = () => {
           ? 'backdrop-blur-2xl bg-background/80 border-b border-border/40 shadow-2xl shadow-black/10' 
           : 'glass-nav'
       }`}>
-        <div className="container mx-auto max-w-screen-2xl px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+        <div className="container mx-auto max-w-screen-2xl px-4 py-3">
+          <div className="flex items-center justify-between flex-nowrap whitespace-nowrap">
+            <div className="flex items-center flex-shrink-0">
               <img 
                 src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
                 alt="Moneva Logo" 
-                className="h-9 w-auto drop-shadow-sm"
+                className="h-8 w-auto drop-shadow-sm"
               />
             </div>
           
-            <nav className="flex items-center space-x-6 ml-10">
+            <nav className="flex items-center space-x-4 ml-6 flex-shrink-0">
               <Link 
                 to="/" 
-                className={`text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer hover:scale-105 ${
+                className={`text-[13px] font-medium transition-all duration-200 cursor-pointer hover:scale-105 ${
                   location.pathname === '/' ? 'text-financial-accent' : 'text-foreground/90 hover:text-financial-accent'
                 }`}
               >
@@ -60,7 +60,7 @@ const Header = () => {
               </Link>
               <Link 
                 to="/about" 
-                className={`text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer hover:scale-105 ${
+                className={`text-[13px] font-medium transition-all duration-200 cursor-pointer hover:scale-105 ${
                   location.pathname === '/about' ? 'text-financial-accent' : 'text-foreground/90 hover:text-financial-accent'
                 }`}
               >
@@ -68,7 +68,7 @@ const Header = () => {
               </Link>
               <Link 
                 to="/services" 
-                className={`text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer hover:scale-105 ${
+                className={`text-[13px] font-medium transition-all duration-200 cursor-pointer hover:scale-105 ${
                   location.pathname === '/services' ? 'text-financial-accent' : 'text-foreground/90 hover:text-financial-accent'
                 }`}
               >
@@ -76,7 +76,7 @@ const Header = () => {
               </Link>
               <Link 
                 to="/calculators" 
-                className={`text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer hover:scale-105 ${
+                className={`text-[13px] font-medium transition-all duration-200 cursor-pointer hover:scale-105 ${
                   location.pathname === '/calculators' ? 'text-financial-accent' : 'text-foreground/90 hover:text-financial-accent'
                 }`}
               >
@@ -84,14 +84,14 @@ const Header = () => {
               </Link>
               <Link 
                 to="/debt-management" 
-                className={`text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer hover:scale-105 ${
+                className={`text-[13px] font-medium transition-all duration-200 cursor-pointer hover:scale-105 ${
                   location.pathname === '/debt-management' ? 'text-financial-accent' : 'text-foreground/90 hover:text-financial-accent'
                 }`}
               >
-                Debt Management
+                Debt
               </Link>
               <div className="relative group">
-                <span className={`text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer hover:scale-105 ${
+                <span className={`text-[13px] font-medium transition-all duration-200 cursor-pointer hover:scale-105 ${
                   location.pathname.startsWith('/ai-planning') || location.pathname === '/mutual-fund-comparison' || location.pathname === '/goal-based-planning' || location.pathname === '/sip-based-planning'
                     ? 'text-financial-accent' 
                     : 'text-foreground/90 hover:text-financial-accent'
@@ -99,28 +99,28 @@ const Header = () => {
                   AI Planning
                 </span>
                 <div className="absolute top-full left-0 pt-3 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
-                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-xl shadow-black/10 min-w-[220px] py-2 overflow-hidden">
+                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-xl shadow-black/10 min-w-[200px] py-2 overflow-hidden">
                     <Link 
                       to="/ai-planning" 
-                      className="block px-4 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="block px-4 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
                       AI Planning
                     </Link>
                     <Link 
                       to="/goal-based-planning" 
-                      className="block px-4 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="block px-4 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
                       Goal Based Planning
                     </Link>
                     <Link 
                       to="/sip-based-planning" 
-                      className="block px-4 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="block px-4 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
                       SIP Based Planning
                     </Link>
                     <Link 
                       to="/mutual-fund-comparison" 
-                      className="block px-4 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="block px-4 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
                       Mutual Fund Comparison
                     </Link>
@@ -129,15 +129,15 @@ const Header = () => {
               </div>
               <Link 
                 to="/financial-education" 
-                className={`text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer hover:scale-105 ${
+                className={`text-[13px] font-medium transition-all duration-200 cursor-pointer hover:scale-105 ${
                   location.pathname === '/financial-education' ? 'text-financial-accent' : 'text-foreground/90 hover:text-financial-accent'
                 }`}
               >
-                Learning Hub
+                Learning
               </Link>
               <Link 
                 to="/contact" 
-                className={`text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer hover:scale-105 ${
+                className={`text-[13px] font-medium transition-all duration-200 cursor-pointer hover:scale-105 ${
                   location.pathname === '/contact' ? 'text-financial-accent' : 'text-foreground/90 hover:text-financial-accent'
                 }`}
               >
@@ -145,13 +145,13 @@ const Header = () => {
               </Link>
             </nav>
             
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3 flex-shrink-0">
               <ThemeToggle />
-              <a href="tel:+918087855185" className="flex items-center gap-2 text-financial-accent hover:text-financial-accent/80 transition-all duration-200 hover:scale-105">
-                <Phone className="h-4 w-4" />
-                <span className="font-semibold text-sm">+91 80878 55185</span>
+              <a href="tel:+918087855185" className="hidden xl:flex items-center gap-1.5 text-financial-accent hover:text-financial-accent/80 transition-all duration-200">
+                <Phone className="h-3.5 w-3.5" />
+                <span className="font-semibold text-xs">+91 80878 55185</span>
               </a>
-              <Button className="btn-enhance bg-financial-accent hover:bg-financial-accent/90 text-white shadow-lg shadow-financial-accent/25 font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-financial-accent/30">
+              <Button className="btn-enhance bg-financial-accent hover:bg-financial-accent/90 text-white shadow-lg shadow-financial-accent/25 font-semibold px-4 py-2 text-sm rounded-lg transition-all duration-200 hover:scale-105">
                 Get Started
               </Button>
             </div>
