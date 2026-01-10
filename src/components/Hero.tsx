@@ -83,26 +83,26 @@ const Hero = () => {
         />
       </div>
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 relative max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+      <div className="container mx-auto px-8 py-16 relative max-w-7xl">
+        <div className="grid grid-cols-2 gap-16 items-center">
           {/* Left content */}
-          <div className="space-y-6 sm:space-y-8 animate-fade-in flex flex-col items-center text-center">
-            <div className="space-y-3 sm:space-y-4">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+          <div className="space-y-8 animate-fade-in flex flex-col items-center text-center">
+            <div className="space-y-4">
+              <h1 className="text-6xl font-bold leading-tight">
                 Take control of your{" "}
                 <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent animate-pulse">
                   financial destiny
                 </span>
               </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto">
+              <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
                 Whether you're saving for a new home, planning your child's education, or growing your retirement fund, we're here to support you in reaching your financial goals.
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+            <div className="flex flex-row gap-4">
               <Button 
                 size="lg" 
-                className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg shadow-lg w-full sm:w-auto"
+                className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-8 py-4 text-lg shadow-lg"
                 onClick={() => window.location.href = '/contact'}
               >
                 Start Your Journey
@@ -110,32 +110,32 @@ const Hero = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                className="px-8 py-4 text-lg border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white hover:scale-105 transition-all duration-300"
                 onClick={() => window.location.href = '/contact'}
               >
                 Schedule Consultation
               </Button>
             </div>
             
-            <div className="w-full pt-6 sm:pt-8">
-              <div className="grid w-full grid-cols-3 gap-4 sm:gap-6 lg:gap-10 place-items-center">
+            <div className="w-full pt-8">
+              <div className="grid w-full grid-cols-3 gap-10 place-items-center">
                 <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                  <div ref={researchCount.ref} className="text-2xl sm:text-3xl lg:text-4xl font-bold text-financial-accent">
-                    {researchCount.value}
+                  <div className="text-4xl font-bold text-financial-accent">
+                    100%
                   </div>
-                  <div className="text-xs sm:text-sm lg:text-base text-muted-foreground">Research Based</div>
+                  <div className="text-base text-muted-foreground">Research Based</div>
                 </div>
                 <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                  <div ref={clientsCount.ref} className="text-2xl sm:text-3xl lg:text-4xl font-bold text-financial-accent">
+                  <div ref={clientsCount.ref} className="text-4xl font-bold text-financial-accent">
                     {clientsCount.value}
                   </div>
-                  <div className="text-xs sm:text-sm lg:text-base text-muted-foreground">Happy Clients</div>
+                  <div className="text-base text-muted-foreground">Happy Clients</div>
                 </div>
                 <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                  <div ref={aumCount.ref} className="text-2xl sm:text-3xl lg:text-4xl font-bold text-financial-accent">
+                  <div ref={aumCount.ref} className="text-4xl font-bold text-financial-accent">
                     {aumCount.value}
                   </div>
-                  <div className="text-xs sm:text-sm lg:text-base text-muted-foreground">Assets Managed</div>
+                  <div className="text-base text-muted-foreground">Assets Managed</div>
                 </div>
               </div>
             </div>
@@ -143,22 +143,22 @@ const Hero = () => {
           
           {/* Right image */}
           <div 
-            className="relative animate-slide-up parallax-layer order-first lg:order-last"
+            className="relative animate-slide-up parallax-layer"
             style={getScrollParallaxStyle(-0.05)}
           >
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-2xl sm:rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
               <img 
                 src={heroImage} 
                 alt="Financial Success" 
-                className="relative w-full h-auto rounded-2xl sm:rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
+                className="relative w-full h-auto rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-gradient-gold p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
+              <div className="absolute -top-4 -right-4 bg-gradient-gold p-6 rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
                 <div className="text-center">
-                  <div ref={returnsCount.ref} className="text-xl sm:text-2xl font-bold text-financial-primary">
+                  <div ref={returnsCount.ref} className="text-2xl font-bold text-financial-primary">
                     {returnsCount.value}
                   </div>
-                  <div className="text-xs sm:text-sm text-financial-secondary">Avg. Returns</div>
+                  <div className="text-sm text-financial-secondary">Avg. Returns</div>
                 </div>
               </div>
             </div>
