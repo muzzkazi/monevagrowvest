@@ -17,6 +17,7 @@ import {
   Clock
 } from "lucide-react";
 import { useStockPrices } from "@/hooks/useStockPrices";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 interface StockRecommendation {
   stock: string;
@@ -96,6 +97,8 @@ const StockRecommendations = () => {
 
   const symbols = useMemo(() => recommendations.map(r => r.ticker), []);
   const { prices, isLoading, error, lastUpdated, refreshPrices } = useStockPrices(symbols);
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
+  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
 
   const getRecommendationColor = (rec: string) => {
     switch (rec) {
@@ -138,9 +141,12 @@ const StockRecommendations = () => {
   };
 
   return (
-    <section className="py-10 sm:py-14 bg-background">
+    <section className="py-12 sm:py-16 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-6">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-6 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           <div className="flex items-center justify-center gap-4 mb-3">
             <h2 className="text-3xl sm:text-4xl font-bold">
               Brokerage <span className="text-financial-accent">Stock Picks</span>
@@ -188,7 +194,7 @@ const StockRecommendations = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">
+        <div ref={gridRef} className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">
           {recommendations.map((rec, index) => {
             const livePrice = prices[rec.ticker];
             const currentPrice = livePrice?.price || 0;
@@ -199,7 +205,8 @@ const StockRecommendations = () => {
             return (
               <Card 
                 key={index} 
-                className="bg-gradient-card border shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                className={`bg-gradient-card border shadow-card hover:shadow-lg transition-all duration-500 hover:-translate-y-1 overflow-hidden ${gridVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                style={{ transitionDelay: gridVisible ? `${index * 80}ms` : '0ms' }}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">

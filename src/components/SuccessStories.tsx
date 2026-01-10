@@ -1,8 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Home, GraduationCap, Heart } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const SuccessStories = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
+  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
+  const { ref: buttonRef, isVisible: buttonVisible } = useScrollAnimation({ threshold: 0.3 });
   const stories = [
     {
       icon: <Home className="w-8 h-8 text-financial-accent" />,
@@ -55,9 +59,12 @@ const SuccessStories = () => {
   ];
 
   return (
-    <section className="py-10 sm:py-14 bg-background">
+    <section className="py-12 sm:py-16 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-8 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           <h2 className="text-3xl sm:text-4xl font-bold mb-3">
             Real Stories, <span className="text-financial-accent">Real Success</span>
           </h2>
@@ -66,9 +73,13 @@ const SuccessStories = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-5 mb-6">
+        <div ref={gridRef} className="grid md:grid-cols-2 gap-5 mb-6">
           {stories.map((story, index) => (
-            <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
+            <Card 
+              key={index} 
+              className={`bg-gradient-card border-0 shadow-card overflow-hidden hover-scale transition-all duration-500 ${gridVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+              style={{ transitionDelay: gridVisible ? `${index * 100}ms` : '0ms' }}
+            >
               <div className="relative">
                 <img
                   src={story.image}
@@ -111,7 +122,10 @@ const SuccessStories = () => {
           ))}
         </div>
 
-        <div className="text-center">
+        <div 
+          ref={buttonRef}
+          className={`text-center transition-all duration-700 ${buttonVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           <Button 
             className="bg-financial-accent hover:bg-financial-accent/90 text-white px-8 py-3"
             onClick={() => window.location.href = '/contact'}

@@ -46,7 +46,7 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-10 sm:py-14 bg-financial-muted">
+    <section className="py-12 sm:py-16 bg-financial-muted">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}
