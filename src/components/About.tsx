@@ -38,15 +38,15 @@ const About = () => {
   ];
 
   return (
-    <section id="about" className="py-20 bg-background">
+    <section id="about" className="py-12 bg-background">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}
-          className={`text-center mb-16 transition-all duration-700 ease-out ${
+          className={`text-center mb-10 transition-all duration-700 ease-out ${
             headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <h2 className="text-4xl font-bold mb-6">
+          <h2 className="text-4xl font-bold mb-4">
             About <span className="text-financial-accent">Moneva</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -57,7 +57,7 @@ const About = () => {
         {/* Our Story */}
         <div 
           ref={storyRef}
-          className={`grid lg:grid-cols-2 gap-12 items-center mb-20 transition-all duration-700 ease-out ${
+          className={`grid lg:grid-cols-2 gap-8 items-center mb-12 transition-all duration-700 ease-out ${
             storyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
@@ -94,13 +94,13 @@ const About = () => {
         </div>
 
         {/* Our Values */}
-        <div ref={valuesRef} className="mb-20">
+        <div ref={valuesRef} className="mb-12">
           <div 
             className={`text-center mb-12 transition-all duration-700 ease-out ${
               valuesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
-            <h3 className="text-3xl font-bold mb-4">Our Values</h3>
+            <h3 className="text-3xl font-bold mb-3">Our Values</h3>
             <p className="text-xl text-muted-foreground">
               The principles that guide everything we do
             </p>
@@ -131,12 +131,12 @@ const About = () => {
             teamVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <h3 className="text-3xl font-bold mb-6">Meet Our Expert Team</h3>
-          <p className="text-xl text-muted-foreground mb-8">
+          <h3 className="text-3xl font-bold mb-4">Meet Our Expert Team</h3>
+          <p className="text-xl text-muted-foreground mb-6">
             Certified professionals with decades of combined experience in financial planning and wealth management
           </p>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
               {
                 name: "Rajesh Kumar",

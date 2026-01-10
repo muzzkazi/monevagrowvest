@@ -59,13 +59,13 @@ const Partners = () => {
   const { ref: carouselRef, isVisible: carouselVisible } = useScrollAnimation({ threshold: 0.1 });
 
   return (
-    <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
+    <section className="py-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}
-          className={`text-center mb-12 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          className={`text-center mb-8 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
             Our <span className="text-financial-accent">Trusted Partners</span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
@@ -76,7 +76,7 @@ const Partners = () => {
         {/* Featured Partners - Highlighted */}
         <div 
           ref={featuredRef}
-          className={`grid md:grid-cols-2 gap-8 mb-12 transition-all duration-700 delay-100 ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          className={`grid md:grid-cols-2 gap-6 mb-8 transition-all duration-700 delay-100 ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           {featuredPartners.map((partner, index) => (
             <Card 
@@ -84,8 +84,8 @@ const Partners = () => {
               className="group hover-scale hover:shadow-xl transition-all duration-300 border-2 border-financial-accent/20"
               style={{ transitionDelay: `${index * 150}ms` }}
             >
-              <CardContent className="p-8 text-center">
-                <div className="relative mb-6">
+              <CardContent className="p-6 text-center">
+                <div className="relative mb-4">
                   <img
                     src={partner.logo}
                     alt={`${partner.name} logo`}
@@ -120,8 +120,8 @@ const Partners = () => {
           ref={carouselRef}
           className={`transition-all duration-700 delay-200 ${carouselVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
               Authorized Distributor for Leading Mutual Funds
             </h3>
             <p className="text-gray-600 dark:text-gray-300">
@@ -129,7 +129,7 @@ const Partners = () => {
             </p>
           </div>
 
-          <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+          <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <div className="flex transition-transform duration-500 ease-in-out"
                style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
             {Array.from({ length: Math.ceil(mutualFundPartners.length / 6) }).map((_, slideIndex) => (
@@ -185,7 +185,7 @@ const Partners = () => {
         </div>
 
         {/* Regulatory Information */}
-        <div className="mt-8 text-center">
+        <div className="mt-6 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Authorized Mutual Fund Distributor | 
             ARN: ARN-305935 | All investments are subject to market risks.

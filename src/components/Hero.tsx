@@ -83,11 +83,11 @@ const Hero = () => {
         />
       </div>
       
-      <div className="container mx-auto px-4 py-20 relative">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 py-12 relative">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left content */}
-          <div className="space-y-8 animate-fade-in">
-            <div className="space-y-4">
+          <div className="space-y-6 animate-fade-in">
+            <div className="space-y-3">
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
                 Take control of your{" "}
                 <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent animate-pulse">
@@ -117,7 +117,7 @@ const Hero = () => {
               </Button>
             </div>
             
-            <div className="flex items-center gap-8 pt-8">
+            <div className="flex items-center gap-6 pt-4">
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
                 <div className="text-3xl font-bold text-financial-accent">
                   100%

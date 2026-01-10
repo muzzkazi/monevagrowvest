@@ -46,15 +46,15 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-20 bg-financial-muted">
+    <section className="py-12 bg-financial-muted">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}
-          className={`text-center mb-16 transition-all duration-700 ease-out ${
+          className={`text-center mb-10 transition-all duration-700 ease-out ${
             headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <h2 className="text-4xl font-bold mb-6">
+          <h2 className="text-4xl font-bold mb-4">
             What Our <span className="text-financial-accent">Clients Say</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -103,11 +103,11 @@ const Testimonials = () => {
 
         <div 
           ref={statsRef}
-          className={`text-center mt-12 transition-all duration-700 ease-out ${
+          className={`text-center mt-8 transition-all duration-700 ease-out ${
             statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
             <div>
               <p ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">{clientsCount.value}</p>
               <p className="text-sm text-muted-foreground">Happy Clients</p>

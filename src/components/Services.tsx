@@ -53,15 +53,15 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="py-20 bg-financial-muted">
+    <section id="services" className="py-12 bg-financial-muted">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}
-          className={`text-center mb-16 transition-all duration-700 ease-out ${
+          className={`text-center mb-10 transition-all duration-700 ease-out ${
             headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <h2 className="text-4xl font-bold mb-6">
+          <h2 className="text-4xl font-bold mb-4">
             Our <span className="text-financial-accent">Services</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -71,7 +71,7 @@ const Services = () => {
         
         <div 
           ref={gridRef}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {services.map((service, index) => (
             <Card 

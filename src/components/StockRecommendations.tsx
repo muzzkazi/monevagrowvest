@@ -138,10 +138,10 @@ const StockRecommendations = () => {
   };
 
   return (
-    <section className="py-20 bg-background">
+    <section className="py-12 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-4 mb-6">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-4 mb-4">
             <h2 className="text-4xl font-bold">
               Brokerage <span className="text-financial-accent">Stock Picks</span>
             </h2>
@@ -294,7 +294,7 @@ const StockRecommendations = () => {
           })}
         </div>
 
-        <div className="mt-12 text-center">
+        <div className="mt-8 text-center">
           <Card className="inline-block bg-gradient-gold border-0 shadow-card p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-financial-accent/20 rounded-full flex items-center justify-center">
