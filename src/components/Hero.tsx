@@ -52,33 +52,33 @@ const Hero = () => {
         />
       </div>
 
-      {/* Professional Dark Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-financial-dark/95 via-financial-dark/80 to-financial-dark/60" />
-      <div className="absolute inset-0 bg-gradient-to-t from-financial-dark/90 via-transparent to-financial-dark/40" />
+      {/* Light Professional Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/70" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
       
       {/* Subtle accent line */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-financial-accent to-transparent opacity-60" />
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-financial-accent to-transparent opacity-40" />
 
       {/* Content */}
       <div className="container mx-auto px-4 sm:px-8 py-12 sm:py-20 relative z-10 max-w-7xl">
         <div className="max-w-3xl">
           {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6 animate-fade-in">
-            <Shield className="w-4 h-4 text-financial-gold" />
-            <span className="text-sm text-white/90 font-medium">SEBI Registered Investment Advisor</span>
+          <div className="inline-flex items-center gap-2 bg-financial-accent/10 backdrop-blur-sm border border-financial-accent/20 rounded-full px-4 py-2 mb-6 animate-fade-in">
+            <Shield className="w-4 h-4 text-financial-accent" />
+            <span className="text-sm text-foreground/80 font-medium">SEBI Registered Investment Advisor</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white mb-6 animate-fade-in">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-6 animate-fade-in">
             Building Wealth with{" "}
-            <span className="text-financial-gold">
+            <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">
               Research-Driven
             </span>{" "}
             Financial Planning
           </h1>
           
           {/* Subheadline */}
-          <p className="text-base sm:text-lg md:text-xl text-white/80 leading-relaxed max-w-2xl mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             Partner with experienced advisors who prioritize your financial goals. 
             From retirement planning to wealth creation, we deliver personalized strategies backed by thorough research.
           </p>
@@ -96,7 +96,7 @@ const Hero = () => {
             <Button 
               variant="outline" 
               size="lg" 
-              className="border-white/30 text-white hover:bg-white/10 hover:border-white/50 px-8 py-6 text-lg transition-all duration-300"
+              className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white px-8 py-6 text-lg transition-all duration-300"
               onClick={() => window.location.href = '/services'}
             >
               Explore Our Services
@@ -104,33 +104,33 @@ const Hero = () => {
           </div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-8 border-t border-white/20 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-8 border-t border-border animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <div className="text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <Users className="w-5 h-5 text-financial-gold hidden sm:block" />
-                <span ref={clientsCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+                <Users className="w-5 h-5 text-financial-accent hidden sm:block" />
+                <span ref={clientsCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
                   {clientsCount.value}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-white/60">Happy Clients</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Happy Clients</p>
             </div>
             <div className="text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <TrendingUp className="w-5 h-5 text-financial-gold hidden sm:block" />
-                <span ref={aumCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+                <TrendingUp className="w-5 h-5 text-financial-accent hidden sm:block" />
+                <span ref={aumCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
                   {aumCount.value}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-white/60">Assets Managed</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Assets Managed</p>
             </div>
             <div className="text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <Shield className="w-5 h-5 text-financial-gold hidden sm:block" />
-                <span ref={returnsCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+                <Shield className="w-5 h-5 text-financial-accent hidden sm:block" />
+                <span ref={returnsCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
                   {returnsCount.value}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-white/60">Avg. Returns</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Avg. Returns</p>
             </div>
           </div>
         </div>
