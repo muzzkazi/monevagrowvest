@@ -23,12 +23,20 @@ interface StockData {
   percent: string;
 }
 
+// Index symbols for Yahoo Finance
+const indexSymbols = [
+  { name: "NIFTY 50", symbol: "^NSEI" },
+  { name: "SENSEX", symbol: "^BSESN" },
+  { name: "NIFTY BANK", symbol: "^NSEBANK" },
+  { name: "NIFTY IT", symbol: "^CNXIT" },
+];
+
 // Default indices with fallback values
 const defaultIndices: IndexData[] = [
-  { name: "NIFTY 50", symbol: "^NSEI", value: "24,837.00", change: "-225.10", changePercent: "-0.90%" },
-  { name: "SENSEX", symbol: "^BSESN", value: "81,463.09", change: "-721.08", changePercent: "-0.88%" },
-  { name: "NIFTY BANK", symbol: "^NSEBANK", value: "56,528.90", change: "-534.20", changePercent: "-0.94%" },
-  { name: "NIFTY IT", symbol: "^CNXIT", value: "44,256.85", change: "-187.45", changePercent: "-0.42%" },
+  { name: "NIFTY 50", symbol: "^NSEI", value: "---", change: "---", changePercent: "---" },
+  { name: "SENSEX", symbol: "^BSESN", value: "---", change: "---", changePercent: "---" },
+  { name: "NIFTY BANK", symbol: "^NSEBANK", value: "---", change: "---", changePercent: "---" },
+  { name: "NIFTY IT", symbol: "^CNXIT", value: "---", change: "---", changePercent: "---" },
 ];
 
 // NIFTY 50 stock symbols to fetch
@@ -90,43 +98,32 @@ const SecondaryBand = () => {
 
   const fetchIndices = async () => {
     try {
-      // Fetch index data using common ETFs/proxies
-      const indexSymbols = ["NIFTYBEES", "BANKBEES", "ITBEES"];
+      // Fetch actual index data using Yahoo Finance symbols
+      const symbols = indexSymbols.map(i => i.symbol);
       const { data, error } = await supabase.functions.invoke('stock-prices', {
-        body: { symbols: indexSymbols }
+        body: { symbols }
       });
 
-      if (error || !data?.quotes) return;
+      if (error || !data?.quotes) {
+        console.error('Error fetching indices:', error);
+        return;
+      }
 
-      // Map ETF data to approximate index values
-      const updatedIndices = [...defaultIndices];
-      data.quotes.forEach((quote: StockQuote) => {
-        if (quote.symbol === "NIFTYBEES") {
-          // NIFTYBEES tracks NIFTY 50 at ~1/100th value
-          updatedIndices[0] = {
-            ...updatedIndices[0],
-            value: formatPrice(quote.price * 100),
-            change: formatChange(quote.change * 100),
+      // Map fetched data to index format
+      const updatedIndices: IndexData[] = indexSymbols.map(idx => {
+        const quote = data.quotes.find((q: StockQuote) => q.symbol === idx.symbol);
+        if (quote) {
+          return {
+            name: idx.name,
+            symbol: idx.symbol,
+            value: formatPrice(quote.price),
+            change: formatChange(quote.change),
             changePercent: formatPercent(quote.changePercent)
           };
         }
-        if (quote.symbol === "BANKBEES") {
-          updatedIndices[2] = {
-            ...updatedIndices[2],
-            value: formatPrice(quote.price * 100),
-            change: formatChange(quote.change * 100),
-            changePercent: formatPercent(quote.changePercent)
-          };
-        }
-        if (quote.symbol === "ITBEES") {
-          updatedIndices[3] = {
-            ...updatedIndices[3],
-            value: formatPrice(quote.price * 100),
-            change: formatChange(quote.change * 100),
-            changePercent: formatPercent(quote.changePercent)
-          };
-        }
+        return defaultIndices.find(d => d.symbol === idx.symbol) || defaultIndices[0];
       });
+      
       setIndices(updatedIndices);
     } catch (error) {
       console.error('Error fetching indices:', error);

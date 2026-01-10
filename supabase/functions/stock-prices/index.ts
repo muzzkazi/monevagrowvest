@@ -37,10 +37,17 @@ serve(async (req) => {
     
     for (const symbol of symbols) {
       try {
-        const nseSymbol = `${symbol}.NS`;
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${nseSymbol}?interval=1d&range=1d`;
+        // Handle index symbols differently - they use Yahoo's format directly
+        let yahooSymbol = symbol;
         
-        console.log(`Fetching ${nseSymbol} from Yahoo Finance...`);
+        // Check if it's an index symbol (starts with ^) or a stock
+        if (!symbol.startsWith('^')) {
+          yahooSymbol = `${symbol}.NS`;
+        }
+        
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=1d&range=1d`;
+        
+        console.log(`Fetching ${yahooSymbol} from Yahoo Finance...`);
         
         const response = await fetch(url, {
           headers: {
@@ -72,7 +79,7 @@ serve(async (req) => {
             lastUpdated: new Date().toISOString()
           });
 
-          console.log(`${symbol}: ₹${price} (${change >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`);
+          console.log(`${symbol}: ₹${price.toFixed(2)} (${change >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`);
         }
       } catch (error) {
         console.error(`Error fetching ${symbol}:`, error);
