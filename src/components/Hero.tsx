@@ -30,7 +30,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-[calc(100vh-120px)] overflow-hidden">
+    <section id="home" className="relative overflow-hidden pb-16">
       {/* Video Background with Parallax */}
       <div 
         className="absolute inset-0 parallax-layer"
@@ -116,29 +116,6 @@ const Hero = () => {
                 Schedule Consultation
               </Button>
             </div>
-            
-            <div className="w-full pt-8">
-              <div className="grid w-full grid-cols-3 gap-10 place-items-center">
-                <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                  <div className="text-4xl font-bold text-financial-accent">
-                    100%
-                  </div>
-                  <div className="text-base text-muted-foreground">Research Based</div>
-                </div>
-                <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                  <div ref={clientsCount.ref} className="text-4xl font-bold text-financial-accent">
-                    {clientsCount.value}
-                  </div>
-                  <div className="text-base text-muted-foreground">Happy Clients</div>
-                </div>
-                <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                  <div ref={aumCount.ref} className="text-4xl font-bold text-financial-accent">
-                    {aumCount.value}
-                  </div>
-                  <div className="text-base text-muted-foreground">Assets Managed</div>
-                </div>
-              </div>
-            </div>
           </div>
           
           {/* Right image */}
@@ -161,6 +138,30 @@ const Hero = () => {
                   <div className="text-sm text-financial-secondary">Avg. Returns</div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Stats section - centered on page */}
+        <div className="flex justify-center pt-12">
+          <div className="flex items-center justify-center gap-16">
+            <div className="text-center transform hover:scale-110 transition-transform duration-300">
+              <div className="text-4xl font-bold text-financial-accent">
+                100%
+              </div>
+              <div className="text-base text-muted-foreground">Research Based</div>
+            </div>
+            <div className="text-center transform hover:scale-110 transition-transform duration-300">
+              <div ref={clientsCount.ref} className="text-4xl font-bold text-financial-accent">
+                {clientsCount.value}
+              </div>
+              <div className="text-base text-muted-foreground">Happy Clients</div>
+            </div>
+            <div className="text-center transform hover:scale-110 transition-transform duration-300">
+              <div ref={aumCount.ref} className="text-4xl font-bold text-financial-accent">
+                {aumCount.value}
+              </div>
+              <div className="text-base text-muted-foreground">Assets Managed</div>
             </div>
           </div>
         </div>
