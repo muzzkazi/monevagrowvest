@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/premium-financial-hero.jpg";
+import heroVideo from "@/assets/hero-video.mp4";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
+import { useRef, useEffect, useState } from "react";
 
 const Hero = () => {
   const researchCount = useCountUp({ end: 100, suffix: '%', duration: 2000, delay: 500 });
@@ -10,6 +12,8 @@ const Hero = () => {
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 1400 });
   
   const { smoothScrollY } = useBackgroundParallax(0.3);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   // Helper to get smooth parallax transforms
   const getParallaxStyle = (multiplier: number) => ({
@@ -17,35 +21,72 @@ const Hero = () => {
     willChange: 'transform',
   });
 
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {
+        // Autoplay might be blocked, that's okay
+      });
+    }
+  }, []);
+
   return (
-    <section id="home" className="relative min-h-screen bg-gradient-hero pt-20 overflow-hidden">
-      {/* Parallax animated background elements */}
+    <section id="home" className="relative min-h-screen pt-20 overflow-hidden">
+      {/* Video Background with Parallax */}
+      <div 
+        className="absolute inset-0 parallax-layer"
+        style={getParallaxStyle(0.1)}
+      >
+        <video
+          ref={videoRef}
+          className={`absolute inset-0 w-full h-full object-cover scale-110 transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={heroImage}
+          onLoadedData={() => setVideoLoaded(true)}
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+        
+        {/* Fallback image while video loads */}
+        <div 
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`}
+          style={{ backgroundImage: `url(${heroImage})` }}
+        />
+      </div>
+
+      {/* Multi-layer gradient overlays for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background/90" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/60" />
+      <div className="absolute inset-0 bg-gradient-to-t from-financial-primary/20 via-transparent to-transparent" />
+      
+      {/* Animated gradient orbs with parallax */}
       <div className="absolute inset-0 overflow-hidden">
         <div 
-          className="absolute top-1/4 left-1/4 w-64 h-64 bg-financial-gold/10 rounded-full blur-3xl animate-float parallax-layer"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-financial-gold/15 rounded-full blur-3xl animate-float parallax-layer"
           style={getParallaxStyle(0.15)}
         />
         <div 
-          className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-financial-accent/10 rounded-full blur-2xl animate-float parallax-layer" 
+          className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-financial-accent/15 rounded-full blur-2xl animate-float parallax-layer" 
           style={{ 
             animationDelay: '1s',
             ...getParallaxStyle(0.2)
           }}
         />
         <div 
-          className="absolute top-1/2 right-1/3 w-32 h-32 bg-financial-gold/5 rounded-full blur-xl animate-float parallax-layer" 
+          className="absolute top-1/2 right-1/3 w-48 h-48 bg-financial-gold/10 rounded-full blur-xl animate-float parallax-layer" 
           style={{ 
             animationDelay: '2s',
             ...getParallaxStyle(0.12)
           }}
         />
-        {/* Additional parallax layers */}
         <div 
-          className="absolute top-10 right-20 w-24 h-24 bg-financial-accent/5 rounded-full blur-lg parallax-layer"
+          className="absolute top-10 right-20 w-32 h-32 bg-financial-accent/10 rounded-full blur-lg parallax-layer"
           style={getParallaxStyle(0.25)}
         />
         <div 
-          className="absolute bottom-20 left-10 w-40 h-40 bg-financial-gold/8 rounded-full blur-2xl parallax-layer"
+          className="absolute bottom-20 left-10 w-56 h-56 bg-financial-gold/12 rounded-full blur-2xl parallax-layer"
           style={getParallaxStyle(0.18)}
         />
       </div>
