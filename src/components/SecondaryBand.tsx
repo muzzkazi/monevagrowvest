@@ -1,5 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Settings, TrendingUp, TrendingDown } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface StockQuote {
   symbol: string;
@@ -14,6 +23,7 @@ interface IndexData {
   value: string;
   change: string;
   changePercent: string;
+  rawChange: number;
 }
 
 interface StockData {
@@ -21,6 +31,7 @@ interface StockData {
   price: string;
   change: string;
   percent: string;
+  rawChangePercent: number;
 }
 
 // Index symbols for Yahoo Finance
@@ -33,10 +44,10 @@ const indexSymbols = [
 
 // Default indices with fallback values
 const defaultIndices: IndexData[] = [
-  { name: "NIFTY 50", symbol: "^NSEI", value: "---", change: "---", changePercent: "---" },
-  { name: "SENSEX", symbol: "^BSESN", value: "---", change: "---", changePercent: "---" },
-  { name: "NIFTY BANK", symbol: "^NSEBANK", value: "---", change: "---", changePercent: "---" },
-  { name: "NIFTY IT", symbol: "^CNXIT", value: "---", change: "---", changePercent: "---" },
+  { name: "NIFTY 50", symbol: "^NSEI", value: "---", change: "---", changePercent: "---", rawChange: 0 },
+  { name: "SENSEX", symbol: "^BSESN", value: "---", change: "---", changePercent: "---", rawChange: 0 },
+  { name: "NIFTY BANK", symbol: "^NSEBANK", value: "---", change: "---", changePercent: "---", rawChange: 0 },
+  { name: "NIFTY IT", symbol: "^CNXIT", value: "---", change: "---", changePercent: "---", rawChange: 0 },
 ];
 
 // NIFTY 50 stock symbols to fetch
@@ -50,10 +61,24 @@ const stockSymbols = [
   "AXISBANK", "APOLLOHOSP", "BRITANNIA", "TATACONSUM", "EICHERMOT", "BPCL"
 ];
 
+type SpeedSetting = "slow" | "normal" | "fast";
+type FilterMode = "all" | "gainers" | "losers";
+
+const speedClasses: Record<SpeedSetting, string> = {
+  slow: "animate-scroll-stocks-slow",
+  normal: "animate-scroll-stocks",
+  fast: "animate-scroll-stocks-fast",
+};
+
 const SecondaryBand = () => {
   const [indices, setIndices] = useState<IndexData[]>(defaultIndices);
   const [stocks, setStocks] = useState<StockData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Settings state
+  const [speed, setSpeed] = useState<SpeedSetting>("normal");
+  const [showChange, setShowChange] = useState(true);
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
 
   const formatPrice = (price: number): string => {
     return price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -85,7 +110,8 @@ const SecondaryBand = () => {
           symbol: quote.symbol,
           price: formatPrice(quote.price),
           change: formatChange(quote.change),
-          percent: formatPercent(quote.changePercent)
+          percent: formatPercent(quote.changePercent),
+          rawChangePercent: quote.changePercent
         }));
         setStocks(formattedStocks);
       }
@@ -98,7 +124,6 @@ const SecondaryBand = () => {
 
   const fetchIndices = async () => {
     try {
-      // Fetch actual index data using Yahoo Finance symbols
       const symbols = indexSymbols.map(i => i.symbol);
       const { data, error } = await supabase.functions.invoke('stock-prices', {
         body: { symbols }
@@ -109,7 +134,6 @@ const SecondaryBand = () => {
         return;
       }
 
-      // Map fetched data to index format
       const updatedIndices: IndexData[] = indexSymbols.map(idx => {
         const quote = data.quotes.find((q: StockQuote) => q.symbol === idx.symbol);
         if (quote) {
@@ -118,7 +142,8 @@ const SecondaryBand = () => {
             symbol: idx.symbol,
             value: formatPrice(quote.price),
             change: formatChange(quote.change),
-            changePercent: formatPercent(quote.changePercent)
+            changePercent: formatPercent(quote.changePercent),
+            rawChange: quote.change
           };
         }
         return defaultIndices.find(d => d.symbol === idx.symbol) || defaultIndices[0];
@@ -131,11 +156,9 @@ const SecondaryBand = () => {
   };
 
   useEffect(() => {
-    // Initial fetch
     fetchStockPrices();
     fetchIndices();
 
-    // Refresh prices every 30 seconds
     const interval = setInterval(() => {
       fetchStockPrices();
       fetchIndices();
@@ -144,20 +167,135 @@ const SecondaryBand = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Show loading skeleton or fallback data while loading - show ALL symbols
-  const displayStocks = stocks.length > 0 ? stocks : stockSymbols.map(symbol => ({
+  // Filter and sort stocks based on mode
+  const filteredStocks = useMemo(() => {
+    const baseStocks = stocks.length > 0 ? stocks : stockSymbols.map(symbol => ({
+      symbol,
+      price: "---",
+      change: "---",
+      percent: "---",
+      rawChangePercent: 0
+    }));
+
+    if (filterMode === "all") return baseStocks;
+    
+    const sorted = [...baseStocks].sort((a, b) => b.rawChangePercent - a.rawChangePercent);
+    
+    if (filterMode === "gainers") {
+      return sorted.filter(s => s.rawChangePercent > 0).slice(0, 15);
+    } else {
+      return sorted.filter(s => s.rawChangePercent < 0).slice(-15).reverse();
+    }
+  }, [stocks, filterMode]);
+
+  const displayStocks = filteredStocks.length > 0 ? filteredStocks : stockSymbols.map(symbol => ({
     symbol,
     price: "---",
     change: "---",
-    percent: "---"
+    percent: "---",
+    rawChangePercent: 0
   }));
 
   return (
     <div className="bg-financial-primary text-white pt-4 pb-2 w-full z-20 overflow-hidden flex flex-col justify-center relative">
+      {/* Controls Row */}
+      <div className="absolute top-1 left-2 flex items-center gap-2 z-30">
+        {/* Filter Toggle */}
+        <div className="flex items-center bg-black/30 rounded-full p-0.5">
+          <button
+            onClick={() => setFilterMode("all")}
+            className={`px-2 py-0.5 text-xs rounded-full transition-colors ${
+              filterMode === "all" ? "bg-white/20 text-white" : "text-white/60 hover:text-white"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setFilterMode("gainers")}
+            className={`px-2 py-0.5 text-xs rounded-full transition-colors flex items-center gap-1 ${
+              filterMode === "gainers" ? "bg-green-500/30 text-green-400" : "text-white/60 hover:text-green-400"
+            }`}
+          >
+            <TrendingUp className="w-3 h-3" />
+            Gainers
+          </button>
+          <button
+            onClick={() => setFilterMode("losers")}
+            className={`px-2 py-0.5 text-xs rounded-full transition-colors flex items-center gap-1 ${
+              filterMode === "losers" ? "bg-red-500/30 text-red-400" : "text-white/60 hover:text-red-400"
+            }`}
+          >
+            <TrendingDown className="w-3 h-3" />
+            Losers
+          </button>
+        </div>
+      </div>
+
+      {/* Settings Popover */}
+      <div className="absolute top-1 right-14 z-30">
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="p-1 rounded-full bg-black/30 hover:bg-black/50 transition-colors">
+              <Settings className="w-4 h-4 text-white/70 hover:text-white" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 bg-slate-900 border-slate-700 text-white" align="end">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-200">Ticker Speed</Label>
+                <ToggleGroup
+                  type="single"
+                  value={speed}
+                  onValueChange={(value) => value && setSpeed(value as SpeedSetting)}
+                  className="justify-start"
+                >
+                  <ToggleGroupItem
+                    value="slow"
+                    className="text-xs data-[state=on]:bg-blue-600 data-[state=on]:text-white"
+                  >
+                    Slow
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="normal"
+                    className="text-xs data-[state=on]:bg-blue-600 data-[state=on]:text-white"
+                  >
+                    Normal
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="fast"
+                    className="text-xs data-[state=on]:bg-blue-600 data-[state=on]:text-white"
+                  >
+                    Fast
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-change" className="text-sm text-slate-200">
+                  Show Change %
+                </Label>
+                <Switch
+                  id="show-change"
+                  checked={showChange}
+                  onCheckedChange={setShowChange}
+                />
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {/* Live indicator */}
+      {stocks.length > 0 && (
+        <div className="absolute top-1 right-2 flex items-center gap-1 z-30">
+          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+          <span className="text-xs text-white/60">Live</span>
+        </div>
+      )}
+
       {/* First line - Indices */}
-      <div className="relative mb-2 overflow-hidden">
+      <div className="relative mb-2 overflow-hidden mt-6">
         <div className="inline-flex w-max animate-scroll-indices will-change-transform hover:[animation-play-state:paused]">
-          {/* Continuous loop - 2 copies for seamless scrolling */}
           {[...indices, ...indices].map((item, index) => {
             const isPositive = !item.change.startsWith('-');
             return (
@@ -165,11 +303,13 @@ const SecondaryBand = () => {
                 <div className="flex items-center gap-2 px-6">
                   <span className="font-medium text-sm">{item.name}</span>
                   <span className="text-base font-bold">{item.value}</span>
-                  <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                    <span>{isPositive ? '↗' : '↘'}</span>
-                    <span>{item.change}</span>
-                    <span>({item.changePercent})</span>
-                  </span>
+                  {showChange && (
+                    <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                      <span>{isPositive ? '↗' : '↘'}</span>
+                      <span>{item.change}</span>
+                      <span>({item.changePercent})</span>
+                    </span>
+                  )}
                 </div>
                 <span className="text-white/40 mx-4">|</span>
               </div>
@@ -180,8 +320,7 @@ const SecondaryBand = () => {
 
       {/* Second line - NIFTY 50 Stocks */}
       <div className="relative overflow-hidden">
-        <div className="inline-flex w-max animate-scroll-stocks will-change-transform hover:[animation-play-state:paused]">
-          {/* Continuous loop - 2 copies for seamless scrolling */}
+        <div className={`inline-flex w-max ${speedClasses[speed]} will-change-transform hover:[animation-play-state:paused]`}>
           {[...displayStocks, ...displayStocks].map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
             const isLoaded = stock.price !== "---";
@@ -192,7 +331,7 @@ const SecondaryBand = () => {
                   <span className={`text-sm font-semibold ${!isLoaded ? 'animate-pulse' : ''}`}>
                     {isLoaded ? `₹${stock.price}` : stock.price}
                   </span>
-                  {isLoaded && (
+                  {isLoaded && showChange && (
                     <>
                       <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
                         {stock.change}
@@ -209,14 +348,6 @@ const SecondaryBand = () => {
           })}
         </div>
       </div>
-
-      {/* Live indicator */}
-      {stocks.length > 0 && (
-        <div className="absolute top-1 right-2 flex items-center gap-1">
-          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-          <span className="text-xs text-white/60">Live</span>
-        </div>
-      )}
     </div>
   );
 };
