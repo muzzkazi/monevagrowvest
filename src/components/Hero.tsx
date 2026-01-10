@@ -117,24 +117,26 @@ const Hero = () => {
               </Button>
             </div>
             
-            <div className="flex items-center justify-center w-full gap-12 pt-6">
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-financial-accent">
-                  100%
+            <div className="w-full pt-8">
+              <div className="grid w-full grid-cols-3 gap-10 place-items-center">
+                <div className="text-center transform hover:scale-110 transition-transform duration-300">
+                  <div className="text-4xl font-bold text-financial-accent">
+                    100%
+                  </div>
+                  <div className="text-base text-muted-foreground">Research Based</div>
                 </div>
-                <div className="text-sm text-muted-foreground">Research Based</div>
-              </div>
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">
-                  {clientsCount.value}
+                <div className="text-center transform hover:scale-110 transition-transform duration-300">
+                  <div ref={clientsCount.ref} className="text-4xl font-bold text-financial-accent">
+                    {clientsCount.value}
+                  </div>
+                  <div className="text-base text-muted-foreground">Happy Clients</div>
                 </div>
-                <div className="text-sm text-muted-foreground">Happy Clients</div>
-              </div>
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div ref={aumCount.ref} className="text-3xl font-bold text-financial-accent">
-                  {aumCount.value}
+                <div className="text-center transform hover:scale-110 transition-transform duration-300">
+                  <div ref={aumCount.ref} className="text-4xl font-bold text-financial-accent">
+                    {aumCount.value}
+                  </div>
+                  <div className="text-base text-muted-foreground">Assets Managed</div>
                 </div>
-                <div className="text-sm text-muted-foreground">Assets Managed</div>
               </div>
             </div>
           </div>
