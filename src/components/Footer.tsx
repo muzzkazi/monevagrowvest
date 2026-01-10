@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Footer = () => {
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
+
   return (
     <footer className="bg-gradient-primary text-white py-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')]"></div>
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="grid md:grid-cols-4 gap-8 mb-12">
-          <div className="space-y-4">
+      <div ref={ref} className="container mx-auto px-4 relative z-10">
+        <div className={`grid md:grid-cols-4 gap-8 mb-12 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className={`space-y-4 transition-all duration-500 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <div className="flex items-center space-x-2">
               <img 
                 src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
@@ -25,7 +28,7 @@ const Footer = () => {
             </div>
           </div>
           
-          <div>
+          <div className={`transition-all duration-500 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <h4 className="font-display font-semibold mb-6 text-lg">Premium Services</h4>
             <ul className="space-y-3 text-white/80">
               <li><Link to="/services" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Investment Planning</Link></li>
@@ -35,7 +38,7 @@ const Footer = () => {
             </ul>
           </div>
           
-          <div>
+          <div className={`transition-all duration-500 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <h4 className="font-display font-semibold mb-6 text-lg">Smart Tools</h4>
             <ul className="space-y-3 text-white/80">
               <li><Link to="/calculators" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">SIP Calculator</Link></li>
@@ -45,7 +48,7 @@ const Footer = () => {
             </ul>
           </div>
           
-          <div>
+          <div className={`transition-all duration-500 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <h4 className="font-display font-semibold mb-6 text-lg">Connect With Us</h4>
             <div className="space-y-4 text-white/80">
               <div className="group">
@@ -70,7 +73,7 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-white/20 pt-8">
+        <div className={`border-t border-white/20 pt-8 transition-all duration-700 delay-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
           <div className="text-center mb-6">
             <p className="text-white/60 text-sm mb-3">
               <strong>Regulatory Disclosure:</strong> Moneva Growvest Pvt. Ltd. is an authorized person for mutual fund distribution.

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 const Partners = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -54,10 +54,17 @@ const Partners = () => {
     return mutualFundPartners.slice(startIndex, startIndex + partnersPerSlide);
   };
 
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
+  const { ref: featuredRef, isVisible: featuredVisible } = useScrollAnimation({ threshold: 0.1 });
+  const { ref: carouselRef, isVisible: carouselVisible } = useScrollAnimation({ threshold: 0.1 });
+
   return (
     <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-12 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Our <span className="text-financial-accent">Trusted Partners</span>
           </h2>
@@ -67,9 +74,16 @@ const Partners = () => {
         </div>
 
         {/* Featured Partners - Highlighted */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div 
+          ref={featuredRef}
+          className={`grid md:grid-cols-2 gap-8 mb-12 transition-all duration-700 delay-100 ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           {featuredPartners.map((partner, index) => (
-            <Card key={partner.name} className="group hover-scale hover:shadow-xl transition-all duration-300 border-2 border-financial-accent/20">
+            <Card 
+              key={partner.name} 
+              className="group hover-scale hover:shadow-xl transition-all duration-300 border-2 border-financial-accent/20"
+              style={{ transitionDelay: `${index * 150}ms` }}
+            >
               <CardContent className="p-8 text-center">
                 <div className="relative mb-6">
                   <img
@@ -102,16 +116,20 @@ const Partners = () => {
         </div>
 
         {/* Mutual Fund Partners - Carousel */}
-        <div className="text-center mb-8">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Authorized Distributor for Leading Mutual Funds
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">
-            We are authorized distributors for all major mutual fund houses in India
-          </p>
-        </div>
+        <div 
+          ref={carouselRef}
+          className={`transition-all duration-700 delay-200 ${carouselVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Authorized Distributor for Leading Mutual Funds
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              We are authorized distributors for all major mutual fund houses in India
+            </p>
+          </div>
 
-        <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+          <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
           <div className="flex transition-transform duration-500 ease-in-out"
                style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
             {Array.from({ length: Math.ceil(mutualFundPartners.length / 6) }).map((_, slideIndex) => (
@@ -163,6 +181,7 @@ const Partners = () => {
               />
             ))}
           </div>
+        </div>
         </div>
 
         {/* Regulatory Information */}
