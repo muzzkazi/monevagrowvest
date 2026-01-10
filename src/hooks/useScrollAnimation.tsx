@@ -7,7 +7,7 @@ interface UseScrollAnimationOptions {
 }
 
 export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
-  const { threshold = 0.1, rootMargin = '0px', triggerOnce = true } = options;
+  const { threshold = 0.1, rootMargin = '0px', triggerOnce = false } = options;
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -70,6 +70,33 @@ export const useScrollProgress = () => {
   return { ref, progress };
 };
 
+// Hook for CSS parallax effect
+export const useParallaxScroll = (speed: number = 0.5) => {
+  const [offset, setOffset] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const updateOffset = useCallback(() => {
+    if (!ref.current) return;
+
+    const rect = ref.current.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const elementCenter = rect.top + rect.height / 2;
+    const viewportCenter = windowHeight / 2;
+    
+    // Calculate offset based on element position relative to viewport center
+    const parallaxOffset = (elementCenter - viewportCenter) * speed;
+    setOffset(parallaxOffset);
+  }, [speed]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', updateOffset, { passive: true });
+    updateOffset();
+    return () => window.removeEventListener('scroll', updateOffset);
+  }, [updateOffset]);
+
+  return { ref, offset };
+};
+
 // Component for animated sections
 interface AnimatedSectionProps {
   children: React.ReactNode;
@@ -77,6 +104,7 @@ interface AnimatedSectionProps {
   delay?: number;
   className?: string;
   staggerChildren?: boolean;
+  triggerOnce?: boolean;
 }
 
 export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
@@ -85,8 +113,9 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
   delay = 0,
   className = '',
   staggerChildren = false,
+  triggerOnce = false,
 }) => {
-  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1, triggerOnce });
 
   const animationClass = {
     'fade-in': 'scroll-fade-in',
@@ -100,6 +129,31 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
       ref={ref}
       className={`${staggerChildren ? 'stagger-children' : animationClass} ${isVisible ? 'visible' : ''} ${className}`}
       style={{ transitionDelay: `${delay}s` }}
+    >
+      {children}
+    </div>
+  );
+};
+
+// Parallax Section Component
+interface ParallaxSectionProps {
+  children: React.ReactNode;
+  speed?: number;
+  className?: string;
+}
+
+export const ParallaxSection: React.FC<ParallaxSectionProps> = ({
+  children,
+  speed = 0.1,
+  className = '',
+}) => {
+  const { ref, offset } = useParallaxScroll(speed);
+
+  return (
+    <div
+      ref={ref}
+      className={`will-change-transform ${className}`}
+      style={{ transform: `translateY(${offset}px)` }}
     >
       {children}
     </div>
