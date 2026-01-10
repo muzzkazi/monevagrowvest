@@ -1,14 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Settings, TrendingUp, TrendingDown } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 interface StockQuote {
   symbol: string;
@@ -61,23 +53,12 @@ const stockSymbols = [
   "AXISBANK", "APOLLOHOSP", "BRITANNIA", "TATACONSUM", "EICHERMOT", "BPCL"
 ];
 
-type SpeedSetting = "slow" | "normal" | "fast";
 type FilterMode = "all" | "gainers" | "losers";
-
-const speedClasses: Record<SpeedSetting, string> = {
-  slow: "animate-scroll-stocks-slow",
-  normal: "animate-scroll-stocks",
-  fast: "animate-scroll-stocks-fast",
-};
 
 const SecondaryBand = () => {
   const [indices, setIndices] = useState<IndexData[]>(defaultIndices);
   const [stocks, setStocks] = useState<StockData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // Settings state
-  const [speed, setSpeed] = useState<SpeedSetting>("normal");
-  const [showChange, setShowChange] = useState(true);
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
 
   const formatPrice = (price: number): string => {
@@ -231,59 +212,6 @@ const SecondaryBand = () => {
         </div>
       </div>
 
-      {/* Settings Popover */}
-      <div className="absolute top-1 right-14 z-30">
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="p-1 rounded-full bg-black/30 hover:bg-black/50 transition-colors">
-              <Settings className="w-4 h-4 text-white/70 hover:text-white" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-56 bg-slate-900 border-slate-700 text-white" align="end">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-200">Ticker Speed</Label>
-                <ToggleGroup
-                  type="single"
-                  value={speed}
-                  onValueChange={(value) => value && setSpeed(value as SpeedSetting)}
-                  className="justify-start"
-                >
-                  <ToggleGroupItem
-                    value="slow"
-                    className="text-xs data-[state=on]:bg-blue-600 data-[state=on]:text-white"
-                  >
-                    Slow
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="normal"
-                    className="text-xs data-[state=on]:bg-blue-600 data-[state=on]:text-white"
-                  >
-                    Normal
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="fast"
-                    className="text-xs data-[state=on]:bg-blue-600 data-[state=on]:text-white"
-                  >
-                    Fast
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-change" className="text-sm text-slate-200">
-                  Show Change %
-                </Label>
-                <Switch
-                  id="show-change"
-                  checked={showChange}
-                  onCheckedChange={setShowChange}
-                />
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
 
       {/* Live indicator */}
       {stocks.length > 0 && (
@@ -303,13 +231,11 @@ const SecondaryBand = () => {
                 <div className="flex items-center gap-2 px-6">
                   <span className="font-medium text-sm">{item.name}</span>
                   <span className="text-base font-bold">{item.value}</span>
-                  {showChange && (
-                    <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                      <span>{isPositive ? '↗' : '↘'}</span>
-                      <span>{item.change}</span>
-                      <span>({item.changePercent})</span>
-                    </span>
-                  )}
+                  <span className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                    <span>{isPositive ? '↗' : '↘'}</span>
+                    <span>{item.change}</span>
+                    <span>({item.changePercent})</span>
+                  </span>
                 </div>
                 <span className="text-white/40 mx-4">|</span>
               </div>
@@ -320,7 +246,7 @@ const SecondaryBand = () => {
 
       {/* Second line - NIFTY 50 Stocks */}
       <div className="relative overflow-hidden">
-        <div className={`inline-flex w-max ${speedClasses[speed]} will-change-transform hover:[animation-play-state:paused]`}>
+        <div className="inline-flex w-max animate-scroll-stocks will-change-transform hover:[animation-play-state:paused]">
           {[...displayStocks, ...displayStocks].map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
             const isLoaded = stock.price !== "---";
@@ -331,7 +257,7 @@ const SecondaryBand = () => {
                   <span className={`text-sm font-semibold ${!isLoaded ? 'animate-pulse' : ''}`}>
                     {isLoaded ? `₹${stock.price}` : stock.price}
                   </span>
-                  {isLoaded && showChange && (
+                  {isLoaded && (
                     <>
                       <span className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
                         {stock.change}
