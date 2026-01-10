@@ -138,11 +138,11 @@ const StockRecommendations = () => {
   };
 
   return (
-    <section className="py-12 bg-background">
+    <section className="py-10 sm:py-14 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <h2 className="text-4xl font-bold">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center gap-4 mb-3">
+            <h2 className="text-3xl sm:text-4xl font-bold">
               Brokerage <span className="text-financial-accent">Stock Picks</span>
             </h2>
             <Button
@@ -156,7 +156,7 @@ const StockRecommendations = () => {
               {isLoading ? 'Updating...' : 'Refresh'}
             </Button>
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
             Curated buy/hold/sell recommendations from India's top brokerage firms
           </p>
           
@@ -188,7 +188,7 @@ const StockRecommendations = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">
           {recommendations.map((rec, index) => {
             const livePrice = prices[rec.ticker];
             const currentPrice = livePrice?.price || 0;
@@ -294,7 +294,7 @@ const StockRecommendations = () => {
           })}
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-6 text-center">
           <Card className="inline-block bg-gradient-gold border-0 shadow-card p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-financial-accent/20 rounded-full flex items-center justify-center">
