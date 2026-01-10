@@ -30,7 +30,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-[calc(100vh-120px)] lg:min-h-[calc(100vh-120px)] overflow-hidden">
+    <section id="home" className="relative min-h-[auto] lg:min-h-[calc(100vh-180px)] overflow-hidden">
       {/* Video Background with Parallax */}
       <div 
         className="absolute inset-0 parallax-layer"
@@ -83,10 +83,10 @@ const Hero = () => {
         />
       </div>
       
-      <div className="container mx-auto px-3 sm:px-4 py-8 sm:py-12 relative">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 relative">
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           {/* Left content */}
-          <div className="space-y-4 sm:space-y-6 animate-fade-in">
+          <div className="space-y-4 sm:space-y-5 animate-fade-in text-center lg:text-left">
             <div className="space-y-2 sm:space-y-3">
               <h1 className="text-3xl sm:text-4xl lg:text-6xl xl:text-7xl font-bold leading-tight">
                 Take control of your{" "}
@@ -99,7 +99,7 @@ const Hero = () => {
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Button 
                 size="lg" 
                 className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg shadow-lg"
@@ -117,7 +117,7 @@ const Hero = () => {
               </Button>
             </div>
             
-            <div className="flex items-center justify-center lg:justify-start gap-4 sm:gap-6 pt-3 sm:pt-4">
+            <div className="flex items-center justify-center lg:justify-start gap-4 sm:gap-6 pt-2 sm:pt-3">
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
                 <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-financial-accent">
                   100%
