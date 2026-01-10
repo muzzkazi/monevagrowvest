@@ -84,17 +84,17 @@ const Hero = () => {
       </div>
       
       <div className="container mx-auto px-4 sm:px-8 pt-8 sm:pt-16 pb-8 relative max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left content */}
-          <div className="space-y-6 sm:space-y-8 animate-fade-in flex flex-col items-center text-center order-2 lg:order-1">
-            <div className="space-y-3 sm:space-y-4">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+          <div className="space-y-6 sm:space-y-8 animate-fade-in flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1">
+            <div className="space-y-4 sm:space-y-5">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold leading-tight">
                 Take control of your{" "}
                 <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent animate-pulse">
                   financial destiny
                 </span>
               </h1>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
                 Whether you're saving for a new home, planning your child's education, or growing your retirement fund, we're here to support you in reaching your financial goals.
               </p>
             </div>
@@ -120,19 +120,19 @@ const Hero = () => {
           
           {/* Right image */}
           <div 
-            className="relative animate-slide-up parallax-layer order-1 lg:order-2"
+            className="relative animate-slide-up parallax-layer order-1 lg:order-2 flex justify-center lg:justify-end"
             style={getScrollParallaxStyle(-0.05)}
           >
-            <div className="relative group">
+            <div className="relative group max-w-md lg:max-w-none">
               <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-2xl sm:rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
               <img 
                 src={heroImage} 
                 alt="Financial Success" 
                 className="relative w-full h-auto rounded-2xl sm:rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-gradient-gold p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
+              <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-gradient-gold p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
                 <div className="text-center">
-                  <div ref={returnsCount.ref} className="text-xl sm:text-2xl font-bold text-financial-primary">
+                  <div ref={returnsCount.ref} className="text-lg sm:text-2xl font-bold text-financial-primary">
                     {returnsCount.value}
                   </div>
                   <div className="text-xs sm:text-sm text-financial-secondary">Avg. Returns</div>
@@ -143,25 +143,25 @@ const Hero = () => {
         </div>
         
         {/* Stats section - centered on page */}
-        <div className="flex justify-center pt-6 sm:pt-8">
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-16">
+        <div className="flex justify-center pt-8 sm:pt-10">
+          <div className="grid grid-cols-3 gap-4 sm:gap-8 md:gap-16 w-full max-w-2xl">
             <div className="text-center transform hover:scale-110 transition-transform duration-300">
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
+              <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-financial-accent">
                 100%
               </div>
-              <div className="text-sm sm:text-base text-muted-foreground">Research Based</div>
+              <div className="text-xs sm:text-sm md:text-base text-muted-foreground">Research Based</div>
             </div>
             <div className="text-center transform hover:scale-110 transition-transform duration-300">
-              <div ref={clientsCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
+              <div ref={clientsCount.ref} className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-financial-accent">
                 {clientsCount.value}
               </div>
-              <div className="text-sm sm:text-base text-muted-foreground">Happy Clients</div>
+              <div className="text-xs sm:text-sm md:text-base text-muted-foreground">Happy Clients</div>
             </div>
             <div className="text-center transform hover:scale-110 transition-transform duration-300">
-              <div ref={aumCount.ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-financial-accent">
+              <div ref={aumCount.ref} className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-financial-accent">
                 {aumCount.value}
               </div>
-              <div className="text-sm sm:text-base text-muted-foreground">Assets Managed</div>
+              <div className="text-xs sm:text-sm md:text-base text-muted-foreground">Assets Managed</div>
             </div>
           </div>
         </div>
