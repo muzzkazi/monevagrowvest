@@ -3,7 +3,6 @@ import heroImage from "@/assets/premium-financial-hero.jpg";
 import heroVideo from "@/assets/hero-video.mp4";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
-import { useMouseParallax } from "@/hooks/useMouseParallax";
 import { useRef, useEffect, useState } from "react";
 
 const Hero = () => {
@@ -13,7 +12,6 @@ const Hero = () => {
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 1400 });
   
   const { smoothScrollY } = useBackgroundParallax(0.3);
-  const { getMouseParallaxStyle } = useMouseParallax({ strength: 8, smoothing: 0.12 });
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
 
@@ -22,15 +20,6 @@ const Hero = () => {
     transform: `translate3d(0, ${smoothScrollY * multiplier}px, 0)`,
     willChange: 'transform',
   });
-
-  // Combine scroll and mouse parallax
-  const getCombinedParallaxStyle = (scrollMultiplier: number, mouseMultiplier: number) => {
-    const mouseStyle = getMouseParallaxStyle(mouseMultiplier);
-    return {
-      transform: `translate3d(${parseFloat(mouseStyle.transform.match(/translate3d\(([^,]+)/)?.[1] || '0')}px, ${smoothScrollY * scrollMultiplier + parseFloat(mouseStyle.transform.match(/translate3d\([^,]+,\s*([^,]+)/)?.[1] || '0')}px, 0)`,
-      willChange: 'transform',
-    };
-  };
 
   useEffect(() => {
     if (videoRef.current) {
@@ -72,57 +61,45 @@ const Hero = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/60" />
       <div className="absolute inset-0 bg-gradient-to-t from-financial-primary/20 via-transparent to-transparent" />
       
-      {/* Animated gradient orbs with combined scroll + mouse parallax */}
+      {/* Animated gradient orbs with scroll parallax only */}
       <div className="absolute inset-0 overflow-hidden">
         <div 
           className="absolute top-1/4 left-1/4 w-64 h-64 bg-financial-gold/10 rounded-full blur-3xl animate-float parallax-layer"
-          style={getCombinedParallaxStyle(0.08, 0.4)}
+          style={getScrollParallaxStyle(0.05)}
         />
         <div 
           className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-financial-accent/10 rounded-full blur-2xl animate-float parallax-layer" 
           style={{ 
             animationDelay: '1s',
-            ...getCombinedParallaxStyle(0.1, -0.3)
+            ...getScrollParallaxStyle(0.08)
           }}
         />
         <div 
           className="absolute top-1/2 right-1/3 w-32 h-32 bg-financial-gold/8 rounded-full blur-xl animate-float parallax-layer" 
           style={{ 
             animationDelay: '2s',
-            ...getCombinedParallaxStyle(0.06, 0.5)
+            ...getScrollParallaxStyle(0.04)
           }}
         />
       </div>
       
       <div className="container mx-auto px-4 py-20 relative">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left content with mouse parallax */}
-          <div 
-            className="space-y-8 animate-fade-in"
-            style={getMouseParallaxStyle(0.3)}
-          >
+          {/* Left content */}
+          <div className="space-y-8 animate-fade-in">
             <div className="space-y-4">
-              <h1 
-                className="text-5xl lg:text-7xl font-bold leading-tight"
-                style={getMouseParallaxStyle(0.15, 2)}
-              >
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
                 Take control of your{" "}
                 <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent animate-pulse">
                   financial destiny
                 </span>
               </h1>
-              <p 
-                className="text-xl text-muted-foreground leading-relaxed max-w-2xl"
-                style={getMouseParallaxStyle(0.2)}
-              >
+              <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
                 Whether you're saving for a new home, planning your child's education, or growing your retirement fund, we're here to support you in reaching your financial goals.
               </p>
             </div>
             
-            <div 
-              className="flex flex-col sm:flex-row gap-4"
-              style={getMouseParallaxStyle(0.25)}
-            >
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
                 className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-8 py-4 text-lg shadow-lg"
@@ -140,10 +117,7 @@ const Hero = () => {
               </Button>
             </div>
             
-            <div 
-              className="flex items-center gap-8 pt-8"
-              style={getMouseParallaxStyle(0.35)}
-            >
+            <div className="flex items-center gap-8 pt-8">
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
                 <div className="text-3xl font-bold text-financial-accent">
                   100%
@@ -165,28 +139,19 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Right image with enhanced mouse parallax and 3D tilt */}
+          {/* Right image */}
           <div 
             className="relative animate-slide-up parallax-layer"
-            style={{
-              ...getScrollParallaxStyle(-0.08),
-              perspective: '1000px',
-            }}
+            style={getScrollParallaxStyle(-0.05)}
           >
-            <div 
-              className="relative group"
-              style={getMouseParallaxStyle(-0.4, 5)}
-            >
+            <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
               <img 
                 src={heroImage} 
                 alt="Financial Success" 
                 className="relative w-full h-auto rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
               />
-              <div 
-                className="absolute -top-4 -right-4 bg-gradient-gold p-6 rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer parallax-layer"
-                style={getMouseParallaxStyle(-0.8, 8)}
-              >
+              <div className="absolute -top-4 -right-4 bg-gradient-gold p-6 rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer">
                 <div className="text-center">
                   <div ref={returnsCount.ref} className="text-2xl font-bold text-financial-primary">
                     {returnsCount.value}
