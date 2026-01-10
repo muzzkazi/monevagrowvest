@@ -155,10 +155,10 @@ const SecondaryBand = () => {
   return (
     <div className="bg-financial-primary text-white pt-4 pb-2 w-full z-20 overflow-hidden flex flex-col justify-center relative">
       {/* First line - Indices */}
-      <div className="relative mb-2 overflow-hidden group/indices">
-        <div className="flex animate-scroll-indices will-change-transform group-hover/indices:pause-animation">
-          {/* Continuous loop - 4 copies for seamless scrolling */}
-          {[...indices, ...indices, ...indices, ...indices].map((item, index) => {
+      <div className="relative mb-2 overflow-hidden">
+        <div className="inline-flex w-max animate-scroll-indices will-change-transform hover:[animation-play-state:paused]">
+          {/* Continuous loop - 2 copies for seamless scrolling */}
+          {[...indices, ...indices].map((item, index) => {
             const isPositive = !item.change.startsWith('-');
             return (
               <div key={`index-${index}`} className="flex items-center whitespace-nowrap flex-shrink-0">
@@ -179,10 +179,10 @@ const SecondaryBand = () => {
       </div>
 
       {/* Second line - NIFTY 50 Stocks */}
-      <div className="relative overflow-hidden group/stocks">
-        <div className="flex animate-scroll-stocks will-change-transform group-hover/stocks:pause-animation">
-          {/* Continuous loop - 4 copies for seamless scrolling */}
-          {[...displayStocks, ...displayStocks, ...displayStocks, ...displayStocks].map((stock, index) => {
+      <div className="relative overflow-hidden">
+        <div className="inline-flex w-max animate-scroll-stocks will-change-transform hover:[animation-play-state:paused]">
+          {/* Continuous loop - 2 copies for seamless scrolling */}
+          {[...displayStocks, ...displayStocks].map((stock, index) => {
             const isPositive = !stock.change.startsWith('-');
             const isLoaded = stock.price !== "---";
             return (

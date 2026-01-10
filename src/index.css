@@ -146,7 +146,7 @@ All colors MUST be HSL.
       transform: translateX(0);
     }
     100% {
-      transform: translateX(-25%);
+      transform: translateX(-50%);
     }
   }
 
@@ -155,7 +155,7 @@ All colors MUST be HSL.
       transform: translateX(0);
     }
     100% {
-      transform: translateX(-25%);
+      transform: translateX(-50%);
     }
   }
 
@@ -168,7 +168,7 @@ All colors MUST be HSL.
   }
 
   .animate-scroll-stocks {
-    animation: scroll-stocks 30s linear infinite;
+    animation: scroll-stocks 28s linear infinite;
   }
 
   .animate-scroll-fast {
