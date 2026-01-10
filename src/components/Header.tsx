@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone } from "lucide-react";
+import { Phone, Sparkles, Target, TrendingUp, BarChart3, Wallet } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -94,32 +94,37 @@ const Header = () => {
                   <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[220px] py-2 overflow-hidden">
                     <Link 
                       to="/ai-planning" 
-                      className="block px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
+                      <Sparkles className="h-4 w-4" />
                       AI Planner Overview
                     </Link>
                     <Link 
                       to="/goal-based-planning" 
-                      className="block px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
+                      <Target className="h-4 w-4" />
                       Goal Based Planning
                     </Link>
                     <Link 
                       to="/sip-based-planning" 
-                      className="block px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
+                      <TrendingUp className="h-4 w-4" />
                       SIP Based Planning
                     </Link>
                     <Link 
                       to="/mutual-fund-comparison" 
-                      className="block px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
+                      <BarChart3 className="h-4 w-4" />
                       Mutual Fund Comparison
                     </Link>
                     <Link 
                       to="/debt-management" 
-                      className="block px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
+                      <Wallet className="h-4 w-4" />
                       Debt Management
                     </Link>
                   </div>
