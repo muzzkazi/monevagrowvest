@@ -55,10 +55,10 @@ const SuccessStories = () => {
   ];
 
   return (
-    <section className="py-20 bg-background">
+    <section className="py-12 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-bold mb-4">
             Real Stories, <span className="text-financial-accent">Real Success</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -66,7 +66,7 @@ const SuccessStories = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
           {stories.map((story, index) => (
             <Card key={index} className="bg-gradient-card border-0 shadow-card overflow-hidden hover-scale">
               <div className="relative">
