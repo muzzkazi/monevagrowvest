@@ -11,6 +11,27 @@ export const useParallax = (options: ParallaxOptions = {}) => {
   const [offset, setOffset] = useState(0);
   const elementRef = useRef<HTMLDivElement>(null);
   const ticking = useRef(false);
+  const targetOffset = useRef(0);
+  const currentOffset = useRef(0);
+  const animationFrame = useRef<number>();
+
+  const lerp = (start: number, end: number, factor: number) => {
+    return start + (end - start) * factor;
+  };
+
+  const animate = useCallback(() => {
+    // Smooth interpolation with lerp for ultra-smooth movement
+    currentOffset.current = lerp(currentOffset.current, targetOffset.current, 0.08);
+    
+    // Only update if there's significant change
+    if (Math.abs(currentOffset.current - targetOffset.current) > 0.01) {
+      setOffset(currentOffset.current);
+      animationFrame.current = requestAnimationFrame(animate);
+    } else {
+      setOffset(targetOffset.current);
+      ticking.current = false;
+    }
+  }, []);
 
   const updateOffset = useCallback(() => {
     if (!elementRef.current) return;
@@ -18,70 +39,92 @@ export const useParallax = (options: ParallaxOptions = {}) => {
     const rect = elementRef.current.getBoundingClientRect();
     const windowHeight = window.innerHeight;
     
-    // Calculate how far the element is from the center of the viewport
     const elementCenter = rect.top + rect.height / 2;
     const viewportCenter = windowHeight / 2;
     const distanceFromCenter = elementCenter - viewportCenter;
     
-    // Apply parallax based on distance from center
-    const parallaxOffset = distanceFromCenter * speed * -1;
+    targetOffset.current = distanceFromCenter * speed * -1;
     
-    setOffset(parallaxOffset);
-    ticking.current = false;
-  }, [speed]);
+    if (!ticking.current) {
+      ticking.current = true;
+      animationFrame.current = requestAnimationFrame(animate);
+    }
+  }, [speed, animate]);
 
   const handleScroll = useCallback(() => {
-    if (!ticking.current) {
-      requestAnimationFrame(updateOffset);
-      ticking.current = true;
-    }
+    updateOffset();
   }, [updateOffset]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
-    updateOffset(); // Initial calculation
+    updateOffset();
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
     };
   }, [handleScroll, updateOffset]);
 
   const style = {
     transform: direction === 'vertical' 
-      ? `translateY(${offset}px)` 
-      : `translateX(${offset}px)`,
-    transition: easing ? 'transform 0.1s ease-out' : 'none',
+      ? `translate3d(0, ${offset}px, 0)` 
+      : `translate3d(${offset}px, 0, 0)`,
+    transition: easing ? 'none' : 'none', // Animation is handled by lerp
     willChange: 'transform',
   };
 
   return { ref: elementRef, style, offset };
 };
 
-// Hook for background parallax effect
+// Hook for background parallax effect with smooth interpolation
 export const useBackgroundParallax = (speed: number = 0.3) => {
-  const [scrollY, setScrollY] = useState(0);
+  const [smoothScrollY, setSmoothScrollY] = useState(0);
+  const targetScrollY = useRef(0);
+  const currentScrollY = useRef(0);
+  const animationFrame = useRef<number>();
   const ticking = useRef(false);
 
-  const updateScrollY = useCallback(() => {
-    setScrollY(window.scrollY);
-    ticking.current = false;
+  const lerp = (start: number, end: number, factor: number) => {
+    return start + (end - start) * factor;
+  };
+
+  const animate = useCallback(() => {
+    currentScrollY.current = lerp(currentScrollY.current, targetScrollY.current, 0.06);
+    
+    if (Math.abs(currentScrollY.current - targetScrollY.current) > 0.5) {
+      setSmoothScrollY(currentScrollY.current);
+      animationFrame.current = requestAnimationFrame(animate);
+    } else {
+      setSmoothScrollY(targetScrollY.current);
+      ticking.current = false;
+    }
   }, []);
 
   const handleScroll = useCallback(() => {
+    targetScrollY.current = window.scrollY;
+    
     if (!ticking.current) {
-      requestAnimationFrame(updateScrollY);
       ticking.current = true;
+      animationFrame.current = requestAnimationFrame(animate);
     }
-  }, [updateScrollY]);
+  }, [animate]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
+    };
   }, [handleScroll]);
 
   return {
-    backgroundPositionY: `${scrollY * speed}px`,
-    transform: `translateY(${scrollY * speed}px)`,
+    backgroundPositionY: `${smoothScrollY * speed}px`,
+    transform: `translate3d(0, ${smoothScrollY * speed}px, 0)`,
+    smoothScrollY,
   };
 };
 
