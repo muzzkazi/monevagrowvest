@@ -30,7 +30,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section id="home" className="relative overflow-hidden pb-16">
+    <section id="home" className="relative overflow-hidden">
       {/* Video Background with Parallax */}
       <div 
         className="absolute inset-0 parallax-layer"
@@ -83,7 +83,7 @@ const Hero = () => {
         />
       </div>
       
-      <div className="container mx-auto px-8 py-16 relative max-w-7xl">
+      <div className="container mx-auto px-8 pt-16 pb-8 relative max-w-7xl">
         <div className="grid grid-cols-2 gap-16 items-center">
           {/* Left content */}
           <div className="space-y-8 animate-fade-in flex flex-col items-center text-center">
@@ -143,7 +143,7 @@ const Hero = () => {
         </div>
         
         {/* Stats section - centered on page */}
-        <div className="flex justify-center pt-12">
+        <div className="flex justify-center pt-8">
           <div className="flex items-center justify-center gap-16">
             <div className="text-center transform hover:scale-110 transition-transform duration-300">
               <div className="text-4xl font-bold text-financial-accent">
