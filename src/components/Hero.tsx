@@ -83,23 +83,23 @@ const Hero = () => {
         />
       </div>
       
-      <div className="container mx-auto px-4 py-12 relative">
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
+      <div className="container mx-auto px-8 py-16 relative max-w-7xl">
+        <div className="grid grid-cols-2 gap-16 items-center">
           {/* Left content */}
-          <div className="space-y-6 animate-fade-in">
-            <div className="space-y-3">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+          <div className="space-y-8 animate-fade-in">
+            <div className="space-y-4">
+              <h1 className="text-6xl font-bold leading-tight">
                 Take control of your{" "}
                 <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent animate-pulse">
                   financial destiny
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
+              <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
                 Whether you're saving for a new home, planning your child's education, or growing your retirement fund, we're here to support you in reaching your financial goals.
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-row gap-4">
               <Button 
                 size="lg" 
                 className="bg-financial-accent hover:bg-financial-accent/90 hover:scale-105 transition-all duration-300 text-white px-8 py-4 text-lg shadow-lg"
@@ -117,7 +117,7 @@ const Hero = () => {
               </Button>
             </div>
             
-            <div className="flex items-center justify-center gap-6 pt-4">
+            <div className="flex items-center gap-12 pt-6">
               <div className="text-center transform hover:scale-110 transition-transform duration-300">
                 <div className="text-3xl font-bold text-financial-accent">
                   100%
