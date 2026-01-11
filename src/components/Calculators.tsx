@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,18 @@ import { Slider } from "@/components/ui/slider";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import MutualFundPortfolio from "./MutualFundPortfolio";
 import { formatCurrency, formatNumber, parseCommaNumber, formatInputValue } from "@/lib/utils";
+import { useSearchParams } from "react-router-dom";
 
 const Calculators = () => {
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabFromUrl || 'sip');
+
+  useEffect(() => {
+    if (tabFromUrl && ['sip', 'emi', 'tax', 'retirement'].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
   // SIP Calculator State
   const [monthlyAmount, setMonthlyAmount] = useState(5000);
   const [expectedReturn, setExpectedReturn] = useState(12);
@@ -146,29 +156,36 @@ const Calculators = () => {
   };
 
   return (
-    <section className="py-20">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">
+    <section className="py-20 min-h-screen bg-gradient-to-br from-background via-background to-muted/30 relative">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-financial-accent/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-financial-accent/3 to-transparent rounded-full" />
+      </div>
+      
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-foreground to-financial-accent bg-clip-text">
             Financial Calculators
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
             Make informed financial decisions with our comprehensive suite of calculators. 
             Plan your investments, loans, and retirement with precision.
           </p>
         </div>
 
-        <Tabs defaultValue="sip" className="w-full max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="sip">SIP Calculator</TabsTrigger>
-            <TabsTrigger value="emi">EMI Calculator</TabsTrigger>
-            <TabsTrigger value="tax">Tax Calculator</TabsTrigger>
-            <TabsTrigger value="retirement">Retirement</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-4xl mx-auto">
+          <TabsList className="grid w-full grid-cols-4 mb-10 bg-muted/50 backdrop-blur-sm p-1.5 rounded-xl">
+            <TabsTrigger value="sip" className="data-[state=active]:bg-financial-accent data-[state=active]:text-white rounded-lg transition-all">SIP Calculator</TabsTrigger>
+            <TabsTrigger value="emi" className="data-[state=active]:bg-financial-accent data-[state=active]:text-white rounded-lg transition-all">EMI Calculator</TabsTrigger>
+            <TabsTrigger value="tax" className="data-[state=active]:bg-financial-accent data-[state=active]:text-white rounded-lg transition-all">Tax Calculator</TabsTrigger>
+            <TabsTrigger value="retirement" className="data-[state=active]:bg-financial-accent data-[state=active]:text-white rounded-lg transition-all">Retirement</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="sip">
-            <div className="grid lg:grid-cols-2 gap-8">
-              <Card>
+          <TabsContent value="sip" className="flex flex-col items-center">
+            <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
                 <CardHeader>
                   <CardTitle>SIP Calculator</CardTitle>
                   <CardDescription>
@@ -236,7 +253,7 @@ const Calculators = () => {
               </Card>
 
               {sipResult && (
-                <Card>
+                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
                   <CardHeader>
                     <CardTitle>SIP Results</CardTitle>
                   </CardHeader>
@@ -301,9 +318,9 @@ const Calculators = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="emi">
-            <div className="grid lg:grid-cols-2 gap-8">
-              <Card>
+          <TabsContent value="emi" className="flex flex-col items-center">
+            <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
                 <CardHeader>
                   <CardTitle>EMI Calculator</CardTitle>
                   <CardDescription>
@@ -366,7 +383,7 @@ const Calculators = () => {
               </Card>
 
               {emiResult && (
-                <Card>
+                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
                   <CardHeader>
                     <CardTitle>EMI Results</CardTitle>
                   </CardHeader>
@@ -421,9 +438,9 @@ const Calculators = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="tax">
-            <div className="grid lg:grid-cols-2 gap-8">
-              <Card>
+          <TabsContent value="tax" className="flex flex-col items-center">
+            <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
                 <CardHeader>
                   <CardTitle>Tax Calculator</CardTitle>
                   <CardDescription>
@@ -466,7 +483,7 @@ const Calculators = () => {
               </Card>
 
               {taxResult && (
-                <Card>
+                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
                   <CardHeader>
                     <CardTitle>Tax Results</CardTitle>
                   </CardHeader>
@@ -497,9 +514,9 @@ const Calculators = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="retirement">
-            <div className="grid lg:grid-cols-2 gap-8">
-              <Card>
+          <TabsContent value="retirement" className="flex flex-col items-center">
+            <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
                 <CardHeader>
                   <CardTitle>Retirement Calculator</CardTitle>
                   <CardDescription>
@@ -594,7 +611,7 @@ const Calculators = () => {
               </Card>
 
               {retirementResult && (
-                <Card>
+                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
                   <CardHeader>
                     <CardTitle>Retirement Plan Results</CardTitle>
                   </CardHeader>
