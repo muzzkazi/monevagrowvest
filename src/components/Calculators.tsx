@@ -9,6 +9,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import MutualFundPortfolio from "./MutualFundPortfolio";
 import { formatCurrency, formatNumber, parseCommaNumber, formatInputValue } from "@/lib/utils";
 import { useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Calculators = () => {
   const [searchParams] = useSearchParams();
@@ -183,482 +184,545 @@ const Calculators = () => {
             <TabsTrigger value="retirement" className="data-[state=active]:bg-financial-accent data-[state=active]:text-white rounded-lg transition-all">Retirement</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="sip" className="flex flex-col items-center">
-            <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
-                <CardHeader>
-                  <CardTitle>SIP Calculator</CardTitle>
-                  <CardDescription>
-                    Calculate your Systematic Investment Plan returns
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label>Monthly Investment: {formatCurrency(monthlyAmount)}</Label>
-                    <Slider
-                      value={[monthlyAmount]}
-                      onValueChange={([value]) => setMonthlyAmount(value)}
-                      max={100000}
-                      min={500}
-                      step={500}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>₹500</span>
-                      <span>₹1,00,000</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Expected Return: {expectedReturn}% p.a.</Label>
-                    <Slider
-                      value={[expectedReturn]}
-                      onValueChange={([value]) => setExpectedReturn(value)}
-                      max={20}
-                      min={1}
-                      step={0.5}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>1%</span>
-                      <span>20%</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Time Period: {timePeriod} years</Label>
-                    <Slider
-                      value={[timePeriod]}
-                      onValueChange={([value]) => setTimePeriod(value)}
-                      max={30}
-                      min={1}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>1 year</span>
-                      <span>30 years</span>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button onClick={calculateSIP} className="flex-1">
-                      Calculate SIP
-                    </Button>
-                    <Button onClick={generatePortfolio} variant="outline" className="flex-1">
-                      Get Portfolio
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {sipResult && (
-                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
-                  <CardHeader>
-                    <CardTitle>SIP Results</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                         <div className="p-4 bg-secondary/50 rounded-lg">
-                           <p className="text-sm text-muted-foreground">Total Investment</p>
-                           <p className="text-lg font-semibold">
-                             {formatCurrency(sipResult.totalInvestment)}
-                           </p>
-                         </div>
-                         <div className="p-4 bg-secondary/50 rounded-lg">
-                           <p className="text-sm text-muted-foreground">Wealth Gain</p>
-                           <p className="text-lg font-semibold text-green-600">
-                             {formatCurrency(sipResult.wealthGain)}
-                           </p>
-                         </div>
-                         <div className="p-4 bg-secondary/50 rounded-lg">
-                           <p className="text-sm text-muted-foreground">Maturity Amount</p>
-                           <p className="text-lg font-semibold text-primary">
-                             {formatCurrency(sipResult.maturityAmount)}
-                           </p>
-                         </div>
-                      </div>
-
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={[
-                                { name: 'Investment', value: sipResult.totalInvestment, fill: '#8884d8' },
-                                { name: 'Returns', value: sipResult.wealthGain, fill: '#82ca9d' }
-                              ]}
-                              cx="50%"
-                              cy="50%"
-                              outerRadius={80}
-                              dataKey="value"
-                              label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                            >
-                              <Cell fill="#8884d8" />
-                              <Cell fill="#82ca9d" />
-                            </Pie>
-                            <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {showPortfolio && (
-              <div className="mt-8">
-                <MutualFundPortfolio 
-                  monthlyAmount={monthlyAmount} 
-                  years={timePeriod}
-                  expectedReturn={expectedReturn}
-                />
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="emi" className="flex flex-col items-center">
-            <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
-                <CardHeader>
-                  <CardTitle>EMI Calculator</CardTitle>
-                  <CardDescription>
-                    Calculate your Equated Monthly Installment
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label>Loan Amount: {formatCurrency(loanAmount)}</Label>
-                    <Slider
-                      value={[loanAmount]}
-                      onValueChange={([value]) => setLoanAmount(value)}
-                      max={10000000}
-                      min={100000}
-                      step={50000}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>₹1L</span>
-                      <span>₹1Cr</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Interest Rate: {interestRate}% p.a.</Label>
-                    <Slider
-                      value={[interestRate]}
-                      onValueChange={([value]) => setInterestRate(value)}
-                      max={20}
-                      min={5}
-                      step={0.25}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>5%</span>
-                      <span>20%</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Loan Tenure: {loanTenure} years</Label>
-                    <Slider
-                      value={[loanTenure]}
-                      onValueChange={([value]) => setLoanTenure(value)}
-                      max={30}
-                      min={1}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>1 year</span>
-                      <span>30 years</span>
-                    </div>
-                  </div>
-
-                  <Button onClick={calculateEMI} className="w-full">
-                    Calculate EMI
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {emiResult && (
-                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
-                  <CardHeader>
-                    <CardTitle>EMI Results</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                         <div className="p-4 bg-secondary/50 rounded-lg">
-                           <p className="text-sm text-muted-foreground">Monthly EMI</p>
-                           <p className="text-lg font-semibold text-primary">
-                             {formatCurrency(emiResult.emi)}
-                           </p>
-                         </div>
-                         <div className="p-4 bg-secondary/50 rounded-lg">
-                           <p className="text-sm text-muted-foreground">Total Interest</p>
-                           <p className="text-lg font-semibold text-red-600">
-                             {formatCurrency(emiResult.totalInterest)}
-                           </p>
-                         </div>
-                         <div className="p-4 bg-secondary/50 rounded-lg">
-                           <p className="text-sm text-muted-foreground">Total Amount</p>
-                           <p className="text-lg font-semibold">
-                             {formatCurrency(emiResult.totalAmount)}
-                           </p>
-                         </div>
-                      </div>
-
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={[
-                                { name: 'Principal', value: loanAmount, fill: '#8884d8' },
-                                { name: 'Interest', value: emiResult.totalInterest, fill: '#ff8042' }
-                              ]}
-                              cx="50%"
-                              cy="50%"
-                              outerRadius={80}
-                              dataKey="value"
-                              label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                            >
-                              <Cell fill="#8884d8" />
-                              <Cell fill="#ff8042" />
-                            </Pie>
-                            <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="tax" className="flex flex-col items-center">
-            <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
-                <CardHeader>
-                  <CardTitle>Tax Calculator</CardTitle>
-                  <CardDescription>
-                    Calculate your income tax liability
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                   <div className="space-y-2">
-                     <Label htmlFor="income">Annual Income (₹)</Label>
-                     <Input
-                       id="income"
-                       type="text"
-                       value={incomeInput}
-                       onChange={(e) => {
-                         const formatted = formatInputValue(e.target.value);
-                         setIncomeInput(formatted);
-                         setIncome(parseCommaNumber(formatted));
-                       }}
-                       placeholder="8,00,000"
-                     />
-                   </div>
-                   <div className="space-y-2">
-                     <Label htmlFor="deductions">Deductions (₹)</Label>
-                     <Input
-                       id="deductions"
-                       type="text"
-                       value={deductionsInput}
-                       onChange={(e) => {
-                         const formatted = formatInputValue(e.target.value);
-                         setDeductionsInput(formatted);
-                         setDeductions(parseCommaNumber(formatted));
-                       }}
-                       placeholder="1,50,000"
-                     />
-                   </div>
-                  <Button onClick={calculateTax} className="w-full">
-                    Calculate Tax
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {taxResult && (
-                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
-                  <CardHeader>
-                    <CardTitle>Tax Results</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                       <div className="p-4 bg-secondary/50 rounded-lg">
-                         <p className="text-sm text-muted-foreground">Taxable Income</p>
-                         <p className="text-lg font-semibold">
-                           {formatCurrency(taxResult.taxableIncome)}
-                         </p>
-                       </div>
-                       <div className="p-4 bg-secondary/50 rounded-lg">
-                         <p className="text-sm text-muted-foreground">Income Tax</p>
-                         <p className="text-lg font-semibold text-red-600">
-                           {formatCurrency(taxResult.incomeTax)}
-                         </p>
-                       </div>
-                       <div className="p-4 bg-secondary/50 rounded-lg">
-                         <p className="text-sm text-muted-foreground">Net Income</p>
-                         <p className="text-lg font-semibold text-green-600">
-                           {formatCurrency(taxResult.netIncome)}
-                         </p>
-                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="retirement" className="flex flex-col items-center">
-            <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
-                <CardHeader>
-                  <CardTitle>Retirement Calculator</CardTitle>
-                  <CardDescription>
-                    Plan your retirement corpus and monthly savings
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label>Current Age: {currentAge} years</Label>
-                    <Slider
-                      value={[currentAge]}
-                      onValueChange={([value]) => setCurrentAge(value)}
-                      max={60}
-                      min={18}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>18 years</span>
-                      <span>60 years</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Retirement Age: {retirementAge} years</Label>
-                    <Slider
-                      value={[retirementAge]}
-                      onValueChange={([value]) => setRetirementAge(value)}
-                      max={70}
-                      min={50}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>50 years</span>
-                      <span>70 years</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Monthly Expenses: {formatCurrency(monthlyExpenses)}</Label>
-                    <Slider
-                      value={[monthlyExpenses]}
-                      onValueChange={([value]) => setMonthlyExpenses(value)}
-                      max={200000}
-                      min={10000}
-                      step={5000}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>₹10K</span>
-                      <span>₹2L</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Inflation Rate: {inflationRate}% p.a.</Label>
-                    <Slider
-                      value={[inflationRate]}
-                      onValueChange={([value]) => setInflationRate(value)}
-                      max={10}
-                      min={3}
-                      step={0.5}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>3%</span>
-                      <span>10%</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Expected Return: {retirementReturn}% p.a.</Label>
-                    <Slider
-                      value={[retirementReturn]}
-                      onValueChange={([value]) => setRetirementReturn(value)}
-                      max={15}
-                      min={6}
-                      step={0.5}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>6%</span>
-                      <span>15%</span>
-                    </div>
-                  </div>
-
-                  <Button onClick={calculateRetirement} className="w-full">
-                    Calculate Retirement Plan
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {retirementResult && (
-                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
-                  <CardHeader>
-                    <CardTitle>Retirement Plan Results</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-2 gap-4 text-center">
-                        <div className="p-4 bg-secondary/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">Years to Retirement</p>
-                          <p className="text-lg font-semibold">
-                            {retirementResult.yearsToRetirement} years
-                          </p>
+          <AnimatePresence mode="wait">
+            {activeTab === "sip" && (
+              <motion.div
+                key="sip"
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.4 }}
+                className="flex flex-col items-center"
+              >
+                <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
+                      <CardHeader>
+                        <CardTitle>SIP Calculator</CardTitle>
+                        <CardDescription>
+                          Calculate your Systematic Investment Plan returns
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="space-y-2">
+                          <Label>Monthly Investment: {formatCurrency(monthlyAmount)}</Label>
+                          <Slider
+                            value={[monthlyAmount]}
+                            onValueChange={([value]) => setMonthlyAmount(value)}
+                            max={100000}
+                            min={500}
+                            step={500}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>₹500</span>
+                            <span>₹1,00,000</span>
+                          </div>
                         </div>
-                         <div className="p-4 bg-secondary/50 rounded-lg">
-                           <p className="text-sm text-muted-foreground">Future Monthly Expenses</p>
-                           <p className="text-lg font-semibold text-orange-600">
-                             {formatCurrency(retirementResult.futureExpenses)}
-                           </p>
-                         </div>
-                         <div className="p-4 bg-secondary/50 rounded-lg">
-                           <p className="text-sm text-muted-foreground">Corpus Required</p>
-                           <p className="text-lg font-semibold text-primary">
-                             {formatCurrency(retirementResult.corpusRequired)}
-                           </p>
-                         </div>
-                         <div className="p-4 bg-secondary/50 rounded-lg">
-                           <p className="text-sm text-muted-foreground">Monthly SIP Required</p>
-                           <p className="text-lg font-semibold text-green-600">
-                             {formatCurrency(retirementResult.monthlySip)}
-                           </p>
-                         </div>
-                      </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Expected Return: {expectedReturn}% p.a.</Label>
+                          <Slider
+                            value={[expectedReturn]}
+                            onValueChange={([value]) => setExpectedReturn(value)}
+                            max={20}
+                            min={1}
+                            step={0.5}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>1%</span>
+                            <span>20%</span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Time Period: {timePeriod} years</Label>
+                          <Slider
+                            value={[timePeriod]}
+                            onValueChange={([value]) => setTimePeriod(value)}
+                            max={30}
+                            min={1}
+                            step={1}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>1 year</span>
+                            <span>30 years</span>
+                          </div>
+                        </div>
 
-                      <div className="p-4 bg-secondary/20 rounded-lg">
-                        <h4 className="font-semibold mb-2">Retirement Summary</h4>
-                        <ul className="space-y-1 text-sm text-muted-foreground">
-                           <li>• Start investing {formatCurrency(retirementResult.monthlySip)} monthly</li>
-                           <li>• Build a corpus of {formatCurrency(retirementResult.corpusRequired)}</li>
-                          <li>• Maintain {retirementReturn}% annual returns</li>
-                          <li>• Account for {inflationRate}% inflation</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </TabsContent>
+                        <div className="flex gap-2">
+                          <Button onClick={calculateSIP} className="flex-1">
+                            Calculate SIP
+                          </Button>
+                          <Button onClick={generatePortfolio} variant="outline" className="flex-1">
+                            Get Portfolio
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  {sipResult && (
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
+                      <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
+                        <CardHeader>
+                          <CardTitle>SIP Results</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-3 gap-4 text-center">
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Total Investment</p>
+                                <p className="text-lg font-semibold">
+                                  {formatCurrency(sipResult.totalInvestment)}
+                                </p>
+                              </div>
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Wealth Gain</p>
+                                <p className="text-lg font-semibold text-green-600">
+                                  {formatCurrency(sipResult.wealthGain)}
+                                </p>
+                              </div>
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Maturity Amount</p>
+                                <p className="text-lg font-semibold text-primary">
+                                  {formatCurrency(sipResult.maturityAmount)}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={[
+                                      { name: 'Investment', value: sipResult.totalInvestment, fill: '#8884d8' },
+                                      { name: 'Returns', value: sipResult.wealthGain, fill: '#82ca9d' }
+                                    ]}
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={80}
+                                    dataKey="value"
+                                    label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                  >
+                                    <Cell fill="#8884d8" />
+                                    <Cell fill="#82ca9d" />
+                                  </Pie>
+                                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )}
+                </div>
+
+                {showPortfolio && (
+                  <motion.div 
+                    className="mt-8 w-full"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <MutualFundPortfolio 
+                      monthlyAmount={monthlyAmount} 
+                      years={timePeriod}
+                      expectedReturn={expectedReturn}
+                    />
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+
+            {activeTab === "emi" && (
+              <motion.div
+                key="emi"
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.4 }}
+                className="flex flex-col items-center"
+              >
+                <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                  <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
+                      <CardHeader>
+                        <CardTitle>EMI Calculator</CardTitle>
+                        <CardDescription>
+                          Calculate your Equated Monthly Installment
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="space-y-2">
+                          <Label>Loan Amount: {formatCurrency(loanAmount)}</Label>
+                          <Slider
+                            value={[loanAmount]}
+                            onValueChange={([value]) => setLoanAmount(value)}
+                            max={10000000}
+                            min={100000}
+                            step={50000}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>₹1L</span>
+                            <span>₹1Cr</span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Interest Rate: {interestRate}% p.a.</Label>
+                          <Slider
+                            value={[interestRate]}
+                            onValueChange={([value]) => setInterestRate(value)}
+                            max={20}
+                            min={5}
+                            step={0.25}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>5%</span>
+                            <span>20%</span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Loan Tenure: {loanTenure} years</Label>
+                          <Slider
+                            value={[loanTenure]}
+                            onValueChange={([value]) => setLoanTenure(value)}
+                            max={30}
+                            min={1}
+                            step={1}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>1 year</span>
+                            <span>30 years</span>
+                          </div>
+                        </div>
+
+                        <Button onClick={calculateEMI} className="w-full">
+                          Calculate EMI
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  {emiResult && (
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
+                      <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
+                        <CardHeader>
+                          <CardTitle>EMI Results</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-3 gap-4 text-center">
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Monthly EMI</p>
+                                <p className="text-lg font-semibold text-primary">
+                                  {formatCurrency(emiResult.emi)}
+                                </p>
+                              </div>
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Total Interest</p>
+                                <p className="text-lg font-semibold text-red-600">
+                                  {formatCurrency(emiResult.totalInterest)}
+                                </p>
+                              </div>
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Total Amount</p>
+                                <p className="text-lg font-semibold">
+                                  {formatCurrency(emiResult.totalAmount)}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={[
+                                      { name: 'Principal', value: loanAmount, fill: '#8884d8' },
+                                      { name: 'Interest', value: emiResult.totalInterest, fill: '#ff8042' }
+                                    ]}
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={80}
+                                    dataKey="value"
+                                    label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                  >
+                                    <Cell fill="#8884d8" />
+                                    <Cell fill="#ff8042" />
+                                  </Pie>
+                                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "tax" && (
+              <motion.div
+                key="tax"
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.4 }}
+                className="flex flex-col items-center"
+              >
+                <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                  <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
+                      <CardHeader>
+                        <CardTitle>Tax Calculator</CardTitle>
+                        <CardDescription>
+                          Calculate your income tax liability
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="income">Annual Income (₹)</Label>
+                          <Input
+                            id="income"
+                            type="text"
+                            value={incomeInput}
+                            onChange={(e) => {
+                              const formatted = formatInputValue(e.target.value);
+                              setIncomeInput(formatted);
+                              setIncome(parseCommaNumber(formatted));
+                            }}
+                            placeholder="8,00,000"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="deductions">Deductions (₹)</Label>
+                          <Input
+                            id="deductions"
+                            type="text"
+                            value={deductionsInput}
+                            onChange={(e) => {
+                              const formatted = formatInputValue(e.target.value);
+                              setDeductionsInput(formatted);
+                              setDeductions(parseCommaNumber(formatted));
+                            }}
+                            placeholder="1,50,000"
+                          />
+                        </div>
+                        <Button onClick={calculateTax} className="w-full">
+                          Calculate Tax
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  {taxResult && (
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
+                      <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
+                        <CardHeader>
+                          <CardTitle>Tax Results</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-3 gap-4 text-center">
+                            <div className="p-4 bg-secondary/50 rounded-lg">
+                              <p className="text-sm text-muted-foreground">Taxable Income</p>
+                              <p className="text-lg font-semibold">
+                                {formatCurrency(taxResult.taxableIncome)}
+                              </p>
+                            </div>
+                            <div className="p-4 bg-secondary/50 rounded-lg">
+                              <p className="text-sm text-muted-foreground">Income Tax</p>
+                              <p className="text-lg font-semibold text-red-600">
+                                {formatCurrency(taxResult.incomeTax)}
+                              </p>
+                            </div>
+                            <div className="p-4 bg-secondary/50 rounded-lg">
+                              <p className="text-sm text-muted-foreground">Net Income</p>
+                              <p className="text-lg font-semibold text-green-600">
+                                {formatCurrency(taxResult.netIncome)}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "retirement" && (
+              <motion.div
+                key="retirement"
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.4 }}
+                className="flex flex-col items-center"
+              >
+                <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                  <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
+                      <CardHeader>
+                        <CardTitle>Retirement Calculator</CardTitle>
+                        <CardDescription>
+                          Plan your retirement corpus and monthly savings
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="space-y-2">
+                          <Label>Current Age: {currentAge} years</Label>
+                          <Slider
+                            value={[currentAge]}
+                            onValueChange={([value]) => setCurrentAge(value)}
+                            max={60}
+                            min={18}
+                            step={1}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>18 years</span>
+                            <span>60 years</span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Retirement Age: {retirementAge} years</Label>
+                          <Slider
+                            value={[retirementAge]}
+                            onValueChange={([value]) => setRetirementAge(value)}
+                            max={70}
+                            min={50}
+                            step={1}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>50 years</span>
+                            <span>70 years</span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Monthly Expenses: {formatCurrency(monthlyExpenses)}</Label>
+                          <Slider
+                            value={[monthlyExpenses]}
+                            onValueChange={([value]) => setMonthlyExpenses(value)}
+                            max={200000}
+                            min={10000}
+                            step={5000}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>₹10K</span>
+                            <span>₹2L</span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Inflation Rate: {inflationRate}% p.a.</Label>
+                          <Slider
+                            value={[inflationRate]}
+                            onValueChange={([value]) => setInflationRate(value)}
+                            max={10}
+                            min={3}
+                            step={0.5}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>3%</span>
+                            <span>10%</span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Expected Return: {retirementReturn}% p.a.</Label>
+                          <Slider
+                            value={[retirementReturn]}
+                            onValueChange={([value]) => setRetirementReturn(value)}
+                            max={15}
+                            min={6}
+                            step={0.5}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>6%</span>
+                            <span>15%</span>
+                          </div>
+                        </div>
+
+                        <Button onClick={calculateRetirement} className="w-full">
+                          Calculate Retirement Plan
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  {retirementResult && (
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
+                      <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
+                        <CardHeader>
+                          <CardTitle>Retirement Plan Results</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-2 gap-4 text-center">
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Years to Retirement</p>
+                                <p className="text-lg font-semibold">
+                                  {retirementResult.yearsToRetirement} years
+                                </p>
+                              </div>
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Future Monthly Expenses</p>
+                                <p className="text-lg font-semibold text-orange-600">
+                                  {formatCurrency(retirementResult.futureExpenses)}
+                                </p>
+                              </div>
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Corpus Required</p>
+                                <p className="text-lg font-semibold text-primary">
+                                  {formatCurrency(retirementResult.corpusRequired)}
+                                </p>
+                              </div>
+                              <div className="p-4 bg-secondary/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Monthly SIP Required</p>
+                                <p className="text-lg font-semibold text-green-600">
+                                  {formatCurrency(retirementResult.monthlySip)}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="p-4 bg-secondary/20 rounded-lg">
+                              <h4 className="font-semibold mb-2">Retirement Summary</h4>
+                              <ul className="space-y-1 text-sm text-muted-foreground">
+                                <li>• Start investing {formatCurrency(retirementResult.monthlySip)} monthly</li>
+                                <li>• Build a corpus of {formatCurrency(retirementResult.corpusRequired)}</li>
+                                <li>• Maintain {retirementReturn}% annual returns</li>
+                                <li>• Account for {inflationRate}% inflation</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Tabs>
       </div>
     </section>
