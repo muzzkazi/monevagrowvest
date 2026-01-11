@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Sparkles, Target, TrendingUp, BarChart3, Wallet } from "lucide-react";
+import { Phone, Sparkles, Target, TrendingUp, BarChart3, Wallet, Calculator, Receipt, Landmark, Clock } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -74,14 +74,45 @@ const Header = () => {
               >
                 Services
               </Link>
-              <Link 
-                to="/calculators" 
-                className={`text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-financial-accent after:transition-all after:duration-300 hover:after:w-full ${
+              <div className="relative group">
+                <span className={`text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-financial-accent after:transition-all after:duration-300 group-hover:after:w-full ${
                   location.pathname === '/calculators' ? 'text-financial-accent after:w-full' : 'text-foreground hover:text-financial-accent'
-                }`}
-              >
-                Calculators
-              </Link>
+                }`}>
+                  Calculators
+                </span>
+                <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
+                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[220px] py-2 overflow-hidden">
+                    <Link 
+                      to="/calculators?tab=sip" 
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                    >
+                      <TrendingUp className="h-4 w-4" />
+                      SIP Calculator
+                    </Link>
+                    <Link 
+                      to="/calculators?tab=emi" 
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                    >
+                      <Receipt className="h-4 w-4" />
+                      EMI Calculator
+                    </Link>
+                    <Link 
+                      to="/calculators?tab=tax" 
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                    >
+                      <Landmark className="h-4 w-4" />
+                      Tax Calculator
+                    </Link>
+                    <Link 
+                      to="/calculators?tab=retirement" 
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                    >
+                      <Clock className="h-4 w-4" />
+                      Retirement Planner
+                    </Link>
+                  </div>
+                </div>
+              </div>
               <div className="relative group">
                 <span className={`text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-financial-accent after:transition-all after:duration-300 group-hover:after:w-full ${
                   location.pathname.startsWith('/ai-planning') || location.pathname === '/mutual-fund-comparison' || location.pathname === '/goal-based-planning' || location.pathname === '/sip-based-planning' || location.pathname === '/debt-management'
