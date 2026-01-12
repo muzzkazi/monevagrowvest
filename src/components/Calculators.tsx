@@ -194,7 +194,7 @@ const Calculators = () => {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center"
               >
-                <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                <div className={`grid gap-8 w-full max-w-5xl mx-auto ${sipResult ? 'lg:grid-cols-2' : 'lg:grid-cols-1 max-w-xl'}`}>
                   <motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -351,7 +351,7 @@ const Calculators = () => {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center"
               >
-                <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                <div className={`grid gap-8 w-full max-w-5xl mx-auto ${emiResult ? 'lg:grid-cols-2' : 'lg:grid-cols-1 max-w-xl'}`}>
                   <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
                       <CardHeader>
@@ -484,7 +484,7 @@ const Calculators = () => {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center"
               >
-                <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                <div className={`grid gap-8 w-full max-w-5xl mx-auto ${taxResult ? 'lg:grid-cols-2' : 'lg:grid-cols-1 max-w-xl'}`}>
                   <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
                       <CardHeader>
@@ -573,7 +573,7 @@ const Calculators = () => {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center"
               >
-                <div className="grid lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                <div className={`grid gap-8 w-full max-w-5xl mx-auto ${retirementResult ? 'lg:grid-cols-2' : 'lg:grid-cols-1 max-w-xl'}`}>
                   <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
                       <CardHeader>
