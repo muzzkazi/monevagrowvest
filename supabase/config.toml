@@ -1,1 +1,7 @@
 project_id = "gwbsqeamidtxcaxeboqx"
+
+[functions.stock-prices]
+verify_jwt = false
+
+[functions.finnhub-realtime]
+verify_jwt = false
