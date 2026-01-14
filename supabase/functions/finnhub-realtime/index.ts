@@ -5,6 +5,56 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Input validation constants
+const MAX_SYMBOLS_PER_MESSAGE = 50;
+const MAX_TOTAL_SUBSCRIPTIONS = 100;
+const SYMBOL_PATTERN = /^[A-Z0-9:.]{1,30}$/;
+
+// Validate symbol format
+const validateSymbol = (symbol: unknown): string | null => {
+  if (typeof symbol !== 'string') return null;
+  const trimmed = symbol.trim().toUpperCase();
+  if (!SYMBOL_PATTERN.test(trimmed)) return null;
+  return trimmed;
+};
+
+// Validate message structure
+const validateMessage = (data: unknown): { type: string; symbols?: string[] } | null => {
+  if (!data || typeof data !== 'object') return null;
+  
+  const message = data as Record<string, unknown>;
+  
+  // Validate type field
+  if (typeof message.type !== 'string') return null;
+  const type = message.type.trim().toLowerCase();
+  
+  // Only allow subscribe and unsubscribe types
+  if (type !== 'subscribe' && type !== 'unsubscribe') return null;
+  
+  // Validate symbols array if present
+  if (message.symbols !== undefined) {
+    if (!Array.isArray(message.symbols)) return null;
+    if (message.symbols.length > MAX_SYMBOLS_PER_MESSAGE) {
+      console.warn(`Too many symbols in message: ${message.symbols.length}, max: ${MAX_SYMBOLS_PER_MESSAGE}`);
+      return null;
+    }
+    
+    const validSymbols: string[] = [];
+    for (const symbol of message.symbols) {
+      const validated = validateSymbol(symbol);
+      if (validated) {
+        validSymbols.push(validated);
+      } else {
+        console.warn(`Invalid symbol rejected: ${JSON.stringify(symbol).slice(0, 30)}`);
+      }
+    }
+    
+    return { type, symbols: validSymbols };
+  }
+  
+  return { type };
+};
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -25,7 +75,7 @@ serve(async (req) => {
   
   if (!FINNHUB_API_KEY) {
     console.error('FINNHUB_API_KEY not configured');
-    return new Response("Finnhub API key not configured", { 
+    return new Response("Service configuration error", { 
       status: 500, 
       headers: corsHeaders 
     });
@@ -41,6 +91,7 @@ serve(async (req) => {
     let isClientOpen = true;
     let isFinnhubOpen = false;
     const pendingSubscriptions: string[] = [];
+    const activeSubscriptions = new Set<string>();
 
     finnhubSocket.onopen = () => {
       console.log('Connected to Finnhub WebSocket');
@@ -48,8 +99,11 @@ serve(async (req) => {
       
       // Send any pending subscriptions
       pendingSubscriptions.forEach(symbol => {
-        finnhubSocket.send(JSON.stringify({ type: 'subscribe', symbol }));
-        console.log(`Subscribed to ${symbol}`);
+        if (activeSubscriptions.size < MAX_TOTAL_SUBSCRIPTIONS) {
+          finnhubSocket.send(JSON.stringify({ type: 'subscribe', symbol }));
+          activeSubscriptions.add(symbol);
+          console.log(`Subscribed to ${symbol}`);
+        }
       });
       pendingSubscriptions.length = 0;
     };
@@ -87,27 +141,52 @@ serve(async (req) => {
 
     clientSocket.onmessage = (event) => {
       try {
-        const message = JSON.parse(event.data);
-        console.log('Received from client:', message);
+        let rawMessage: unknown;
+        try {
+          rawMessage = JSON.parse(event.data);
+        } catch {
+          console.warn('Invalid JSON received from client');
+          return;
+        }
         
-        if (message.type === 'subscribe' && message.symbols && Array.isArray(message.symbols)) {
-          message.symbols.forEach((symbol: string) => {
+        // Validate message structure
+        const message = validateMessage(rawMessage);
+        if (!message) {
+          console.warn('Invalid message structure rejected');
+          return;
+        }
+        
+        console.log('Validated client message:', message.type, message.symbols?.length ?? 0, 'symbols');
+        
+        if (message.type === 'subscribe' && message.symbols) {
+          for (const symbol of message.symbols) {
+            // Check subscription limit
+            if (activeSubscriptions.size >= MAX_TOTAL_SUBSCRIPTIONS) {
+              console.warn(`Max subscriptions reached (${MAX_TOTAL_SUBSCRIPTIONS}), ignoring further subscribes`);
+              break;
+            }
+            
             if (isFinnhubOpen) {
               finnhubSocket.send(JSON.stringify({ type: 'subscribe', symbol }));
+              activeSubscriptions.add(symbol);
               console.log(`Subscribed to ${symbol}`);
             } else {
-              pendingSubscriptions.push(symbol);
+              if (pendingSubscriptions.length < MAX_TOTAL_SUBSCRIPTIONS) {
+                pendingSubscriptions.push(symbol);
+              }
             }
-          });
+          }
         } else if (message.type === 'unsubscribe' && message.symbols) {
-          message.symbols.forEach((symbol: string) => {
+          for (const symbol of message.symbols) {
             if (isFinnhubOpen) {
               finnhubSocket.send(JSON.stringify({ type: 'unsubscribe', symbol }));
+              activeSubscriptions.delete(symbol);
+              console.log(`Unsubscribed from ${symbol}`);
             }
-          });
+          }
         }
       } catch (err) {
-        console.error('Error parsing client message:', err);
+        console.error('Error handling client message:', err);
       }
     };
 
@@ -126,7 +205,7 @@ serve(async (req) => {
     return response;
   } catch (error) {
     console.error('Error setting up WebSocket relay:', error);
-    return new Response(`Error: ${error.message}`, { 
+    return new Response("Internal server error", { 
       status: 500, 
       headers: corsHeaders 
     });
