@@ -14,6 +14,18 @@ interface StockQuote {
   lastUpdated: string;
 }
 
+// Input validation constants
+const MAX_SYMBOLS = 50;
+const SYMBOL_PATTERN = /^[A-Z0-9^.&-]{1,20}$/;
+
+// Validate and sanitize symbol input
+const validateSymbol = (symbol: unknown): string | null => {
+  if (typeof symbol !== 'string') return null;
+  const trimmed = symbol.trim().toUpperCase();
+  if (!SYMBOL_PATTERN.test(trimmed)) return null;
+  return trimmed;
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -21,16 +33,51 @@ serve(async (req) => {
   }
 
   try {
-    const { symbols } = await req.json();
+    const body = await req.json();
+    const { symbols } = body;
     
-    if (!symbols || !Array.isArray(symbols) || symbols.length === 0) {
+    // Validate symbols is an array
+    if (!symbols || !Array.isArray(symbols)) {
       return new Response(
-        JSON.stringify({ error: 'Symbols array is required' }),
+        JSON.stringify({ error: 'Symbols must be an array' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Fetching prices for symbols:', symbols);
+    // Validate array length
+    if (symbols.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'Symbols array cannot be empty' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (symbols.length > MAX_SYMBOLS) {
+      return new Response(
+        JSON.stringify({ error: `Too many symbols. Maximum allowed: ${MAX_SYMBOLS}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate and sanitize each symbol
+    const validSymbols: string[] = [];
+    for (const symbol of symbols) {
+      const validated = validateSymbol(symbol);
+      if (validated) {
+        validSymbols.push(validated);
+      } else {
+        console.warn(`Invalid symbol rejected: ${JSON.stringify(symbol).slice(0, 50)}`);
+      }
+    }
+
+    if (validSymbols.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'No valid symbols provided. Symbols must be 1-20 alphanumeric characters.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Fetching prices for ${validSymbols.length} validated symbols`);
 
     // Fetch prices from Yahoo Finance chart API (reliable, no auth)
     const quotes: StockQuote[] = [];
@@ -99,7 +146,7 @@ serve(async (req) => {
 
     // Concurrency limit to keep latency low without overloading Yahoo
     const CONCURRENCY = 10;
-    const tasks = symbols.map((symbol) => {
+    const tasks = validSymbols.map((symbol) => {
       const yahooSymbol = toYahooSymbol(symbol);
       return () => fetchChart(symbol, yahooSymbol);
     });
@@ -114,7 +161,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Successfully fetched ${quotes.length}/${symbols.length} quotes`);
+    console.log(`Successfully fetched ${quotes.length}/${validSymbols.length} quotes`);
 
     return new Response(
       JSON.stringify({ quotes, timestamp: lastUpdated }),
@@ -123,7 +170,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in stock-prices function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
