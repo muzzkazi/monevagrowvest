@@ -71,6 +71,7 @@ const Footer = () => {
               <li><Link to="/calculators" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">SIP Calculator</Link></li>
               <li><Link to="/calculators" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">EMI Calculator</Link></li>
               <li><Link to="/debt-management" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Debt Management</Link></li>
+              <li><Link to="/budget-tracker" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Budget Tracker</Link></li>
               <li><Link to="/ai-planning" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">AI Financial Planning</Link></li>
             </ul>
           </div>
