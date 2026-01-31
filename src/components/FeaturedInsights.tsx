@@ -123,7 +123,12 @@ const FeaturedInsights = () => {
                   <span className="text-xs text-muted-foreground">
                     {new Date(insight.publishedAt).toLocaleDateString()}
                   </span>
-                  <Button variant="ghost" size="sm" className="text-financial-accent hover:text-financial-accent/80">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-financial-accent hover:text-financial-accent/80"
+                    onClick={() => window.location.href = '/blog'}
+                  >
                     Read More
                     <ArrowRight className="w-3 h-3 ml-1" />
                   </Button>
