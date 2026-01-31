@@ -6,6 +6,7 @@ import { TrendingUp, Clock, ArrowRight, BarChart3, RefreshCw, Activity } from "l
 import ContactFormModal from "@/components/ContactFormModal";
 import { useMarketInsights } from "@/hooks/useMarketInsights";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useNavigate } from "react-router-dom";
 
 const FeaturedInsights = () => {
   const [showContactForm, setShowContactForm] = useState(false);
@@ -14,6 +15,7 @@ const FeaturedInsights = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
   const { ref: cardsRef, isVisible: cardsVisible } = useScrollAnimation({ threshold: 0.1 });
+  const navigate = useNavigate();
 
   return (
     <section className="py-12 sm:py-16 bg-financial-muted">
@@ -123,11 +125,11 @@ const FeaturedInsights = () => {
                   <span className="text-xs text-muted-foreground">
                     {new Date(insight.publishedAt).toLocaleDateString()}
                   </span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="text-financial-accent hover:text-financial-accent/80"
-                    onClick={() => window.location.href = '/blog'}
+                    onClick={() => navigate("/blog")}
                   >
                     Read More
                     <ArrowRight className="w-3 h-3 ml-1" />
