@@ -9,6 +9,7 @@ export interface MarketInsight {
   trending: boolean;
   source: string;
   publishedAt: string;
+  url: string;
 }
 
 interface MarketData {
@@ -43,7 +44,8 @@ export const useMarketInsights = () => {
         readTime: "4 min read",
         trending: true,
         source: "EquityMaster",
-        publishedAt: currentDate
+        publishedAt: currentDate,
+        url: "https://www.equitymaster.com/stock-market-news"
       },
       {
         category: "Sector Focus",
@@ -53,7 +55,8 @@ export const useMarketInsights = () => {
         readTime: "5 min read",
         trending: true,
         source: "Market Watch",
-        publishedAt: currentDate
+        publishedAt: currentDate,
+        url: "https://www.marketwatch.com/investing/index/sensex"
       },
       {
         category: "Investment Strategy",
@@ -63,7 +66,8 @@ export const useMarketInsights = () => {
         readTime: "6 min read",
         trending: false,
         source: "MoneyControl",
-        publishedAt: currentDate
+        publishedAt: currentDate,
+        url: "https://www.moneycontrol.com/news/business/markets/"
       },
       {
         category: "Market Outlook",
@@ -73,7 +77,8 @@ export const useMarketInsights = () => {
         readTime: "7 min read",
         trending: false,
         source: "Economic Times",
-        publishedAt: currentDate
+        publishedAt: currentDate,
+        url: "https://economictimes.indiatimes.com/markets"
       },
       {
         category: "Commodity Focus",
@@ -83,7 +88,8 @@ export const useMarketInsights = () => {
         readTime: "5 min read",
         trending: true,
         source: "Commodity Online",
-        publishedAt: currentDate
+        publishedAt: currentDate,
+        url: "https://www.commodityonline.com/commodities/gold"
       },
       {
         category: "IPO Watch",
@@ -93,7 +99,8 @@ export const useMarketInsights = () => {
         readTime: "8 min read",
         trending: true,
         source: "IPO Central",
-        publishedAt: currentDate
+        publishedAt: currentDate,
+        url: "https://www.chittorgarh.com/ipo/ipo_dashboard.asp"
       }
     ];
   };
