@@ -19,6 +19,7 @@ import GoalBasedPlanning from "./pages/GoalBasedPlanning";
 import SIPBasedPlanning from "./pages/SIPBasedPlanning";
 import FinancialEducationPage from "./pages/FinancialEducation";
 import BudgetTrackerPage from "./pages/BudgetTracker";
+import StockScreenerPage from "./pages/StockScreener";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const AnimatedRoutes = () => {
           <Route path="/sip-based-planning" element={<SIPBasedPlanning />} />
           <Route path="/financial-education" element={<FinancialEducationPage />} />
           <Route path="/budget-tracker" element={<BudgetTrackerPage />} />
+          <Route path="/stock-screener" element={<StockScreenerPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
