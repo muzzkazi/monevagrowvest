@@ -68,7 +68,10 @@ export const StockDetailModal = ({
   const [showVolume, setShowVolume] = useState(true);
   const [chartDays, setChartDays] = useState(90);
   
-  const { data: historicalData, fullData, isLoading } = useHistoricalData(stock, chartDays);
+  // Calculate current price first so it can be used for historical data generation
+  const currentPrice = livePrice || stock?.high52Week * 0.9 || 0;
+  
+  const { data: historicalData, fullData, isLoading } = useHistoricalData(stock, chartDays, currentPrice);
   
   // Calculate moving averages from actual historical data
   const calculatedMA = useMemo(() => {
@@ -86,7 +89,6 @@ export const StockDetailModal = ({
   if (!stock) return null;
   
   const isPositive = priceChange >= 0;
-  const currentPrice = livePrice || stock.high52Week * 0.9;
   
   // Calculate price position in 52-week range
   const pricePosition = ((currentPrice - stock.low52Week) / (stock.high52Week - stock.low52Week)) * 100;
