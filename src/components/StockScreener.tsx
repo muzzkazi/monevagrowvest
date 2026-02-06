@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useStockPrices } from "@/hooks/useStockPrices";
 import { allStocks, sectors, industries, presetScreeners, indexDefinitions, StockInfo } from "@/data/stockDatabase";
 import { 
@@ -26,10 +27,15 @@ import {
   Loader2,
   Sparkles,
   LineChart,
-  X
+  X,
+  Activity,
+  Waves,
+  Zap,
+  Target,
+  TrendingDown as TrendDown
 } from "lucide-react";
 
-type SortField = "symbol" | "price" | "change" | "marketCap" | "peRatio" | "dividendYield" | "rsi" | "roe";
+type SortField = "symbol" | "price" | "change" | "marketCap" | "peRatio" | "dividendYield" | "rsi" | "roe" | "macd" | "adx" | "beta" | "monthlyReturn";
 type SortDirection = "asc" | "desc";
 
 const ITEMS_PER_PAGE = 50;
@@ -49,9 +55,35 @@ const StockScreener = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
   const [marketCapRange, setMarketCapRange] = useState<[number, number]>([0, 2000000]);
 
-  // Technical filters
+  // Technical filters - Basic
   const [rsiRange, setRsiRange] = useState<[number, number]>([0, 100]);
   const [nearHighLow, setNearHighLow] = useState<string>("all");
+  
+  // Technical filters - Moving Averages
+  const [smaFilter, setSmaFilter] = useState<string>("all"); // all, above50, below50, above200, below200, goldenCross, deathCross
+  const [priceVsSma50Range, setPriceVsSma50Range] = useState<[number, number]>([-50, 50]);
+  const [priceVsSma200Range, setPriceVsSma200Range] = useState<[number, number]>([-50, 50]);
+  
+  // Technical filters - Momentum
+  const [macdFilter, setMacdFilter] = useState<string>("all"); // all, bullish, bearish, crossover
+  const [adxRange, setAdxRange] = useState<[number, number]>([0, 100]);
+  const [stochasticRange, setStochasticRange] = useState<[number, number]>([0, 100]);
+  const [mfiRange, setMfiRange] = useState<[number, number]>([0, 100]);
+  
+  // Technical filters - Volatility
+  const [atrPercentRange, setAtrPercentRange] = useState<[number, number]>([0, 5]);
+  const [betaRange, setBetaRange] = useState<[number, number]>([0, 3]);
+  const [bollingerFilter, setBollingerFilter] = useState<string>("all"); // all, nearUpper, nearLower, squeeze
+  
+  // Technical filters - Returns
+  const [weeklyReturnRange, setWeeklyReturnRange] = useState<[number, number]>([-20, 20]);
+  const [monthlyReturnRange, setMonthlyReturnRange] = useState<[number, number]>([-30, 30]);
+  const [quarterlyReturnRange, setQuarterlyReturnRange] = useState<[number, number]>([-50, 50]);
+  const [yearlyReturnRange, setYearlyReturnRange] = useState<[number, number]>([-50, 100]);
+  
+  // Technical filters - Volume
+  const [volumeChangeMin, setVolumeChangeMin] = useState(-100);
+  const [highVolumeOnly, setHighVolumeOnly] = useState(false);
 
   // Fundamental filters
   const [peRange, setPeRange] = useState<[number, number]>([0, 100]);
@@ -96,10 +128,52 @@ const StockScreener = () => {
       if (price < priceRange[0] || price > priceRange[1]) return false;
       if (stock.marketCap < marketCapRange[0] || stock.marketCap > marketCapRange[1]) return false;
 
-      // Technical filters
+      // Technical filters - RSI
       if (stock.rsi < rsiRange[0] || stock.rsi > rsiRange[1]) return false;
       if (nearHighLow === "near52High" && price < stock.high52Week * 0.95) return false;
       if (nearHighLow === "near52Low" && price > stock.low52Week * 1.05) return false;
+      
+      // Technical filters - Moving Averages
+      if (smaFilter !== "all") {
+        if (smaFilter === "above50" && stock.priceVsSma50 < 0) return false;
+        if (smaFilter === "below50" && stock.priceVsSma50 > 0) return false;
+        if (smaFilter === "above200" && stock.priceVsSma200 < 0) return false;
+        if (smaFilter === "below200" && stock.priceVsSma200 > 0) return false;
+        if (smaFilter === "goldenCross" && stock.sma50 <= stock.sma200) return false;
+        if (smaFilter === "deathCross" && stock.sma50 >= stock.sma200) return false;
+      }
+      if (stock.priceVsSma50 < priceVsSma50Range[0] || stock.priceVsSma50 > priceVsSma50Range[1]) return false;
+      if (stock.priceVsSma200 < priceVsSma200Range[0] || stock.priceVsSma200 > priceVsSma200Range[1]) return false;
+      
+      // Technical filters - Momentum
+      if (macdFilter !== "all") {
+        if (macdFilter === "bullish" && stock.macdHistogram < 0) return false;
+        if (macdFilter === "bearish" && stock.macdHistogram > 0) return false;
+        if (macdFilter === "crossover" && Math.abs(stock.macdHistogram) > 2) return false;
+      }
+      if (stock.adx < adxRange[0] || stock.adx > adxRange[1]) return false;
+      if (stock.stochastic < stochasticRange[0] || stock.stochastic > stochasticRange[1]) return false;
+      if (stock.mfi < mfiRange[0] || stock.mfi > mfiRange[1]) return false;
+      
+      // Technical filters - Volatility
+      if (stock.atrPercent < atrPercentRange[0] || stock.atrPercent > atrPercentRange[1]) return false;
+      if (stock.beta < betaRange[0] || stock.beta > betaRange[1]) return false;
+      if (bollingerFilter !== "all") {
+        const pricePos = (price - stock.bollingerLower) / (stock.bollingerUpper - stock.bollingerLower);
+        if (bollingerFilter === "nearUpper" && pricePos < 0.8) return false;
+        if (bollingerFilter === "nearLower" && pricePos > 0.2) return false;
+        if (bollingerFilter === "squeeze" && stock.bollingerWidth > 3) return false;
+      }
+      
+      // Technical filters - Returns
+      if (stock.weeklyReturn < weeklyReturnRange[0] || stock.weeklyReturn > weeklyReturnRange[1]) return false;
+      if (stock.monthlyReturn < monthlyReturnRange[0] || stock.monthlyReturn > monthlyReturnRange[1]) return false;
+      if (stock.quarterlyReturn < quarterlyReturnRange[0] || stock.quarterlyReturn > quarterlyReturnRange[1]) return false;
+      if (stock.yearlyReturn < yearlyReturnRange[0] || stock.yearlyReturn > yearlyReturnRange[1]) return false;
+      
+      // Technical filters - Volume
+      if (stock.volumeChange < volumeChangeMin) return false;
+      if (highVolumeOnly && stock.volumeChange < 50) return false;
 
       // Fundamental filters
       if (stock.peRatio < peRange[0] || stock.peRatio > peRange[1]) return false;
@@ -147,6 +221,22 @@ const StockScreener = () => {
           aVal = a.roe;
           bVal = b.roe;
           break;
+        case "macd":
+          aVal = a.macdHistogram;
+          bVal = b.macdHistogram;
+          break;
+        case "adx":
+          aVal = a.adx;
+          bVal = b.adx;
+          break;
+        case "beta":
+          aVal = a.beta;
+          bVal = b.beta;
+          break;
+        case "monthlyReturn":
+          aVal = a.monthlyReturn;
+          bVal = b.monthlyReturn;
+          break;
         default:
           aVal = 0;
           bVal = 0;
@@ -156,7 +246,7 @@ const StockScreener = () => {
     });
 
     return filtered;
-  }, [prices, searchQuery, selectedSector, selectedIndustry, selectedIndex, priceRange, marketCapRange, rsiRange, nearHighLow, peRange, dividendYieldMin, roeMin, debtToEquityMax, sortField, sortDirection, activePreset]);
+  }, [prices, searchQuery, selectedSector, selectedIndustry, selectedIndex, priceRange, marketCapRange, rsiRange, nearHighLow, smaFilter, priceVsSma50Range, priceVsSma200Range, macdFilter, adxRange, stochasticRange, mfiRange, atrPercentRange, betaRange, bollingerFilter, weeklyReturnRange, monthlyReturnRange, quarterlyReturnRange, yearlyReturnRange, volumeChangeMin, highVolumeOnly, peRange, dividendYieldMin, roeMin, debtToEquityMax, sortField, sortDirection, activePreset]);
 
   const paginatedStocks = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -195,6 +285,22 @@ const StockScreener = () => {
     setMarketCapRange([0, 2000000]);
     setRsiRange([0, 100]);
     setNearHighLow("all");
+    setSmaFilter("all");
+    setPriceVsSma50Range([-50, 50]);
+    setPriceVsSma200Range([-50, 50]);
+    setMacdFilter("all");
+    setAdxRange([0, 100]);
+    setStochasticRange([0, 100]);
+    setMfiRange([0, 100]);
+    setAtrPercentRange([0, 5]);
+    setBetaRange([0, 3]);
+    setBollingerFilter("all");
+    setWeeklyReturnRange([-20, 20]);
+    setMonthlyReturnRange([-30, 30]);
+    setQuarterlyReturnRange([-50, 50]);
+    setYearlyReturnRange([-50, 100]);
+    setVolumeChangeMin(-100);
+    setHighVolumeOnly(false);
     setPeRange([0, 100]);
     setDividendYieldMin(0);
     setRoeMin(0);
@@ -340,9 +446,10 @@ const StockScreener = () => {
                 </div>
 
                 <Tabs defaultValue="basic" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 h-auto">
+                  <TabsList className="grid w-full grid-cols-4 h-auto">
                     <TabsTrigger value="basic" className="text-xs px-2 py-1.5">Basic</TabsTrigger>
                     <TabsTrigger value="technical" className="text-xs px-2 py-1.5">Technical</TabsTrigger>
+                    <TabsTrigger value="momentum" className="text-xs px-2 py-1.5">Momentum</TabsTrigger>
                     <TabsTrigger value="fundamental" className="text-xs px-2 py-1.5">Fundamental</TabsTrigger>
                   </TabsList>
 
@@ -442,11 +549,136 @@ const StockScreener = () => {
                   </TabsContent>
 
                   <TabsContent value="technical" className="space-y-4 mt-4">
+                    {/* Moving Average Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <Activity className="w-4 h-4" />
+                        Moving Average
+                      </Label>
+                      <Select value={smaFilter} onValueChange={setSmaFilter}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Stocks</SelectItem>
+                          <SelectItem value="above50">Above 50 DMA</SelectItem>
+                          <SelectItem value="below50">Below 50 DMA</SelectItem>
+                          <SelectItem value="above200">Above 200 DMA</SelectItem>
+                          <SelectItem value="below200">Below 200 DMA</SelectItem>
+                          <SelectItem value="goldenCross">Golden Cross (50 &gt; 200)</SelectItem>
+                          <SelectItem value="deathCross">Death Cross (50 &lt; 200)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Price vs 50 SMA */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Price vs 50 SMA (%)</Label>
+                      <Slider
+                        value={priceVsSma50Range}
+                        onValueChange={(v) => setPriceVsSma50Range(v as [number, number])}
+                        min={-50}
+                        max={50}
+                        step={5}
+                        className="py-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{priceVsSma50Range[0]}%</span>
+                        <span>{priceVsSma50Range[1]}%</span>
+                      </div>
+                    </div>
+
+                    {/* Near High/Low */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">52-Week Position</Label>
+                      <Select value={nearHighLow} onValueChange={setNearHighLow}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Stocks</SelectItem>
+                          <SelectItem value="near52High">Near 52-Week High</SelectItem>
+                          <SelectItem value="near52Low">Near 52-Week Low</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Bollinger Bands */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <Waves className="w-4 h-4" />
+                        Bollinger Bands
+                      </Label>
+                      <Select value={bollingerFilter} onValueChange={setBollingerFilter}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Stocks</SelectItem>
+                          <SelectItem value="nearUpper">Near Upper Band</SelectItem>
+                          <SelectItem value="nearLower">Near Lower Band</SelectItem>
+                          <SelectItem value="squeeze">Bollinger Squeeze</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Beta Range */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Beta (Volatility)</Label>
+                      <Slider
+                        value={betaRange}
+                        onValueChange={(v) => setBetaRange(v as [number, number])}
+                        min={0}
+                        max={3}
+                        step={0.1}
+                        className="py-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{betaRange[0].toFixed(1)}</span>
+                        <span>{betaRange[1].toFixed(1)}</span>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <Badge 
+                          variant="outline" 
+                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
+                          onClick={() => setBetaRange([0, 0.8])}
+                        >
+                          Low Beta
+                        </Badge>
+                        <Badge 
+                          variant="outline" 
+                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
+                          onClick={() => setBetaRange([1.2, 3])}
+                        >
+                          High Beta
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* ATR % */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">ATR % (Volatility)</Label>
+                      <Slider
+                        value={atrPercentRange}
+                        onValueChange={(v) => setAtrPercentRange(v as [number, number])}
+                        min={0}
+                        max={5}
+                        step={0.1}
+                        className="py-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{atrPercentRange[0].toFixed(1)}%</span>
+                        <span>{atrPercentRange[1].toFixed(1)}%</span>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="momentum" className="space-y-4 mt-4">
                     {/* RSI Range */}
                     <div className="space-y-3">
                       <Label className="text-sm font-medium flex items-center gap-2">
                         <BarChart3 className="w-4 h-4" />
-                        RSI Range
+                        RSI (14)
                       </Label>
                       <Slider
                         value={rsiRange}
@@ -478,19 +710,141 @@ const StockScreener = () => {
                       </div>
                     </div>
 
-                    {/* Near High/Low */}
+                    {/* MACD Filter */}
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Price Position</Label>
-                      <Select value={nearHighLow} onValueChange={setNearHighLow}>
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <Zap className="w-4 h-4" />
+                        MACD Signal
+                      </Label>
+                      <Select value={macdFilter} onValueChange={setMacdFilter}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">All Stocks</SelectItem>
-                          <SelectItem value="near52High">Near 52-Week High</SelectItem>
-                          <SelectItem value="near52Low">Near 52-Week Low</SelectItem>
+                          <SelectItem value="bullish">MACD Bullish</SelectItem>
+                          <SelectItem value="bearish">MACD Bearish</SelectItem>
+                          <SelectItem value="crossover">Near Crossover</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    {/* ADX (Trend Strength) */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <Target className="w-4 h-4" />
+                        ADX (Trend Strength)
+                      </Label>
+                      <Slider
+                        value={adxRange}
+                        onValueChange={(v) => setAdxRange(v as [number, number])}
+                        min={0}
+                        max={100}
+                        step={5}
+                        className="py-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{adxRange[0]}</span>
+                        <span>{adxRange[1]}</span>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <Badge 
+                          variant="outline" 
+                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
+                          onClick={() => setAdxRange([25, 100])}
+                        >
+                          Strong Trend
+                        </Badge>
+                        <Badge 
+                          variant="outline" 
+                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
+                          onClick={() => setAdxRange([0, 20])}
+                        >
+                          Weak/No Trend
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Stochastic */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Stochastic %K</Label>
+                      <Slider
+                        value={stochasticRange}
+                        onValueChange={(v) => setStochasticRange(v as [number, number])}
+                        min={0}
+                        max={100}
+                        step={5}
+                        className="py-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{stochasticRange[0]}</span>
+                        <span>{stochasticRange[1]}</span>
+                      </div>
+                    </div>
+
+                    {/* MFI */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Money Flow Index</Label>
+                      <Slider
+                        value={mfiRange}
+                        onValueChange={(v) => setMfiRange(v as [number, number])}
+                        min={0}
+                        max={100}
+                        step={5}
+                        className="py-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{mfiRange[0]}</span>
+                        <span>{mfiRange[1]}</span>
+                      </div>
+                    </div>
+
+                    {/* Returns */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4" />
+                        Monthly Return %
+                      </Label>
+                      <Slider
+                        value={monthlyReturnRange}
+                        onValueChange={(v) => setMonthlyReturnRange(v as [number, number])}
+                        min={-30}
+                        max={30}
+                        step={5}
+                        className="py-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{monthlyReturnRange[0]}%</span>
+                        <span>{monthlyReturnRange[1]}%</span>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <Badge 
+                          variant="outline" 
+                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
+                          onClick={() => setMonthlyReturnRange([5, 30])}
+                        >
+                          Gainers
+                        </Badge>
+                        <Badge 
+                          variant="outline" 
+                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
+                          onClick={() => setMonthlyReturnRange([-30, -5])}
+                        >
+                          Losers
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* High Volume */}
+                    <div className="flex items-center space-x-2 pt-2">
+                      <Checkbox 
+                        id="highVolume" 
+                        checked={highVolumeOnly}
+                        onCheckedChange={(checked) => setHighVolumeOnly(checked as boolean)}
+                      />
+                      <Label htmlFor="highVolume" className="text-sm cursor-pointer">
+                        High volume spikes only (+50%)
+                      </Label>
                     </div>
                   </TabsContent>
 

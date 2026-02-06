@@ -21,6 +21,33 @@ export interface StockInfo {
   promoterHolding: number;
   fiiHolding: number;
   diiHolding: number;
+  // Technical Indicators
+  sma20: number; // 20-day Simple Moving Average
+  sma50: number; // 50-day Simple Moving Average
+  sma200: number; // 200-day Simple Moving Average
+  ema20: number; // 20-day Exponential Moving Average
+  macd: number; // MACD value
+  macdSignal: number; // MACD Signal line
+  macdHistogram: number; // MACD Histogram
+  adx: number; // Average Directional Index (trend strength)
+  atr: number; // Average True Range (volatility)
+  atrPercent: number; // ATR as percentage of price
+  bollingerUpper: number; // Bollinger Band Upper
+  bollingerLower: number; // Bollinger Band Lower
+  bollingerWidth: number; // Bollinger Band Width %
+  volumeAvg: number; // Average volume (in lakhs)
+  volumeChange: number; // Volume vs average (%)
+  priceVsSma50: number; // Price vs 50 SMA (%)
+  priceVsSma200: number; // Price vs 200 SMA (%)
+  weeklyReturn: number; // 1 week return %
+  monthlyReturn: number; // 1 month return %
+  quarterlyReturn: number; // 3 month return %
+  yearlyReturn: number; // 1 year return %
+  beta: number; // Stock beta
+  stochastic: number; // Stochastic oscillator
+  williamsR: number; // Williams %R
+  cci: number; // Commodity Channel Index
+  mfi: number; // Money Flow Index
 }
 
 // Index definitions
@@ -484,11 +511,110 @@ const generate52WeekRange = (marketCap: number, sector: string): { high: number;
   };
 };
 
+// Generate technical indicators based on sector characteristics
+const generateTechnicalIndicators = (symbol: string, marketCap: number, sector: string) => {
+  const hash = symbol.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const range = generate52WeekRange(marketCap, sector);
+  const basePrice = (range.high + range.low) / 2;
+  const pricePosition = 0.4 + (hash % 40) / 100; // Position within 52-week range
+  const currentPrice = range.low + (range.high - range.low) * pricePosition;
+  
+  // Volatility varies by sector
+  const sectorVolatility: Record<string, number> = {
+    "Metals": 2.5, "Energy": 2.2, "Oil & Gas": 2.0, "Realty": 2.8,
+    "IT": 1.5, "Pharma": 1.6, "Banking": 1.4, "NBFC": 1.8,
+    "FMCG": 0.8, "Consumer Durables": 1.2, "Auto": 1.5,
+    "Telecom": 1.8, "Power": 1.4, "Infrastructure": 1.6,
+    "Default": 1.5
+  };
+  const volatility = sectorVolatility[sector] || sectorVolatility["Default"];
+  
+  // Generate momentum indicators
+  const momentum = (hash % 100) / 100; // 0-1 scale for trend strength
+  const isBullish = momentum > 0.4;
+  
+  // Moving averages
+  const sma20 = currentPrice * (isBullish ? 0.97 : 1.03);
+  const sma50 = currentPrice * (isBullish ? 0.94 : 1.06);
+  const sma200 = currentPrice * (isBullish ? 0.88 : 1.12);
+  const ema20 = currentPrice * (isBullish ? 0.98 : 1.02);
+  
+  // MACD
+  const macd = (currentPrice - sma50) * 0.1;
+  const macdSignal = macd * (isBullish ? 0.8 : 1.2);
+  const macdHistogram = macd - macdSignal;
+  
+  // ADX (trend strength)
+  const adx = 15 + (hash % 35) + Math.random() * 10;
+  
+  // ATR (volatility)
+  const atr = currentPrice * volatility * 0.01;
+  const atrPercent = volatility;
+  
+  // Bollinger Bands
+  const bollingerWidth = 2 + volatility * 2;
+  const bollingerUpper = currentPrice * (1 + bollingerWidth / 100);
+  const bollingerLower = currentPrice * (1 - bollingerWidth / 100);
+  
+  // Volume
+  const volumeAvg = marketCap / 500; // Average volume in lakhs
+  const volumeChange = -30 + (hash % 80) + Math.random() * 20;
+  
+  // Price vs MAs
+  const priceVsSma50 = ((currentPrice - sma50) / sma50) * 100;
+  const priceVsSma200 = ((currentPrice - sma200) / sma200) * 100;
+  
+  // Returns
+  const weeklyReturn = -5 + (hash % 15) + Math.random() * 3;
+  const monthlyReturn = -10 + (hash % 25) + Math.random() * 5;
+  const quarterlyReturn = -15 + (hash % 40) + Math.random() * 8;
+  const yearlyReturn = -20 + (hash % 60) + Math.random() * 10;
+  
+  // Beta
+  const beta = 0.6 + (hash % 100) / 100 + Math.random() * 0.3;
+  
+  // Oscillators
+  const stochastic = 10 + (hash % 80);
+  const williamsR = -(10 + (hash % 80));
+  const cci = -100 + (hash % 200);
+  const mfi = 20 + (hash % 60);
+  
+  return {
+    sma20: Math.round(sma20 * 100) / 100,
+    sma50: Math.round(sma50 * 100) / 100,
+    sma200: Math.round(sma200 * 100) / 100,
+    ema20: Math.round(ema20 * 100) / 100,
+    macd: Math.round(macd * 100) / 100,
+    macdSignal: Math.round(macdSignal * 100) / 100,
+    macdHistogram: Math.round(macdHistogram * 100) / 100,
+    adx: Math.round(adx * 10) / 10,
+    atr: Math.round(atr * 100) / 100,
+    atrPercent: Math.round(atrPercent * 100) / 100,
+    bollingerUpper: Math.round(bollingerUpper * 100) / 100,
+    bollingerLower: Math.round(bollingerLower * 100) / 100,
+    bollingerWidth: Math.round(bollingerWidth * 100) / 100,
+    volumeAvg: Math.round(volumeAvg * 10) / 10,
+    volumeChange: Math.round(volumeChange * 10) / 10,
+    priceVsSma50: Math.round(priceVsSma50 * 100) / 100,
+    priceVsSma200: Math.round(priceVsSma200 * 100) / 100,
+    weeklyReturn: Math.round(weeklyReturn * 100) / 100,
+    monthlyReturn: Math.round(monthlyReturn * 100) / 100,
+    quarterlyReturn: Math.round(quarterlyReturn * 100) / 100,
+    yearlyReturn: Math.round(yearlyReturn * 100) / 100,
+    beta: Math.round(beta * 100) / 100,
+    stochastic: Math.round(stochastic),
+    williamsR: Math.round(williamsR),
+    cci: Math.round(cci),
+    mfi: Math.round(mfi),
+  };
+};
+
 // Build complete stock database
 export const allStocks: StockInfo[] = stocksRaw.map(stock => {
   const defaults = sectorDefaults[stock.sector] || sectorDefaults["Diversified"];
   const range = generate52WeekRange(stock.marketCap, stock.sector);
   const holdings = generateHoldings(stock.marketCap);
+  const technicals = generateTechnicalIndicators(stock.symbol, stock.marketCap, stock.sector);
   
   const variance = () => 0.75 + Math.random() * 0.5;
   
@@ -512,6 +638,7 @@ export const allStocks: StockInfo[] = stocksRaw.map(stock => {
     promoterHolding: Math.round(holdings.promoter * 10) / 10,
     fiiHolding: Math.round(holdings.fii * 10) / 10,
     diiHolding: Math.round(holdings.dii * 10) / 10,
+    ...technicals,
   };
 });
 
@@ -645,6 +772,109 @@ export const presetScreeners = [
     name: "Blue Chip",
     description: "Large cap with high ROE and low debt",
     filter: (stock: StockInfo) => stock.marketCap > 100000 && stock.roe > 15 && stock.debtToEquity < 1,
+  },
+  // Technical Screeners
+  {
+    id: "oversold",
+    name: "RSI Oversold",
+    description: "RSI < 30 - potential buying opportunity",
+    filter: (stock: StockInfo) => stock.rsi < 30,
+  },
+  {
+    id: "overbought",
+    name: "RSI Overbought",
+    description: "RSI > 70 - potential selling zone",
+    filter: (stock: StockInfo) => stock.rsi > 70,
+  },
+  {
+    id: "goldencross",
+    name: "Golden Cross",
+    description: "50 SMA above 200 SMA (bullish)",
+    filter: (stock: StockInfo) => stock.sma50 > stock.sma200,
+  },
+  {
+    id: "deathcross",
+    name: "Death Cross",
+    description: "50 SMA below 200 SMA (bearish)",
+    filter: (stock: StockInfo) => stock.sma50 < stock.sma200,
+  },
+  {
+    id: "above50sma",
+    name: "Above 50 DMA",
+    description: "Trading above 50-day moving average",
+    filter: (stock: StockInfo) => stock.priceVsSma50 > 0,
+  },
+  {
+    id: "above200sma",
+    name: "Above 200 DMA",
+    description: "Trading above 200-day moving average",
+    filter: (stock: StockInfo) => stock.priceVsSma200 > 0,
+  },
+  {
+    id: "macdbullish",
+    name: "MACD Bullish",
+    description: "MACD above signal line",
+    filter: (stock: StockInfo) => stock.macdHistogram > 0,
+  },
+  {
+    id: "macdbearish",
+    name: "MACD Bearish",
+    description: "MACD below signal line",
+    filter: (stock: StockInfo) => stock.macdHistogram < 0,
+  },
+  {
+    id: "strongtrend",
+    name: "Strong Trend",
+    description: "ADX > 25 indicating strong trend",
+    filter: (stock: StockInfo) => stock.adx > 25,
+  },
+  {
+    id: "lowbeta",
+    name: "Low Beta",
+    description: "Beta < 0.8 - less volatile than market",
+    filter: (stock: StockInfo) => stock.beta < 0.8,
+  },
+  {
+    id: "highbeta",
+    name: "High Beta",
+    description: "Beta > 1.2 - more volatile than market",
+    filter: (stock: StockInfo) => stock.beta > 1.2,
+  },
+  {
+    id: "monthlyGainers",
+    name: "Monthly Gainers",
+    description: "Up more than 5% in last month",
+    filter: (stock: StockInfo) => stock.monthlyReturn > 5,
+  },
+  {
+    id: "monthlyLosers",
+    name: "Monthly Losers",
+    description: "Down more than 5% in last month",
+    filter: (stock: StockInfo) => stock.monthlyReturn < -5,
+  },
+  {
+    id: "highvolume",
+    name: "Volume Spike",
+    description: "Volume 50%+ above average",
+    filter: (stock: StockInfo) => stock.volumeChange > 50,
+  },
+  {
+    id: "bollingersqueeze",
+    name: "Bollinger Squeeze",
+    description: "Low volatility - potential breakout setup",
+    filter: (stock: StockInfo) => stock.bollingerWidth < 3,
+  },
+  {
+    id: "momentumplay",
+    name: "Momentum Play",
+    description: "Strong trend + bullish MACD",
+    filter: (stock: StockInfo) => stock.adx > 25 && stock.macdHistogram > 0 && stock.rsi > 50,
+  },
+  {
+    id: "valuemomentum",
+    name: "Value + Momentum",
+    description: "Low P/E with positive monthly returns",
+    filter: (stock: StockInfo) => stock.peRatio < 20 && stock.peRatio > 0 && stock.monthlyReturn > 0 && stock.roe > 12,
   },
 ];
 
