@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Sparkles, Target, TrendingUp, BarChart3, Wallet, Calculator, Receipt, Landmark, Clock } from "lucide-react";
+import { Phone, Sparkles, Target, TrendingUp, BarChart3, Wallet, Calculator, Receipt, Landmark, Clock, SlidersHorizontal } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -161,6 +161,17 @@ const Header = () => {
                   </div>
                 </div>
               </div>
+              <Link 
+                to="/stock-screener" 
+                className={`text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-financial-accent after:transition-all after:duration-300 hover:after:w-full ${
+                  location.pathname === '/stock-screener' ? 'text-financial-accent after:w-full' : 'text-foreground hover:text-financial-accent'
+                }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Screener
+                </span>
+              </Link>
               <Link 
                 to="/financial-education" 
                 className={`text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-financial-accent after:transition-all after:duration-300 hover:after:w-full ${
