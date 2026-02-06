@@ -278,43 +278,59 @@ serve(async (req) => {
       );
     });
 
-    // Helper to check if article has real image
-    const hasRealImage = (img: string) => !img.includes('unsplash.com');
+  // Helper to check if article has real image
+  const hasRealImage = (img: string) => !img.includes('unsplash.com');
 
-    // STEP 1: Get the LATEST article with an image from EACH source
-    const diverseArticles: MarketInsight[] = [];
-    const usedSources = new Set<string>();
+  // Helper to normalize title for comparison (removes extra spaces, lowercases)
+  const normalizeTitle = (title: string) => title.toLowerCase().trim().replace(/\s+/g, ' ');
 
-    // First pass: get one article (preferably with image) from each source
-    for (const [source, articles] of articlesBySource) {
-      // Prefer article with real image, otherwise take the first one
-      const articleWithImage = articles.find(a => hasRealImage(a.image));
-      const selectedArticle = articleWithImage || articles[0];
-      
-      if (selectedArticle) {
-        diverseArticles.push({ ...selectedArticle, trending: true });
-        usedSources.add(source);
-      }
+  // Track used titles to avoid duplicate content from different sources
+  const usedTitles = new Set<string>();
+
+  // STEP 1: Get the LATEST article with an image from EACH source (avoiding duplicate titles)
+  const diverseArticles: MarketInsight[] = [];
+  const usedSources = new Set<string>();
+
+  // First pass: get one article (preferably with image) from each source
+  for (const [source, articles] of articlesBySource) {
+    // Find an article that hasn't been used yet (by title)
+    const availableArticles = articles.filter(a => !usedTitles.has(normalizeTitle(a.title)));
+    
+    if (availableArticles.length === 0) {
+      console.log(`Skipping ${source} - all articles already used`);
+      continue;
     }
 
-    console.log(`Selected ${diverseArticles.length} articles from different sources`);
+    // Prefer article with real image, otherwise take the first available one
+    const articleWithImage = availableArticles.find(a => hasRealImage(a.image));
+    const selectedArticle = articleWithImage || availableArticles[0];
+    
+    if (selectedArticle) {
+      diverseArticles.push({ ...selectedArticle, trending: true });
+      usedSources.add(source);
+      usedTitles.add(normalizeTitle(selectedArticle.title));
+    }
+  }
 
-    // STEP 2: If we need more articles, add second-best from each source
-    if (diverseArticles.length < limit) {
-      for (const [source, articles] of articlesBySource) {
+  console.log(`Selected ${diverseArticles.length} unique articles from different sources`);
+
+  // STEP 2: If we need more articles, add second-best from each source (still avoiding duplicates)
+  if (diverseArticles.length < limit) {
+    for (const [source, articles] of articlesBySource) {
+      if (diverseArticles.length >= limit) break;
+      
+      // Get remaining articles from this source that haven't been used
+      const remainingArticles = articles.filter(a => !usedTitles.has(normalizeTitle(a.title)));
+      for (const article of remainingArticles) {
         if (diverseArticles.length >= limit) break;
-        
-        // Get second article from this source if available
-        const remainingArticles = articles.filter((_, idx) => idx > 0);
-        for (const article of remainingArticles) {
-          if (diverseArticles.length >= limit) break;
-          // Avoid duplicates by checking URL
-          if (!diverseArticles.some(a => a.url === article.url)) {
-            diverseArticles.push({ ...article, trending: false });
-          }
+        // Avoid duplicates by checking both URL and title
+        if (!diverseArticles.some(a => a.url === article.url)) {
+          diverseArticles.push({ ...article, trending: false });
+          usedTitles.add(normalizeTitle(article.title));
         }
       }
     }
+  }
 
     // Sort final list: first by source diversity, then by date
     const finalArticles = diverseArticles
