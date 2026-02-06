@@ -14,6 +14,7 @@ import { CandlestickData, calculateIndicators } from '@/hooks/useHistoricalData'
 
 interface CandlestickChartProps {
   data: CandlestickData[];
+  fullData?: CandlestickData[]; // Full data including warmup for indicator calculation
   showSMA20?: boolean;
   showSMA50?: boolean;
   showEMA20?: boolean;
@@ -94,13 +95,15 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export const CandlestickChart = ({
   data,
+  fullData,
   showSMA20 = false,
   showSMA50 = false,
   showEMA20 = false,
   showBollinger = false,
   showVolume = true,
 }: CandlestickChartProps) => {
-  const indicators = useMemo(() => calculateIndicators(data), [data]);
+  // Calculate indicators using full data (with warmup) for accurate values
+  const indicators = useMemo(() => calculateIndicators(fullData || data), [fullData, data]);
   
   // Prepare chart data with calculated values
   const chartData = useMemo(() => {

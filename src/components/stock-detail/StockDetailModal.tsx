@@ -49,7 +49,7 @@ export const StockDetailModal = ({
   const [showVolume, setShowVolume] = useState(true);
   const [chartDays, setChartDays] = useState(90);
   
-  const { data: historicalData, isLoading } = useHistoricalData(stock, chartDays);
+  const { data: historicalData, fullData, isLoading } = useHistoricalData(stock, chartDays);
   
   if (!stock) return null;
   
@@ -168,6 +168,7 @@ export const StockDetailModal = ({
                 ) : (
                   <CandlestickChart
                     data={historicalData}
+                    fullData={fullData}
                     showSMA20={showSMA20}
                     showSMA50={showSMA50}
                     showEMA20={showEMA20}

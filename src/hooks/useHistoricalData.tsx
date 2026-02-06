@@ -12,14 +12,19 @@ export interface CandlestickData {
 
 export interface HistoricalDataResult {
   data: CandlestickData[];
+  fullData: CandlestickData[]; // Includes warmup data for indicator calculation
   isLoading: boolean;
   error: string | null;
 }
 
 // Generate realistic historical data based on stock's technical indicators
-const generateHistoricalData = (stock: StockInfo, days: number = 90): CandlestickData[] => {
+// Extra days are generated for indicator warmup periods
+const generateHistoricalData = (stock: StockInfo, days: number = 90, warmupDays: number = 60): CandlestickData[] => {
   const data: CandlestickData[] = [];
   const today = new Date();
+  
+  // Total days to generate includes warmup for indicators
+  const totalDays = days + warmupDays;
   
   // Start with a base price derived from 52-week range
   const avgPrice = (stock.high52Week + stock.low52Week) / 2;
@@ -28,10 +33,7 @@ const generateHistoricalData = (stock: StockInfo, days: number = 90): Candlestic
   // Generate data going backwards
   let currentPrice = avgPrice;
   
-  // Adjust to make the most recent price closer to current market dynamics
-  const priceMultiplier = stock.monthlyReturn > 0 ? 1.05 : 0.95;
-  
-  for (let i = days - 1; i >= 0; i--) {
+  for (let i = totalDays - 1; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     
@@ -55,7 +57,7 @@ const generateHistoricalData = (stock: StockInfo, days: number = 90): Candlestic
     const low = Math.min(open, close) * (1 - Math.random() * dailyVolatility * 0.5);
     
     // Generate volume based on average with variation
-    const baseVolume = stock.volumeAvg * 100000; // Convert lakhs to actual
+    const baseVolume = stock.volumeAvg * 100000;
     const volumeVariation = 0.5 + Math.random() * (stock.volumeChange / 100 + 1);
     const volume = baseVolume * volumeVariation;
     
@@ -96,7 +98,7 @@ export const calculateIndicators = (data: CandlestickData[]) => {
   const multiplier = 2 / (20 + 1);
   let ema = closes.slice(0, 20).reduce((a, b) => a + b, 0) / 20;
   
-  for (let i = 20; i < closes.length; i++) {
+  for (let i = 19; i < closes.length; i++) {
     ema = (closes[i] - ema) * multiplier + ema;
     ema20.push({ date: data[i].date, value: ema });
   }
@@ -122,11 +124,13 @@ export const calculateIndicators = (data: CandlestickData[]) => {
 export const useHistoricalData = (stock: StockInfo | null, days: number = 90): HistoricalDataResult => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fullData, setFullData] = useState<CandlestickData[]>([]);
   const [data, setData] = useState<CandlestickData[]>([]);
   
   useEffect(() => {
     if (!stock) {
       setData([]);
+      setFullData([]);
       return;
     }
     
@@ -136,11 +140,20 @@ export const useHistoricalData = (stock: StockInfo | null, days: number = 90): H
     // Use setTimeout to simulate async and prevent blocking
     const timeoutId = setTimeout(() => {
       try {
-        const historicalData = generateHistoricalData(stock, days);
-        setData(historicalData);
+        // Generate data with extra warmup period for indicators
+        const warmupDays = 60; // Extra days for SMA50 warmup
+        const historicalData = generateHistoricalData(stock, days, warmupDays);
+        
+        // Store full data for indicator calculation
+        setFullData(historicalData);
+        
+        // Only show the requested number of days on the chart
+        const visibleData = historicalData.slice(-Math.min(days, historicalData.length));
+        setData(visibleData);
       } catch (err) {
         setError('Failed to generate historical data');
         setData([]);
+        setFullData([]);
       } finally {
         setIsLoading(false);
       }
@@ -149,5 +162,5 @@ export const useHistoricalData = (stock: StockInfo | null, days: number = 90): H
     return () => clearTimeout(timeoutId);
   }, [stock?.symbol, days]);
   
-  return { data, isLoading, error };
+  return { data, fullData, isLoading, error };
 };
