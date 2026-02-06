@@ -140,8 +140,9 @@ export const useHistoricalData = (stock: StockInfo | null, days: number = 90): H
     // Use setTimeout to simulate async and prevent blocking
     const timeoutId = setTimeout(() => {
       try {
-        // Generate data with extra warmup period for indicators
-        const warmupDays = 60; // Extra days for SMA50 warmup
+      // Generate data with extra warmup period for indicators
+        // SMA50 needs 50 trading days; 80 calendar days ≈ 57 trading days (accounting for weekends)
+        const warmupDays = 80;
         const historicalData = generateHistoricalData(stock, days, warmupDays);
         
         // Store full data for indicator calculation
