@@ -68,6 +68,54 @@ function parseDate(dateStr: string): string {
   }
 }
 
+// Extract image from RSS item with multiple fallback strategies
+function extractImage(item: string, description: string): string {
+  // Strategy 1: media:content or media:thumbnail (common RSS media namespace)
+  const mediaMatch = item.match(/<media:(?:content|thumbnail)[^>]*url="([^"]+)"/i);
+  if (mediaMatch?.[1]) {
+    console.log('Found media:content image');
+    return mediaMatch[1];
+  }
+
+  // Strategy 2: enclosure tag (podcasts/media RSS)
+  const enclosureMatch = item.match(/<enclosure[^>]*url="([^"]+)"[^>]*type="image/i);
+  if (enclosureMatch?.[1]) {
+    console.log('Found enclosure image');
+    return enclosureMatch[1];
+  }
+
+  // Strategy 3: ET-specific - extract msid from img tag in description
+  const etImgMatch = item.match(/img\.etimg\.com\/[^"]*msid-(\d+)/);
+  if (etImgMatch?.[1]) {
+    console.log('Found ET msid image');
+    return `https://img.etimg.com/thumb/msid-${etImgMatch[1]},width-400,height-250,resizemode-4/.jpg`;
+  }
+
+  // Strategy 4: Any img tag with src in the item or description
+  const imgMatch = item.match(/<img[^>]*src=["']([^"']+)["']/i) || 
+                   description.match(/<img[^>]*src=["']([^"']+)["']/i);
+  if (imgMatch?.[1] && !imgMatch[1].includes('pixel') && !imgMatch[1].includes('tracking')) {
+    console.log('Found img src');
+    return imgMatch[1];
+  }
+
+  // Strategy 5: Business Standard specific pattern
+  const bsMatch = item.match(/bsmedia\.business-standard\.com[^"'\s]+/);
+  if (bsMatch) {
+    console.log('Found BS image');
+    return `https://${bsMatch[0]}`;
+  }
+
+  // Strategy 6: Extract article ID from URL and construct ET image URL
+  const articleIdMatch = item.match(/articleshow\/(\d+)\.cms/);
+  if (articleIdMatch?.[1]) {
+    console.log('Constructed ET image from article ID');
+    return `https://img.etimg.com/thumb/msid-${articleIdMatch[1]},width-400,height-250,resizemode-4/.jpg`;
+  }
+
+  return '';
+}
+
 // Parse RSS XML to extract articles
 function parseRSSItem(item: string, source: string, category: string): MarketInsight | null {
   try {
@@ -76,30 +124,12 @@ function parseRSSItem(item: string, source: string, category: string): MarketIns
     const descMatch = item.match(/<description[^>]*>([\s\S]*?)<\/description>/);
     const pubDateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/);
     
-    // Try multiple image patterns
-    const imgPatterns = [
-      /<media:content[^>]*url="([^"]+)"/,
-      /<enclosure[^>]*url="([^"]+)"/,
-      /msid-(\d+),imgsize/,
-      /<img[^>]*src="([^"]+)"/
-    ];
-    
-    let image = '';
-    for (const pattern of imgPatterns) {
-      const match = item.match(pattern);
-      if (match?.[1]) {
-        if (pattern.source.includes('msid')) {
-          image = `https://img.etimg.com/photo/msid-${match[1]}.cms`;
-        } else {
-          image = match[1];
-        }
-        break;
-      }
-    }
+    const rawDescription = descMatch?.[1] || '';
+    const image = extractImage(item, rawDescription);
 
     const title = cleanText(titleMatch?.[1] || '');
     const link = cleanText(linkMatch?.[1] || '');
-    const description = cleanText(descMatch?.[1] || '');
+    const description = cleanText(rawDescription);
     const pubDate = parseDate(pubDateMatch?.[1] || '');
 
     if (!title || !link) return null;
@@ -108,11 +138,19 @@ function parseRSSItem(item: string, source: string, category: string): MarketIns
     const words = description.split(/\s+/).length;
     const minutes = Math.max(2, Math.ceil(words / 200));
 
+    // Use category-specific fallback images if no image found
+    const fallbackImages: Record<string, string> = {
+      'Market Analysis': 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop',
+      'Market News': 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=250&fit=crop',
+      'Stock Updates': 'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=400&h=250&fit=crop',
+      'Finance': 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop'
+    };
+
     return {
       category,
       title,
       excerpt: description.slice(0, 200) + (description.length > 200 ? '...' : ''),
-      image: image || `https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop`,
+      image: image || fallbackImages[category] || fallbackImages['Market Analysis'],
       readTime: `${minutes} min read`,
       trending: false,
       source,
@@ -185,22 +223,33 @@ serve(async (req) => {
     
     let allArticles: MarketInsight[] = feedResults.flat();
     
-    // Sort by published date (newest first)
-    allArticles.sort((a, b) => 
+    // Separate articles with real images from those with fallbacks
+    const hasRealImage = (img: string) => !img.includes('unsplash.com');
+    const articlesWithImages = allArticles.filter(a => hasRealImage(a.image));
+    const articlesWithoutImages = allArticles.filter(a => !hasRealImage(a.image));
+    
+    // Sort both arrays by date
+    articlesWithImages.sort((a, b) => 
       new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
     );
+    articlesWithoutImages.sort((a, b) => 
+      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    );
+    
+    // Prioritize articles with real images, then fill with others
+    let finalArticles = [...articlesWithImages, ...articlesWithoutImages].slice(0, limit);
 
     // Mark first 3 as trending
-    allArticles = allArticles.slice(0, limit).map((article, index) => ({
+    finalArticles = finalArticles.map((article, index) => ({
       ...article,
       trending: index < 3
     }));
 
-    console.log(`Returning ${allArticles.length} Indian market articles`);
+    console.log(`Returning ${finalArticles.length} Indian market articles (${articlesWithImages.length} with images)`);
 
     return new Response(
       JSON.stringify({ 
-        insights: allArticles, 
+        insights: finalArticles, 
         marketData: null,
         fetchedAt: new Date().toISOString(),
         source: 'indian-rss'
