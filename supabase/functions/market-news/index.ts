@@ -17,7 +17,7 @@ interface MarketInsight {
   url: string;
 }
 
-// Indian financial news RSS feeds (tested and working)
+// Indian financial news RSS feeds
 const RSS_FEEDS = [
   {
     url: 'https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms',
@@ -38,6 +38,21 @@ const RSS_FEEDS = [
     url: 'https://www.business-standard.com/rss/finance-111.rss',
     source: 'BS Finance',
     category: 'Finance'
+  },
+  {
+    url: 'https://www.livemint.com/rss/money',
+    source: 'Mint',
+    category: 'Money & Markets'
+  },
+  {
+    url: 'https://www.livemint.com/rss/companies',
+    source: 'Mint Companies',
+    category: 'Corporate News'
+  },
+  {
+    url: 'https://economictimes.indiatimes.com/industry/rssfeeds/13352306.cms',
+    source: 'ET Industry',
+    category: 'Industry News'
   }
 ];
 
@@ -78,8 +93,8 @@ function extractImage(item: string, description: string): string {
   }
 
   // Strategy 2: enclosure tag (podcasts/media RSS)
-  const enclosureMatch = item.match(/<enclosure[^>]*url="([^"]+)"[^>]*type="image/i);
-  if (enclosureMatch?.[1]) {
+  const enclosureMatch = item.match(/<enclosure[^>]*url="([^"]+)"/i);
+  if (enclosureMatch?.[1] && enclosureMatch[1].match(/\.(jpg|jpeg|png|gif|webp)/i)) {
     console.log('Found enclosure image');
     return enclosureMatch[1];
   }
@@ -91,22 +106,43 @@ function extractImage(item: string, description: string): string {
     return `https://img.etimg.com/thumb/msid-${etImgMatch[1]},width-400,height-250,resizemode-4/.jpg`;
   }
 
-  // Strategy 4: Any img tag with src in the item or description
+  // Strategy 4: NDTV Profit image pattern
+  const ndtvMatch = item.match(/https?:\/\/[^"'\s]*ndtv[^"'\s]*\.(jpg|jpeg|png|webp)/i);
+  if (ndtvMatch) {
+    console.log('Found NDTV image');
+    return ndtvMatch[0];
+  }
+
+  // Strategy 5: Mint/LiveMint image pattern
+  const mintMatch = item.match(/https?:\/\/[^"'\s]*livemint[^"'\s]*\.(jpg|jpeg|png|webp)/i);
+  if (mintMatch) {
+    console.log('Found Mint image');
+    return mintMatch[0];
+  }
+
+  // Strategy 6: Moneycontrol image pattern
+  const mcMatch = item.match(/https?:\/\/[^"'\s]*moneycontrol[^"'\s]*\.(jpg|jpeg|png|webp)/i);
+  if (mcMatch) {
+    console.log('Found Moneycontrol image');
+    return mcMatch[0];
+  }
+
+  // Strategy 7: Any img tag with src in the item or description
   const imgMatch = item.match(/<img[^>]*src=["']([^"']+)["']/i) || 
                    description.match(/<img[^>]*src=["']([^"']+)["']/i);
-  if (imgMatch?.[1] && !imgMatch[1].includes('pixel') && !imgMatch[1].includes('tracking')) {
+  if (imgMatch?.[1] && !imgMatch[1].includes('pixel') && !imgMatch[1].includes('tracking') && !imgMatch[1].includes('icon')) {
     console.log('Found img src');
     return imgMatch[1];
   }
 
-  // Strategy 5: Business Standard specific pattern
+  // Strategy 8: Business Standard specific pattern
   const bsMatch = item.match(/bsmedia\.business-standard\.com[^"'\s]+/);
   if (bsMatch) {
     console.log('Found BS image');
     return `https://${bsMatch[0]}`;
   }
 
-  // Strategy 6: Extract article ID from URL and construct ET image URL
+  // Strategy 9: Extract article ID from URL and construct ET image URL
   const articleIdMatch = item.match(/articleshow\/(\d+)\.cms/);
   if (articleIdMatch?.[1]) {
     console.log('Constructed ET image from article ID');
@@ -143,7 +179,10 @@ function parseRSSItem(item: string, source: string, category: string): MarketIns
       'Market Analysis': 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop',
       'Market News': 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=250&fit=crop',
       'Stock Updates': 'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=400&h=250&fit=crop',
-      'Finance': 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop'
+      'Finance': 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop',
+      'Money & Markets': 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400&h=250&fit=crop',
+      'Corporate News': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=250&fit=crop',
+      'Industry News': 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=400&h=250&fit=crop'
     };
 
     return {
