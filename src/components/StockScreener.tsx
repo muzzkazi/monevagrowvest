@@ -533,9 +533,9 @@ const StockScreener = () => {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-3">
                 {/* Search */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <Label className="text-sm font-medium">Search</Label>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -549,7 +549,7 @@ const StockScreener = () => {
                 </div>
 
                 {/* Index Filter */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <LineChart className="w-4 h-4" />
                     Index
@@ -575,9 +575,9 @@ const StockScreener = () => {
                     <TabsTrigger value="fundamental" className="text-xs px-2 py-1.5">Fundamental</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="basic" className="space-y-4 mt-4">
+                  <TabsContent value="basic" className="space-y-2 mt-2">
                     {/* Sector */}
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <Label className="text-sm font-medium flex items-center gap-2">
                         <Building2 className="w-4 h-4" />
                         Sector
@@ -595,7 +595,7 @@ const StockScreener = () => {
                     </div>
 
                     {/* Industry */}
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <Label className="text-sm font-medium">Industry</Label>
                       <Select value={selectedIndustry} onValueChange={(v) => { setSelectedIndustry(v); setCurrentPage(1); }}>
                         <SelectTrigger>
@@ -610,7 +610,7 @@ const StockScreener = () => {
                     </div>
 
                     {/* Price Range */}
-                    <div className="space-y-3">
+                    <div className="space-y-1">
                       <Label className="text-sm font-medium flex items-center gap-2">
                         <IndianRupee className="w-4 h-4" />
                         Price Range
@@ -630,7 +630,7 @@ const StockScreener = () => {
                     </div>
 
                     {/* Market Cap */}
-                    <div className="space-y-3">
+                    <div className="space-y-1">
                       <Label className="text-sm font-medium">Market Cap</Label>
                       <Slider
                         value={marketCapRange}
