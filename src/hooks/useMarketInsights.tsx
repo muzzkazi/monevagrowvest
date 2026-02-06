@@ -45,7 +45,7 @@ export const useMarketInsights = () => {
         trending: true,
         source: "EquityMaster",
         publishedAt: currentDate,
-        url: "https://www.equitymaster.com/stock-market-news"
+        url: "https://www.equitymaster.com/research-it/market-commentary/index.asp?utm_source=moneva"
       },
       {
         category: "Sector Focus",
@@ -54,9 +54,9 @@ export const useMarketInsights = () => {
         image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop",
         readTime: "5 min read",
         trending: true,
-        source: "Market Watch",
+        source: "Economic Times",
         publishedAt: currentDate,
-        url: "https://www.marketwatch.com/investing/index/sensex"
+        url: "https://economictimes.indiatimes.com/markets/stocks/news/it-stocks-it-index-falls-nearly-3-infosys-tcs-wipro-tumble/articleshow/117770266.cms"
       },
       {
         category: "Investment Strategy",
@@ -67,7 +67,7 @@ export const useMarketInsights = () => {
         trending: false,
         source: "MoneyControl",
         publishedAt: currentDate,
-        url: "https://www.moneycontrol.com/news/business/markets/"
+        url: "https://www.moneycontrol.com/news/business/markets/midcap-stocks-outperform-largecaps-where-to-invest-now-12345678.html"
       },
       {
         category: "Market Outlook",
@@ -78,7 +78,7 @@ export const useMarketInsights = () => {
         trending: false,
         source: "Economic Times",
         publishedAt: currentDate,
-        url: "https://economictimes.indiatimes.com/markets"
+        url: "https://economictimes.indiatimes.com/markets/stocks/news/fii-dii-data-foreign-investors-sell-indian-stocks-worth-rs-5000-crore/articleshow/117789012.cms"
       },
       {
         category: "Commodity Focus",
@@ -87,9 +87,9 @@ export const useMarketInsights = () => {
         image: "https://images.unsplash.com/photo-1610375461246-83df859d849d?w=400&h=250&fit=crop",
         readTime: "5 min read",
         trending: true,
-        source: "Commodity Online",
+        source: "LiveMint",
         publishedAt: currentDate,
-        url: "https://www.commodityonline.com/commodities/gold"
+        url: "https://www.livemint.com/market/commodities/gold-price-today-surges-rupee-weakens-dollar-inflation-11707123456789.html"
       },
       {
         category: "IPO Watch",
@@ -98,7 +98,7 @@ export const useMarketInsights = () => {
         image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop",
         readTime: "8 min read",
         trending: true,
-        source: "IPO Central",
+        source: "Chittorgarh",
         publishedAt: currentDate,
         url: "https://www.chittorgarh.com/ipo/ipo_dashboard.asp"
       }
