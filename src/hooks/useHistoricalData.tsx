@@ -122,21 +122,32 @@ export const calculateIndicators = (data: CandlestickData[]) => {
 export const useHistoricalData = (stock: StockInfo | null, days: number = 90): HistoricalDataResult => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<CandlestickData[]>([]);
   
-  const data = useMemo(() => {
-    if (!stock) return [];
-    setIsLoading(true);
-    try {
-      const historicalData = generateHistoricalData(stock, days);
-      setError(null);
-      return historicalData;
-    } catch (err) {
-      setError('Failed to generate historical data');
-      return [];
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (!stock) {
+      setData([]);
+      return;
     }
-  }, [stock, days]);
+    
+    setIsLoading(true);
+    setError(null);
+    
+    // Use setTimeout to simulate async and prevent blocking
+    const timeoutId = setTimeout(() => {
+      try {
+        const historicalData = generateHistoricalData(stock, days);
+        setData(historicalData);
+      } catch (err) {
+        setError('Failed to generate historical data');
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 0);
+    
+    return () => clearTimeout(timeoutId);
+  }, [stock?.symbol, days]);
   
   return { data, isLoading, error };
 };
