@@ -141,8 +141,8 @@ export const useHistoricalData = (stock: StockInfo | null, days: number = 90): H
     const timeoutId = setTimeout(() => {
       try {
       // Generate data with extra warmup period for indicators
-        // SMA50 needs 50 trading days; 80 calendar days ≈ 57 trading days (accounting for weekends)
-        const warmupDays = 80;
+        // SMA200 needs 200 trading days; 300 calendar days ≈ 214 trading days (accounting for weekends)
+        const warmupDays = 300;
         const historicalData = generateHistoricalData(stock, days, warmupDays);
         
         // Store full data for indicator calculation

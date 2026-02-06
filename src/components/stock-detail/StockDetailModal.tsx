@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { StockInfo } from '@/data/stockDatabase';
-import { useHistoricalData } from '@/hooks/useHistoricalData';
+import { useHistoricalData, CandlestickData } from '@/hooks/useHistoricalData';
 import { CandlestickChart } from './CandlestickChart';
 import { 
   TrendingUp, 
@@ -24,6 +24,25 @@ import {
   Loader2,
   X
 } from 'lucide-react';
+
+// Calculate moving averages from historical data
+const calculateSMA = (data: CandlestickData[], period: number): number | null => {
+  if (data.length < period) return null;
+  const closes = data.slice(-period).map(d => d.close);
+  return closes.reduce((a, b) => a + b, 0) / period;
+};
+
+const calculateEMA = (data: CandlestickData[], period: number): number | null => {
+  if (data.length < period) return null;
+  const closes = data.map(d => d.close);
+  const multiplier = 2 / (period + 1);
+  let ema = closes.slice(0, period).reduce((a, b) => a + b, 0) / period;
+  
+  for (let i = period; i < closes.length; i++) {
+    ema = (closes[i] - ema) * multiplier + ema;
+  }
+  return ema;
+};
 
 interface StockDetailModalProps {
   stock: StockInfo | null;
@@ -50,6 +69,19 @@ export const StockDetailModal = ({
   const [chartDays, setChartDays] = useState(90);
   
   const { data: historicalData, fullData, isLoading } = useHistoricalData(stock, chartDays);
+  
+  // Calculate moving averages from actual historical data
+  const calculatedMA = useMemo(() => {
+    if (!fullData || fullData.length === 0) {
+      return { sma20: null, sma50: null, sma200: null, ema20: null };
+    }
+    return {
+      sma20: calculateSMA(fullData, 20),
+      sma50: calculateSMA(fullData, 50),
+      sma200: calculateSMA(fullData, 200),
+      ema20: calculateEMA(fullData, 20),
+    };
+  }, [fullData]);
   
   if (!stock) return null;
   
@@ -216,26 +248,26 @@ export const StockDetailModal = ({
                     <CardContent className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">SMA 20</span>
-                        <span className={currentPrice > stock.sma20 ? 'text-emerald-600' : 'text-rose-600'}>
-                          ₹{stock.sma20.toLocaleString('en-IN')}
+                        <span className={calculatedMA.sma20 && currentPrice > calculatedMA.sma20 ? 'text-emerald-600' : 'text-rose-600'}>
+                          {calculatedMA.sma20 ? `₹${calculatedMA.sma20.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">SMA 50</span>
-                        <span className={currentPrice > stock.sma50 ? 'text-emerald-600' : 'text-rose-600'}>
-                          ₹{stock.sma50.toLocaleString('en-IN')}
+                        <span className={calculatedMA.sma50 && currentPrice > calculatedMA.sma50 ? 'text-emerald-600' : 'text-rose-600'}>
+                          {calculatedMA.sma50 ? `₹${calculatedMA.sma50.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">SMA 200</span>
-                        <span className={currentPrice > stock.sma200 ? 'text-emerald-600' : 'text-rose-600'}>
-                          ₹{stock.sma200.toLocaleString('en-IN')}
+                        <span className={calculatedMA.sma200 && currentPrice > calculatedMA.sma200 ? 'text-emerald-600' : 'text-rose-600'}>
+                          {calculatedMA.sma200 ? `₹${calculatedMA.sma200.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">EMA 20</span>
-                        <span className={currentPrice > stock.ema20 ? 'text-emerald-600' : 'text-rose-600'}>
-                          ₹{stock.ema20.toLocaleString('en-IN')}
+                        <span className={calculatedMA.ema20 && currentPrice > calculatedMA.ema20 ? 'text-emerald-600' : 'text-rose-600'}>
+                          {calculatedMA.ema20 ? `₹${calculatedMA.ema20.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
                         </span>
                       </div>
                     </CardContent>
