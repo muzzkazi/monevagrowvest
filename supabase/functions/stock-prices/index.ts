@@ -82,10 +82,22 @@ serve(async (req) => {
     // Fetch prices from Yahoo Finance chart API (reliable, no auth)
     const quotes: StockQuote[] = [];
 
+    // Symbol mapping for stocks that have different Yahoo Finance symbols
+    const symbolMapping: Record<string, string> = {
+      'TATAMTRDVR': 'TATAMOTORS-DVR.NS',
+      'M&M': 'M%26M.NS',
+      'M&MFIN': 'M%26MFIN.NS',
+      'BAJAJ-AUTO': 'BAJAJ-AUTO.NS',
+      'MCDOWELL-N': 'MCDOWELL-N.NS',
+      'L&TFH': 'L%26TFH.NS',
+    };
+
     const toYahooSymbol = (symbol: string) => {
       // Index symbols use Yahoo's format directly (e.g. ^NSEI)
       if (symbol.startsWith('^')) return symbol;
-      // Stocks: NSE uses .NS
+      // Check for special mappings
+      if (symbolMapping[symbol]) return symbolMapping[symbol];
+      // Default: NSE uses .NS suffix
       return `${symbol}.NS`;
     };
 
