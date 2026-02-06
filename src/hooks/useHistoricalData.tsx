@@ -17,22 +17,40 @@ export interface HistoricalDataResult {
   error: string | null;
 }
 
-// Generate realistic historical data based on stock's technical indicators
+// Generate realistic historical data based on current price
 // Extra days are generated for indicator warmup periods
-const generateHistoricalData = (stock: StockInfo, days: number = 90, warmupDays: number = 60): CandlestickData[] => {
+const generateHistoricalData = (
+  stock: StockInfo, 
+  days: number = 90, 
+  warmupDays: number = 60,
+  currentPrice?: number
+): CandlestickData[] => {
   const data: CandlestickData[] = [];
   const today = new Date();
   
   // Total days to generate includes warmup for indicators
   const totalDays = days + warmupDays;
   
-  // Start with a base price derived from 52-week range
-  const avgPrice = (stock.high52Week + stock.low52Week) / 2;
+  // Use current price as reference, fallback to stock's 52-week average
+  const referencePrice = currentPrice || ((stock.high52Week + stock.low52Week) / 2);
   const volatility = stock.atrPercent / 100;
   
-  // Generate data going backwards
-  let currentPrice = avgPrice;
+  // Generate data going backwards - start further back and end at current price
+  // We want the final price to match the current live price
+  let price = referencePrice;
+  const priceHistory: number[] = [];
   
+  // First, generate the price path backwards from current price
+  for (let i = 0; i < totalDays; i++) {
+    priceHistory.unshift(price);
+    // Random walk backwards with slight bias
+    const dailyChange = (Math.random() - 0.5) * volatility * 2;
+    const trendBias = stock.monthlyReturn > 0 ? -0.0005 : 0.0005; // Reverse bias going backwards
+    price *= (1 + dailyChange + trendBias);
+  }
+  
+  // Now generate OHLC data using the price history
+  let dayIndex = 0;
   for (let i = totalDays - 1; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
@@ -40,21 +58,16 @@ const generateHistoricalData = (stock: StockInfo, days: number = 90, warmupDays:
     // Skip weekends
     if (date.getDay() === 0 || date.getDay() === 6) continue;
     
-    // Random daily movement based on volatility
-    const dailyChange = (Math.random() - 0.5) * volatility * 2;
-    const trendBias = stock.monthlyReturn > 0 ? 0.001 : -0.001;
+    if (dayIndex >= priceHistory.length) break;
     
-    currentPrice *= (1 + dailyChange + trendBias);
+    const closePrice = priceHistory[dayIndex];
+    dayIndex++;
     
-    // Clamp within 52-week range with some margin
-    currentPrice = Math.max(stock.low52Week * 0.9, Math.min(stock.high52Week * 1.1, currentPrice));
-    
-    // Generate OHLC based on current price and volatility
+    // Generate OHLC based on close price and volatility
     const dailyVolatility = volatility * (0.5 + Math.random());
-    const open = currentPrice * (1 + (Math.random() - 0.5) * dailyVolatility);
-    const close = currentPrice;
-    const high = Math.max(open, close) * (1 + Math.random() * dailyVolatility * 0.5);
-    const low = Math.min(open, close) * (1 - Math.random() * dailyVolatility * 0.5);
+    const open = closePrice * (1 + (Math.random() - 0.5) * dailyVolatility * 0.5);
+    const high = Math.max(open, closePrice) * (1 + Math.random() * dailyVolatility * 0.3);
+    const low = Math.min(open, closePrice) * (1 - Math.random() * dailyVolatility * 0.3);
     
     // Generate volume based on average with variation
     const baseVolume = stock.volumeAvg * 100000;
@@ -66,7 +79,7 @@ const generateHistoricalData = (stock: StockInfo, days: number = 90, warmupDays:
       open: parseFloat(open.toFixed(2)),
       high: parseFloat(high.toFixed(2)),
       low: parseFloat(low.toFixed(2)),
-      close: parseFloat(close.toFixed(2)),
+      close: parseFloat(closePrice.toFixed(2)),
       volume: Math.round(volume),
     });
   }
@@ -121,7 +134,11 @@ export const calculateIndicators = (data: CandlestickData[]) => {
   return { sma20, sma50, ema20, bollingerBands };
 };
 
-export const useHistoricalData = (stock: StockInfo | null, days: number = 90): HistoricalDataResult => {
+export const useHistoricalData = (
+  stock: StockInfo | null, 
+  days: number = 90,
+  currentPrice?: number
+): HistoricalDataResult => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fullData, setFullData] = useState<CandlestickData[]>([]);
@@ -143,7 +160,7 @@ export const useHistoricalData = (stock: StockInfo | null, days: number = 90): H
       // Generate data with extra warmup period for indicators
         // SMA200 needs 200 trading days; 300 calendar days ≈ 214 trading days (accounting for weekends)
         const warmupDays = 300;
-        const historicalData = generateHistoricalData(stock, days, warmupDays);
+        const historicalData = generateHistoricalData(stock, days, warmupDays, currentPrice);
         
         // Store full data for indicator calculation
         setFullData(historicalData);
@@ -161,7 +178,7 @@ export const useHistoricalData = (stock: StockInfo | null, days: number = 90): H
     }, 0);
     
     return () => clearTimeout(timeoutId);
-  }, [stock?.symbol, days]);
+  }, [stock?.symbol, days, currentPrice]);
   
   return { data, fullData, isLoading, error };
 };
