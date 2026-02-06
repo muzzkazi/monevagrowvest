@@ -568,11 +568,11 @@ const StockScreener = () => {
                 </div>
 
                 <Tabs defaultValue="basic" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4 h-auto">
-                    <TabsTrigger value="basic" className="text-xs px-2 py-1.5">Basic</TabsTrigger>
-                    <TabsTrigger value="technical" className="text-xs px-2 py-1.5">Technical</TabsTrigger>
-                    <TabsTrigger value="momentum" className="text-xs px-2 py-1.5">Momentum</TabsTrigger>
-                    <TabsTrigger value="fundamental" className="text-xs px-2 py-1.5">Fundamental</TabsTrigger>
+                  <TabsList className="flex w-full h-auto flex-wrap gap-1">
+                    <TabsTrigger value="basic" className="flex-1 min-w-[60px] text-xs px-2 py-1.5 truncate">Basic</TabsTrigger>
+                    <TabsTrigger value="technical" className="flex-1 min-w-[60px] text-xs px-2 py-1.5 truncate">Technical</TabsTrigger>
+                    <TabsTrigger value="momentum" className="flex-1 min-w-[60px] text-xs px-2 py-1.5 truncate">Momentum</TabsTrigger>
+                    <TabsTrigger value="fundamental" className="flex-1 min-w-[60px] text-xs px-2 py-1.5 truncate">Fundamental</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="basic" className="space-y-2 mt-2">
