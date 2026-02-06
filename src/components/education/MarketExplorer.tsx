@@ -93,7 +93,7 @@ const MarketExplorer = () => {
   const niftyCagr = calculateCAGR(oldestData.nifty, latestData.nifty, data.length - 1);
   const sensexCagr = calculateCAGR(oldestData.sensex, latestData.sensex, data.length - 1);
 
-  const sectorsData = [
+  const niftySectorsData = [
     { name: 'IT', weight: 18.2, performance: '+2.3%' },
     { name: 'Banking', weight: 15.8, performance: '+1.8%' },
     { name: 'Oil & Gas', weight: 8.4, performance: '-0.5%' },
@@ -103,6 +103,19 @@ const MarketExplorer = () => {
     { name: 'Metals', weight: 5.2, performance: '+4.1%' },
     { name: 'Others', weight: 32.5, performance: '+1.2%' }
   ];
+
+  const sensexSectorsData = [
+    { name: 'Banking', weight: 28.5, performance: '+1.9%' },
+    { name: 'IT', weight: 14.8, performance: '+2.1%' },
+    { name: 'Oil & Gas', weight: 12.3, performance: '-0.3%' },
+    { name: 'FMCG', weight: 10.2, performance: '+0.9%' },
+    { name: 'Auto', weight: 8.6, performance: '+3.0%' },
+    { name: 'Pharma', weight: 5.4, performance: '+1.4%' },
+    { name: 'Power', weight: 4.8, performance: '+2.6%' },
+    { name: 'Others', weight: 15.4, performance: '+1.0%' }
+  ];
+
+  const sectorsData = selectedIndex === 'nifty' ? niftySectorsData : sensexSectorsData;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -248,7 +261,7 @@ const MarketExplorer = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Target className="w-5 h-5 mr-2 text-financial-accent" />
-              NIFTY 50 Sector Weights
+              {selectedIndex === 'nifty' ? 'NIFTY 50' : 'SENSEX'} Sector Weights
             </CardTitle>
           </CardHeader>
           <CardContent>
