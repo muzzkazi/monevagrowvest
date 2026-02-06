@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { allStocks, sectors, industries, presetScreeners, indexDefinitions, StockInfo } from "@/data/stockDatabase";
 import { exportToCSV, exportToExcel } from "@/lib/exportUtils";
+import { StockDetailModal } from "@/components/stock-detail/StockDetailModal";
 import { toast } from "sonner";
 import { 
   Search, 
@@ -63,6 +64,10 @@ const StockScreener = () => {
   // Preset screener selection
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
+  
+  // Stock detail modal
+  const [selectedStock, setSelectedStock] = useState<StockInfo | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   // Basic filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -1171,10 +1176,20 @@ const StockScreener = () => {
                           const inWatchlist = isInWatchlist(stock.symbol);
 
                           return (
-                            <tr key={stock.symbol} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+                            <tr 
+                              key={stock.symbol} 
+                              className="border-b border-border/50 hover:bg-muted/50 transition-colors cursor-pointer"
+                              onClick={() => {
+                                setSelectedStock(stock);
+                                setIsDetailModalOpen(true);
+                              }}
+                            >
                               <td className="py-3 px-2">
                                 <button
-                                  onClick={() => handleWatchlistToggle(stock)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleWatchlistToggle(stock);
+                                  }}
                                   className={`p-1.5 rounded-full transition-colors ${
                                     inWatchlist 
                                       ? 'text-rose-500 hover:text-rose-600' 
@@ -1317,6 +1332,16 @@ const StockScreener = () => {
           </div>
         </div>
       </div>
+      
+      {/* Stock Detail Modal */}
+      <StockDetailModal
+        stock={selectedStock}
+        open={isDetailModalOpen}
+        onOpenChange={setIsDetailModalOpen}
+        livePrice={selectedStock ? prices[selectedStock.symbol]?.price : undefined}
+        priceChange={selectedStock ? prices[selectedStock.symbol]?.change : undefined}
+        changePercent={selectedStock ? prices[selectedStock.symbol]?.changePercent : undefined}
+      />
     </div>
   );
 };
