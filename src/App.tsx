@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, Transition } from "framer-motion";
+import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -20,6 +21,7 @@ import SIPBasedPlanning from "./pages/SIPBasedPlanning";
 import FinancialEducationPage from "./pages/FinancialEducation";
 import BudgetTrackerPage from "./pages/BudgetTracker";
 import StockScreenerPage from "./pages/StockScreener";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +65,7 @@ const AnimatedRoutes = () => {
           <Route path="/financial-education" element={<FinancialEducationPage />} />
           <Route path="/budget-tracker" element={<BudgetTrackerPage />} />
           <Route path="/stock-screener" element={<StockScreenerPage />} />
+          <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -74,13 +77,15 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatedRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

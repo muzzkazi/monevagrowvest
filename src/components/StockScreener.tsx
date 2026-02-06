@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +10,13 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useStockPrices } from "@/hooks/useStockPrices";
+import { useAuth } from "@/hooks/useAuth";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { allStocks, sectors, industries, presetScreeners, indexDefinitions, StockInfo } from "@/data/stockDatabase";
+import { exportToCSV, exportToExcel } from "@/lib/exportUtils";
+import { toast } from "sonner";
 import { 
   Search, 
   Filter, 
@@ -32,7 +38,13 @@ import {
   Waves,
   Zap,
   Target,
-  TrendingDown as TrendDown
+  TrendingDown as TrendDown,
+  Heart,
+  Download,
+  FileSpreadsheet,
+  User,
+  LogOut,
+  LogIn
 } from "lucide-react";
 
 type SortField = "symbol" | "price" | "change" | "marketCap" | "peRatio" | "dividendYield" | "rsi" | "roe" | "macd" | "adx" | "beta" | "monthlyReturn";
@@ -41,11 +53,16 @@ type SortDirection = "asc" | "desc";
 const ITEMS_PER_PAGE = 50;
 
 const StockScreener = () => {
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { watchlist, addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
+  
   const [visibleSymbols, setVisibleSymbols] = useState<string[]>([]);
   const { prices, isLoading, error, lastUpdated, refreshPrices } = useStockPrices(visibleSymbols);
 
   // Preset screener selection
   const [activePreset, setActivePreset] = useState<string | null>(null);
+  const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
 
   // Basic filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -110,6 +127,9 @@ const StockScreener = () => {
   const filteredStocks = useMemo(() => {
     let filtered = allStocks.filter(stock => {
       const price = prices[stock.symbol]?.price || stock.marketCap / 100;
+
+      // Filter by watchlist if enabled
+      if (showWatchlistOnly && !isInWatchlist(stock.symbol)) return false;
 
       // Apply preset screener if active
       if (activePreset) {
@@ -246,7 +266,7 @@ const StockScreener = () => {
     });
 
     return filtered;
-  }, [prices, searchQuery, selectedSector, selectedIndustry, selectedIndex, priceRange, marketCapRange, rsiRange, nearHighLow, smaFilter, priceVsSma50Range, priceVsSma200Range, macdFilter, adxRange, stochasticRange, mfiRange, atrPercentRange, betaRange, bollingerFilter, weeklyReturnRange, monthlyReturnRange, quarterlyReturnRange, yearlyReturnRange, volumeChangeMin, highVolumeOnly, peRange, dividendYieldMin, roeMin, debtToEquityMax, sortField, sortDirection, activePreset]);
+  }, [prices, searchQuery, selectedSector, selectedIndustry, selectedIndex, priceRange, marketCapRange, rsiRange, nearHighLow, smaFilter, priceVsSma50Range, priceVsSma200Range, macdFilter, adxRange, stochasticRange, mfiRange, atrPercentRange, betaRange, bollingerFilter, weeklyReturnRange, monthlyReturnRange, quarterlyReturnRange, yearlyReturnRange, volumeChangeMin, highVolumeOnly, peRange, dividendYieldMin, roeMin, debtToEquityMax, sortField, sortDirection, activePreset, showWatchlistOnly, isInWatchlist]);
 
   const paginatedStocks = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -320,6 +340,41 @@ const StockScreener = () => {
     return `₹${value.toLocaleString()} Cr`;
   };
 
+  const handleExportCSV = () => {
+    const exportData = filteredStocks.map(stock => ({
+      ...stock,
+      livePrice: prices[stock.symbol]?.price,
+      change: prices[stock.symbol]?.change,
+      changePercent: prices[stock.symbol]?.changePercent,
+    }));
+    exportToCSV(exportData);
+    toast.success(`Exported ${exportData.length} stocks to CSV`);
+  };
+
+  const handleExportExcel = () => {
+    const exportData = filteredStocks.map(stock => ({
+      ...stock,
+      livePrice: prices[stock.symbol]?.price,
+      change: prices[stock.symbol]?.change,
+      changePercent: prices[stock.symbol]?.changePercent,
+    }));
+    exportToExcel(exportData);
+    toast.success(`Exported ${exportData.length} stocks to Excel`);
+  };
+
+  const handleWatchlistToggle = async (stock: StockInfo) => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    
+    if (isInWatchlist(stock.symbol)) {
+      await removeFromWatchlist(stock.symbol);
+    } else {
+      await addToWatchlist(stock.symbol, stock.name);
+    }
+  };
+
   const activePresetInfo = presetScreeners.find(p => p.id === activePreset);
 
   return (
@@ -336,7 +391,40 @@ const StockScreener = () => {
                 Screen {allStocks.length}+ Indian stocks with comprehensive filters
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Export Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Download className="w-4 h-4" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportCSV}>
+                    <FileSpreadsheet className="w-4 h-4 mr-2" />
+                    Export to CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportExcel}>
+                    <FileSpreadsheet className="w-4 h-4 mr-2" />
+                    Export to Excel
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Watchlist Toggle */}
+              {user && (
+                <Button 
+                  variant={showWatchlistOnly ? "default" : "outline"} 
+                  size="sm" 
+                  onClick={() => setShowWatchlistOnly(!showWatchlistOnly)}
+                  className="gap-2"
+                >
+                  <Heart className={`w-4 h-4 ${showWatchlistOnly ? 'fill-current' : ''}`} />
+                  Watchlist ({watchlist.length})
+                </Button>
+              )}
+
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -347,13 +435,42 @@ const StockScreener = () => {
                 <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              {lastUpdated && (
-                <span className="text-xs text-muted-foreground">
-                  Updated: {lastUpdated.toLocaleTimeString()}
-                </span>
+
+              {/* User Auth Dropdown */}
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <User className="w-4 h-4" />
+                      <span className="hidden sm:inline max-w-[100px] truncate">{user.email}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => signOut()}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={() => navigate('/auth')}
+                  className="gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign In
+                </Button>
               )}
             </div>
           </div>
+
+          {lastUpdated && (
+            <span className="text-xs text-muted-foreground">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
 
           {/* Preset Screeners */}
           <div className="mb-4">
@@ -959,6 +1076,7 @@ const StockScreener = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b">
+                        <th className="py-3 px-2 w-10"></th>
                         <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
                           <button 
                             className="flex items-center hover:text-foreground transition-colors"
@@ -1036,8 +1154,10 @@ const StockScreener = () => {
                     <tbody>
                       {paginatedStocks.length === 0 ? (
                         <tr>
-                          <td colSpan={8} className="text-center py-8 text-muted-foreground">
-                            No stocks match your criteria. Try adjusting the filters.
+                          <td colSpan={9} className="text-center py-8 text-muted-foreground">
+                            {showWatchlistOnly && watchlist.length === 0 
+                              ? "Your watchlist is empty. Add stocks using the heart icon."
+                              : "No stocks match your criteria. Try adjusting the filters."}
                           </td>
                         </tr>
                       ) : (
@@ -1048,9 +1168,23 @@ const StockScreener = () => {
                           const changePercent = priceData?.changePercent || 0;
                           const isPositive = change >= 0;
                           const hasLivePrice = !!priceData?.price;
+                          const inWatchlist = isInWatchlist(stock.symbol);
 
                           return (
                             <tr key={stock.symbol} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+                              <td className="py-3 px-2">
+                                <button
+                                  onClick={() => handleWatchlistToggle(stock)}
+                                  className={`p-1.5 rounded-full transition-colors ${
+                                    inWatchlist 
+                                      ? 'text-rose-500 hover:text-rose-600' 
+                                      : 'text-muted-foreground hover:text-rose-500'
+                                  }`}
+                                  title={inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+                                >
+                                  <Heart className={`w-4 h-4 ${inWatchlist ? 'fill-current' : ''}`} />
+                                </button>
+                              </td>
                               <td className="py-3 px-2">
                                 <div>
                                   <div className="font-semibold text-foreground">{stock.symbol}</div>
