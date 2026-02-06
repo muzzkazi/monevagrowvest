@@ -260,38 +260,82 @@ serve(async (req) => {
     const feedPromises = RSS_FEEDS.map(feed => fetchRSSFeed(feed));
     const feedResults = await Promise.all(feedPromises);
     
-    let allArticles: MarketInsight[] = feedResults.flat();
+    // Group articles by source
+    const articlesBySource: Map<string, MarketInsight[]> = new Map();
     
-    // Separate articles with real images from those with fallbacks
+    feedResults.forEach(articles => {
+      articles.forEach(article => {
+        const existing = articlesBySource.get(article.source) || [];
+        existing.push(article);
+        articlesBySource.set(article.source, existing);
+      });
+    });
+
+    // Sort articles within each source by date (newest first)
+    articlesBySource.forEach((articles, source) => {
+      articles.sort((a, b) => 
+        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+      );
+    });
+
+    // Helper to check if article has real image
     const hasRealImage = (img: string) => !img.includes('unsplash.com');
-    const articlesWithImages = allArticles.filter(a => hasRealImage(a.image));
-    const articlesWithoutImages = allArticles.filter(a => !hasRealImage(a.image));
-    
-    // Sort both arrays by date
-    articlesWithImages.sort((a, b) => 
-      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    );
-    articlesWithoutImages.sort((a, b) => 
-      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    );
-    
-    // Prioritize articles with real images, then fill with others
-    let finalArticles = [...articlesWithImages, ...articlesWithoutImages].slice(0, limit);
 
-    // Mark first 3 as trending
-    finalArticles = finalArticles.map((article, index) => ({
-      ...article,
-      trending: index < 3
-    }));
+    // STEP 1: Get the LATEST article with an image from EACH source
+    const diverseArticles: MarketInsight[] = [];
+    const usedSources = new Set<string>();
 
-    console.log(`Returning ${finalArticles.length} Indian market articles (${articlesWithImages.length} with images)`);
+    // First pass: get one article (preferably with image) from each source
+    for (const [source, articles] of articlesBySource) {
+      // Prefer article with real image, otherwise take the first one
+      const articleWithImage = articles.find(a => hasRealImage(a.image));
+      const selectedArticle = articleWithImage || articles[0];
+      
+      if (selectedArticle) {
+        diverseArticles.push({ ...selectedArticle, trending: true });
+        usedSources.add(source);
+      }
+    }
+
+    console.log(`Selected ${diverseArticles.length} articles from different sources`);
+
+    // STEP 2: If we need more articles, add second-best from each source
+    if (diverseArticles.length < limit) {
+      for (const [source, articles] of articlesBySource) {
+        if (diverseArticles.length >= limit) break;
+        
+        // Get second article from this source if available
+        const remainingArticles = articles.filter((_, idx) => idx > 0);
+        for (const article of remainingArticles) {
+          if (diverseArticles.length >= limit) break;
+          // Avoid duplicates by checking URL
+          if (!diverseArticles.some(a => a.url === article.url)) {
+            diverseArticles.push({ ...article, trending: false });
+          }
+        }
+      }
+    }
+
+    // Sort final list: first by source diversity, then by date
+    const finalArticles = diverseArticles
+      .slice(0, limit)
+      .sort((a, b) => {
+        // Trending (one per source) comes first
+        if (a.trending && !b.trending) return -1;
+        if (!a.trending && b.trending) return 1;
+        // Then by date
+        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+      });
+
+    console.log(`Returning ${finalArticles.length} diverse Indian market articles from ${usedSources.size} sources`);
 
     return new Response(
       JSON.stringify({ 
         insights: finalArticles, 
         marketData: null,
         fetchedAt: new Date().toISOString(),
-        source: 'indian-rss'
+        source: 'indian-rss',
+        sourcesCount: usedSources.size
       }),
       { 
         headers: { 
