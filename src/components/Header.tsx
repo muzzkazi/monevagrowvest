@@ -45,7 +45,7 @@ const Header = () => {
               <img 
                 src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
                 alt="Moneva Logo" 
-                className="h-10 w-auto drop-shadow-md cursor-pointer hover:opacity-80 transition-opacity"
+                className="h-10 w-auto drop-shadow-md cursor-pointer transition-transform duration-200 hover:scale-110"
               />
             </Link>
           
