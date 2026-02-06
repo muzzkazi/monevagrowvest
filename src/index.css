@@ -37,6 +37,13 @@ All colors MUST be HSL.
     --input: 220 13% 91%;
     --ring: 222 47% 11%;
 
+    /* Chart colors */
+    --chart-1: 346.8 77.2% 49.8%;
+    --chart-2: 142.1 76.2% 36.3%;
+    --chart-3: 221 83% 53%;
+    --chart-4: 262 83% 58%;
+    --chart-5: 24 95% 53%;
+
     /* Premium financial color palette */
     --financial-primary: 222 47% 11%;
     --financial-secondary: 210 20% 25%;
@@ -107,6 +114,13 @@ All colors MUST be HSL.
     --border: 217 33% 18%;
     --input: 217 33% 18%;
     --ring: 212 27% 84%;
+
+    /* Chart colors */
+    --chart-1: 346.8 77.2% 49.8%;
+    --chart-2: 142.1 70% 45%;
+    --chart-3: 217 91% 60%;
+    --chart-4: 262 83% 68%;
+    --chart-5: 24 95% 58%;
 
     /* Dark mode financial colors */
     --financial-primary: 48 96% 89%;
