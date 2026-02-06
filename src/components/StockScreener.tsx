@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStockPrices } from "@/hooks/useStockPrices";
-import { nifty500Stocks, sectors, StockInfo } from "@/data/nifty500Stocks";
+import { allStocks, sectors, industries, presetScreeners, indexDefinitions, StockInfo } from "@/data/stockDatabase";
 import { 
   Search, 
   Filter, 
@@ -22,23 +23,29 @@ import {
   ChevronUp,
   ChevronDown,
   ArrowUpDown,
-  Loader2
+  Loader2,
+  Sparkles,
+  LineChart,
+  X
 } from "lucide-react";
 
 type SortField = "symbol" | "price" | "change" | "marketCap" | "peRatio" | "dividendYield" | "rsi" | "roe";
 type SortDirection = "asc" | "desc";
 
-// Paginate results for performance
 const ITEMS_PER_PAGE = 50;
 
 const StockScreener = () => {
-  // Only fetch prices for visible stocks (paginated)
   const [visibleSymbols, setVisibleSymbols] = useState<string[]>([]);
   const { prices, isLoading, error, lastUpdated, refreshPrices } = useStockPrices(visibleSymbols);
+
+  // Preset screener selection
+  const [activePreset, setActivePreset] = useState<string | null>(null);
 
   // Basic filters
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSector, setSelectedSector] = useState("All");
+  const [selectedIndustry, setSelectedIndustry] = useState("All");
+  const [selectedIndex, setSelectedIndex] = useState<string>("All");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
   const [marketCapRange, setMarketCapRange] = useState<[number, number]>([0, 2000000]);
 
@@ -59,9 +66,24 @@ const StockScreener = () => {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Filter industries based on selected sector
+  const filteredIndustries = useMemo(() => {
+    if (selectedSector === "All") return industries;
+    const sectorIndustries = allStocks
+      .filter(s => s.sector === selectedSector)
+      .map(s => s.industry);
+    return ["All", ...Array.from(new Set(sectorIndustries)).sort()];
+  }, [selectedSector]);
+
   const filteredStocks = useMemo(() => {
-    let filtered = nifty500Stocks.filter(stock => {
-      const price = prices[stock.symbol]?.price || stock.marketCap / 100; // Estimate if no live price
+    let filtered = allStocks.filter(stock => {
+      const price = prices[stock.symbol]?.price || stock.marketCap / 100;
+
+      // Apply preset screener if active
+      if (activePreset) {
+        const preset = presetScreeners.find(p => p.id === activePreset);
+        if (preset && !preset.filter(stock)) return false;
+      }
 
       // Basic filters
       if (searchQuery && !stock.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
@@ -69,6 +91,8 @@ const StockScreener = () => {
         return false;
       }
       if (selectedSector !== "All" && stock.sector !== selectedSector) return false;
+      if (selectedIndustry !== "All" && stock.industry !== selectedIndustry) return false;
+      if (selectedIndex !== "All" && !stock.indices.includes(selectedIndex)) return false;
       if (price < priceRange[0] || price > priceRange[1]) return false;
       if (stock.marketCap < marketCapRange[0] || stock.marketCap > marketCapRange[1]) return false;
 
@@ -132,9 +156,8 @@ const StockScreener = () => {
     });
 
     return filtered;
-  }, [prices, searchQuery, selectedSector, priceRange, marketCapRange, rsiRange, nearHighLow, peRange, dividendYieldMin, roeMin, debtToEquityMax, sortField, sortDirection]);
+  }, [prices, searchQuery, selectedSector, selectedIndustry, selectedIndex, priceRange, marketCapRange, rsiRange, nearHighLow, peRange, dividendYieldMin, roeMin, debtToEquityMax, sortField, sortDirection, activePreset]);
 
-  // Paginated results
   const paginatedStocks = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredStocks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -142,7 +165,6 @@ const StockScreener = () => {
 
   const totalPages = Math.ceil(filteredStocks.length / ITEMS_PER_PAGE);
 
-  // Update visible symbols when page changes
   useMemo(() => {
     const symbols = paginatedStocks.map(s => s.symbol);
     setVisibleSymbols(symbols);
@@ -167,6 +189,8 @@ const StockScreener = () => {
   const resetFilters = () => {
     setSearchQuery("");
     setSelectedSector("All");
+    setSelectedIndustry("All");
+    setSelectedIndex("All");
     setPriceRange([0, 100000]);
     setMarketCapRange([0, 2000000]);
     setRsiRange([0, 100]);
@@ -175,6 +199,12 @@ const StockScreener = () => {
     setDividendYieldMin(0);
     setRoeMin(0);
     setDebtToEquityMax(15);
+    setActivePreset(null);
+    setCurrentPage(1);
+  };
+
+  const applyPreset = (presetId: string) => {
+    setActivePreset(presetId === activePreset ? null : presetId);
     setCurrentPage(1);
   };
 
@@ -184,18 +214,20 @@ const StockScreener = () => {
     return `₹${value.toLocaleString()} Cr`;
   };
 
+  const activePresetInfo = presetScreeners.find(p => p.id === activePreset);
+
   return (
     <div className="py-8 sm:py-12 bg-background">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
                 Stock Screener
               </h1>
               <p className="text-muted-foreground">
-                Screen {nifty500Stocks.length} Nifty 500 stocks with comprehensive filters
+                Screen {allStocks.length}+ Indian stocks with comprehensive filters
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -215,6 +247,40 @@ const StockScreener = () => {
                 </span>
               )}
             </div>
+          </div>
+
+          {/* Preset Screeners */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-financial-accent" />
+              <span className="text-sm font-medium">Quick Screeners</span>
+            </div>
+            <ScrollArea className="w-full">
+              <div className="flex gap-2 pb-2">
+                {presetScreeners.map(preset => (
+                  <Button
+                    key={preset.id}
+                    variant={activePreset === preset.id ? "default" : "outline"}
+                    size="sm"
+                    className={`whitespace-nowrap text-xs ${activePreset === preset.id ? 'bg-financial-accent hover:bg-financial-accent/90' : ''}`}
+                    onClick={() => applyPreset(preset.id)}
+                  >
+                    {preset.name}
+                  </Button>
+                ))}
+              </div>
+            </ScrollArea>
+            {activePresetInfo && (
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant="secondary" className="gap-1">
+                  <LineChart className="w-3 h-3" />
+                  {activePresetInfo.name}: {activePresetInfo.description}
+                  <button onClick={() => setActivePreset(null)} className="ml-1 hover:text-destructive">
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              </div>
+            )}
           </div>
           
           {error && (
@@ -254,6 +320,25 @@ const StockScreener = () => {
                   </div>
                 </div>
 
+                {/* Index Filter */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <LineChart className="w-4 h-4" />
+                    Index
+                  </Label>
+                  <Select value={selectedIndex} onValueChange={(v) => { setSelectedIndex(v); setCurrentPage(1); }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Indices</SelectItem>
+                      {Object.entries(indexDefinitions).map(([key, name]) => (
+                        <SelectItem key={key} value={key}>{name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <Tabs defaultValue="basic" className="w-full">
                   <TabsList className="grid w-full grid-cols-3 h-auto">
                     <TabsTrigger value="basic" className="text-xs px-2 py-1.5">Basic</TabsTrigger>
@@ -268,13 +353,28 @@ const StockScreener = () => {
                         <Building2 className="w-4 h-4" />
                         Sector
                       </Label>
-                      <Select value={selectedSector} onValueChange={(v) => { setSelectedSector(v); setCurrentPage(1); }}>
+                      <Select value={selectedSector} onValueChange={(v) => { setSelectedSector(v); setSelectedIndustry("All"); setCurrentPage(1); }}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           {sectors.map(sector => (
                             <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Industry */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Industry</Label>
+                      <Select value={selectedIndustry} onValueChange={(v) => { setSelectedIndustry(v); setCurrentPage(1); }}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {filteredIndustries.map(industry => (
+                            <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -302,7 +402,7 @@ const StockScreener = () => {
 
                     {/* Market Cap */}
                     <div className="space-y-3">
-                      <Label className="text-sm font-medium">Market Cap (Cr)</Label>
+                      <Label className="text-sm font-medium">Market Cap</Label>
                       <Slider
                         value={marketCapRange}
                         onValueChange={(v) => setMarketCapRange(v as [number, number])}
@@ -366,14 +466,14 @@ const StockScreener = () => {
                           className="cursor-pointer text-xs"
                           onClick={() => setRsiRange([0, 30])}
                         >
-                          Oversold (&lt;30)
+                          Oversold
                         </Badge>
                         <Badge 
                           variant={rsiRange[0] >= 70 ? "default" : "outline"} 
                           className="cursor-pointer text-xs"
                           onClick={() => setRsiRange([70, 100])}
                         >
-                          Overbought (&gt;70)
+                          Overbought
                         </Badge>
                       </div>
                     </div>
@@ -416,14 +516,14 @@ const StockScreener = () => {
                           className="cursor-pointer text-xs hover:bg-financial-accent/10"
                           onClick={() => setPeRange([0, 15])}
                         >
-                          Value (&lt;15)
+                          Value
                         </Badge>
                         <Badge 
                           variant="outline" 
                           className="cursor-pointer text-xs hover:bg-financial-accent/10"
                           onClick={() => setPeRange([15, 30])}
                         >
-                          Growth (15-30)
+                          Growth
                         </Badge>
                       </div>
                     </div>
@@ -603,9 +703,21 @@ const StockScreener = () => {
                                   <div className="text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-[180px]">
                                     {stock.name}
                                   </div>
-                                  <Badge variant="outline" className="mt-1 text-xs">
-                                    {stock.sector}
-                                  </Badge>
+                                  <div className="flex gap-1 mt-1 flex-wrap">
+                                    <Badge variant="outline" className="text-xs py-0">
+                                      {stock.sector}
+                                    </Badge>
+                                    {stock.indices.includes("NIFTY50") && (
+                                      <Badge variant="secondary" className="text-xs py-0 bg-financial-accent/20 text-financial-accent">
+                                        N50
+                                      </Badge>
+                                    )}
+                                    {stock.indices.includes("SENSEX") && (
+                                      <Badge variant="secondary" className="text-xs py-0 bg-amber-500/20 text-amber-600">
+                                        BSE
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
                               </td>
                               <td className="text-right py-3 px-2">
@@ -663,7 +775,7 @@ const StockScreener = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t flex-wrap gap-2">
                     <p className="text-sm text-muted-foreground">
                       Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredStocks.length)} of {filteredStocks.length}
                     </p>
