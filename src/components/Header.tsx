@@ -41,13 +41,13 @@ const Header = () => {
       }`}>
         <div className="container mx-auto max-w-screen-2xl px-6 py-4">
           <div className="flex items-center justify-between flex-nowrap">
-            <div className="flex items-center flex-shrink-0">
+            <Link to="/" className="flex items-center flex-shrink-0">
               <img 
                 src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
                 alt="Moneva Logo" 
-                className="h-10 w-auto drop-shadow-md"
+                className="h-10 w-auto drop-shadow-md cursor-pointer hover:opacity-80 transition-opacity"
               />
-            </div>
+            </Link>
           
             <nav className="flex items-center space-x-5 ml-8 flex-shrink-0">
               <Link 
