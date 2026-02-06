@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -280,7 +280,7 @@ const StockScreener = () => {
 
   const totalPages = Math.ceil(filteredStocks.length / ITEMS_PER_PAGE);
 
-  useMemo(() => {
+  useEffect(() => {
     const symbols = paginatedStocks.map(s => s.symbol);
     setVisibleSymbols(symbols);
   }, [paginatedStocks]);
