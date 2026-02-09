@@ -1,37 +1,45 @@
+import { useState } from "react";
 import PageLayout from "@/components/shared/PageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import MutualFundScreener from "@/components/MutualFundScreener";
+import MutualFundComparison from "@/components/MutualFundComparison";
+import { MutualFundInfo } from "@/data/mutualFundDatabase";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { BarChart3, Filter } from "lucide-react";
 
-const MutualFundComparison = () => {
+const MutualFundComparisonPage = () => {
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareFunds, setCompareFunds] = useState<MutualFundInfo[]>([]);
+
+  const handleCompare = (funds: MutualFundInfo[]) => {
+    setCompareFunds(funds);
+    setCompareMode(true);
+  };
+
   return (
     <PageLayout>
       <div className="pt-28">
-        <div className="container mx-auto px-4 py-12">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-foreground mb-4">
-              Mutual Fund Comparison
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          <div className="mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
+              Mutual Fund Screener
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Compare mutual funds side by side to make informed investment decisions
+            <p className="text-muted-foreground">
+              Screen, filter & compare 40+ top mutual funds across categories
             </p>
           </div>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Compare Mutual Funds</CardTitle>
-              <CardDescription>
-                Feature coming soon - Compare performance, expense ratios, and returns of different mutual funds
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                This comprehensive comparison tool will help you analyze and compare mutual funds based on various parameters including returns, risk, expense ratios, and fund manager performance.
-              </p>
-            </CardContent>
-          </Card>
+
+          {compareMode ? (
+            <MutualFundComparison 
+              funds={compareFunds} 
+              onBack={() => setCompareMode(false)} 
+            />
+          ) : (
+            <MutualFundScreener onCompare={handleCompare} />
+          )}
         </div>
       </div>
     </PageLayout>
   );
 };
 
-export default MutualFundComparison;
+export default MutualFundComparisonPage;
