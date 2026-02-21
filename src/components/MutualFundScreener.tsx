@@ -19,6 +19,7 @@ import {
 } from "@/data/mutualFundDatabase";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import MutualFundDetailModal from "@/components/mutual-fund-detail/MutualFundDetailModal";
 
 type SortField = "schemeName" | "nav" | "returns1Y" | "returns3Y" | "returns5Y" | "aum" | "expenseRatio" | "rating";
 type SortDirection = "asc" | "desc";
@@ -55,6 +56,10 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
 
   // Comparison
   const [compareList, setCompareList] = useState<MutualFundInfo[]>([]);
+
+  // Fund detail modal
+  const [selectedFund, setSelectedFund] = useState<MutualFundInfo | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
 
   // Fetch live NAV data
   const fetchLiveNAVs = useCallback(async () => {
@@ -515,7 +520,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
               </TableRow>
             ) : (
               filteredFunds.map(fund => (
-                <TableRow key={fund.schemeCode} className="cursor-pointer hover:bg-muted/50">
+                <TableRow key={fund.schemeCode} className="cursor-pointer hover:bg-muted/50" onClick={() => { setSelectedFund(fund); setDetailModalOpen(true); }}>
                   <TableCell className="w-10 pr-0">
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleCompare(fund); }}
@@ -566,6 +571,12 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           </TableBody>
         </Table>
       </Card>
+
+      <MutualFundDetailModal
+        fund={selectedFund}
+        open={detailModalOpen}
+        onOpenChange={setDetailModalOpen}
+      />
     </div>
   );
 };
