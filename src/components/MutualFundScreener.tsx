@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,14 +8,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, Filter, Star, TrendingUp, ArrowUpDown, ChevronUp, ChevronDown, 
-  X, BarChart3, Plus, Minus, SlidersHorizontal, RotateCcw 
+  X, BarChart3, Plus, Minus, SlidersHorizontal, RotateCcw, RefreshCw, Wifi 
 } from "lucide-react";
 import { 
-  mutualFunds, fundCategories, fundSubCategories, fundHouses, 
+  mutualFunds as staticFunds, fundCategories, fundSubCategories, fundHouses, 
   mfPresetScreeners, MutualFundInfo 
 } from "@/data/mutualFundDatabase";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 type SortField = "schemeName" | "nav" | "returns1Y" | "returns3Y" | "returns5Y" | "aum" | "expenseRatio" | "rating";
 type SortDirection = "asc" | "desc";
@@ -25,6 +28,12 @@ interface MutualFundScreenerProps {
 }
 
 const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
+  const { toast } = useToast();
+  const [mutualFunds, setMutualFunds] = useState<MutualFundInfo[]>(staticFunds);
+  const [isLoadingLive, setIsLoadingLive] = useState(false);
+  const [liveDataLoaded, setLiveDataLoaded] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSubCategory, setSelectedSubCategory] = useState("All");
@@ -46,6 +55,71 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
 
   // Comparison
   const [compareList, setCompareList] = useState<MutualFundInfo[]>([]);
+
+  // Fetch live NAV data
+  const fetchLiveNAVs = useCallback(async () => {
+    setIsLoadingLive(true);
+    try {
+      const codes = staticFunds.map(f => f.schemeCode);
+      // Batch in chunks of 30
+      const chunks: string[][] = [];
+      for (let i = 0; i < codes.length; i += 30) {
+        chunks.push(codes.slice(i, i + 30));
+      }
+
+      const allResults: Array<{ code: string; meta?: { fund_house?: string; scheme_name?: string }; data?: Array<{ date: string; nav: string }> }> = [];
+      
+      for (const chunk of chunks) {
+        const { data, error } = await supabase.functions.invoke('mutual-funds', {
+          body: { codes: chunk },
+          headers: { 'Content-Type': 'application/json' },
+        });
+        // For batch, we need to pass action as query param but invoke doesn't support that easily
+        // Use direct fetch instead
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mutual-funds?action=batch`,
+          {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            },
+            body: JSON.stringify({ codes: chunk }),
+          }
+        );
+        const result = await response.json();
+        if (result.results) {
+          allResults.push(...result.results);
+        }
+      }
+
+      // Update funds with live NAV data
+      setMutualFunds(prev => prev.map(fund => {
+        const live = allResults.find(r => r.code === fund.schemeCode);
+        if (live?.data && live.data.length > 0) {
+          const latestNav = parseFloat(live.data[0].nav);
+          if (!isNaN(latestNav)) {
+            return { ...fund, nav: latestNav };
+          }
+        }
+        return fund;
+      }));
+
+      setLiveDataLoaded(true);
+      setLastUpdated(new Date());
+      toast({ title: "Live NAV Updated", description: `Updated NAVs for ${allResults.length} funds from MFAPI.in` });
+    } catch (error) {
+      console.error('Error fetching live NAVs:', error);
+      toast({ title: "Failed to fetch live data", description: "Using cached data instead", variant: "destructive" });
+    } finally {
+      setIsLoadingLive(false);
+    }
+  }, [toast]);
+
+  // Auto-fetch on mount
+  useEffect(() => {
+    fetchLiveNAVs();
+  }, [fetchLiveNAVs]);
 
   const subCategories = useMemo(() => {
     if (selectedCategory === "All") {
@@ -358,11 +432,30 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         </div>
       )}
 
-      {/* Results count */}
+      {/* Results count & live data indicator */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           Showing <span className="font-semibold text-foreground">{filteredFunds.length}</span> mutual funds
         </p>
+        <div className="flex items-center gap-3">
+          {liveDataLoaded && (
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+              <Wifi className="w-3 h-3" />
+              <span>Live NAV</span>
+              {lastUpdated && <span className="text-muted-foreground">• {lastUpdated.toLocaleTimeString()}</span>}
+            </div>
+          )}
+          {isLoadingLive && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground animate-pulse">
+              <RefreshCw className="w-3 h-3 animate-spin" />
+              Fetching live data...
+            </div>
+          )}
+          <Button variant="ghost" size="sm" onClick={fetchLiveNAVs} disabled={isLoadingLive} className="gap-1 h-7 text-xs">
+            <RefreshCw className={`w-3 h-3 ${isLoadingLive ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Results Table */}
