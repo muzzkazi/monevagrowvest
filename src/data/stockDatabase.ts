@@ -876,6 +876,24 @@ export const presetScreeners = [
     description: "Low P/E with positive monthly returns",
     filter: (stock: StockInfo) => stock.peRatio < 20 && stock.peRatio > 0 && stock.monthlyReturn > 0 && stock.roe > 12,
   },
+  {
+    id: "momentumpicks",
+    name: "Momentum Picks",
+    description: "Strong RSI, above 50 & 200 DMA, bullish MACD",
+    filter: (stock: StockInfo) => stock.rsi > 55 && stock.rsi < 75 && stock.priceVsSma50 > 0 && stock.priceVsSma200 > 0 && stock.macdHistogram > 0 && stock.adx > 20,
+  },
+  {
+    id: "undervaluedgems",
+    name: "Undervalued Gems",
+    description: "Low P/E, high ROE, low debt, positive returns",
+    filter: (stock: StockInfo) => stock.peRatio > 0 && stock.peRatio < 18 && stock.roe > 15 && stock.debtToEquity < 1 && stock.monthlyReturn > -5,
+  },
+  {
+    id: "bluechipdividends",
+    name: "Blue Chip Dividends",
+    description: "Large cap, high dividend, strong fundamentals",
+    filter: (stock: StockInfo) => stock.marketCap > 50000 && stock.dividendYield > 1.5 && stock.roe > 12 && stock.debtToEquity < 2,
+  },
 ];
 
 export default allStocks;
