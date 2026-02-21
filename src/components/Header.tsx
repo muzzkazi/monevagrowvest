@@ -115,7 +115,7 @@ const Header = () => {
               </div>
               <div className="relative group">
                 <span className={`text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-financial-accent after:transition-all after:duration-300 group-hover:after:w-full ${
-                  location.pathname.startsWith('/ai-planning') || location.pathname === '/mutual-fund-comparison' || location.pathname === '/goal-based-planning' || location.pathname === '/sip-based-planning' || location.pathname === '/debt-management'
+                  location.pathname.startsWith('/ai-planning') || location.pathname === '/goal-based-planning' || location.pathname === '/sip-based-planning' || location.pathname === '/debt-management'
                     ? 'text-financial-accent after:w-full' 
                     : 'text-foreground hover:text-financial-accent'
                 }`}>
@@ -145,16 +145,7 @@ const Header = () => {
                       SIP Based Planning
                     </Link>
                     <Link 
-                      to="/mutual-fund-comparison" 
-                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item"
-                    >
-                      <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover/item:bg-emerald-500/20 transition-colors dark:bg-emerald-500/20 dark:text-emerald-400">
-                        <PieChart className="h-4 w-4" />
-                      </div>
-                      Mutual Fund Comparison
-                    </Link>
-                    <Link 
-                      to="/debt-management" 
+                      to="/debt-management"
                       className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
                     >
                       <Wallet className="h-4 w-4" />
