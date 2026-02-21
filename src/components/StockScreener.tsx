@@ -258,21 +258,7 @@ const StockScreener = () => {
 
   const activePresetInfo = presetScreeners.find(p => p.id === activePreset);
 
-  // Filter popover component
-  const FilterPopover = ({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) => (
-    <Popover>
-      <PopoverTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-border bg-card hover:bg-muted/80 transition-colors text-foreground">
-          {icon}
-          {label}
-          <ChevronDown className="w-3 h-3 opacity-50" />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent className="w-72 p-4" align="start">
-        {children}
-      </PopoverContent>
-    </Popover>
-  );
+  
 
   return (
     <div className="py-6 sm:py-10 bg-background min-h-[80vh]">
@@ -385,159 +371,201 @@ const StockScreener = () => {
 
         {/* Filter Chips Row */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <FilterPopover label="Index" icon={<LineChart className="w-3.5 h-3.5" />}>
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Select Index</Label>
-              <Select value={selectedIndex} onValueChange={(v) => { setSelectedIndex(v); setCurrentPage(1); }}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Indices</SelectItem>
-                  {Object.entries(indexDefinitions).map(([key, name]) => (
-                    <SelectItem key={key} value={key}>{name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </FilterPopover>
-
-          <FilterPopover label="Sector" icon={<Building2 className="w-3.5 h-3.5" />}>
-            <div className="space-y-3">
-              <div>
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sector</Label>
-                <Select value={selectedSector} onValueChange={(v) => { setSelectedSector(v); setSelectedIndustry("All"); setCurrentPage(1); }}>
-                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {sectors.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Industry</Label>
-                <Select value={selectedIndustry} onValueChange={(v) => { setSelectedIndustry(v); setCurrentPage(1); }}>
-                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {filteredIndustries.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </FilterPopover>
-
-          <FilterPopover label="Market Cap" icon={<BarChart3 className="w-3.5 h-3.5" />}>
-            <div className="space-y-3">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Market Cap Range</Label>
-              <Slider value={marketCapRange} onValueChange={(v) => setMarketCapRange(v as [number, number])} min={0} max={2000000} step={10000} className="py-2" />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{formatMarketCap(marketCapRange[0])}</span>
-                <span>{formatMarketCap(marketCapRange[1])}</span>
-              </div>
-              <div className="flex gap-1.5 flex-wrap">
-                {[{ label: "Large Cap", range: [100000, 2000000] as [number, number] }, { label: "Mid Cap", range: [20000, 100000] as [number, number] }, { label: "Small Cap", range: [0, 20000] as [number, number] }].map(cap => (
-                  <button key={cap.label} onClick={() => setMarketCapRange(cap.range)}
-                    className="px-2.5 py-1 rounded-md text-xs border border-border hover:bg-accent/10 hover:border-accent/30 transition-colors">
-                    {cap.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </FilterPopover>
-
-          <FilterPopover label="Price" icon={<span className="text-xs font-bold">₹</span>}>
-            <div className="space-y-3">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price Range</Label>
-              <Slider value={priceRange} onValueChange={(v) => setPriceRange(v as [number, number])} min={0} max={100000} step={500} className="py-2" />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>₹{priceRange[0].toLocaleString()}</span>
-                <span>₹{priceRange[1].toLocaleString()}</span>
-              </div>
-            </div>
-          </FilterPopover>
-
-          <FilterPopover label="Technical" icon={<Activity className="w-3.5 h-3.5" />}>
-            <div className="space-y-4 max-h-80 overflow-y-auto">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-border bg-card hover:bg-muted/80 transition-colors text-foreground">
+                <LineChart className="w-3.5 h-3.5" /> Index <ChevronDown className="w-3 h-3 opacity-50" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-4" align="start">
               <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">RSI (14)</Label>
-                <Slider value={rsiRange} onValueChange={(v) => setRsiRange(v as [number, number])} min={0} max={100} step={5} className="py-2" />
-                <div className="flex justify-between text-xs text-muted-foreground"><span>{rsiRange[0]}</span><span>{rsiRange[1]}</span></div>
-                <div className="flex gap-1.5">
-                  <button onClick={() => setRsiRange([0, 30])} className="px-2 py-0.5 rounded text-xs border border-border hover:bg-accent/10">Oversold</button>
-                  <button onClick={() => setRsiRange([70, 100])} className="px-2 py-0.5 rounded text-xs border border-border hover:bg-accent/10">Overbought</button>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Select Index</Label>
+                <Select value={selectedIndex} onValueChange={(v) => { setSelectedIndex(v); setCurrentPage(1); }}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Indices</SelectItem>
+                    {Object.entries(indexDefinitions).map(([key, name]) => (
+                      <SelectItem key={key} value={key}>{name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-border bg-card hover:bg-muted/80 transition-colors text-foreground">
+                <Building2 className="w-3.5 h-3.5" /> Sector <ChevronDown className="w-3 h-3 opacity-50" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-4" align="start">
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sector</Label>
+                  <Select value={selectedSector} onValueChange={(v) => { setSelectedSector(v); setSelectedIndustry("All"); setCurrentPage(1); }}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {sectors.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Industry</Label>
+                  <Select value={selectedIndustry} onValueChange={(v) => { setSelectedIndustry(v); setCurrentPage(1); }}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {filteredIndustries.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Moving Average</Label>
-                <Select value={smaFilter} onValueChange={setSmaFilter}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="above50">Above 50 DMA</SelectItem>
-                    <SelectItem value="below50">Below 50 DMA</SelectItem>
-                    <SelectItem value="above200">Above 200 DMA</SelectItem>
-                    <SelectItem value="below200">Below 200 DMA</SelectItem>
-                    <SelectItem value="goldenCross">Golden Cross</SelectItem>
-                    <SelectItem value="deathCross">Death Cross</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">52-Week</Label>
-                <Select value={nearHighLow} onValueChange={setNearHighLow}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="near52High">Near 52W High</SelectItem>
-                    <SelectItem value="near52Low">Near 52W Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">MACD</Label>
-                <Select value={macdFilter} onValueChange={setMacdFilter}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="bullish">Bullish</SelectItem>
-                    <SelectItem value="bearish">Bearish</SelectItem>
-                    <SelectItem value="crossover">Crossover</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Beta</Label>
-                <Slider value={betaRange} onValueChange={(v) => setBetaRange(v as [number, number])} min={0} max={3} step={0.1} className="py-2" />
-                <div className="flex justify-between text-xs text-muted-foreground"><span>{betaRange[0].toFixed(1)}</span><span>{betaRange[1].toFixed(1)}</span></div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="hv" checked={highVolumeOnly} onCheckedChange={(c) => setHighVolumeOnly(c as boolean)} />
-                <Label htmlFor="hv" className="text-xs cursor-pointer">High volume only (+50%)</Label>
-              </div>
-            </div>
-          </FilterPopover>
+            </PopoverContent>
+          </Popover>
 
-          <FilterPopover label="Fundamental" icon={<BarChart3 className="w-3.5 h-3.5" />}>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">P/E Ratio</Label>
-                <Slider value={peRange} onValueChange={(v) => setPeRange(v as [number, number])} min={0} max={100} step={1} className="py-2" />
-                <div className="flex justify-between text-xs text-muted-foreground"><span>{peRange[0]}</span><span>{peRange[1]}</span></div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-border bg-card hover:bg-muted/80 transition-colors text-foreground">
+                <BarChart3 className="w-3.5 h-3.5" /> Market Cap <ChevronDown className="w-3 h-3 opacity-50" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-4" align="start">
+              <div className="space-y-3">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Market Cap Range</Label>
+                <Slider value={marketCapRange} onValueChange={(v) => setMarketCapRange(v as [number, number])} min={0} max={2000000} step={10000} className="py-2" />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{formatMarketCap(marketCapRange[0])}</span>
+                  <span>{formatMarketCap(marketCapRange[1])}</span>
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  {[{ label: "Large Cap", range: [100000, 2000000] as [number, number] }, { label: "Mid Cap", range: [20000, 100000] as [number, number] }, { label: "Small Cap", range: [0, 20000] as [number, number] }].map(cap => (
+                    <button key={cap.label} onClick={() => setMarketCapRange(cap.range)}
+                      className="px-2.5 py-1 rounded-md text-xs border border-border hover:bg-accent/10 hover:border-accent/30 transition-colors">
+                      {cap.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Min Dividend Yield</Label>
-                <Slider value={[dividendYieldMin]} onValueChange={(v) => setDividendYieldMin(v[0])} min={0} max={5} step={0.1} className="py-2" />
-                <div className="text-xs text-muted-foreground">{dividendYieldMin.toFixed(1)}%+</div>
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-border bg-card hover:bg-muted/80 transition-colors text-foreground">
+                <span className="text-xs font-bold">₹</span> Price <ChevronDown className="w-3 h-3 opacity-50" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-4" align="start">
+              <div className="space-y-3">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price Range</Label>
+                <Slider value={priceRange} onValueChange={(v) => setPriceRange(v as [number, number])} min={0} max={100000} step={500} className="py-2" />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>₹{priceRange[0].toLocaleString()}</span>
+                  <span>₹{priceRange[1].toLocaleString()}</span>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Min ROE</Label>
-                <Slider value={[roeMin]} onValueChange={(v) => setRoeMin(v[0])} min={0} max={50} step={1} className="py-2" />
-                <div className="text-xs text-muted-foreground">{roeMin}%+</div>
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-border bg-card hover:bg-muted/80 transition-colors text-foreground">
+                <Activity className="w-3.5 h-3.5" /> Technical <ChevronDown className="w-3 h-3 opacity-50" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-4" align="start">
+              <div className="space-y-4 max-h-80 overflow-y-auto">
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">RSI (14)</Label>
+                  <Slider value={rsiRange} onValueChange={(v) => setRsiRange(v as [number, number])} min={0} max={100} step={5} className="py-2" />
+                  <div className="flex justify-between text-xs text-muted-foreground"><span>{rsiRange[0]}</span><span>{rsiRange[1]}</span></div>
+                  <div className="flex gap-1.5">
+                    <button onClick={() => setRsiRange([0, 30])} className="px-2 py-0.5 rounded text-xs border border-border hover:bg-accent/10">Oversold</button>
+                    <button onClick={() => setRsiRange([70, 100])} className="px-2 py-0.5 rounded text-xs border border-border hover:bg-accent/10">Overbought</button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Moving Average</Label>
+                  <Select value={smaFilter} onValueChange={setSmaFilter}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="above50">Above 50 DMA</SelectItem>
+                      <SelectItem value="below50">Below 50 DMA</SelectItem>
+                      <SelectItem value="above200">Above 200 DMA</SelectItem>
+                      <SelectItem value="below200">Below 200 DMA</SelectItem>
+                      <SelectItem value="goldenCross">Golden Cross</SelectItem>
+                      <SelectItem value="deathCross">Death Cross</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">52-Week</Label>
+                  <Select value={nearHighLow} onValueChange={setNearHighLow}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="near52High">Near 52W High</SelectItem>
+                      <SelectItem value="near52Low">Near 52W Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">MACD</Label>
+                  <Select value={macdFilter} onValueChange={setMacdFilter}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="bullish">Bullish</SelectItem>
+                      <SelectItem value="bearish">Bearish</SelectItem>
+                      <SelectItem value="crossover">Crossover</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Beta</Label>
+                  <Slider value={betaRange} onValueChange={(v) => setBetaRange(v as [number, number])} min={0} max={3} step={0.1} className="py-2" />
+                  <div className="flex justify-between text-xs text-muted-foreground"><span>{betaRange[0].toFixed(1)}</span><span>{betaRange[1].toFixed(1)}</span></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="hv" checked={highVolumeOnly} onCheckedChange={(c) => setHighVolumeOnly(c as boolean)} />
+                  <Label htmlFor="hv" className="text-xs cursor-pointer">High volume only (+50%)</Label>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Max Debt/Equity</Label>
-                <Slider value={[debtToEquityMax]} onValueChange={(v) => setDebtToEquityMax(v[0])} min={0} max={15} step={0.5} className="py-2" />
-                <div className="text-xs text-muted-foreground">≤ {debtToEquityMax.toFixed(1)}</div>
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-border bg-card hover:bg-muted/80 transition-colors text-foreground">
+                <BarChart3 className="w-3.5 h-3.5" /> Fundamental <ChevronDown className="w-3 h-3 opacity-50" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-4" align="start">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">P/E Ratio</Label>
+                  <Slider value={peRange} onValueChange={(v) => setPeRange(v as [number, number])} min={0} max={100} step={1} className="py-2" />
+                  <div className="flex justify-between text-xs text-muted-foreground"><span>{peRange[0]}</span><span>{peRange[1]}</span></div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Min Dividend Yield</Label>
+                  <Slider value={[dividendYieldMin]} onValueChange={(v) => setDividendYieldMin(v[0])} min={0} max={5} step={0.1} className="py-2" />
+                  <div className="text-xs text-muted-foreground">{dividendYieldMin.toFixed(1)}%+</div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Min ROE</Label>
+                  <Slider value={[roeMin]} onValueChange={(v) => setRoeMin(v[0])} min={0} max={50} step={1} className="py-2" />
+                  <div className="text-xs text-muted-foreground">{roeMin}%+</div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Max Debt/Equity</Label>
+                  <Slider value={[debtToEquityMax]} onValueChange={(v) => setDebtToEquityMax(v[0])} min={0} max={15} step={0.5} className="py-2" />
+                  <div className="text-xs text-muted-foreground">≤ {debtToEquityMax.toFixed(1)}</div>
+                </div>
               </div>
-            </div>
-          </FilterPopover>
+            </PopoverContent>
+          </Popover>
 
           {activeFilters.length > 0 && (
             <button onClick={resetFilters} className="text-xs text-muted-foreground hover:text-destructive transition-colors ml-1">
