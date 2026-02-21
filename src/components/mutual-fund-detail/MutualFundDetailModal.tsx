@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MutualFundInfo } from '@/data/mutualFundDatabase';
+import { MutualFundInfo, mutualFunds as allFundsData } from '@/data/mutualFundDatabase';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart
 } from 'recharts';
@@ -25,6 +25,7 @@ interface MutualFundDetailModalProps {
   fund: MutualFundInfo | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSelectFund?: (fund: MutualFundInfo) => void;
 }
 
 const periodOptions = [
@@ -37,7 +38,7 @@ const periodOptions = [
   { label: 'All', days: 99999 },
 ];
 
-const MutualFundDetailModal = ({ fund, open, onOpenChange }: MutualFundDetailModalProps) => {
+const MutualFundDetailModal = ({ fund, open, onOpenChange, onSelectFund }: MutualFundDetailModalProps) => {
   const [navHistory, setNavHistory] = useState<NAVDataPoint[]>([]);
   const [allNavHistory, setAllNavHistory] = useState<NAVDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -427,6 +428,54 @@ const MutualFundDetailModal = ({ fund, open, onOpenChange }: MutualFundDetailMod
                 </Card>
               </TabsContent>
             </Tabs>
+
+            {/* Similar Funds Section */}
+            {(() => {
+              const similarFunds = allFundsData.filter(
+                f => f.subCategory === fund.subCategory && f.schemeCode !== fund.schemeCode
+              ).slice(0, 5);
+              if (similarFunds.length === 0) return null;
+              return (
+                <>
+                  <Separator className="my-6" />
+                  <div>
+                    <h3 className="text-base font-semibold mb-3 flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4" />
+                      Similar {fund.subCategory} Funds
+                    </h3>
+                    <div className="space-y-2">
+                      {similarFunds.map(sf => (
+                        <button
+                          key={sf.schemeCode}
+                          className="w-full flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors text-left"
+                          onClick={() => {
+                            onSelectFund?.(sf);
+                          }}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">{sf.schemeName.split(' - ')[0]}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[10px] text-muted-foreground">{sf.fundHouse}</span>
+                              <div className="flex gap-0.5">
+                                {Array.from({ length: 5 }, (_, i) => (
+                                  <Star key={i} className={`w-2.5 h-2.5 ${i < sf.rating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`} />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0 ml-4">
+                            <p className="text-sm font-medium">₹{sf.nav.toFixed(2)}</p>
+                            <p className={`text-xs ${sf.returns3Y >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                              3Y: {sf.returns3Y >= 0 ? '+' : ''}{sf.returns3Y.toFixed(1)}%
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </ScrollArea>
       </DialogContent>

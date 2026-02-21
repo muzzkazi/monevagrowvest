@@ -576,6 +576,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         fund={selectedFund}
         open={detailModalOpen}
         onOpenChange={setDetailModalOpen}
+        onSelectFund={(sf) => setSelectedFund(sf)}
       />
     </div>
   );
