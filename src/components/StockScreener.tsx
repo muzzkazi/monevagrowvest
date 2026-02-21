@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -341,19 +342,28 @@ const StockScreener = () => {
           </div>
           <ScrollArea className="w-full">
             <div className="flex gap-2 pb-1">
+              <TooltipProvider delayDuration={200}>
               {presetScreeners.map(preset => (
-                <button
-                  key={preset.id}
-                  onClick={() => { setActivePreset(activePreset === preset.id ? null : preset.id); setCurrentPage(1); }}
-                  className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border ${
-                    activePreset === preset.id
-                      ? 'bg-accent text-accent-foreground border-accent shadow-sm'
-                      : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-foreground/20'
-                  }`}
-                >
-                  {preset.name}
-                </button>
+                <Tooltip key={preset.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => { setActivePreset(activePreset === preset.id ? null : preset.id); setCurrentPage(1); }}
+                      className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                        activePreset === preset.id
+                          ? 'bg-accent text-accent-foreground border-accent shadow-sm'
+                          : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-foreground/20'
+                      }`}
+                    >
+                      {preset.name}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[220px] text-xs">
+                    <p className="font-semibold">{preset.name}</p>
+                    <p className="text-muted-foreground">{preset.description}</p>
+                  </TooltipContent>
+                </Tooltip>
               ))}
+              </TooltipProvider>
             </div>
           </ScrollArea>
           {activePresetInfo && (
