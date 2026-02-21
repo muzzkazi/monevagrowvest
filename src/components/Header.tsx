@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Sparkles, Target, TrendingUp, BarChart3, Wallet, Calculator, Receipt, Landmark, Clock, SlidersHorizontal } from "lucide-react";
+import { Phone, Sparkles, Target, TrendingUp, BarChart3, Wallet, Calculator, Receipt, Landmark, Clock, SlidersHorizontal, LineChart, PieChart } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -146,9 +146,11 @@ const Header = () => {
                     </Link>
                     <Link 
                       to="/mutual-fund-comparison" 
-                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item"
                     >
-                      <BarChart3 className="h-4 w-4" />
+                      <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover/item:bg-emerald-500/20 transition-colors dark:bg-emerald-500/20 dark:text-emerald-400">
+                        <PieChart className="h-4 w-4" />
+                      </div>
                       Mutual Fund Comparison
                     </Link>
                     <Link 
@@ -174,16 +176,20 @@ const Header = () => {
                   <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[220px] py-2 overflow-hidden">
                     <Link 
                       to="/stock-screener" 
-                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item"
                     >
-                      <TrendingUp className="h-4 w-4" />
+                      <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 group-hover/item:bg-blue-500/20 transition-colors dark:bg-blue-500/20 dark:text-blue-400">
+                        <LineChart className="h-4 w-4" />
+                      </div>
                       Stock Screener
                     </Link>
                     <Link 
                       to="/mutual-fund-comparison" 
-                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors"
+                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item"
                     >
-                      <BarChart3 className="h-4 w-4" />
+                      <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover/item:bg-emerald-500/20 transition-colors dark:bg-emerald-500/20 dark:text-emerald-400">
+                        <PieChart className="h-4 w-4" />
+                      </div>
                       Mutual Fund Screener
                     </Link>
                   </div>
