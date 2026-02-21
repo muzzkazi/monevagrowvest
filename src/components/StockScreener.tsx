@@ -1,16 +1,15 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { useStockPrices } from "@/hooks/useStockPrices";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
@@ -19,33 +18,9 @@ import { exportToCSV, exportToExcel } from "@/lib/exportUtils";
 import { StockDetailModal } from "@/components/stock-detail/StockDetailModal";
 import { toast } from "sonner";
 import { 
-  Search, 
-  Filter, 
-  TrendingUp, 
-  TrendingDown, 
-  RefreshCw, 
-  BarChart3, 
-  Building2,
-  Percent,
-  IndianRupee,
-  ChevronUp,
-  ChevronDown,
-  ArrowUpDown,
-  Loader2,
-  Sparkles,
-  LineChart,
-  X,
-  Activity,
-  Waves,
-  Zap,
-  Target,
-  TrendingDown as TrendDown,
-  Heart,
-  Download,
-  FileSpreadsheet,
-  User,
-  LogOut,
-  LogIn
+  Search, TrendingUp, TrendingDown, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown,
+  Loader2, Sparkles, X, Heart, Download, FileSpreadsheet, User, LogOut, LogIn,
+  SlidersHorizontal, ChevronRight, BarChart3, Building2, LineChart, Activity
 } from "lucide-react";
 
 type SortField = "symbol" | "price" | "change" | "marketCap" | "peRatio" | "dividendYield" | "rsi" | "roe" | "macd" | "adx" | "beta" | "monthlyReturn";
@@ -61,66 +36,45 @@ const StockScreener = () => {
   const [visibleSymbols, setVisibleSymbols] = useState<string[]>([]);
   const { prices, isLoading, error, lastUpdated, refreshPrices } = useStockPrices(visibleSymbols);
 
-  // Preset screener selection
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
-  
-  // Stock detail modal
   const [selectedStock, setSelectedStock] = useState<StockInfo | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Basic filters
+  // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSector, setSelectedSector] = useState("All");
   const [selectedIndustry, setSelectedIndustry] = useState("All");
   const [selectedIndex, setSelectedIndex] = useState<string>("All");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
   const [marketCapRange, setMarketCapRange] = useState<[number, number]>([0, 2000000]);
-
-  // Technical filters - Basic
   const [rsiRange, setRsiRange] = useState<[number, number]>([0, 100]);
   const [nearHighLow, setNearHighLow] = useState<string>("all");
-  
-  // Technical filters - Moving Averages
-  const [smaFilter, setSmaFilter] = useState<string>("all"); // all, above50, below50, above200, below200, goldenCross, deathCross
+  const [smaFilter, setSmaFilter] = useState<string>("all");
   const [priceVsSma50Range, setPriceVsSma50Range] = useState<[number, number]>([-50, 50]);
   const [priceVsSma200Range, setPriceVsSma200Range] = useState<[number, number]>([-50, 50]);
-  
-  // Technical filters - Momentum
-  const [macdFilter, setMacdFilter] = useState<string>("all"); // all, bullish, bearish, crossover
+  const [macdFilter, setMacdFilter] = useState<string>("all");
   const [adxRange, setAdxRange] = useState<[number, number]>([0, 100]);
   const [stochasticRange, setStochasticRange] = useState<[number, number]>([0, 100]);
   const [mfiRange, setMfiRange] = useState<[number, number]>([0, 100]);
-  
-  // Technical filters - Volatility
   const [atrPercentRange, setAtrPercentRange] = useState<[number, number]>([0, 5]);
   const [betaRange, setBetaRange] = useState<[number, number]>([0, 3]);
-  const [bollingerFilter, setBollingerFilter] = useState<string>("all"); // all, nearUpper, nearLower, squeeze
-  
-  // Technical filters - Returns
+  const [bollingerFilter, setBollingerFilter] = useState<string>("all");
   const [weeklyReturnRange, setWeeklyReturnRange] = useState<[number, number]>([-20, 20]);
   const [monthlyReturnRange, setMonthlyReturnRange] = useState<[number, number]>([-30, 30]);
   const [quarterlyReturnRange, setQuarterlyReturnRange] = useState<[number, number]>([-50, 50]);
   const [yearlyReturnRange, setYearlyReturnRange] = useState<[number, number]>([-50, 100]);
-  
-  // Technical filters - Volume
   const [volumeChangeMin, setVolumeChangeMin] = useState(-100);
   const [highVolumeOnly, setHighVolumeOnly] = useState(false);
-
-  // Fundamental filters
   const [peRange, setPeRange] = useState<[number, number]>([0, 100]);
   const [dividendYieldMin, setDividendYieldMin] = useState(0);
   const [roeMin, setRoeMin] = useState(0);
   const [debtToEquityMax, setDebtToEquityMax] = useState(15);
-
-  // Sorting
   const [sortField, setSortField] = useState<SortField>("marketCap");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter industries based on selected sector
   const filteredIndustries = useMemo(() => {
     if (selectedSector === "All") return industries;
     const sectorIndustries = allStocks
@@ -129,36 +83,43 @@ const StockScreener = () => {
     return ["All", ...Array.from(new Set(sectorIndustries)).sort()];
   }, [selectedSector]);
 
+  // Active filter chips
+  const activeFilters = useMemo(() => {
+    const chips: { label: string; onRemove: () => void }[] = [];
+    if (selectedIndex !== "All") chips.push({ label: `Index: ${indexDefinitions[selectedIndex as keyof typeof indexDefinitions]}`, onRemove: () => setSelectedIndex("All") });
+    if (selectedSector !== "All") chips.push({ label: `Sector: ${selectedSector}`, onRemove: () => { setSelectedSector("All"); setSelectedIndustry("All"); } });
+    if (selectedIndustry !== "All") chips.push({ label: `Industry: ${selectedIndustry}`, onRemove: () => setSelectedIndustry("All") });
+    if (priceRange[0] > 0 || priceRange[1] < 100000) chips.push({ label: `Price: ₹${priceRange[0].toLocaleString()}-₹${priceRange[1].toLocaleString()}`, onRemove: () => setPriceRange([0, 100000]) });
+    if (marketCapRange[0] > 0 || marketCapRange[1] < 2000000) chips.push({ label: `M.Cap: ${formatMarketCap(marketCapRange[0])}-${formatMarketCap(marketCapRange[1])}`, onRemove: () => setMarketCapRange([0, 2000000]) });
+    if (rsiRange[0] > 0 || rsiRange[1] < 100) chips.push({ label: `RSI: ${rsiRange[0]}-${rsiRange[1]}`, onRemove: () => setRsiRange([0, 100]) });
+    if (smaFilter !== "all") chips.push({ label: `SMA: ${smaFilter}`, onRemove: () => setSmaFilter("all") });
+    if (macdFilter !== "all") chips.push({ label: `MACD: ${macdFilter}`, onRemove: () => setMacdFilter("all") });
+    if (nearHighLow !== "all") chips.push({ label: nearHighLow === "near52High" ? "Near 52W High" : "Near 52W Low", onRemove: () => setNearHighLow("all") });
+    if (peRange[0] > 0 || peRange[1] < 100) chips.push({ label: `P/E: ${peRange[0]}-${peRange[1]}`, onRemove: () => setPeRange([0, 100]) });
+    if (dividendYieldMin > 0) chips.push({ label: `Div ≥ ${dividendYieldMin.toFixed(1)}%`, onRemove: () => setDividendYieldMin(0) });
+    if (roeMin > 0) chips.push({ label: `ROE ≥ ${roeMin}%`, onRemove: () => setRoeMin(0) });
+    if (highVolumeOnly) chips.push({ label: "High Volume", onRemove: () => setHighVolumeOnly(false) });
+    return chips;
+  }, [selectedIndex, selectedSector, selectedIndustry, priceRange, marketCapRange, rsiRange, smaFilter, macdFilter, nearHighLow, peRange, dividendYieldMin, roeMin, highVolumeOnly]);
+
   const filteredStocks = useMemo(() => {
     let filtered = allStocks.filter(stock => {
       const price = prices[stock.symbol]?.price || stock.marketCap / 100;
-
-      // Filter by watchlist if enabled
       if (showWatchlistOnly && !isInWatchlist(stock.symbol)) return false;
-
-      // Apply preset screener if active
       if (activePreset) {
         const preset = presetScreeners.find(p => p.id === activePreset);
         if (preset && !preset.filter(stock)) return false;
       }
-
-      // Basic filters
       if (searchQuery && !stock.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
-          !stock.symbol.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return false;
-      }
+          !stock.symbol.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       if (selectedSector !== "All" && stock.sector !== selectedSector) return false;
       if (selectedIndustry !== "All" && stock.industry !== selectedIndustry) return false;
       if (selectedIndex !== "All" && !stock.indices.includes(selectedIndex)) return false;
       if (price < priceRange[0] || price > priceRange[1]) return false;
       if (stock.marketCap < marketCapRange[0] || stock.marketCap > marketCapRange[1]) return false;
-
-      // Technical filters - RSI
       if (stock.rsi < rsiRange[0] || stock.rsi > rsiRange[1]) return false;
       if (nearHighLow === "near52High" && price < stock.high52Week * 0.95) return false;
       if (nearHighLow === "near52Low" && price > stock.low52Week * 1.05) return false;
-      
-      // Technical filters - Moving Averages
       if (smaFilter !== "all") {
         if (smaFilter === "above50" && stock.priceVsSma50 < 0) return false;
         if (smaFilter === "below50" && stock.priceVsSma50 > 0) return false;
@@ -169,8 +130,6 @@ const StockScreener = () => {
       }
       if (stock.priceVsSma50 < priceVsSma50Range[0] || stock.priceVsSma50 > priceVsSma50Range[1]) return false;
       if (stock.priceVsSma200 < priceVsSma200Range[0] || stock.priceVsSma200 > priceVsSma200Range[1]) return false;
-      
-      // Technical filters - Momentum
       if (macdFilter !== "all") {
         if (macdFilter === "bullish" && stock.macdHistogram < 0) return false;
         if (macdFilter === "bearish" && stock.macdHistogram > 0) return false;
@@ -179,8 +138,6 @@ const StockScreener = () => {
       if (stock.adx < adxRange[0] || stock.adx > adxRange[1]) return false;
       if (stock.stochastic < stochasticRange[0] || stock.stochastic > stochasticRange[1]) return false;
       if (stock.mfi < mfiRange[0] || stock.mfi > mfiRange[1]) return false;
-      
-      // Technical filters - Volatility
       if (stock.atrPercent < atrPercentRange[0] || stock.atrPercent > atrPercentRange[1]) return false;
       if (stock.beta < betaRange[0] || stock.beta > betaRange[1]) return false;
       if (bollingerFilter !== "all") {
@@ -189,35 +146,24 @@ const StockScreener = () => {
         if (bollingerFilter === "nearLower" && pricePos > 0.2) return false;
         if (bollingerFilter === "squeeze" && stock.bollingerWidth > 3) return false;
       }
-      
-      // Technical filters - Returns
       if (stock.weeklyReturn < weeklyReturnRange[0] || stock.weeklyReturn > weeklyReturnRange[1]) return false;
       if (stock.monthlyReturn < monthlyReturnRange[0] || stock.monthlyReturn > monthlyReturnRange[1]) return false;
       if (stock.quarterlyReturn < quarterlyReturnRange[0] || stock.quarterlyReturn > quarterlyReturnRange[1]) return false;
       if (stock.yearlyReturn < yearlyReturnRange[0] || stock.yearlyReturn > yearlyReturnRange[1]) return false;
-      
-      // Technical filters - Volume
       if (stock.volumeChange < volumeChangeMin) return false;
       if (highVolumeOnly && stock.volumeChange < 50) return false;
-
-      // Fundamental filters
       if (stock.peRatio < peRange[0] || stock.peRatio > peRange[1]) return false;
       if (stock.dividendYield < dividendYieldMin) return false;
       if (stock.roe < roeMin) return false;
       if (stock.debtToEquity > debtToEquityMax) return false;
-
       return true;
     });
 
-    // Sort
     filtered.sort((a, b) => {
       let aVal: number, bVal: number;
-      
       switch (sortField) {
         case "symbol":
-          return sortDirection === "asc" 
-            ? a.symbol.localeCompare(b.symbol) 
-            : b.symbol.localeCompare(a.symbol);
+          return sortDirection === "asc" ? a.symbol.localeCompare(b.symbol) : b.symbol.localeCompare(a.symbol);
         case "price":
           aVal = prices[a.symbol]?.price || a.marketCap / 100;
           bVal = prices[b.symbol]?.price || b.marketCap / 100;
@@ -226,50 +172,19 @@ const StockScreener = () => {
           aVal = prices[a.symbol]?.changePercent || 0;
           bVal = prices[b.symbol]?.changePercent || 0;
           break;
-        case "marketCap":
-          aVal = a.marketCap;
-          bVal = b.marketCap;
-          break;
-        case "peRatio":
-          aVal = a.peRatio;
-          bVal = b.peRatio;
-          break;
-        case "dividendYield":
-          aVal = a.dividendYield;
-          bVal = b.dividendYield;
-          break;
-        case "rsi":
-          aVal = a.rsi;
-          bVal = b.rsi;
-          break;
-        case "roe":
-          aVal = a.roe;
-          bVal = b.roe;
-          break;
-        case "macd":
-          aVal = a.macdHistogram;
-          bVal = b.macdHistogram;
-          break;
-        case "adx":
-          aVal = a.adx;
-          bVal = b.adx;
-          break;
-        case "beta":
-          aVal = a.beta;
-          bVal = b.beta;
-          break;
-        case "monthlyReturn":
-          aVal = a.monthlyReturn;
-          bVal = b.monthlyReturn;
-          break;
-        default:
-          aVal = 0;
-          bVal = 0;
+        case "marketCap": aVal = a.marketCap; bVal = b.marketCap; break;
+        case "peRatio": aVal = a.peRatio; bVal = b.peRatio; break;
+        case "dividendYield": aVal = a.dividendYield; bVal = b.dividendYield; break;
+        case "rsi": aVal = a.rsi; bVal = b.rsi; break;
+        case "roe": aVal = a.roe; bVal = b.roe; break;
+        case "macd": aVal = a.macdHistogram; bVal = b.macdHistogram; break;
+        case "adx": aVal = a.adx; bVal = b.adx; break;
+        case "beta": aVal = a.beta; bVal = b.beta; break;
+        case "monthlyReturn": aVal = a.monthlyReturn; bVal = b.monthlyReturn; break;
+        default: aVal = 0; bVal = 0;
       }
-      
       return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
     });
-
     return filtered;
   }, [prices, searchQuery, selectedSector, selectedIndustry, selectedIndex, priceRange, marketCapRange, rsiRange, nearHighLow, smaFilter, priceVsSma50Range, priceVsSma200Range, macdFilter, adxRange, stochasticRange, mfiRange, atrPercentRange, betaRange, bollingerFilter, weeklyReturnRange, monthlyReturnRange, quarterlyReturnRange, yearlyReturnRange, volumeChangeMin, highVolumeOnly, peRange, dividendYieldMin, roeMin, debtToEquityMax, sortField, sortDirection, activePreset, showWatchlistOnly, isInWatchlist]);
 
@@ -281,8 +196,7 @@ const StockScreener = () => {
   const totalPages = Math.ceil(filteredStocks.length / ITEMS_PER_PAGE);
 
   useEffect(() => {
-    const symbols = paginatedStocks.map(s => s.symbol);
-    setVisibleSymbols(symbols);
+    setVisibleSymbols(paginatedStocks.map(s => s.symbol));
   }, [paginatedStocks]);
 
   const handleSort = (field: SortField) => {
@@ -295,48 +209,20 @@ const StockScreener = () => {
   };
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />;
-    return sortDirection === "asc" 
-      ? <ChevronUp className="w-3 h-3 ml-1" /> 
-      : <ChevronDown className="w-3 h-3 ml-1" />;
+    if (sortField !== field) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-30" />;
+    return sortDirection === "asc" ? <ChevronUp className="w-3 h-3 ml-1 text-accent" /> : <ChevronDown className="w-3 h-3 ml-1 text-accent" />;
   };
 
   const resetFilters = () => {
-    setSearchQuery("");
-    setSelectedSector("All");
-    setSelectedIndustry("All");
-    setSelectedIndex("All");
-    setPriceRange([0, 100000]);
-    setMarketCapRange([0, 2000000]);
-    setRsiRange([0, 100]);
-    setNearHighLow("all");
-    setSmaFilter("all");
-    setPriceVsSma50Range([-50, 50]);
-    setPriceVsSma200Range([-50, 50]);
-    setMacdFilter("all");
-    setAdxRange([0, 100]);
-    setStochasticRange([0, 100]);
-    setMfiRange([0, 100]);
-    setAtrPercentRange([0, 5]);
-    setBetaRange([0, 3]);
-    setBollingerFilter("all");
-    setWeeklyReturnRange([-20, 20]);
-    setMonthlyReturnRange([-30, 30]);
-    setQuarterlyReturnRange([-50, 50]);
-    setYearlyReturnRange([-50, 100]);
-    setVolumeChangeMin(-100);
-    setHighVolumeOnly(false);
-    setPeRange([0, 100]);
-    setDividendYieldMin(0);
-    setRoeMin(0);
-    setDebtToEquityMax(15);
-    setActivePreset(null);
-    setCurrentPage(1);
-  };
-
-  const applyPreset = (presetId: string) => {
-    setActivePreset(presetId === activePreset ? null : presetId);
-    setCurrentPage(1);
+    setSearchQuery(""); setSelectedSector("All"); setSelectedIndustry("All"); setSelectedIndex("All");
+    setPriceRange([0, 100000]); setMarketCapRange([0, 2000000]); setRsiRange([0, 100]);
+    setNearHighLow("all"); setSmaFilter("all"); setPriceVsSma50Range([-50, 50]); setPriceVsSma200Range([-50, 50]);
+    setMacdFilter("all"); setAdxRange([0, 100]); setStochasticRange([0, 100]); setMfiRange([0, 100]);
+    setAtrPercentRange([0, 5]); setBetaRange([0, 3]); setBollingerFilter("all");
+    setWeeklyReturnRange([-20, 20]); setMonthlyReturnRange([-30, 30]); setQuarterlyReturnRange([-50, 50]);
+    setYearlyReturnRange([-50, 100]); setVolumeChangeMin(-100); setHighVolumeOnly(false);
+    setPeRange([0, 100]); setDividendYieldMin(0); setRoeMin(0); setDebtToEquityMax(15);
+    setActivePreset(null); setCurrentPage(1);
   };
 
   const formatMarketCap = (value: number) => {
@@ -347,10 +233,7 @@ const StockScreener = () => {
 
   const handleExportCSV = () => {
     const exportData = filteredStocks.map(stock => ({
-      ...stock,
-      livePrice: prices[stock.symbol]?.price,
-      change: prices[stock.symbol]?.change,
-      changePercent: prices[stock.symbol]?.changePercent,
+      ...stock, livePrice: prices[stock.symbol]?.price, change: prices[stock.symbol]?.change, changePercent: prices[stock.symbol]?.changePercent,
     }));
     exportToCSV(exportData);
     toast.success(`Exported ${exportData.length} stocks to CSV`);
@@ -358,21 +241,14 @@ const StockScreener = () => {
 
   const handleExportExcel = () => {
     const exportData = filteredStocks.map(stock => ({
-      ...stock,
-      livePrice: prices[stock.symbol]?.price,
-      change: prices[stock.symbol]?.change,
-      changePercent: prices[stock.symbol]?.changePercent,
+      ...stock, livePrice: prices[stock.symbol]?.price, change: prices[stock.symbol]?.change, changePercent: prices[stock.symbol]?.changePercent,
     }));
     exportToExcel(exportData);
     toast.success(`Exported ${exportData.length} stocks to Excel`);
   };
 
   const handleWatchlistToggle = async (stock: StockInfo) => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-    
+    if (!user) { navigate('/auth'); return; }
     if (isInWatchlist(stock.symbol)) {
       await removeFromWatchlist(stock.symbol);
     } else {
@@ -382,958 +258,509 @@ const StockScreener = () => {
 
   const activePresetInfo = presetScreeners.find(p => p.id === activePreset);
 
+  // Filter popover component
+  const FilterPopover = ({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) => (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border border-border bg-card hover:bg-muted/80 transition-colors text-foreground">
+          {icon}
+          {label}
+          <ChevronDown className="w-3 h-3 opacity-50" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-4" align="start">
+        {children}
+      </PopoverContent>
+    </Popover>
+  );
+
   return (
-    <div className="py-8 sm:py-12 bg-background">
-      <div className="container mx-auto px-4 max-w-7xl">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+    <div className="py-6 sm:py-10 bg-background min-h-[80vh]">
+      <div className="container mx-auto px-4 max-w-[1400px]">
+        
+        {/* Header Bar */}
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-                Stock Screener
-              </h1>
-              <p className="text-muted-foreground">
-                Screen {allStocks.length}+ Indian stocks with comprehensive filters
-              </p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Stock Screener</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">{allStocks.length}+ stocks · NSE & BSE</p>
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* Export Dropdown */}
+            <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Download className="w-4 h-4" />
-                    Export
+                  <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+                    <Download className="w-3.5 h-3.5" /> Export
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleExportCSV}>
-                    <FileSpreadsheet className="w-4 h-4 mr-2" />
-                    Export to CSV
+                    <FileSpreadsheet className="w-4 h-4 mr-2" /> CSV
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportExcel}>
-                    <FileSpreadsheet className="w-4 h-4 mr-2" />
-                    Export to Excel
+                    <FileSpreadsheet className="w-4 h-4 mr-2" /> Excel
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              {/* Watchlist Toggle */}
               {user && (
                 <Button 
                   variant={showWatchlistOnly ? "default" : "outline"} 
-                  size="sm" 
+                  size="sm" className="gap-1.5 text-xs h-8"
                   onClick={() => setShowWatchlistOnly(!showWatchlistOnly)}
-                  className="gap-2"
                 >
-                  <Heart className={`w-4 h-4 ${showWatchlistOnly ? 'fill-current' : ''}`} />
-                  Watchlist ({watchlist.length})
+                  <Heart className={`w-3.5 h-3.5 ${showWatchlistOnly ? 'fill-current' : ''}`} />
+                  {watchlist.length}
                 </Button>
               )}
-
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={refreshPrices}
-                disabled={isLoading}
-                className="gap-2"
-              >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
+              <Button variant="outline" size="sm" onClick={refreshPrices} disabled={isLoading} className="h-8 w-8 p-0">
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
-
-              {/* User Auth Dropdown */}
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <User className="w-4 h-4" />
-                      <span className="hidden sm:inline max-w-[100px] truncate">{user.email}</span>
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                      <User className="w-3.5 h-3.5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => signOut()}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      <LogOut className="w-4 h-4 mr-2" /> Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  onClick={() => navigate('/auth')}
-                  className="gap-2"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Sign In
+                <Button size="sm" onClick={() => navigate('/auth')} className="gap-1.5 text-xs h-8">
+                  <LogIn className="w-3.5 h-3.5" /> Sign In
                 </Button>
               )}
             </div>
           </div>
 
-          {lastUpdated && (
-            <span className="text-xs text-muted-foreground">
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
-
-          {/* Preset Screeners */}
-          <div className="mb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4 text-financial-accent" />
-              <span className="text-sm font-medium">Quick Screeners</span>
-            </div>
-            <ScrollArea className="w-full">
-              <div className="flex gap-2 pb-2">
-                {presetScreeners.map(preset => (
-                  <Button
-                    key={preset.id}
-                    variant={activePreset === preset.id ? "default" : "outline"}
-                    size="sm"
-                    className={`whitespace-nowrap text-xs ${activePreset === preset.id ? 'bg-financial-accent hover:bg-financial-accent/90' : ''}`}
-                    onClick={() => applyPreset(preset.id)}
-                  >
-                    {preset.name}
-                  </Button>
-                ))}
-              </div>
-            </ScrollArea>
-            {activePresetInfo && (
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant="secondary" className="gap-1">
-                  <LineChart className="w-3 h-3" />
-                  {activePresetInfo.name}: {activePresetInfo.description}
-                  <button onClick={() => setActivePreset(null)} className="ml-1 hover:text-destructive">
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              </div>
-            )}
+          {/* Search Bar */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name or symbol..."
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              className="pl-9 h-9 text-sm bg-card"
+            />
           </div>
-          
-          {error && (
-            <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-lg text-sm mb-4">
-              {error}
+        </div>
+
+        {/* Popular Screens */}
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-2.5">
+            <Sparkles className="w-3.5 h-3.5 text-accent" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Popular Screens</span>
+          </div>
+          <ScrollArea className="w-full">
+            <div className="flex gap-2 pb-1">
+              {presetScreeners.map(preset => (
+                <button
+                  key={preset.id}
+                  onClick={() => { setActivePreset(activePreset === preset.id ? null : preset.id); setCurrentPage(1); }}
+                  className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                    activePreset === preset.id
+                      ? 'bg-accent text-accent-foreground border-accent shadow-sm'
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-foreground/20'
+                  }`}
+                >
+                  {preset.name}
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+          {activePresetInfo && (
+            <div className="mt-2 flex items-center gap-2">
+              <Badge className="gap-1.5 bg-accent/10 text-accent hover:bg-accent/20 border-accent/20 text-xs">
+                <LineChart className="w-3 h-3" />
+                {activePresetInfo.name}: {activePresetInfo.description}
+                <button onClick={() => setActivePreset(null)} className="ml-1 hover:text-destructive">
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
             </div>
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Filters Panel */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-24">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Filter className="w-5 h-5" />
-                    Filters
-                  </CardTitle>
-                  <Button variant="ghost" size="sm" onClick={resetFilters}>
-                    Reset
-                  </Button>
+        {/* Filter Chips Row */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <FilterPopover label="Index" icon={<LineChart className="w-3.5 h-3.5" />}>
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Select Index</Label>
+              <Select value={selectedIndex} onValueChange={(v) => { setSelectedIndex(v); setCurrentPage(1); }}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Indices</SelectItem>
+                  {Object.entries(indexDefinitions).map(([key, name]) => (
+                    <SelectItem key={key} value={key}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </FilterPopover>
+
+          <FilterPopover label="Sector" icon={<Building2 className="w-3.5 h-3.5" />}>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sector</Label>
+                <Select value={selectedSector} onValueChange={(v) => { setSelectedSector(v); setSelectedIndustry("All"); setCurrentPage(1); }}>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {sectors.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Industry</Label>
+                <Select value={selectedIndustry} onValueChange={(v) => { setSelectedIndustry(v); setCurrentPage(1); }}>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {filteredIndustries.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </FilterPopover>
+
+          <FilterPopover label="Market Cap" icon={<BarChart3 className="w-3.5 h-3.5" />}>
+            <div className="space-y-3">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Market Cap Range</Label>
+              <Slider value={marketCapRange} onValueChange={(v) => setMarketCapRange(v as [number, number])} min={0} max={2000000} step={10000} className="py-2" />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{formatMarketCap(marketCapRange[0])}</span>
+                <span>{formatMarketCap(marketCapRange[1])}</span>
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {[{ label: "Large Cap", range: [100000, 2000000] as [number, number] }, { label: "Mid Cap", range: [20000, 100000] as [number, number] }, { label: "Small Cap", range: [0, 20000] as [number, number] }].map(cap => (
+                  <button key={cap.label} onClick={() => setMarketCapRange(cap.range)}
+                    className="px-2.5 py-1 rounded-md text-xs border border-border hover:bg-accent/10 hover:border-accent/30 transition-colors">
+                    {cap.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </FilterPopover>
+
+          <FilterPopover label="Price" icon={<span className="text-xs font-bold">₹</span>}>
+            <div className="space-y-3">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price Range</Label>
+              <Slider value={priceRange} onValueChange={(v) => setPriceRange(v as [number, number])} min={0} max={100000} step={500} className="py-2" />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>₹{priceRange[0].toLocaleString()}</span>
+                <span>₹{priceRange[1].toLocaleString()}</span>
+              </div>
+            </div>
+          </FilterPopover>
+
+          <FilterPopover label="Technical" icon={<Activity className="w-3.5 h-3.5" />}>
+            <div className="space-y-4 max-h-80 overflow-y-auto">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">RSI (14)</Label>
+                <Slider value={rsiRange} onValueChange={(v) => setRsiRange(v as [number, number])} min={0} max={100} step={5} className="py-2" />
+                <div className="flex justify-between text-xs text-muted-foreground"><span>{rsiRange[0]}</span><span>{rsiRange[1]}</span></div>
+                <div className="flex gap-1.5">
+                  <button onClick={() => setRsiRange([0, 30])} className="px-2 py-0.5 rounded text-xs border border-border hover:bg-accent/10">Oversold</button>
+                  <button onClick={() => setRsiRange([70, 100])} className="px-2 py-0.5 rounded text-xs border border-border hover:bg-accent/10">Overbought</button>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {/* Search */}
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium">Search</Label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search stocks..."
-                      value={searchQuery}
-                      onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                      className="pl-9"
-                    />
-                  </div>
-                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Moving Average</Label>
+                <Select value={smaFilter} onValueChange={setSmaFilter}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="above50">Above 50 DMA</SelectItem>
+                    <SelectItem value="below50">Below 50 DMA</SelectItem>
+                    <SelectItem value="above200">Above 200 DMA</SelectItem>
+                    <SelectItem value="below200">Below 200 DMA</SelectItem>
+                    <SelectItem value="goldenCross">Golden Cross</SelectItem>
+                    <SelectItem value="deathCross">Death Cross</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">52-Week</Label>
+                <Select value={nearHighLow} onValueChange={setNearHighLow}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="near52High">Near 52W High</SelectItem>
+                    <SelectItem value="near52Low">Near 52W Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">MACD</Label>
+                <Select value={macdFilter} onValueChange={setMacdFilter}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="bullish">Bullish</SelectItem>
+                    <SelectItem value="bearish">Bearish</SelectItem>
+                    <SelectItem value="crossover">Crossover</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Beta</Label>
+                <Slider value={betaRange} onValueChange={(v) => setBetaRange(v as [number, number])} min={0} max={3} step={0.1} className="py-2" />
+                <div className="flex justify-between text-xs text-muted-foreground"><span>{betaRange[0].toFixed(1)}</span><span>{betaRange[1].toFixed(1)}</span></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="hv" checked={highVolumeOnly} onCheckedChange={(c) => setHighVolumeOnly(c as boolean)} />
+                <Label htmlFor="hv" className="text-xs cursor-pointer">High volume only (+50%)</Label>
+              </div>
+            </div>
+          </FilterPopover>
 
-                {/* Index Filter */}
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium flex items-center gap-2">
-                    <LineChart className="w-4 h-4" />
-                    Index
-                  </Label>
-                  <Select value={selectedIndex} onValueChange={(v) => { setSelectedIndex(v); setCurrentPage(1); }}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All">All Indices</SelectItem>
-                      {Object.entries(indexDefinitions).map(([key, name]) => (
-                        <SelectItem key={key} value={key}>{name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+          <FilterPopover label="Fundamental" icon={<BarChart3 className="w-3.5 h-3.5" />}>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">P/E Ratio</Label>
+                <Slider value={peRange} onValueChange={(v) => setPeRange(v as [number, number])} min={0} max={100} step={1} className="py-2" />
+                <div className="flex justify-between text-xs text-muted-foreground"><span>{peRange[0]}</span><span>{peRange[1]}</span></div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Min Dividend Yield</Label>
+                <Slider value={[dividendYieldMin]} onValueChange={(v) => setDividendYieldMin(v[0])} min={0} max={5} step={0.1} className="py-2" />
+                <div className="text-xs text-muted-foreground">{dividendYieldMin.toFixed(1)}%+</div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Min ROE</Label>
+                <Slider value={[roeMin]} onValueChange={(v) => setRoeMin(v[0])} min={0} max={50} step={1} className="py-2" />
+                <div className="text-xs text-muted-foreground">{roeMin}%+</div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Max Debt/Equity</Label>
+                <Slider value={[debtToEquityMax]} onValueChange={(v) => setDebtToEquityMax(v[0])} min={0} max={15} step={0.5} className="py-2" />
+                <div className="text-xs text-muted-foreground">≤ {debtToEquityMax.toFixed(1)}</div>
+              </div>
+            </div>
+          </FilterPopover>
 
-                <Tabs defaultValue="basic" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 h-auto gap-1">
-                    <TabsTrigger value="basic" className="text-xs px-2 py-1.5">Basic</TabsTrigger>
-                    <TabsTrigger value="technical" className="text-xs px-2 py-1.5">Technical</TabsTrigger>
-                    <TabsTrigger value="momentum" className="text-xs px-2 py-1.5">Momentum</TabsTrigger>
-                    <TabsTrigger value="fundamental" className="text-xs px-2 py-1.5">Fundamental</TabsTrigger>
-                  </TabsList>
+          {activeFilters.length > 0 && (
+            <button onClick={resetFilters} className="text-xs text-muted-foreground hover:text-destructive transition-colors ml-1">
+              Clear all
+            </button>
+          )}
+        </div>
 
-                  <TabsContent value="basic" className="space-y-2 mt-2">
-                    {/* Sector */}
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <Building2 className="w-4 h-4" />
-                        Sector
-                      </Label>
-                      <Select value={selectedSector} onValueChange={(v) => { setSelectedSector(v); setSelectedIndustry("All"); setCurrentPage(1); }}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {sectors.map(sector => (
-                            <SelectItem key={sector} value={sector}>{sector}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Industry */}
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">Industry</Label>
-                      <Select value={selectedIndustry} onValueChange={(v) => { setSelectedIndustry(v); setCurrentPage(1); }}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {filteredIndustries.map(industry => (
-                            <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Price Range */}
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <IndianRupee className="w-4 h-4" />
-                        Price Range
-                      </Label>
-                      <Slider
-                        value={priceRange}
-                        onValueChange={(v) => setPriceRange(v as [number, number])}
-                        min={0}
-                        max={100000}
-                        step={500}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>₹{priceRange[0].toLocaleString()}</span>
-                        <span>₹{priceRange[1].toLocaleString()}</span>
-                      </div>
-                    </div>
-
-                    {/* Market Cap */}
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">Market Cap</Label>
-                      <Slider
-                        value={marketCapRange}
-                        onValueChange={(v) => setMarketCapRange(v as [number, number])}
-                        min={0}
-                        max={2000000}
-                        step={10000}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{formatMarketCap(marketCapRange[0])}</span>
-                        <span>{formatMarketCap(marketCapRange[1])}</span>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setMarketCapRange([100000, 2000000])}
-                        >
-                          Large Cap
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setMarketCapRange([20000, 100000])}
-                        >
-                          Mid Cap
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setMarketCapRange([0, 20000])}
-                        >
-                          Small Cap
-                        </Badge>
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="technical" className="space-y-4 mt-4">
-                    {/* Moving Average Filter */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <Activity className="w-4 h-4" />
-                        Moving Average
-                      </Label>
-                      <Select value={smaFilter} onValueChange={setSmaFilter}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Stocks</SelectItem>
-                          <SelectItem value="above50">Above 50 DMA</SelectItem>
-                          <SelectItem value="below50">Below 50 DMA</SelectItem>
-                          <SelectItem value="above200">Above 200 DMA</SelectItem>
-                          <SelectItem value="below200">Below 200 DMA</SelectItem>
-                          <SelectItem value="goldenCross">Golden Cross (50 &gt; 200)</SelectItem>
-                          <SelectItem value="deathCross">Death Cross (50 &lt; 200)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Price vs 50 SMA */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">Price vs 50 SMA (%)</Label>
-                      <Slider
-                        value={priceVsSma50Range}
-                        onValueChange={(v) => setPriceVsSma50Range(v as [number, number])}
-                        min={-50}
-                        max={50}
-                        step={5}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{priceVsSma50Range[0]}%</span>
-                        <span>{priceVsSma50Range[1]}%</span>
-                      </div>
-                    </div>
-
-                    {/* Near High/Low */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">52-Week Position</Label>
-                      <Select value={nearHighLow} onValueChange={setNearHighLow}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Stocks</SelectItem>
-                          <SelectItem value="near52High">Near 52-Week High</SelectItem>
-                          <SelectItem value="near52Low">Near 52-Week Low</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Bollinger Bands */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <Waves className="w-4 h-4" />
-                        Bollinger Bands
-                      </Label>
-                      <Select value={bollingerFilter} onValueChange={setBollingerFilter}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Stocks</SelectItem>
-                          <SelectItem value="nearUpper">Near Upper Band</SelectItem>
-                          <SelectItem value="nearLower">Near Lower Band</SelectItem>
-                          <SelectItem value="squeeze">Bollinger Squeeze</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Beta Range */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">Beta (Volatility)</Label>
-                      <Slider
-                        value={betaRange}
-                        onValueChange={(v) => setBetaRange(v as [number, number])}
-                        min={0}
-                        max={3}
-                        step={0.1}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{betaRange[0].toFixed(1)}</span>
-                        <span>{betaRange[1].toFixed(1)}</span>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setBetaRange([0, 0.8])}
-                        >
-                          Low Beta
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setBetaRange([1.2, 3])}
-                        >
-                          High Beta
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* ATR % */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">ATR % (Volatility)</Label>
-                      <Slider
-                        value={atrPercentRange}
-                        onValueChange={(v) => setAtrPercentRange(v as [number, number])}
-                        min={0}
-                        max={5}
-                        step={0.1}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{atrPercentRange[0].toFixed(1)}%</span>
-                        <span>{atrPercentRange[1].toFixed(1)}%</span>
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="momentum" className="space-y-4 mt-4">
-                    {/* RSI Range */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4" />
-                        RSI (14)
-                      </Label>
-                      <Slider
-                        value={rsiRange}
-                        onValueChange={(v) => setRsiRange(v as [number, number])}
-                        min={0}
-                        max={100}
-                        step={5}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{rsiRange[0]}</span>
-                        <span>{rsiRange[1]}</span>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        <Badge 
-                          variant={rsiRange[1] <= 30 ? "default" : "outline"} 
-                          className="cursor-pointer text-xs"
-                          onClick={() => setRsiRange([0, 30])}
-                        >
-                          Oversold
-                        </Badge>
-                        <Badge 
-                          variant={rsiRange[0] >= 70 ? "default" : "outline"} 
-                          className="cursor-pointer text-xs"
-                          onClick={() => setRsiRange([70, 100])}
-                        >
-                          Overbought
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* MACD Filter */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <Zap className="w-4 h-4" />
-                        MACD Signal
-                      </Label>
-                      <Select value={macdFilter} onValueChange={setMacdFilter}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Stocks</SelectItem>
-                          <SelectItem value="bullish">MACD Bullish</SelectItem>
-                          <SelectItem value="bearish">MACD Bearish</SelectItem>
-                          <SelectItem value="crossover">Near Crossover</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* ADX (Trend Strength) */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <Target className="w-4 h-4" />
-                        ADX (Trend Strength)
-                      </Label>
-                      <Slider
-                        value={adxRange}
-                        onValueChange={(v) => setAdxRange(v as [number, number])}
-                        min={0}
-                        max={100}
-                        step={5}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{adxRange[0]}</span>
-                        <span>{adxRange[1]}</span>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setAdxRange([25, 100])}
-                        >
-                          Strong Trend
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setAdxRange([0, 20])}
-                        >
-                          Weak/No Trend
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Stochastic */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">Stochastic %K</Label>
-                      <Slider
-                        value={stochasticRange}
-                        onValueChange={(v) => setStochasticRange(v as [number, number])}
-                        min={0}
-                        max={100}
-                        step={5}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{stochasticRange[0]}</span>
-                        <span>{stochasticRange[1]}</span>
-                      </div>
-                    </div>
-
-                    {/* MFI */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">Money Flow Index</Label>
-                      <Slider
-                        value={mfiRange}
-                        onValueChange={(v) => setMfiRange(v as [number, number])}
-                        min={0}
-                        max={100}
-                        step={5}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{mfiRange[0]}</span>
-                        <span>{mfiRange[1]}</span>
-                      </div>
-                    </div>
-
-                    {/* Returns */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4" />
-                        Monthly Return %
-                      </Label>
-                      <Slider
-                        value={monthlyReturnRange}
-                        onValueChange={(v) => setMonthlyReturnRange(v as [number, number])}
-                        min={-30}
-                        max={30}
-                        step={5}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{monthlyReturnRange[0]}%</span>
-                        <span>{monthlyReturnRange[1]}%</span>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setMonthlyReturnRange([5, 30])}
-                        >
-                          Gainers
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setMonthlyReturnRange([-30, -5])}
-                        >
-                          Losers
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* High Volume */}
-                    <div className="flex items-center space-x-2 pt-2">
-                      <Checkbox 
-                        id="highVolume" 
-                        checked={highVolumeOnly}
-                        onCheckedChange={(checked) => setHighVolumeOnly(checked as boolean)}
-                      />
-                      <Label htmlFor="highVolume" className="text-sm cursor-pointer">
-                        High volume spikes only (+50%)
-                      </Label>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="fundamental" className="space-y-4 mt-4">
-                    {/* P/E Ratio */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">P/E Ratio</Label>
-                      <Slider
-                        value={peRange}
-                        onValueChange={(v) => setPeRange(v as [number, number])}
-                        min={0}
-                        max={100}
-                        step={1}
-                        className="py-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{peRange[0]}</span>
-                        <span>{peRange[1]}</span>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setPeRange([0, 15])}
-                        >
-                          Value
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className="cursor-pointer text-xs hover:bg-financial-accent/10"
-                          onClick={() => setPeRange([15, 30])}
-                        >
-                          Growth
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Dividend Yield */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <Percent className="w-4 h-4" />
-                        Min Dividend Yield
-                      </Label>
-                      <Slider
-                        value={[dividendYieldMin]}
-                        onValueChange={(v) => setDividendYieldMin(v[0])}
-                        min={0}
-                        max={5}
-                        step={0.1}
-                        className="py-2"
-                      />
-                      <div className="text-xs text-muted-foreground">
-                        {dividendYieldMin.toFixed(1)}%+
-                      </div>
-                    </div>
-
-                    {/* ROE */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">Min ROE</Label>
-                      <Slider
-                        value={[roeMin]}
-                        onValueChange={(v) => setRoeMin(v[0])}
-                        min={0}
-                        max={50}
-                        step={1}
-                        className="py-2"
-                      />
-                      <div className="text-xs text-muted-foreground">
-                        {roeMin}%+
-                      </div>
-                    </div>
-
-                    {/* Debt to Equity */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">Max Debt/Equity</Label>
-                      <Slider
-                        value={[debtToEquityMax]}
-                        onValueChange={(v) => setDebtToEquityMax(v[0])}
-                        min={0}
-                        max={15}
-                        step={0.5}
-                        className="py-2"
-                      />
-                      <div className="text-xs text-muted-foreground">
-                        ≤ {debtToEquityMax.toFixed(1)}
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+        {/* Active Filter Chips */}
+        {activeFilters.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {activeFilters.map((f, i) => (
+              <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-accent/10 text-accent border border-accent/20">
+                {f.label}
+                <button onClick={f.onRemove} className="hover:text-destructive"><X className="w-3 h-3" /></button>
+              </span>
+            ))}
           </div>
+        )}
 
-          {/* Results */}
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <CardTitle className="text-lg">
-                    Results ({filteredStocks.length} stocks)
-                  </CardTitle>
-                  {isLoading && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Fetching prices...
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="py-3 px-2 w-10"></th>
-                        <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                          <button 
-                            className="flex items-center hover:text-foreground transition-colors"
-                            onClick={() => handleSort("symbol")}
+        {error && (
+          <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-lg text-sm mb-4">{error}</div>
+        )}
+
+        {/* Results header */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground">{filteredStocks.length} stocks</span>
+            {isLoading && (
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Loader2 className="w-3 h-3 animate-spin" /> Updating prices…
+              </span>
+            )}
+          </div>
+          {lastUpdated && (
+            <span className="text-xs text-muted-foreground">Updated {lastUpdated.toLocaleTimeString()}</span>
+          )}
+        </div>
+
+        {/* Table */}
+        <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  <th className="py-3 px-3 w-10"></th>
+                  <th className="text-left py-3 px-3">
+                    <button className="flex items-center text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors" onClick={() => handleSort("symbol")}>
+                      Company <SortIcon field="symbol" />
+                    </button>
+                  </th>
+                  <th className="text-right py-3 px-3">
+                    <button className="flex items-center justify-end ml-auto text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors" onClick={() => handleSort("price")}>
+                      Price <SortIcon field="price" />
+                    </button>
+                  </th>
+                  <th className="text-right py-3 px-3">
+                    <button className="flex items-center justify-end ml-auto text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors" onClick={() => handleSort("change")}>
+                      Change <SortIcon field="change" />
+                    </button>
+                  </th>
+                  <th className="text-right py-3 px-3 hidden sm:table-cell">
+                    <button className="flex items-center justify-end ml-auto text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors" onClick={() => handleSort("marketCap")}>
+                      Market Cap <SortIcon field="marketCap" />
+                    </button>
+                  </th>
+                  <th className="text-right py-3 px-3 hidden md:table-cell">
+                    <button className="flex items-center justify-end ml-auto text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors" onClick={() => handleSort("peRatio")}>
+                      P/E <SortIcon field="peRatio" />
+                    </button>
+                  </th>
+                  <th className="text-right py-3 px-3 hidden lg:table-cell">
+                    <button className="flex items-center justify-end ml-auto text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors" onClick={() => handleSort("dividendYield")}>
+                      Div Yield <SortIcon field="dividendYield" />
+                    </button>
+                  </th>
+                  <th className="text-right py-3 px-3 hidden lg:table-cell">
+                    <button className="flex items-center justify-end ml-auto text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors" onClick={() => handleSort("rsi")}>
+                      RSI <SortIcon field="rsi" />
+                    </button>
+                  </th>
+                  <th className="text-right py-3 px-3 hidden xl:table-cell">
+                    <button className="flex items-center justify-end ml-auto text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors" onClick={() => handleSort("roe")}>
+                      ROE <SortIcon field="roe" />
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                {paginatedStocks.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="text-center py-16 text-muted-foreground">
+                      <div className="flex flex-col items-center gap-2">
+                        <Search className="w-8 h-8 opacity-30" />
+                        <p className="font-medium">No stocks found</p>
+                        <p className="text-xs">{showWatchlistOnly && watchlist.length === 0 ? "Your watchlist is empty." : "Try adjusting your filters."}</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedStocks.map(stock => {
+                    const priceData = prices[stock.symbol];
+                    const price = priceData?.price || 0;
+                    const change = priceData?.change || 0;
+                    const changePercent = priceData?.changePercent || 0;
+                    const isPositive = change >= 0;
+                    const hasLivePrice = !!priceData?.price;
+                    const inWatchlist = isInWatchlist(stock.symbol);
+
+                    return (
+                      <tr 
+                        key={stock.symbol}
+                        className="hover:bg-muted/40 transition-colors cursor-pointer group"
+                        onClick={() => { setSelectedStock(stock); setIsDetailModalOpen(true); }}
+                      >
+                        <td className="py-3 px-3">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleWatchlistToggle(stock); }}
+                            className={`p-1 rounded-full transition-all ${inWatchlist ? 'text-rose-500' : 'text-muted-foreground/40 group-hover:text-muted-foreground'}`}
                           >
-                            Stock
-                            <SortIcon field="symbol" />
+                            <Heart className={`w-3.5 h-3.5 ${inWatchlist ? 'fill-current' : ''}`} />
                           </button>
-                        </th>
-                        <th className="text-right py-3 px-2 text-sm font-medium text-muted-foreground">
-                          <button 
-                            className="flex items-center justify-end ml-auto hover:text-foreground transition-colors"
-                            onClick={() => handleSort("price")}
-                          >
-                            Price
-                            <SortIcon field="price" />
-                          </button>
-                        </th>
-                        <th className="text-right py-3 px-2 text-sm font-medium text-muted-foreground">
-                          <button 
-                            className="flex items-center justify-end ml-auto hover:text-foreground transition-colors"
-                            onClick={() => handleSort("change")}
-                          >
-                            Change
-                            <SortIcon field="change" />
-                          </button>
-                        </th>
-                        <th className="text-right py-3 px-2 text-sm font-medium text-muted-foreground hidden sm:table-cell">
-                          <button 
-                            className="flex items-center justify-end ml-auto hover:text-foreground transition-colors"
-                            onClick={() => handleSort("marketCap")}
-                          >
-                            M.Cap
-                            <SortIcon field="marketCap" />
-                          </button>
-                        </th>
-                        <th className="text-right py-3 px-2 text-sm font-medium text-muted-foreground hidden md:table-cell">
-                          <button 
-                            className="flex items-center justify-end ml-auto hover:text-foreground transition-colors"
-                            onClick={() => handleSort("peRatio")}
-                          >
-                            P/E
-                            <SortIcon field="peRatio" />
-                          </button>
-                        </th>
-                        <th className="text-right py-3 px-2 text-sm font-medium text-muted-foreground hidden lg:table-cell">
-                          <button 
-                            className="flex items-center justify-end ml-auto hover:text-foreground transition-colors"
-                            onClick={() => handleSort("dividendYield")}
-                          >
-                            Div %
-                            <SortIcon field="dividendYield" />
-                          </button>
-                        </th>
-                        <th className="text-right py-3 px-2 text-sm font-medium text-muted-foreground hidden lg:table-cell">
-                          <button 
-                            className="flex items-center justify-end ml-auto hover:text-foreground transition-colors"
-                            onClick={() => handleSort("rsi")}
-                          >
-                            RSI
-                            <SortIcon field="rsi" />
-                          </button>
-                        </th>
-                        <th className="text-right py-3 px-2 text-sm font-medium text-muted-foreground hidden xl:table-cell">
-                          <button 
-                            className="flex items-center justify-end ml-auto hover:text-foreground transition-colors"
-                            onClick={() => handleSort("roe")}
-                          >
-                            ROE
-                            <SortIcon field="roe" />
-                          </button>
-                        </th>
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">
+                              {stock.symbol.slice(0, 2)}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-semibold text-foreground text-sm truncate">{stock.symbol}</div>
+                              <div className="text-xs text-muted-foreground truncate max-w-[140px] sm:max-w-[200px]">{stock.name}</div>
+                            </div>
+                            <div className="hidden sm:flex items-center gap-1 ml-1 shrink-0">
+                              {stock.indices.includes("NIFTY50") && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-accent/15 text-accent">N50</span>
+                              )}
+                              {stock.indices.includes("SENSEX") && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/15 text-amber-600 dark:text-amber-400">BSE</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-right py-3 px-3 font-semibold tabular-nums">
+                          {hasLivePrice ? `₹${price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : <span className="text-muted-foreground">—</span>}
+                        </td>
+                        <td className="text-right py-3 px-3">
+                          {hasLivePrice ? (
+                            <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full tabular-nums ${
+                              isPositive 
+                                ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/50' 
+                                : 'text-rose-700 bg-rose-50 dark:text-rose-400 dark:bg-rose-950/50'
+                            }`}>
+                              {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                              {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(2)}%
+                            </span>
+                          ) : <span className="text-muted-foreground text-xs">—</span>}
+                        </td>
+                        <td className="text-right py-3 px-3 text-xs text-muted-foreground hidden sm:table-cell tabular-nums">
+                          {formatMarketCap(stock.marketCap)}
+                        </td>
+                        <td className="text-right py-3 px-3 text-xs tabular-nums hidden md:table-cell">
+                          {stock.peRatio.toFixed(1)}
+                        </td>
+                        <td className="text-right py-3 px-3 text-xs tabular-nums hidden lg:table-cell">
+                          {stock.dividendYield.toFixed(1)}%
+                        </td>
+                        <td className="text-right py-3 px-3 hidden lg:table-cell">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium tabular-nums ${
+                            stock.rsi < 30 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400' 
+                            : stock.rsi > 70 ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400' 
+                            : 'bg-muted text-muted-foreground'
+                          }`}>
+                            {stock.rsi}
+                          </span>
+                        </td>
+                        <td className="text-right py-3 px-3 text-xs tabular-nums hidden xl:table-cell">
+                          {stock.roe.toFixed(1)}%
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedStocks.length === 0 ? (
-                        <tr>
-                          <td colSpan={9} className="text-center py-8 text-muted-foreground">
-                            {showWatchlistOnly && watchlist.length === 0 
-                              ? "Your watchlist is empty. Add stocks using the heart icon."
-                              : "No stocks match your criteria. Try adjusting the filters."}
-                          </td>
-                        </tr>
-                      ) : (
-                        paginatedStocks.map(stock => {
-                          const priceData = prices[stock.symbol];
-                          const price = priceData?.price || 0;
-                          const change = priceData?.change || 0;
-                          const changePercent = priceData?.changePercent || 0;
-                          const isPositive = change >= 0;
-                          const hasLivePrice = !!priceData?.price;
-                          const inWatchlist = isInWatchlist(stock.symbol);
-
-                          return (
-                            <tr 
-                              key={stock.symbol} 
-                              className="border-b border-border/50 hover:bg-muted/50 transition-colors cursor-pointer"
-                              onClick={() => {
-                                setSelectedStock(stock);
-                                setIsDetailModalOpen(true);
-                              }}
-                            >
-                              <td className="py-3 px-2">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleWatchlistToggle(stock);
-                                  }}
-                                  className={`p-1.5 rounded-full transition-colors ${
-                                    inWatchlist 
-                                      ? 'text-rose-500 hover:text-rose-600' 
-                                      : 'text-muted-foreground hover:text-rose-500'
-                                  }`}
-                                  title={inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
-                                >
-                                  <Heart className={`w-4 h-4 ${inWatchlist ? 'fill-current' : ''}`} />
-                                </button>
-                              </td>
-                              <td className="py-3 px-2">
-                                <div>
-                                  <div className="font-semibold text-foreground">{stock.symbol}</div>
-                                  <div className="text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-[180px]">
-                                    {stock.name}
-                                  </div>
-                                  <div className="flex gap-1 mt-1 flex-wrap">
-                                    <Badge variant="outline" className="text-xs py-0">
-                                      {stock.sector}
-                                    </Badge>
-                                    {stock.indices.includes("NIFTY50") && (
-                                      <Badge variant="secondary" className="text-xs py-0 bg-financial-accent/20 text-financial-accent">
-                                        N50
-                                      </Badge>
-                                    )}
-                                    {stock.indices.includes("SENSEX") && (
-                                      <Badge variant="secondary" className="text-xs py-0 bg-amber-500/20 text-amber-600">
-                                        BSE
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="text-right py-3 px-2">
-                                {hasLivePrice ? (
-                                  <span className="font-semibold">
-                                    ₹{price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                                  </span>
-                                ) : (
-                                  <span className="text-muted-foreground text-sm">—</span>
-                                )}
-                              </td>
-                              <td className="text-right py-3 px-2">
-                                {hasLivePrice ? (
-                                  <div className={`flex items-center justify-end gap-1 ${isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                                    {isPositive ? (
-                                      <TrendingUp className="w-3 h-3" />
-                                    ) : (
-                                      <TrendingDown className="w-3 h-3" />
-                                    )}
-                                    <span className="text-sm font-medium">
-                                      {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(2)}%
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <span className="text-muted-foreground text-sm">—</span>
-                                )}
-                              </td>
-                              <td className="text-right py-3 px-2 text-sm hidden sm:table-cell">
-                                {formatMarketCap(stock.marketCap)}
-                              </td>
-                              <td className="text-right py-3 px-2 text-sm hidden md:table-cell">
-                                {stock.peRatio.toFixed(1)}
-                              </td>
-                              <td className="text-right py-3 px-2 text-sm hidden lg:table-cell">
-                                {stock.dividendYield.toFixed(1)}%
-                              </td>
-                              <td className="text-right py-3 px-2 hidden lg:table-cell">
-                                <Badge 
-                                  variant={stock.rsi < 30 ? "default" : stock.rsi > 70 ? "destructive" : "secondary"}
-                                  className="text-xs"
-                                >
-                                  {stock.rsi}
-                                </Badge>
-                              </td>
-                              <td className="text-right py-3 px-2 text-sm hidden xl:table-cell">
-                                {stock.roe.toFixed(1)}%
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t flex-wrap gap-2">
-                    <p className="text-sm text-muted-foreground">
-                      Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredStocks.length)} of {filteredStocks.length}
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        disabled={currentPage === 1}
-                      >
-                        Previous
-                      </Button>
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                          let pageNum;
-                          if (totalPages <= 5) {
-                            pageNum = i + 1;
-                          } else if (currentPage <= 3) {
-                            pageNum = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            pageNum = totalPages - 4 + i;
-                          } else {
-                            pageNum = currentPage - 2 + i;
-                          }
-                          return (
-                            <Button
-                              key={pageNum}
-                              variant={currentPage === pageNum ? "default" : "outline"}
-                              size="sm"
-                              className="w-8 h-8 p-0"
-                              onClick={() => setCurrentPage(pageNum)}
-                            >
-                              {pageNum}
-                            </Button>
-                          );
-                        })}
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        disabled={currentPage === totalPages}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  </div>
+                    );
+                  })
                 )}
-              </CardContent>
-            </Card>
+              </tbody>
+            </table>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
+              <p className="text-xs text-muted-foreground">
+                {((currentPage - 1) * ITEMS_PER_PAGE) + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredStocks.length)} of {filteredStocks.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
+                  Previous
+                </Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) pageNum = i + 1;
+                  else if (currentPage <= 3) pageNum = i + 1;
+                  else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
+                  else pageNum = currentPage - 2 + i;
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "ghost"}
+                      size="sm"
+                      className="w-7 h-7 p-0 text-xs"
+                      onClick={() => setCurrentPage(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       
-      {/* Stock Detail Modal */}
       <StockDetailModal
         stock={selectedStock}
         open={isDetailModalOpen}
