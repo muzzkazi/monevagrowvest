@@ -264,8 +264,10 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
                     : 'border-border hover:border-primary/50'
                 }`}
               >
-                <div className="text-2xl mb-1">{preset.icon}</div>
-                <div className="font-semibold text-sm text-foreground">{preset.name}</div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-2xl">{preset.icon}</span>
+                  <span className="font-semibold text-sm text-foreground">{preset.name}</span>
+                </div>
                 <div className="text-xs text-muted-foreground mt-0.5">{preset.description}</div>
                 <div className="text-xs text-muted-foreground mt-2">{preset.userCount} users</div>
               </button>
