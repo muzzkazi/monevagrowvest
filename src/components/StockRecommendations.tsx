@@ -141,7 +141,7 @@ const StockRecommendations = () => {
   };
 
   return (
-    <section className="py-12 sm:py-16 bg-background">
+    <section className="py-16 sm:py-24 bg-background">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}

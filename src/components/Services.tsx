@@ -53,7 +53,7 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="py-12 bg-financial-muted">
+    <section id="services" className="py-16 sm:py-24 bg-financial-muted">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}

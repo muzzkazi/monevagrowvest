@@ -38,7 +38,7 @@ const About = () => {
   ];
 
   return (
-    <section id="about" className="py-12 bg-background">
+    <section id="about" className="py-16 sm:py-24 bg-background">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}
