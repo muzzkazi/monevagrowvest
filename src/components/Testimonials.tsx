@@ -3,6 +3,12 @@ import { Star, Quote } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
+const ClientAvatar = ({ initials }: { initials: string }) => (
+  <div className="w-12 h-12 bg-gradient-gold rounded-full flex items-center justify-center shrink-0">
+    <span className="text-sm font-bold text-financial-primary">{initials}</span>
+  </div>
+);
+
 const Testimonials = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
