@@ -139,19 +139,19 @@ const About = () => {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                name: "Rajesh Kumar",
+                name: "Kiran Desai",
                 role: "Chief Financial Advisor",
                 experience: "15+ years",
                 certifications: "CFP, CFA"
               },
               {
-                name: "Priya Sharma", 
+                name: "Neeraj Mehta", 
                 role: "Portfolio Manager",
                 experience: "12+ years",
                 certifications: "FRM, CFA"
               },
               {
-                name: "Amit Patel",
+                name: "Sunita Joshi",
                 role: "Tax Planning Specialist", 
                 experience: "10+ years",
                 certifications: "CA, CFP"
