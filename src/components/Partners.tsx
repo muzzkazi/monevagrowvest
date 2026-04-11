@@ -61,16 +61,16 @@ const Partners = () => {
   const { ref: carouselRef, isVisible: carouselVisible } = useScrollAnimation({ threshold: 0.1 });
 
   return (
-    <section className="py-12 sm:py-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
+    <section className="py-12 sm:py-16 bg-financial-muted">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}
           className={`text-center mb-6 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-3xl sm:text-4xl font-bold font-display text-foreground mb-2">
             Our <span className="text-financial-accent">Trusted Partners</span>
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto">
             We partner with India's leading financial institutions to provide you with the best investment opportunities and trading platforms.
           </p>
         </div>
@@ -102,11 +102,11 @@ const Partners = () => {
                     Featured
                   </Badge>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-2xl font-bold text-foreground mb-2">
                   {partner.name}
                 </h3>
                 <p className="text-financial-accent font-semibold mb-2">{partner.type}</p>
-                <p className="text-gray-600 dark:text-gray-300">{partner.description}</p>
+                <p className="text-muted-foreground">{partner.description}</p>
               </CardContent>
             );
 
@@ -141,15 +141,15 @@ const Partners = () => {
           className={`transition-all duration-700 delay-200 ${carouselVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <div className="text-center mb-4">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-xl sm:text-2xl font-bold font-display text-foreground mb-2">
               Authorized Distributor for Leading Mutual Funds
             </h3>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-muted-foreground">
               We are authorized distributors for all major mutual fund houses in India
             </p>
           </div>
 
-          <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="relative overflow-hidden bg-card rounded-xl shadow-lg p-6">
           <div className="flex transition-transform duration-500 ease-in-out"
                style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
             {Array.from({ length: Math.ceil(mutualFundPartners.length / 6) }).map((_, slideIndex) => (
@@ -160,7 +160,7 @@ const Partners = () => {
                     .map((partner, index) => (
                     <div
                       key={partner.name}
-                      className="group flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 hover-scale"
+                      className="group flex flex-col items-center p-4 rounded-lg hover:bg-muted transition-all duration-300 hover-scale"
                     >
                       <img
                         src={partner.logo}
@@ -177,7 +177,7 @@ const Partners = () => {
                       <div className="hidden h-12 w-20 bg-financial-muted rounded flex items-center justify-center mb-3">
                         <span className="text-xs font-bold text-financial-accent text-center">{partner.name.split(' ')[0]}</span>
                       </div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+                      <p className="text-sm font-medium text-foreground text-center">
                         {partner.name}
                       </p>
                     </div>
@@ -196,7 +196,7 @@ const Partners = () => {
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   index === currentIndex 
                     ? 'bg-financial-accent scale-125' 
-                    : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
+                    : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
                 }`}
               />
             ))}
@@ -206,7 +206,7 @@ const Partners = () => {
 
         {/* Regulatory Information */}
         <div className="mt-5 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             Authorized Mutual Fund Distributor | 
             ARN: ARN-305935 | All investments are subject to market risks.
           </p>
