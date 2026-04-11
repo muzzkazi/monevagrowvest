@@ -12,33 +12,33 @@ const Testimonials = () => {
   const returnsCount = useCountUp({ end: 12, suffix: "%", duration: 2200 });
   const testimonials = [
     {
-      name: "Rajesh Kumar",
+      name: "R.K.",
       location: "Mumbai",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+      initials: "RK",
       rating: 5,
       text: "Started with Moneva Growvest Pvt. Ltd. 8 months ago. Their SIP recommendations helped me build a diversified portfolio systematically.",
       investment: "₹50K SIP Portfolio"
     },
     {
-      name: "Priya Sharma",
+      name: "P.S.",
       location: "Bangalore",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
+      initials: "PS",
       rating: 5,
       text: "Young team with fresh ideas! Their tax planning advice helped me save ₹15,000 in my first year with them.",
       investment: "₹5L Annual Income"
     },
     {
-      name: "Amit Patel",
+      name: "A.P.",
       location: "Delhi",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+      initials: "AP",
       rating: 5,
       text: "Just started my investment journey 6 months back. Moneva Growvest Pvt. Ltd.'s guidance made it simple to begin with ₹3,000 SIP.",
       investment: "₹18K Invested"
     },
     {
-      name: "Sneha Reddy",
+      name: "S.R.",
       location: "Hyderabad",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+      initials: "SR",
       rating: 5,
       text: "Transparent advice and no hidden charges. They helped me plan for my home loan with realistic expectations.",
       investment: "₹25L Home Loan"
@@ -73,11 +73,9 @@ const Testimonials = () => {
             >
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover mr-4"
-                  />
+                  <div className="mr-4">
+                    <ClientAvatar initials={testimonial.initials} />
+                  </div>
                   <div>
                     <h4 className="font-semibold">{testimonial.name}</h4>
                     <p className="text-sm text-muted-foreground">{testimonial.location}</p>

@@ -11,7 +11,7 @@ const SuccessStories = () => {
     {
       icon: <Home className="w-8 h-8 text-financial-accent" />,
       title: "First Home Achievement",
-      story: "Rajesh's Success in 10 Months",
+      story: "Vikram's Success in 10 Months",
       description: "Started his investment journey with us 10 months ago. Smart SIP planning helped him save ₹2.5L for his home down payment.",
       image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=250&fit=crop",
       metrics: {
@@ -23,7 +23,7 @@ const SuccessStories = () => {
     {
       icon: <GraduationCap className="w-8 h-8 text-financial-accent" />,
       title: "Education Fund Started",
-      story: "Priya's Smart Planning",
+      story: "Ananya's Smart Planning",
       description: "Young mother who started planning for her child's education early. Built ₹3L corpus in just 8 months with our guidance.",
       image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&h=250&fit=crop",
       metrics: {
@@ -35,7 +35,7 @@ const SuccessStories = () => {
     {
       icon: <TrendingUp className="w-8 h-8 text-financial-accent" />,
       title: "Investment Growth",
-      story: "Amit's Portfolio Success",
+      story: "Suresh's Portfolio Success",
       description: "Started investing with us a year ago. His diversified portfolio has already shown 15% returns with our research-backed approach.",
       image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400&h=250&fit=crop",
       metrics: {
@@ -47,7 +47,7 @@ const SuccessStories = () => {
     {
       icon: <Heart className="w-8 h-8 text-financial-accent" />,
       title: "Emergency Fund Built",
-      story: "Sneha's Security Story",
+      story: "Meera's Security Story",
       description: "Created a solid emergency fund in 6 months. Now feels financially secure with our systematic planning approach.",
       image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop",
       metrics: {
