@@ -6,35 +6,10 @@ interface UseScrollAnimationOptions {
   triggerOnce?: boolean;
 }
 
-export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
-  const { threshold = 0.1, rootMargin = '0px', triggerOnce = false } = options;
-  const [isVisible, setIsVisible] = useState(false);
+export const useScrollAnimation = (_options: UseScrollAnimationOptions = {}) => {
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          if (triggerOnce) {
-            observer.unobserve(element);
-          }
-        } else if (!triggerOnce) {
-          setIsVisible(false);
-        }
-      },
-      { threshold, rootMargin }
-    );
-
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, [threshold, rootMargin, triggerOnce]);
-
-  return { ref, isVisible };
+  // Scroll animations disabled — always visible
+  return { ref, isVisible: true };
 };
 
 // Hook for scroll-based progress (0 to 1)
@@ -71,30 +46,10 @@ export const useScrollProgress = () => {
 };
 
 // Hook for CSS parallax effect
-export const useParallaxScroll = (speed: number = 0.5) => {
-  const [offset, setOffset] = useState(0);
+export const useParallaxScroll = (_speed: number = 0.5) => {
   const ref = useRef<HTMLDivElement>(null);
-
-  const updateOffset = useCallback(() => {
-    if (!ref.current) return;
-
-    const rect = ref.current.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const elementCenter = rect.top + rect.height / 2;
-    const viewportCenter = windowHeight / 2;
-    
-    // Calculate offset based on element position relative to viewport center
-    const parallaxOffset = (elementCenter - viewportCenter) * speed;
-    setOffset(parallaxOffset);
-  }, [speed]);
-
-  useEffect(() => {
-    window.addEventListener('scroll', updateOffset, { passive: true });
-    updateOffset();
-    return () => window.removeEventListener('scroll', updateOffset);
-  }, [updateOffset]);
-
-  return { ref, offset };
+  // Parallax scroll disabled
+  return { ref, offset: 0 };
 };
 
 // Component for animated sections
