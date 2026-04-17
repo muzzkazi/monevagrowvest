@@ -837,4 +837,90 @@ const YesNo = ({ value, onChange }: { value: boolean | null; onChange: (v: boole
   </div>
 );
 
+const SlabInfo = ({ title, slabs, note }: { title: string; slabs: SlabRow[]; note: string }) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <button
+        type="button"
+        aria-label="View slab rates"
+        className="text-muted-foreground hover:text-financial-accent transition-colors"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Info className="h-3.5 w-3.5" />
+      </button>
+    </PopoverTrigger>
+    <PopoverContent className="w-72 p-0" align="start">
+      <div className="p-3 border-b border-border">
+        <p className="text-sm font-semibold">{title}</p>
+      </div>
+      <div className="p-3 space-y-1.5">
+        {slabs.map((s) => (
+          <div key={s.range} className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">{s.range}</span>
+            <span className="font-semibold text-foreground">{s.rate}</span>
+          </div>
+        ))}
+      </div>
+      <div className="p-3 border-t border-border bg-muted/40">
+        <p className="text-[11px] text-muted-foreground leading-relaxed">{note}</p>
+      </div>
+    </PopoverContent>
+  </Popover>
+);
+
+const BreakdownRow = ({
+  label,
+  value,
+  negative,
+  bold,
+  muted,
+}: {
+  label: string;
+  value: number;
+  negative?: boolean;
+  bold?: boolean;
+  muted?: boolean;
+}) => (
+  <div className={`flex items-center justify-between text-xs py-1.5 ${bold ? "font-semibold" : ""} ${muted ? "text-muted-foreground" : ""}`}>
+    <span>{label}</span>
+    <span className={negative ? "text-financial-accent" : ""}>
+      {negative ? "− " : ""}
+      {formatCurrency(value)}
+    </span>
+  </div>
+);
+
+const BreakdownTable = ({
+  label,
+  highlighted,
+  b,
+}: {
+  label: string;
+  highlighted: boolean;
+  b: RegimeBreakdown;
+}) => (
+  <div className={`rounded-lg border p-3 ${highlighted ? "border-financial-accent/40 bg-financial-accent/5" : "border-border bg-background"}`}>
+    <div className="flex items-center justify-between mb-2 pb-2 border-b border-border">
+      <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
+      {highlighted && <span className="text-[10px] font-semibold text-financial-accent uppercase">Recommended</span>}
+    </div>
+    <div className="divide-y divide-border/60">
+      <BreakdownRow label="Gross income" value={b.grossIncome} bold />
+      {b.standardDeduction > 0 && <BreakdownRow label="Standard deduction" value={b.standardDeduction} negative />}
+      {b.hraExemption > 0 && <BreakdownRow label="HRA exemption" value={b.hraExemption} negative />}
+      {b.deduction80C > 0 && <BreakdownRow label="80C investments" value={b.deduction80C} negative />}
+      {b.deduction80D > 0 && <BreakdownRow label="80D health insurance" value={b.deduction80D} negative />}
+      {b.deductionHomeLoan > 0 && <BreakdownRow label="Home loan interest (Sec 24)" value={b.deductionHomeLoan} negative />}
+      {b.deductionNPS > 0 && <BreakdownRow label="NPS 80CCD(1B)" value={b.deductionNPS} negative />}
+      <BreakdownRow label="Taxable income" value={b.taxableIncome} bold />
+      <BreakdownRow label="Tax as per slabs" value={b.slabTax} />
+      {b.rebate87A > 0 && <BreakdownRow label="Rebate u/s 87A" value={b.rebate87A} negative />}
+      {b.capitalGainsTax > 0 && <BreakdownRow label="Capital gains tax" value={b.capitalGainsTax} />}
+      <BreakdownRow label="Tax before cess" value={b.taxBeforeCess} muted />
+      <BreakdownRow label="Health & Education cess (4%)" value={b.cess} muted />
+      <BreakdownRow label="Total tax payable" value={b.totalTax} bold />
+    </div>
+  </div>
+);
+
 export default TaxPlanningWizard;
