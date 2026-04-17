@@ -760,7 +760,7 @@ const ScreenResult = ({
           </div>
 
           <Button
-            onClick={onCTA}
+            onClick={() => onCTA()}
             size="lg"
             variant="secondary"
             className="w-full bg-white text-financial-accent hover:bg-white/90 font-semibold gap-2"
