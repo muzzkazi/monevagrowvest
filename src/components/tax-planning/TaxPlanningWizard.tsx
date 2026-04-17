@@ -14,6 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   ArrowRight,
   ArrowLeft,
@@ -26,9 +32,20 @@ import {
   Clock,
   CheckCircle2,
   Receipt,
+  Info,
+  ChevronDown,
 } from "lucide-react";
 import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
-import { computeTax, defaultInputs, TaxInputs, TaxResult } from "@/lib/taxEngine";
+import {
+  computeTax,
+  defaultInputs,
+  TaxInputs,
+  TaxResult,
+  RegimeBreakdown,
+  oldRegimeSlabs,
+  newRegimeSlabs,
+  SlabRow,
+} from "@/lib/taxEngine";
 
 // Lightweight analytics tracker
 const track = (event: string, props: Record<string, unknown> = {}) => {
