@@ -5,17 +5,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, Repeat, Calculator, PiggyBank } from "lucide-react";
-import { useState } from "react";
+import { TrendingUp, Repeat, Calculator, PiggyBank, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
 
 const SIPBasedPlanning = () => {
+  const [searchParams] = useSearchParams();
+  const isTaxSaving = searchParams.get("taxSaving") === "true";
+  const prefilledType = searchParams.get("type"); // e.g., "ELSS"
+  const prefilledAmount = searchParams.get("amount");
+
   const [formData, setFormData] = useState({
-    sipAmount: "",
-    investmentPeriod: "",
-    expectedReturn: "",
-    sipFrequency: ""
+    sipAmount: prefilledAmount ? parseInt(prefilledAmount).toLocaleString("en-IN") : "",
+    investmentPeriod: isTaxSaving ? "3" : "",
+    expectedReturn: isTaxSaving ? "12" : "",
+    sipFrequency: "monthly",
   });
+
+  useEffect(() => {
+    if (isTaxSaving) {
+      // eslint-disable-next-line no-console
+      console.log("[tax-planning] sip_started", { type: prefilledType, amount: prefilledAmount });
+    }
+  }, [isTaxSaving, prefilledType, prefilledAmount]);
+
   
   const [sipResult, setSipResult] = useState<{
     totalInvestment: number;
