@@ -5,17 +5,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, Repeat, Calculator, PiggyBank } from "lucide-react";
-import { useState } from "react";
+import { TrendingUp, Repeat, Calculator, PiggyBank, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { formatCurrency, formatInputValue, parseCommaNumber } from "@/lib/utils";
 
 const SIPBasedPlanning = () => {
+  const [searchParams] = useSearchParams();
+  const isTaxSaving = searchParams.get("taxSaving") === "true";
+  const prefilledType = searchParams.get("type"); // e.g., "ELSS"
+  const prefilledAmount = searchParams.get("amount");
+
   const [formData, setFormData] = useState({
-    sipAmount: "",
-    investmentPeriod: "",
-    expectedReturn: "",
-    sipFrequency: ""
+    sipAmount: prefilledAmount ? parseInt(prefilledAmount).toLocaleString("en-IN") : "",
+    investmentPeriod: isTaxSaving ? "3" : "",
+    expectedReturn: isTaxSaving ? "12" : "",
+    sipFrequency: "monthly",
   });
+
+  useEffect(() => {
+    if (isTaxSaving) {
+      // eslint-disable-next-line no-console
+      console.log("[tax-planning] sip_started", { type: prefilledType, amount: prefilledAmount });
+    }
+  }, [isTaxSaving, prefilledType, prefilledAmount]);
+
   
   const [sipResult, setSipResult] = useState<{
     totalInvestment: number;
@@ -66,6 +80,18 @@ const SIPBasedPlanning = () => {
               and watch your money grow through the power of compounding.
             </p>
           </div>
+
+          {isTaxSaving && (
+            <div className="max-w-4xl mx-auto mb-6 p-4 rounded-xl bg-financial-accent/10 border border-financial-accent/30 flex items-start gap-3">
+              <Sparkles className="h-5 w-5 text-financial-accent mt-0.5 flex-shrink-0" />
+              <div className="text-sm">
+                <p className="font-semibold text-financial-accent">ELSS Tax-Saving SIP pre-filled</p>
+                <p className="text-muted-foreground mt-0.5">
+                  We've set your SIP to {prefilledAmount ? `₹${parseInt(prefilledAmount).toLocaleString("en-IN")}/month` : "your suggested amount"} for 3 years (ELSS lock-in) at 12% expected returns. Hit calculate to see your projection.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* SIP Calculator */}
           <div className="max-w-4xl mx-auto mb-16">
