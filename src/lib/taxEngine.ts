@@ -59,33 +59,63 @@ export function calculateHRAExemption(
   return Math.max(0, Math.min(hra, rentMinusBasic, cityPct * basic));
 }
 
-// Old regime slabs (FY 24-25) for individuals < 60
-function oldRegimeTax(taxable: number): number {
-  let tax = 0;
+// Old regime slabs (FY 24-25) for individuals < 60 — pre-rebate slab tax
+function oldRegimeSlabTax(taxable: number): number {
   if (taxable <= 250000) return 0;
-  if (taxable <= 500000) tax = (taxable - 250000) * 0.05;
-  else if (taxable <= 1000000) tax = 12500 + (taxable - 500000) * 0.2;
-  else tax = 12500 + 100000 + (taxable - 1000000) * 0.3;
-  // Section 87A rebate (taxable up to 5L)
-  if (taxable <= 500000) tax = 0;
-  return tax;
+  if (taxable <= 500000) return (taxable - 250000) * 0.05;
+  if (taxable <= 1000000) return 12500 + (taxable - 500000) * 0.2;
+  return 12500 + 100000 + (taxable - 1000000) * 0.3;
 }
 
-// New regime slabs (FY 24-25)
-function newRegimeTax(taxable: number): number {
-  let tax = 0;
+// New regime slabs (FY 24-25) — pre-rebate slab tax
+function newRegimeSlabTax(taxable: number): number {
   if (taxable <= 300000) return 0;
-  if (taxable <= 700000) tax = (taxable - 300000) * 0.05;
-  else if (taxable <= 1000000) tax = 20000 + (taxable - 700000) * 0.1;
-  else if (taxable <= 1200000) tax = 50000 + (taxable - 1000000) * 0.15;
-  else if (taxable <= 1500000) tax = 80000 + (taxable - 1200000) * 0.2;
-  else tax = 140000 + (taxable - 1500000) * 0.3;
-  // 87A rebate up to 7L
-  if (taxable <= 700000) tax = 0;
-  return tax;
+  if (taxable <= 700000) return (taxable - 300000) * 0.05;
+  if (taxable <= 1000000) return 20000 + (taxable - 700000) * 0.1;
+  if (taxable <= 1200000) return 50000 + (taxable - 1000000) * 0.15;
+  if (taxable <= 1500000) return 80000 + (taxable - 1200000) * 0.2;
+  return 140000 + (taxable - 1500000) * 0.3;
 }
 
-const cess = (tax: number) => tax * 1.04;
+// Slab definitions exposed for UI tooltips
+export interface SlabRow {
+  range: string;
+  rate: string;
+}
+
+export const oldRegimeSlabs: SlabRow[] = [
+  { range: "Up to ₹2,50,000", rate: "Nil" },
+  { range: "₹2,50,001 – ₹5,00,000", rate: "5%" },
+  { range: "₹5,00,001 – ₹10,00,000", rate: "20%" },
+  { range: "Above ₹10,00,000", rate: "30%" },
+];
+
+export const newRegimeSlabs: SlabRow[] = [
+  { range: "Up to ₹3,00,000", rate: "Nil" },
+  { range: "₹3,00,001 – ₹7,00,000", rate: "5%" },
+  { range: "₹7,00,001 – ₹10,00,000", rate: "10%" },
+  { range: "₹10,00,001 – ₹12,00,000", rate: "15%" },
+  { range: "₹12,00,001 – ₹15,00,000", rate: "20%" },
+  { range: "Above ₹15,00,000", rate: "30%" },
+];
+
+export interface RegimeBreakdown {
+  grossIncome: number;
+  standardDeduction: number;
+  hraExemption: number;
+  deduction80C: number;
+  deduction80D: number;
+  deductionHomeLoan: number;
+  deductionNPS: number;
+  totalDeductions: number;
+  taxableIncome: number;
+  slabTax: number;
+  rebate87A: number;
+  capitalGainsTax: number;
+  taxBeforeCess: number;
+  cess: number;
+  totalTax: number;
+}
 
 export interface TaxResult {
   oldTax: number;
@@ -96,6 +126,8 @@ export interface TaxResult {
   potentialTaxSaving: number;
   marginalRate: number;
   suggestedMonthlySIP: number;
+  oldBreakdown: RegimeBreakdown;
+  newBreakdown: RegimeBreakdown;
 }
 
 export function computeTax(i: TaxInputs): TaxResult {
@@ -105,8 +137,11 @@ export function computeTax(i: TaxInputs): TaxResult {
     i.rentalIncome +
     i.businessIncome;
 
+  const capitalGainsTaxRaw = i.shortTermGains * 0.15 + i.longTermGains * 0.1;
+  const capitalGainsTax = Math.round(capitalGainsTaxRaw * 1.04);
+
   // OLD REGIME
-  const standardDeduction = i.incomeType === "salaried" ? 50000 : 0;
+  const oldStandardDeduction = i.incomeType === "salaried" ? 50000 : 0;
   const hraExemption =
     i.incomeType === "salaried"
       ? calculateHRAExemption(i.basicSalary, i.hraReceived, i.rentPerMonth, i.cityType)
@@ -118,18 +153,60 @@ export function computeTax(i: TaxInputs): TaxResult {
   ) + Math.min(i.healthInsuranceParents, i.parentsSenior ? 50000 : 25000);
   const capHomeLoan = Math.min(i.homeLoanInterest, 200000);
   const capNPS = Math.min(i.npsAmount, 50000);
+  const oldTotalDeductions =
+    oldStandardDeduction + hraExemption + cap80C + cap80D + capHomeLoan + capNPS;
 
-  const oldTaxable = Math.max(
-    0,
-    grossIncome - standardDeduction - hraExemption - cap80C - cap80D - capHomeLoan - capNPS
-  );
-  const oldBaseTax = oldRegimeTax(oldTaxable);
-  const oldTax = Math.round(cess(oldBaseTax) + i.shortTermGains * 0.15 * 1.04 + i.longTermGains * 0.1 * 1.04);
+  const oldTaxable = Math.max(0, grossIncome - oldTotalDeductions);
+  const oldSlabTaxRaw = oldRegimeSlabTax(oldTaxable);
+  const oldRebate = oldTaxable <= 500000 ? oldSlabTaxRaw : 0;
+  const oldSlabTaxAfterRebate = Math.max(0, oldSlabTaxRaw - oldRebate);
+  const oldCess = Math.round((oldSlabTaxAfterRebate + capitalGainsTaxRaw) * 0.04);
+  const oldTax = Math.round(oldSlabTaxAfterRebate + capitalGainsTaxRaw + oldCess);
 
-  // NEW REGIME
-  const newTaxable = Math.max(0, grossIncome - 50000);
-  const newBaseTax = newRegimeTax(newTaxable);
-  const newTax = Math.round(cess(newBaseTax) + i.shortTermGains * 0.15 * 1.04 + i.longTermGains * 0.1 * 1.04);
+  const oldBreakdown: RegimeBreakdown = {
+    grossIncome,
+    standardDeduction: oldStandardDeduction,
+    hraExemption,
+    deduction80C: cap80C,
+    deduction80D: cap80D,
+    deductionHomeLoan: capHomeLoan,
+    deductionNPS: capNPS,
+    totalDeductions: oldTotalDeductions,
+    taxableIncome: oldTaxable,
+    slabTax: Math.round(oldSlabTaxRaw),
+    rebate87A: Math.round(oldRebate),
+    capitalGainsTax,
+    taxBeforeCess: Math.round(oldSlabTaxAfterRebate + capitalGainsTaxRaw),
+    cess: oldCess,
+    totalTax: oldTax,
+  };
+
+  // NEW REGIME (standard deduction available for salaried under FY 24-25)
+  const newStandardDeduction = i.incomeType === "salaried" ? 50000 : 0;
+  const newTaxable = Math.max(0, grossIncome - newStandardDeduction);
+  const newSlabTaxRaw = newRegimeSlabTax(newTaxable);
+  const newRebate = newTaxable <= 700000 ? newSlabTaxRaw : 0;
+  const newSlabTaxAfterRebate = Math.max(0, newSlabTaxRaw - newRebate);
+  const newCess = Math.round((newSlabTaxAfterRebate + capitalGainsTaxRaw) * 0.04);
+  const newTax = Math.round(newSlabTaxAfterRebate + capitalGainsTaxRaw + newCess);
+
+  const newBreakdown: RegimeBreakdown = {
+    grossIncome,
+    standardDeduction: newStandardDeduction,
+    hraExemption: 0,
+    deduction80C: 0,
+    deduction80D: 0,
+    deductionHomeLoan: 0,
+    deductionNPS: 0,
+    totalDeductions: newStandardDeduction,
+    taxableIncome: newTaxable,
+    slabTax: Math.round(newSlabTaxRaw),
+    rebate87A: Math.round(newRebate),
+    capitalGainsTax,
+    taxBeforeCess: Math.round(newSlabTaxAfterRebate + capitalGainsTaxRaw),
+    cess: newCess,
+    totalTax: newTax,
+  };
 
   const recommended: "old" | "new" = oldTax <= newTax ? "old" : "new";
   const savings = Math.abs(oldTax - newTax);
@@ -156,5 +233,7 @@ export function computeTax(i: TaxInputs): TaxResult {
     potentialTaxSaving,
     marginalRate,
     suggestedMonthlySIP,
+    oldBreakdown,
+    newBreakdown,
   };
 }
