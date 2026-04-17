@@ -937,6 +937,7 @@ const WhatIfSimulator = ({
   data: TaxInputs;
   baseTax: number;
   regime: "old" | "new";
+  onUseNumbers: (overrideMonthlyAmount?: number) => void;
 }) => {
   const [extra80C, setExtra80C] = useState(0);
   const [extraNPS, setExtraNPS] = useState(0);
