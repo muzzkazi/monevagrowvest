@@ -646,20 +646,27 @@ const ScreenResult = ({
       </div>
 
       {/* Regime comparison */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className={`p-4 rounded-xl border-2 ${result.recommended === "old" ? "border-financial-accent bg-financial-accent/5" : "border-border bg-muted/30"}`}>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Old regime</span>
-            {result.recommended === "old" && <CheckCircle2 className="h-4 w-4 text-financial-accent" />}
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground text-center">
+          Estimated <span className="font-semibold text-foreground">tax payable</span> for FY 2024-25 under each regime
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className={`p-4 rounded-xl border-2 ${result.recommended === "old" ? "border-financial-accent bg-financial-accent/5" : "border-border bg-muted/30"}`}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Old regime</span>
+              {result.recommended === "old" && <CheckCircle2 className="h-4 w-4 text-financial-accent" />}
+            </div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 mb-0.5">Tax payable</div>
+            <div className="text-xl sm:text-2xl font-bold">{formatCurrency(result.oldTax)}</div>
           </div>
-          <div className="text-xl sm:text-2xl font-bold">{formatCurrency(result.oldTax)}</div>
-        </div>
-        <div className={`p-4 rounded-xl border-2 ${result.recommended === "new" ? "border-financial-accent bg-financial-accent/5" : "border-border bg-muted/30"}`}>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">New regime</span>
-            {result.recommended === "new" && <CheckCircle2 className="h-4 w-4 text-financial-accent" />}
+          <div className={`p-4 rounded-xl border-2 ${result.recommended === "new" ? "border-financial-accent bg-financial-accent/5" : "border-border bg-muted/30"}`}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">New regime</span>
+              {result.recommended === "new" && <CheckCircle2 className="h-4 w-4 text-financial-accent" />}
+            </div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 mb-0.5">Tax payable</div>
+            <div className="text-xl sm:text-2xl font-bold">{formatCurrency(result.newTax)}</div>
           </div>
-          <div className="text-xl sm:text-2xl font-bold">{formatCurrency(result.newTax)}</div>
         </div>
       </div>
 
