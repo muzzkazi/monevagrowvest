@@ -642,7 +642,7 @@ const ScreenResult = ({
 }: {
   result: TaxResult;
   data: TaxInputs;
-  onCTA: () => void;
+  onCTA: (overrideMonthlyAmount?: number) => void;
 }) => {
   useEffect(() => {
     if (result.remaining80C > 0) {
