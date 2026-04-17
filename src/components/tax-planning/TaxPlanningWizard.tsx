@@ -164,15 +164,17 @@ const TaxPlanningWizard = () => {
     setStep(Math.max(0, prev));
   };
 
-  const goToSIP = () => {
+  const goToSIP = (overrideMonthlyAmount?: number) => {
     if (!result) return;
+    const amount = overrideMonthlyAmount ?? result.suggestedMonthlySIP;
     track("sip_redirect_click", {
-      sip_amount: result.suggestedMonthlySIP,
+      sip_amount: amount,
       tax_saving: result.potentialTaxSaving,
+      source: overrideMonthlyAmount !== undefined ? "what_if_simulator" : "primary_cta",
     });
     const params = new URLSearchParams({
       type: "ELSS",
-      amount: String(result.suggestedMonthlySIP),
+      amount: String(amount),
       taxSaving: "true",
       income: String(data.totalIncome),
     });
