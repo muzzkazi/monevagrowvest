@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/premium-financial-hero.jpg";
+import heroAdvisor from "@/assets/hero-advisor.jpg";
 import heroVideo from "@/assets/hero-video.mp4";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
@@ -204,8 +205,10 @@ const Hero = () => {
             <div className="relative group max-w-md lg:max-w-none">
               <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-2xl sm:rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
               <img 
-                src={heroImage} 
-                alt="Financial Success" 
+                src={heroAdvisor} 
+                alt="Senior financial advisor reviewing portfolio analytics on tablet" 
+                width={1024}
+                height={1280}
                 className="relative w-full h-auto rounded-2xl sm:rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
               />
               <motion.div 
