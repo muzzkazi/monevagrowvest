@@ -933,6 +933,7 @@ const WhatIfSimulator = ({
   data,
   baseTax,
   regime,
+  onUseNumbers,
 }: {
   data: TaxInputs;
   baseTax: number;
