@@ -927,4 +927,123 @@ const BreakdownTable = ({
   </div>
 );
 
+const WhatIfSimulator = ({
+  data,
+  baseTax,
+  regime,
+}: {
+  data: TaxInputs;
+  baseTax: number;
+  regime: "old" | "new";
+}) => {
+  const [extra80C, setExtra80C] = useState(0);
+  const [extraNPS, setExtraNPS] = useState(0);
+
+  const max80C = Math.max(0, 150000 - data.invested80C);
+  const maxNPS = Math.max(0, 50000 - data.npsAmount);
+  const disabled = regime === "new"; // New regime ignores 80C/NPS deductions
+
+  const simulated = useMemo(() => {
+    const tweaked: TaxInputs = {
+      ...data,
+      invested80C: data.invested80C + extra80C,
+      npsAmount: data.npsAmount + extraNPS,
+    };
+    const r = computeTax(tweaked);
+    return regime === "old" ? r.oldTax : r.newTax;
+  }, [data, extra80C, extraNPS, regime]);
+
+  const saved = Math.max(0, baseTax - simulated);
+  const monthlySIP = Math.round((extra80C + extraNPS) / 12);
+
+  return (
+    <div className="rounded-xl border-2 border-financial-accent/20 bg-financial-accent/5 p-4 sm:p-5 space-y-4">
+      <div className="flex items-start gap-2">
+        <Calculator className="h-5 w-5 text-financial-accent mt-0.5" />
+        <div className="flex-1">
+          <p className="font-semibold">What if? Try different deductions</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {disabled
+              ? "Switch to the old regime to benefit from 80C / NPS deductions."
+              : "Move the sliders to see how additional investments reduce your tax — instantly."}
+          </p>
+        </div>
+      </div>
+
+      <div className={disabled ? "opacity-50 pointer-events-none space-y-4" : "space-y-4"}>
+        <SimSlider
+          label="Extra 80C investment (ELSS, PF, LIC...)"
+          value={extra80C}
+          onChange={setExtra80C}
+          max={max80C}
+          step={5000}
+          remaining={max80C}
+          remainingLabel="80C headroom"
+        />
+        <SimSlider
+          label="Extra NPS contribution u/s 80CCD(1B)"
+          value={extraNPS}
+          onChange={setExtraNPS}
+          max={maxNPS}
+          step={5000}
+          remaining={maxNPS}
+          remainingLabel="NPS headroom"
+        />
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-financial-accent/20">
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">New tax</div>
+          <div className="text-base font-bold">{formatCurrency(simulated)}</div>
+        </div>
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">You save</div>
+          <div className="text-base font-bold text-financial-accent">{formatCurrency(saved)}</div>
+        </div>
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Monthly SIP</div>
+          <div className="text-base font-bold">{formatCurrency(monthlySIP)}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SimSlider = ({
+  label,
+  value,
+  onChange,
+  max,
+  step,
+  remaining,
+  remainingLabel,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  max: number;
+  step: number;
+  remaining: number;
+  remainingLabel: string;
+}) => (
+  <div className="space-y-2">
+    <div className="flex items-center justify-between text-xs">
+      <span className="font-medium">{label}</span>
+      <span className="font-bold text-financial-accent">{formatCurrency(value)}</span>
+    </div>
+    <Slider
+      value={[value]}
+      onValueChange={(v) => onChange(v[0])}
+      max={Math.max(max, 1)}
+      step={step}
+      disabled={max === 0}
+    />
+    <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+      <span>₹0</span>
+      <span>{remainingLabel}: {formatCurrency(remaining)}</span>
+      <span>{formatCurrency(max)}</span>
+    </div>
+  </div>
+);
+
 export default TaxPlanningWizard;
