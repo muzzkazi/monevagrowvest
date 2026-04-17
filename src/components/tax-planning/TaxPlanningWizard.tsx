@@ -731,7 +731,7 @@ const ScreenResult = ({
       </Collapsible>
 
       {/* What-if simulator */}
-      <WhatIfSimulator data={data} baseTax={recommendedTax} regime={result.recommended} onUseNumbers={onCTA} />
+      <WhatIfSimulator data={data} oldBaseTax={result.oldTax} regime={result.recommended} onUseNumbers={onCTA} />
 
       {/* Gap analysis + ELSS conversion */}
       {result.remaining80C > 0 && result.potentialTaxSaving > 0 && (
