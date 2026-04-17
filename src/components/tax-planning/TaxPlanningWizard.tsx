@@ -670,7 +670,10 @@ const ScreenResult = ({
         <div className="grid grid-cols-2 gap-3">
           <div className={`p-4 rounded-xl border-2 ${result.recommended === "old" ? "border-financial-accent bg-financial-accent/5" : "border-border bg-muted/30"}`}>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Old regime</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Old regime</span>
+                <SlabInfo title="Old regime slab rates (FY 2024-25)" slabs={oldRegimeSlabs} note="Allows HRA, 80C, 80D, home loan interest & NPS deductions. Rebate u/s 87A if taxable income ≤ ₹5,00,000." />
+              </div>
               {result.recommended === "old" && <CheckCircle2 className="h-4 w-4 text-financial-accent" />}
             </div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 mb-0.5">Tax payable</div>
@@ -678,7 +681,10 @@ const ScreenResult = ({
           </div>
           <div className={`p-4 rounded-xl border-2 ${result.recommended === "new" ? "border-financial-accent bg-financial-accent/5" : "border-border bg-muted/30"}`}>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">New regime</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">New regime</span>
+                <SlabInfo title="New regime slab rates (FY 2024-25)" slabs={newRegimeSlabs} note="Standard deduction of ₹50,000 for salaried. Most other deductions (80C, 80D, HRA) are not allowed. Rebate u/s 87A if taxable income ≤ ₹7,00,000." />
+              </div>
               {result.recommended === "new" && <CheckCircle2 className="h-4 w-4 text-financial-accent" />}
             </div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 mb-0.5">Tax payable</div>
@@ -700,6 +706,26 @@ const ScreenResult = ({
           </div>
         </div>
       </div>
+
+      {/* Detailed breakdown */}
+      <Collapsible>
+        <CollapsibleTrigger className="w-full group flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors">
+          <div className="flex items-center gap-2">
+            <Receipt className="h-4 w-4 text-financial-accent" />
+            <span className="text-sm font-semibold">See detailed calculation breakdown</span>
+          </div>
+          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <BreakdownTable label="Old regime" highlighted={result.recommended === "old"} b={result.oldBreakdown} />
+            <BreakdownTable label="New regime" highlighted={result.recommended === "new"} b={result.newBreakdown} />
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
+            All figures are estimates based on the inputs you provided. Cess of 4% (Health & Education) is applied on tax after rebate. Capital gains are taxed at fixed rates (STCG 15%, LTCG 10%). Please consult a tax advisor before filing.
+          </p>
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* Gap analysis + ELSS conversion */}
       {result.remaining80C > 0 && result.potentialTaxSaving > 0 && (
