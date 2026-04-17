@@ -1006,8 +1006,8 @@ const WhatIfSimulator = ({
           <div className="text-base font-bold text-financial-accent">{formatCurrency(saved)}</div>
         </div>
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Monthly SIP</div>
-          <div className="text-base font-bold">{formatCurrency(monthlySIP)}</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">SIP for sliders</div>
+          <div className="text-base font-bold">{formatCurrency(monthlySIP)}/mo</div>
         </div>
       </div>
 
