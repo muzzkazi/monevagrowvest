@@ -779,7 +779,7 @@ const ScreenResult = ({
               <p className="text-sm text-muted-foreground mt-1">
                 Explore NPS, voluntary PF, or long-term wealth-building SIPs to keep growing.
               </p>
-              <Button onClick={onCTA} className="mt-4 bg-financial-accent text-white hover:bg-financial-accent/90 gap-2">
+              <Button onClick={() => onCTA()} className="mt-4 bg-financial-accent text-white hover:bg-financial-accent/90 gap-2">
                 Explore SIP options <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
