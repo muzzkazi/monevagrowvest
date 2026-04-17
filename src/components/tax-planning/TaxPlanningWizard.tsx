@@ -728,6 +728,9 @@ const ScreenResult = ({
         </CollapsibleContent>
       </Collapsible>
 
+      {/* What-if simulator */}
+      <WhatIfSimulator data={data} baseTax={recommendedTax} regime={result.recommended} />
+
       {/* Gap analysis + ELSS conversion */}
       {result.remaining80C > 0 && result.potentialTaxSaving > 0 && (
         <div className="p-5 rounded-xl bg-gradient-to-br from-financial-accent to-financial-accent/80 text-white space-y-4">
