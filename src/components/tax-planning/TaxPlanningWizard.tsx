@@ -1008,6 +1008,18 @@ const WhatIfSimulator = ({
           <div className="text-base font-bold">{formatCurrency(monthlySIP)}</div>
         </div>
       </div>
+
+      {!disabled && monthlySIP > 0 && (
+        <Button
+          onClick={() => {
+            track("what_if_use_numbers", { extra80C, extraNPS, monthlySIP, saved });
+            onUseNumbers(monthlySIP);
+          }}
+          className="w-full bg-financial-accent hover:bg-financial-accent/90 text-white gap-2"
+        >
+          Use these numbers in SIP calculator <ArrowRight className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 };
