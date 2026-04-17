@@ -164,15 +164,17 @@ const TaxPlanningWizard = () => {
     setStep(Math.max(0, prev));
   };
 
-  const goToSIP = () => {
+  const goToSIP = (overrideMonthlyAmount?: number) => {
     if (!result) return;
+    const amount = overrideMonthlyAmount ?? result.suggestedMonthlySIP;
     track("sip_redirect_click", {
-      sip_amount: result.suggestedMonthlySIP,
+      sip_amount: amount,
       tax_saving: result.potentialTaxSaving,
+      source: overrideMonthlyAmount !== undefined ? "what_if_simulator" : "primary_cta",
     });
     const params = new URLSearchParams({
       type: "ELSS",
-      amount: String(result.suggestedMonthlySIP),
+      amount: String(amount),
       taxSaving: "true",
       income: String(data.totalIncome),
     });
@@ -640,7 +642,7 @@ const ScreenResult = ({
 }: {
   result: TaxResult;
   data: TaxInputs;
-  onCTA: () => void;
+  onCTA: (overrideMonthlyAmount?: number) => void;
 }) => {
   useEffect(() => {
     if (result.remaining80C > 0) {
@@ -729,7 +731,7 @@ const ScreenResult = ({
       </Collapsible>
 
       {/* What-if simulator */}
-      <WhatIfSimulator data={data} baseTax={recommendedTax} regime={result.recommended} />
+      <WhatIfSimulator data={data} baseTax={recommendedTax} regime={result.recommended} onUseNumbers={onCTA} />
 
       {/* Gap analysis + ELSS conversion */}
       {result.remaining80C > 0 && result.potentialTaxSaving > 0 && (
@@ -758,7 +760,7 @@ const ScreenResult = ({
           </div>
 
           <Button
-            onClick={onCTA}
+            onClick={() => onCTA()}
             size="lg"
             variant="secondary"
             className="w-full bg-white text-financial-accent hover:bg-white/90 font-semibold gap-2"
@@ -777,7 +779,7 @@ const ScreenResult = ({
               <p className="text-sm text-muted-foreground mt-1">
                 Explore NPS, voluntary PF, or long-term wealth-building SIPs to keep growing.
               </p>
-              <Button onClick={onCTA} className="mt-4 bg-financial-accent text-white hover:bg-financial-accent/90 gap-2">
+              <Button onClick={() => onCTA()} className="mt-4 bg-financial-accent text-white hover:bg-financial-accent/90 gap-2">
                 Explore SIP options <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
@@ -931,10 +933,12 @@ const WhatIfSimulator = ({
   data,
   baseTax,
   regime,
+  onUseNumbers,
 }: {
   data: TaxInputs;
   baseTax: number;
   regime: "old" | "new";
+  onUseNumbers: (overrideMonthlyAmount?: number) => void;
 }) => {
   const [extra80C, setExtra80C] = useState(0);
   const [extraNPS, setExtraNPS] = useState(0);
@@ -1005,6 +1009,18 @@ const WhatIfSimulator = ({
           <div className="text-base font-bold">{formatCurrency(monthlySIP)}</div>
         </div>
       </div>
+
+      {!disabled && monthlySIP > 0 && (
+        <Button
+          onClick={() => {
+            track("what_if_use_numbers", { extra80C, extraNPS, monthlySIP, saved });
+            onUseNumbers(monthlySIP);
+          }}
+          className="w-full bg-financial-accent hover:bg-financial-accent/90 text-white gap-2"
+        >
+          Use these numbers in SIP calculator <ArrowRight className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 };
