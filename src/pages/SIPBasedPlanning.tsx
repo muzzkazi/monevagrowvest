@@ -81,6 +81,18 @@ const SIPBasedPlanning = () => {
             </p>
           </div>
 
+          {isTaxSaving && (
+            <div className="max-w-4xl mx-auto mb-6 p-4 rounded-xl bg-financial-accent/10 border border-financial-accent/30 flex items-start gap-3">
+              <Sparkles className="h-5 w-5 text-financial-accent mt-0.5 flex-shrink-0" />
+              <div className="text-sm">
+                <p className="font-semibold text-financial-accent">ELSS Tax-Saving SIP pre-filled</p>
+                <p className="text-muted-foreground mt-0.5">
+                  We've set your SIP to {prefilledAmount ? `₹${parseInt(prefilledAmount).toLocaleString("en-IN")}/month` : "your suggested amount"} for 3 years (ELSS lock-in) at 12% expected returns. Hit calculate to see your projection.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* SIP Calculator */}
           <div className="max-w-4xl mx-auto mb-16">
             <Card className="glass-card shadow-financial">
