@@ -715,11 +715,11 @@ const ScreenResult = ({
       )}
 
       {result.remaining80C === 0 && (
-        <div className="p-5 rounded-xl bg-green-500/10 border border-green-500/30">
+        <div className="p-5 rounded-xl bg-financial-accent/10 border border-financial-accent/30">
           <div className="flex items-start gap-3">
-            <CheckCircle2 className="h-6 w-6 text-green-600 mt-0.5" />
+            <CheckCircle2 className="h-6 w-6 text-financial-accent mt-0.5" />
             <div>
-              <p className="font-semibold text-green-700 dark:text-green-400">You've maxed out your 80C limit!</p>
+              <p className="font-semibold text-financial-accent">You've maxed out your 80C limit!</p>
               <p className="text-sm text-muted-foreground mt-1">
                 Explore NPS, voluntary PF, or long-term wealth-building SIPs to keep growing.
               </p>
