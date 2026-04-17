@@ -931,12 +931,12 @@ const BreakdownTable = ({
 
 const WhatIfSimulator = ({
   data,
-  baseTax,
+  oldBaseTax,
   regime,
   onUseNumbers,
 }: {
   data: TaxInputs;
-  baseTax: number;
+  oldBaseTax: number;
   regime: "old" | "new";
   onUseNumbers: (overrideMonthlyAmount?: number) => void;
 }) => {
@@ -945,20 +945,21 @@ const WhatIfSimulator = ({
 
   const max80C = Math.max(0, 150000 - data.invested80C);
   const maxNPS = Math.max(0, 50000 - data.npsAmount);
-  const disabled = regime === "new"; // New regime ignores 80C/NPS deductions
 
-  const simulated = useMemo(() => {
+  // Always simulate against the OLD regime — that's where 80C/NPS yield savings.
+  const simulatedOldTax = useMemo(() => {
     const tweaked: TaxInputs = {
       ...data,
       invested80C: data.invested80C + extra80C,
       npsAmount: data.npsAmount + extraNPS,
     };
-    const r = computeTax(tweaked);
-    return regime === "old" ? r.oldTax : r.newTax;
-  }, [data, extra80C, extraNPS, regime]);
+    return computeTax(tweaked).oldTax;
+  }, [data, extra80C, extraNPS]);
 
-  const saved = Math.max(0, baseTax - simulated);
+  const saved = Math.max(0, oldBaseTax - simulatedOldTax);
   const monthlySIP = Math.round((extra80C + extraNPS) / 12);
+
+  const noHeadroom = max80C === 0 && maxNPS === 0;
 
   return (
     <div className="rounded-xl border-2 border-financial-accent/20 bg-financial-accent/5 p-4 sm:p-5 space-y-4">
@@ -967,14 +968,14 @@ const WhatIfSimulator = ({
         <div className="flex-1">
           <p className="font-semibold">What if? Try different deductions</p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {disabled
-              ? "Switch to the old regime to benefit from 80C / NPS deductions."
-              : "Move the sliders to see how additional investments reduce your tax — instantly."}
+            {noHeadroom
+              ? "You've already maxed out both 80C and NPS — no extra room to invest."
+              : "Move the sliders to see how additional 80C / NPS investments would reduce your tax under the old regime."}
           </p>
         </div>
       </div>
 
-      <div className={disabled ? "opacity-50 pointer-events-none space-y-4" : "space-y-4"}>
+      <div className="space-y-4">
         <SimSlider
           label="Extra 80C investment (ELSS, PF, LIC...)"
           value={extra80C}
@@ -997,8 +998,8 @@ const WhatIfSimulator = ({
 
       <div className="grid grid-cols-3 gap-2 pt-2 border-t border-financial-accent/20">
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">New tax</div>
-          <div className="text-base font-bold">{formatCurrency(simulated)}</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Old-regime tax</div>
+          <div className="text-base font-bold">{formatCurrency(simulatedOldTax)}</div>
         </div>
         <div>
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">You save</div>
@@ -1010,7 +1011,13 @@ const WhatIfSimulator = ({
         </div>
       </div>
 
-      {!disabled && monthlySIP > 0 && (
+      {regime === "new" && (extra80C > 0 || extraNPS > 0) && (
+        <div className="text-[11px] text-muted-foreground bg-background/60 border border-border rounded-md p-2 leading-relaxed">
+          <span className="font-semibold text-foreground">Note:</span> 80C / NPS deductions only apply under the <span className="font-semibold">old regime</span>. To claim these savings, you'd need to opt for the old regime when filing.
+        </div>
+      )}
+
+      {monthlySIP > 0 && (
         <Button
           onClick={() => {
             track("what_if_use_numbers", { extra80C, extraNPS, monthlySIP, saved });
