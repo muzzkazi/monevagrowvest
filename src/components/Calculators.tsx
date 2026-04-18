@@ -46,16 +46,19 @@ const Calculators = () => {
     totalInterest: number;
   } | null>(null);
 
-  // Tax Calculator State
-  const [income, setIncome] = useState(800000);
-  const [deductions, setDeductions] = useState(150000);
-  const [incomeInput, setIncomeInput] = useState("8,00,000");
-  const [deductionsInput, setDeductionsInput] = useState("1,50,000");
-  const [taxResult, setTaxResult] = useState<{
-    taxableIncome: number;
-    incomeTax: number;
-    netIncome: number;
-  } | null>(null);
+  // Tax Calculator State (FY 2024-25, powered by taxEngine)
+  const [taxIncome, setTaxIncome] = useState(800000);
+  const [taxIncomeInput, setTaxIncomeInput] = useState("8,00,000");
+  const [taxIncomeType, setTaxIncomeType] = useState<IncomeType>("salaried");
+  const [tax80C, setTax80C] = useState(0);
+  const [tax80CInput, setTax80CInput] = useState("0");
+  const [tax80D, setTax80D] = useState(25000);
+  const [tax80DInput, setTax80DInput] = useState("25,000");
+  const [taxHomeLoan, setTaxHomeLoan] = useState(0);
+  const [taxHomeLoanInput, setTaxHomeLoanInput] = useState("0");
+  const [taxNPS, setTaxNPS] = useState(0);
+  const [taxNPSInput, setTaxNPSInput] = useState("0");
+  const [taxResult, setTaxResult] = useState<ReturnType<typeof computeTax> | null>(null);
 
   // Retirement Calculator State
   const [currentAge, setCurrentAge] = useState(30);
