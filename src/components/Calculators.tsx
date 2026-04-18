@@ -8,8 +8,12 @@ import { Slider } from "@/components/ui/slider";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import MutualFundPortfolio from "./MutualFundPortfolio";
 import { formatCurrency, formatNumber, parseCommaNumber, formatInputValue } from "@/lib/utils";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { computeTax, defaultInputs, type IncomeType, type TaxInputs } from "@/lib/taxEngine";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 const Calculators = () => {
   const [searchParams] = useSearchParams();
@@ -42,16 +46,19 @@ const Calculators = () => {
     totalInterest: number;
   } | null>(null);
 
-  // Tax Calculator State
-  const [income, setIncome] = useState(800000);
-  const [deductions, setDeductions] = useState(150000);
-  const [incomeInput, setIncomeInput] = useState("8,00,000");
-  const [deductionsInput, setDeductionsInput] = useState("1,50,000");
-  const [taxResult, setTaxResult] = useState<{
-    taxableIncome: number;
-    incomeTax: number;
-    netIncome: number;
-  } | null>(null);
+  // Tax Calculator State (FY 2024-25, powered by taxEngine)
+  const [taxIncome, setTaxIncome] = useState(800000);
+  const [taxIncomeInput, setTaxIncomeInput] = useState("8,00,000");
+  const [taxIncomeType, setTaxIncomeType] = useState<IncomeType>("salaried");
+  const [tax80C, setTax80C] = useState(0);
+  const [tax80CInput, setTax80CInput] = useState("0");
+  const [tax80D, setTax80D] = useState(25000);
+  const [tax80DInput, setTax80DInput] = useState("25,000");
+  const [taxHomeLoan, setTaxHomeLoan] = useState(0);
+  const [taxHomeLoanInput, setTaxHomeLoanInput] = useState("0");
+  const [taxNPS, setTaxNPS] = useState(0);
+  const [taxNPSInput, setTaxNPSInput] = useState("0");
+  const [taxResult, setTaxResult] = useState<ReturnType<typeof computeTax> | null>(null);
 
   // Retirement Calculator State
   const [currentAge, setCurrentAge] = useState(30);
@@ -117,26 +124,27 @@ const Calculators = () => {
   };
 
   const calculateTax = () => {
-    const taxableIncome = Math.max(income - deductions, 0);
-    let incomeTax = 0;
-
-    // Tax slabs for FY 2023-24 (New Regime)
-    if (taxableIncome <= 300000) {
-      incomeTax = 0;
-    } else if (taxableIncome <= 600000) {
-      incomeTax = (taxableIncome - 300000) * 0.05;
-    } else if (taxableIncome <= 900000) {
-      incomeTax = 15000 + (taxableIncome - 600000) * 0.10;
-    } else if (taxableIncome <= 1200000) {
-      incomeTax = 45000 + (taxableIncome - 900000) * 0.15;
-    } else if (taxableIncome <= 1500000) {
-      incomeTax = 90000 + (taxableIncome - 1200000) * 0.20;
-    } else {
-      incomeTax = 150000 + (taxableIncome - 1500000) * 0.30;
-    }
-
-    const netIncome = income - incomeTax;
-    setTaxResult({ taxableIncome, incomeTax, netIncome });
+    const defaults = defaultInputs(taxIncome);
+    const inputs: TaxInputs = {
+      totalIncome: taxIncome,
+      incomeType: taxIncomeType,
+      basicSalary: defaults.basicSalary ?? 0,
+      hraReceived: 0,
+      rentPerMonth: 0,
+      cityType: "metro",
+      interestIncome: 0,
+      rentalIncome: 0,
+      businessIncome: 0,
+      shortTermGains: 0,
+      longTermGains: 0,
+      invested80C: tax80C,
+      healthInsuranceSelf: tax80D,
+      healthInsuranceParents: 0,
+      parentsSenior: false,
+      homeLoanInterest: taxHomeLoan,
+      npsAmount: taxNPS,
+    };
+    setTaxResult(computeTax(inputs));
   };
 
   const calculateRetirement = () => {
@@ -484,80 +492,198 @@ const Calculators = () => {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center"
               >
-                <div className={`grid gap-8 w-full max-w-5xl mx-auto ${taxResult ? 'lg:grid-cols-2' : 'lg:grid-cols-1 max-w-xl'}`}>
+                <div className={`grid gap-8 w-full max-w-6xl mx-auto ${taxResult ? 'lg:grid-cols-2' : 'lg:grid-cols-1 max-w-xl'}`}>
                   <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
                       <CardHeader>
-                        <CardTitle>Tax Calculator</CardTitle>
-                        <CardDescription>
-                          Calculate your income tax liability
-                        </CardDescription>
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div>
+                            <CardTitle>Tax Calculator</CardTitle>
+                            <CardDescription>
+                              Quick Old vs New regime comparison
+                            </CardDescription>
+                          </div>
+                          <Badge variant="secondary" className="bg-financial-accent/10 text-financial-accent border-financial-accent/20">
+                            FY 2024-25
+                          </Badge>
+                        </div>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="income">Annual Income (₹)</Label>
+                          <Label>Income Type</Label>
+                          <RadioGroup
+                            value={taxIncomeType}
+                            onValueChange={(v) => setTaxIncomeType(v as IncomeType)}
+                            className="grid grid-cols-2 gap-2"
+                          >
+                            <Label
+                              htmlFor="it-salaried"
+                              className={`flex items-center gap-2 rounded-md border p-3 cursor-pointer transition-colors ${taxIncomeType === 'salaried' ? 'border-financial-accent bg-financial-accent/5' : 'border-border'}`}
+                            >
+                              <RadioGroupItem value="salaried" id="it-salaried" />
+                              <span className="text-sm">Salaried</span>
+                            </Label>
+                            <Label
+                              htmlFor="it-self"
+                              className={`flex items-center gap-2 rounded-md border p-3 cursor-pointer transition-colors ${taxIncomeType === 'self-employed' ? 'border-financial-accent bg-financial-accent/5' : 'border-border'}`}
+                            >
+                              <RadioGroupItem value="self-employed" id="it-self" />
+                              <span className="text-sm">Self-employed</span>
+                            </Label>
+                          </RadioGroup>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="tax-income">Annual Income (₹)</Label>
                           <Input
-                            id="income"
+                            id="tax-income"
                             type="text"
-                            value={incomeInput}
+                            value={taxIncomeInput}
                             onChange={(e) => {
                               const formatted = formatInputValue(e.target.value);
-                              setIncomeInput(formatted);
-                              setIncome(parseCommaNumber(formatted));
+                              setTaxIncomeInput(formatted);
+                              setTaxIncome(parseCommaNumber(formatted));
                             }}
                             placeholder="8,00,000"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="deductions">Deductions (₹)</Label>
-                          <Input
-                            id="deductions"
-                            type="text"
-                            value={deductionsInput}
-                            onChange={(e) => {
-                              const formatted = formatInputValue(e.target.value);
-                              setDeductionsInput(formatted);
-                              setDeductions(parseCommaNumber(formatted));
-                            }}
-                            placeholder="1,50,000"
-                          />
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="tax-80c">80C Invested (₹)</Label>
+                            <Input
+                              id="tax-80c"
+                              type="text"
+                              value={tax80CInput}
+                              onChange={(e) => {
+                                const formatted = formatInputValue(e.target.value);
+                                setTax80CInput(formatted);
+                                setTax80C(parseCommaNumber(formatted));
+                              }}
+                              placeholder="1,50,000"
+                            />
+                            <p className="text-xs text-muted-foreground">Max ₹1.5L</p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="tax-80d">80D Health Ins. (₹)</Label>
+                            <Input
+                              id="tax-80d"
+                              type="text"
+                              value={tax80DInput}
+                              onChange={(e) => {
+                                const formatted = formatInputValue(e.target.value);
+                                setTax80DInput(formatted);
+                                setTax80D(parseCommaNumber(formatted));
+                              }}
+                              placeholder="25,000"
+                            />
+                            <p className="text-xs text-muted-foreground">Max ₹25K</p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="tax-home">Home Loan Interest (₹)</Label>
+                            <Input
+                              id="tax-home"
+                              type="text"
+                              value={taxHomeLoanInput}
+                              onChange={(e) => {
+                                const formatted = formatInputValue(e.target.value);
+                                setTaxHomeLoanInput(formatted);
+                                setTaxHomeLoan(parseCommaNumber(formatted));
+                              }}
+                              placeholder="2,00,000"
+                            />
+                            <p className="text-xs text-muted-foreground">Max ₹2L</p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="tax-nps">NPS 80CCD(1B) (₹)</Label>
+                            <Input
+                              id="tax-nps"
+                              type="text"
+                              value={taxNPSInput}
+                              onChange={(e) => {
+                                const formatted = formatInputValue(e.target.value);
+                                setTaxNPSInput(formatted);
+                                setTaxNPS(parseCommaNumber(formatted));
+                              }}
+                              placeholder="50,000"
+                            />
+                            <p className="text-xs text-muted-foreground">Max ₹50K</p>
+                          </div>
                         </div>
+
                         <Button onClick={calculateTax} className="w-full">
-                          Calculate Tax
+                          Compare Old vs New Regime
                         </Button>
                       </CardContent>
                     </Card>
                   </motion.div>
 
                   {taxResult && (
-                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-                      <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="space-y-4">
+                      <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl">
                         <CardHeader>
-                          <CardTitle>Tax Results</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="grid grid-cols-3 gap-4 text-center">
-                            <div className="p-4 bg-secondary/50 rounded-lg">
-                              <p className="text-sm text-muted-foreground">Taxable Income</p>
-                              <p className="text-lg font-semibold">
-                                {formatCurrency(taxResult.taxableIncome)}
-                              </p>
-                            </div>
-                            <div className="p-4 bg-secondary/50 rounded-lg">
-                              <p className="text-sm text-muted-foreground">Income Tax</p>
-                              <p className="text-lg font-semibold text-red-600">
-                                {formatCurrency(taxResult.incomeTax)}
-                              </p>
-                            </div>
-                            <div className="p-4 bg-secondary/50 rounded-lg">
-                              <p className="text-sm text-muted-foreground">Net Income</p>
-                              <p className="text-lg font-semibold text-green-600">
-                                {formatCurrency(taxResult.netIncome)}
-                              </p>
-                            </div>
+                          <div className="flex items-center justify-between">
+                            <CardTitle>Tax Results</CardTitle>
+                            {taxResult.savings > 0 && (
+                              <Badge className="bg-financial-success/15 text-financial-success border border-financial-success/30 hover:bg-financial-success/20">
+                                Save {formatCurrency(taxResult.savings)}
+                              </Badge>
+                            )}
                           </div>
+                          <CardDescription>
+                            Recommended: <span className="font-semibold text-foreground">{taxResult.recommended === 'old' ? 'Old' : 'New'} Regime</span>
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {(["old", "new"] as const).map((regime) => {
+                            const b = regime === "old" ? taxResult.oldBreakdown : taxResult.newBreakdown;
+                            const isRec = taxResult.recommended === regime;
+                            const totalTax = regime === "old" ? taxResult.oldTax : taxResult.newTax;
+                            const effective = b.grossIncome > 0 ? (totalTax / b.grossIncome) * 100 : 0;
+                            return (
+                              <div
+                                key={regime}
+                                className={`rounded-lg border p-4 transition-all ${isRec ? 'border-financial-accent bg-financial-accent/5 ring-1 ring-financial-accent/30' : 'border-border bg-secondary/30'}`}
+                              >
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold capitalize">{regime} Regime</span>
+                                    {isRec && (
+                                      <Badge className="bg-financial-accent text-white text-xs">Best</Badge>
+                                    )}
+                                  </div>
+                                  <span className="text-xs text-muted-foreground">{effective.toFixed(2)}% effective</span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Taxable Income</p>
+                                    <p className="font-semibold">{formatCurrency(b.taxableIncome)}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Total Tax</p>
+                                    <p className="font-semibold text-financial-danger">{formatCurrency(totalTax)}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </CardContent>
                       </Card>
+
+                      <Link to="/tax-planning" className="block group">
+                        <Card className="bg-gradient-to-br from-financial-accent/10 to-financial-accent/5 border-financial-accent/30 hover:border-financial-accent/60 transition-all">
+                          <CardContent className="p-4 flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-financial-accent/15 flex items-center justify-center shrink-0">
+                              <Sparkles className="h-5 w-5 text-financial-accent" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm">Need HRA, capital gains & SIP suggestions?</p>
+                              <p className="text-xs text-muted-foreground">Open the full Tax Planning wizard</p>
+                            </div>
+                            <ArrowRight className="h-4 w-4 text-financial-accent group-hover:translate-x-1 transition-transform shrink-0" />
+                          </CardContent>
+                        </Card>
+                      </Link>
                     </motion.div>
                   )}
                 </div>
