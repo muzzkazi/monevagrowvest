@@ -124,26 +124,27 @@ const Calculators = () => {
   };
 
   const calculateTax = () => {
-    const taxableIncome = Math.max(income - deductions, 0);
-    let incomeTax = 0;
-
-    // Tax slabs for FY 2023-24 (New Regime)
-    if (taxableIncome <= 300000) {
-      incomeTax = 0;
-    } else if (taxableIncome <= 600000) {
-      incomeTax = (taxableIncome - 300000) * 0.05;
-    } else if (taxableIncome <= 900000) {
-      incomeTax = 15000 + (taxableIncome - 600000) * 0.10;
-    } else if (taxableIncome <= 1200000) {
-      incomeTax = 45000 + (taxableIncome - 900000) * 0.15;
-    } else if (taxableIncome <= 1500000) {
-      incomeTax = 90000 + (taxableIncome - 1200000) * 0.20;
-    } else {
-      incomeTax = 150000 + (taxableIncome - 1500000) * 0.30;
-    }
-
-    const netIncome = income - incomeTax;
-    setTaxResult({ taxableIncome, incomeTax, netIncome });
+    const defaults = defaultInputs(taxIncome);
+    const inputs: TaxInputs = {
+      totalIncome: taxIncome,
+      incomeType: taxIncomeType,
+      basicSalary: defaults.basicSalary ?? 0,
+      hraReceived: 0,
+      rentPerMonth: 0,
+      cityType: "metro",
+      interestIncome: 0,
+      rentalIncome: 0,
+      businessIncome: 0,
+      shortTermGains: 0,
+      longTermGains: 0,
+      invested80C: tax80C,
+      healthInsuranceSelf: tax80D,
+      healthInsuranceParents: 0,
+      parentsSenior: false,
+      homeLoanInterest: taxHomeLoan,
+      npsAmount: taxNPS,
+    };
+    setTaxResult(computeTax(inputs));
   };
 
   const calculateRetirement = () => {
