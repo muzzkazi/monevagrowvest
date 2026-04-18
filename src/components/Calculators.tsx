@@ -8,8 +8,12 @@ import { Slider } from "@/components/ui/slider";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import MutualFundPortfolio from "./MutualFundPortfolio";
 import { formatCurrency, formatNumber, parseCommaNumber, formatInputValue } from "@/lib/utils";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { computeTax, defaultInputs, type IncomeType, type TaxInputs } from "@/lib/taxEngine";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 const Calculators = () => {
   const [searchParams] = useSearchParams();
