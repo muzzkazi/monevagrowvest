@@ -206,7 +206,7 @@ const Hero = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-2xl sm:rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
               <img 
                 src={heroAdvisor} 
-                alt="Abstract visualization of portfolio growth with rising trend curve and ₹ symbols" 
+                alt="Indian family reviewing investment portfolio together at home" 
                 width={1024}
                 height={1280}
                 className="relative w-full h-auto rounded-2xl sm:rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
