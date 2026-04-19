@@ -151,36 +151,43 @@ const PortfolioOverlapPage = () => {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {selected.map((fund, idx) => (
-                        <div
-                          key={fund.schemeCode}
-                          className="group flex items-start gap-3 p-3 rounded-xl border bg-gradient-to-br from-card to-muted/20 hover:border-financial-accent/40 transition-all"
-                        >
-                          <div className="shrink-0 w-7 h-7 rounded-md bg-financial-accent/10 text-financial-accent flex items-center justify-center text-xs font-bold">
-                            {idx + 1}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-semibold text-foreground truncate">
-                              {fund.schemeName.split(" - ")[0]}
-                            </div>
-                            <div className="flex gap-1.5 mt-1 items-center">
-                              <Badge variant="outline" className="text-[10px] py-0 px-1.5">
-                                {fund.subCategory}
-                              </Badge>
-                              <span className="text-[10px] text-muted-foreground truncate">
-                                {fund.fundHouse}
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => removeFund(fund.schemeCode)}
-                            className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive p-1 transition-opacity"
-                            aria-label="Remove"
+                      <AnimatePresence initial={false}>
+                        {selected.map((fund, idx) => (
+                          <motion.div
+                            key={fund.schemeCode}
+                            layout
+                            initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, x: 20, scale: 0.9 }}
+                            transition={{ duration: 0.25, ease: "easeOut" }}
+                            className="group flex items-start gap-3 p-3 rounded-xl border bg-gradient-to-br from-card to-muted/20 hover:border-financial-accent/40 transition-colors"
                           >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
+                            <div className="shrink-0 w-7 h-7 rounded-md bg-financial-accent/10 text-financial-accent flex items-center justify-center text-xs font-bold">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-semibold text-foreground truncate">
+                                {fund.schemeName.split(" - ")[0]}
+                              </div>
+                              <div className="flex gap-1.5 mt-1 items-center">
+                                <Badge variant="outline" className="text-[10px] py-0 px-1.5">
+                                  {fund.subCategory}
+                                </Badge>
+                                <span className="text-[10px] text-muted-foreground truncate">
+                                  {fund.fundHouse}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => removeFund(fund.schemeCode)}
+                              className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive p-1 transition-opacity"
+                              aria-label="Remove"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
                     </div>
                   )}
 
