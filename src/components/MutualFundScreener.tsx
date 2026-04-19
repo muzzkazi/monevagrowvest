@@ -178,6 +178,72 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
     fetchLiveNAVs();
   }, [fetchLiveNAVs]);
 
+  // Debounced AMFI-wide search (only when query is meaningful)
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 3) {
+      setAmfiResults([]);
+      setAmfiSearching(false);
+      return;
+    }
+    setAmfiSearching(true);
+    const ctrl = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
+        const res = await fetch(
+          `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`,
+          { signal: ctrl.signal },
+        );
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const existing = new Set(mutualFunds.map(f => f.schemeCode));
+          const mapped = data
+            .filter((s: any) => s && s.schemeCode && s.schemeName)
+            .map((s: any) => fromAmfiScheme(s))
+            .filter((f) => !existing.has(f.schemeCode))
+            .slice(0, 25);
+          setAmfiResults(mapped);
+        } else {
+          setAmfiResults([]);
+        }
+      } catch (e: any) {
+        if (e?.name !== "AbortError") setAmfiResults([]);
+      } finally {
+        setAmfiSearching(false);
+      }
+    }, 350);
+    return () => { ctrl.abort(); clearTimeout(t); };
+  }, [searchQuery, mutualFunds]);
+
+  // Add an AMFI fund to the list (with live NAV) and open its detail modal
+  const addAmfiFund = useCallback(async (fund: MutualFundInfo) => {
+    setAddingCode(fund.schemeCode);
+    try {
+      const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
+      const res = await fetch(
+        `${SUPABASE_URL}/functions/v1/mutual-funds?action=latest&code=${fund.schemeCode}`,
+      );
+      const data = await res.json();
+      let nav = 0;
+      if (data?.data?.[0]?.nav) nav = parseFloat(data.data[0].nav) || 0;
+      const enriched: MutualFundInfo = { ...fund, nav };
+      setMutualFunds(prev => prev.some(f => f.schemeCode === enriched.schemeCode) ? prev : [enriched, ...prev]);
+      setAmfiResults(prev => prev.filter(f => f.schemeCode !== fund.schemeCode));
+      // Reset numeric range filters so the new (zero-data) fund is visible in the table
+      setAumRange([0, 80000]);
+      setExpenseRange([0, 1.5]);
+      setReturns3YRange([-5, 40]);
+      setMinRating(0);
+      setRiskLevels([]);
+      toast({ title: "Added from AMFI", description: fund.schemeName.split(" - ")[0] });
+    } catch {
+      toast({ title: "Could not add fund", description: "Try again.", variant: "destructive" });
+    } finally {
+      setAddingCode(null);
+    }
+  }, [toast]);
+
   const subCategories = useMemo(() => {
     if (selectedCategory === "All") {
       return Object.values(fundSubCategories).flat();
