@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Sparkles, Target, TrendingUp, BarChart3, Wallet, Calculator, Receipt, Landmark, Clock, SlidersHorizontal, LineChart, PieChart, Menu, X, FileText } from "lucide-react";
+import { Phone, Sparkles, Target, TrendingUp, Wallet, Receipt, Landmark, Clock, LineChart, PieChart, Menu, FileText, Wrench, PiggyBank, GraduationCap, Info } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from "@/components/ui/sheet";
@@ -194,10 +194,8 @@ const Header = () => {
 
                   <div className="py-2">
                     <MobileNavLink to="/" onClick={closeMobile}>Home</MobileNavLink>
-                    <MobileNavLink to="/about" onClick={closeMobile}>About</MobileNavLink>
-                    <MobileNavLink to="/services" onClick={closeMobile}>Services</MobileNavLink>
 
-                    <MobileSectionLabel>Calculators</MobileSectionLabel>
+                    <MobileSectionLabel>Tools — Calculators</MobileSectionLabel>
                     <MobileNavLink to="/calculators?tab=sip" onClick={closeMobile}>
                       <TrendingUp className="h-4 w-4" /> SIP Calculator
                     </MobileNavLink>
@@ -211,24 +209,7 @@ const Header = () => {
                       <Clock className="h-4 w-4" /> Retirement Planner
                     </MobileNavLink>
 
-                    <MobileSectionLabel>AI Planning</MobileSectionLabel>
-                    <MobileNavLink to="/ai-planning" onClick={closeMobile}>
-                      <Sparkles className="h-4 w-4" /> AI Planner Overview
-                    </MobileNavLink>
-                    <MobileNavLink to="/goal-based-planning" onClick={closeMobile}>
-                      <Target className="h-4 w-4" /> Goal Based Planning
-                    </MobileNavLink>
-                    <MobileNavLink to="/sip-based-planning" onClick={closeMobile}>
-                      <TrendingUp className="h-4 w-4" /> SIP Based Planning
-                    </MobileNavLink>
-                    <MobileNavLink to="/debt-management" onClick={closeMobile}>
-                      <Wallet className="h-4 w-4" /> Debt Management
-                    </MobileNavLink>
-                    <MobileNavLink to="/tax-planning" onClick={closeMobile}>
-                      <FileText className="h-4 w-4" /> Tax Planning
-                    </MobileNavLink>
-
-                    <MobileSectionLabel>Screener</MobileSectionLabel>
+                    <MobileSectionLabel>Tools — Screeners</MobileSectionLabel>
                     <MobileNavLink to="/stock-screener" onClick={closeMobile}>
                       <LineChart className="h-4 w-4" /> Stock Screener
                     </MobileNavLink>
@@ -236,8 +217,37 @@ const Header = () => {
                       <PieChart className="h-4 w-4" /> Mutual Fund Screener
                     </MobileNavLink>
 
+                    <MobileSectionLabel>Tools — Money Management</MobileSectionLabel>
+                    <MobileNavLink to="/budget-tracker" onClick={closeMobile}>
+                      <PiggyBank className="h-4 w-4" /> Budget Tracker
+                    </MobileNavLink>
+                    <MobileNavLink to="/debt-management" onClick={closeMobile}>
+                      <Wallet className="h-4 w-4" /> Debt Management
+                    </MobileNavLink>
+
+                    <MobileSectionLabel>AI Planning</MobileSectionLabel>
+                    <MobileNavLink to="/ai-planning" onClick={closeMobile}>
+                      <Sparkles className="h-4 w-4" /> AI Planner Overview
+                    </MobileNavLink>
+                    <MobileNavLink to="/ai-planning?mode=goals" onClick={closeMobile}>
+                      <Target className="h-4 w-4" /> Goal Based Planning
+                    </MobileNavLink>
+                    <MobileNavLink to="/ai-planning?mode=sip" onClick={closeMobile}>
+                      <TrendingUp className="h-4 w-4" /> SIP Based Planning
+                    </MobileNavLink>
+                    <MobileNavLink to="/tax-planning" onClick={closeMobile}>
+                      <FileText className="h-4 w-4" /> Tax Planning
+                    </MobileNavLink>
+
                     <div className="my-2 border-t border-border" />
-                    <MobileNavLink to="/financial-education" onClick={closeMobile}>Learning</MobileNavLink>
+                    <MobileNavLink to="/financial-education" onClick={closeMobile}>
+                      <GraduationCap className="h-4 w-4" /> Learning
+                    </MobileNavLink>
+
+                    <MobileSectionLabel>Company</MobileSectionLabel>
+                    <MobileNavLink to="/about" onClick={closeMobile}>About Us</MobileNavLink>
+                    <MobileNavLink to="/services" onClick={closeMobile}>Our Services</MobileNavLink>
+                    <MobileNavLink to="/blog" onClick={closeMobile}>Blog</MobileNavLink>
                     <MobileNavLink to="/contact" onClick={closeMobile}>Contact</MobileNavLink>
                   </div>
 
