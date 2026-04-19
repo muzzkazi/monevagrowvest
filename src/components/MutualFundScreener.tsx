@@ -21,6 +21,13 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import MutualFundDetailModal from "@/components/mutual-fund-detail/MutualFundDetailModal";
+import {
+  fromAmfiScheme,
+  searchAmfiMany,
+  enrichFundsWithHistory,
+  SUB_CATEGORY_QUERIES,
+  CATEGORY_QUERIES,
+} from "@/lib/amfiSearch";
 
 type SortField = "schemeName" | "nav" | "returns1Y" | "returns3Y" | "returns5Y" | "aum" | "expenseRatio" | "rating";
 type SortDirection = "asc" | "desc";
@@ -28,66 +35,6 @@ type SortDirection = "asc" | "desc";
 interface MutualFundScreenerProps {
   onCompare?: (funds: MutualFundInfo[]) => void;
 }
-
-// ---- AMFI search helpers (for funds beyond the curated list) ----
-const inferSubCategory = (name: string): string => {
-  const n = name.toLowerCase();
-  // Order matters — check most specific first
-  if (n.includes("large & mid") || n.includes("large and mid") || n.includes("large&mid")) return "Large & Mid Cap";
-  if (n.includes("small cap") || n.includes("smallcap")) return "Small Cap";
-  if (n.includes("mid cap") || n.includes("midcap") || n.includes("emerging")) return "Mid Cap";
-  if (n.includes("flexi cap") || n.includes("flexicap")) return "Flexi Cap";
-  if (n.includes("multi cap") || n.includes("multicap")) return "Multi Cap";
-  if (n.includes("elss") || n.includes("tax saver") || n.includes("tax plan") || n.includes("long term equity")) return "ELSS";
-  if (n.includes("value")) return "Value";
-  if (n.includes("liquid")) return "Liquid";
-  if (n.includes("ultra short")) return "Ultra Short Duration";
-  if (n.includes("short duration") || n.includes("short term")) return "Short Duration";
-  if (n.includes("gilt")) return "Gilt";
-  if (n.includes("corporate bond")) return "Corporate Bond";
-  if (n.includes("arbitrage")) return "Arbitrage";
-  if (n.includes("balanced advantage")) return "Balanced Advantage";
-  if (n.includes("hybrid")) return "Aggressive Hybrid";
-  if (n.includes("index") || n.includes("nifty") || n.includes("sensex")) return "Index Fund";
-  if (n.includes("pharma") || n.includes("tech") || n.includes("digital") || n.includes("banking") || n.includes("infra") || n.includes("fmcg") || n.includes("energy") || n.includes("sectoral")) return "Sectoral";
-  if (n.includes("large cap") || n.includes("bluechip") || n.includes("blue chip") || n.includes("top 100")) return "Large Cap";
-  return "Flexi Cap";
-};
-
-const inferFundHouse = (name: string): string => {
-  const n = name.toLowerCase();
-
-  const knownFundHouse = fundHouses.find((house) => {
-    if (house === "All") return false;
-    const normalizedHouse = house.toLowerCase().replace(/\bmutual fund\b/g, "").trim();
-    return n.includes(normalizedHouse);
-  });
-
-  if (knownFundHouse) return knownFundHouse;
-
-  return name.split(/\s+/).slice(0, 2).join(" ") || "Unknown";
-};
-
-const fromAmfiScheme = (s: { schemeCode: number | string; schemeName: string }): MutualFundInfo => {
-  const sub = inferSubCategory(s.schemeName);
-  const debt = ["Liquid", "Short Duration", "Long Duration", "Gilt", "Corporate Bond", "Banking & PSU", "Ultra Short Duration", "Medium Duration"].includes(sub);
-  return {
-    schemeCode: String(s.schemeCode),
-    schemeName: s.schemeName,
-    category: debt ? "Debt" : sub === "Aggressive Hybrid" || sub === "Arbitrage" || sub === "Balanced Advantage" ? "Hybrid" : "Equity",
-    subCategory: sub,
-    fundHouse: inferFundHouse(s.schemeName),
-    plan: s.schemeName.toLowerCase().includes("direct") ? "Direct" : "Regular",
-    nav: 0,
-    aum: 0,
-    expenseRatio: 0,
-    rating: 0,
-    riskLevel: debt ? "Low" : "High",
-    returns1Y: 0, returns3Y: 0, returns5Y: 0, returns10Y: 0,
-    sipMinimum: 500, lumpSumMinimum: 5000,
-    exitLoad: "—", benchmark: "—", fundManager: "—", inceptionDate: "—",
-  };
-};
 
 const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   const { toast } = useToast();
