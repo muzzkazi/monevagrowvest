@@ -9,63 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Layers, Search, X, Plus, Sparkles, TrendingDown, Target, Eye, Loader2 } from "lucide-react";
 import { mutualFunds, MutualFundInfo } from "@/data/mutualFundDatabase";
 import FundOverlap from "@/components/mutual-fund-overlap/FundOverlap";
-
+import { fromAmfiScheme, searchAmfi, fetchLatestNAVs } from "@/lib/amfiSearch";
 
 const MAX_FUNDS = 4;
-
-// Infer sub-category from AMFI scheme name so overlap engine has a stock pool to work with.
-const inferSubCategory = (name: string): string => {
-  const n = name.toLowerCase();
-  if (n.includes("small cap") || n.includes("smallcap")) return "Small Cap";
-  if (n.includes("mid cap") || n.includes("midcap") || n.includes("emerging")) return "Mid Cap";
-  if (n.includes("large & mid") || n.includes("large and mid")) return "Large & Mid Cap";
-  if (n.includes("flexi cap") || n.includes("flexicap")) return "Flexi Cap";
-  if (n.includes("multi cap") || n.includes("multicap")) return "Multi Cap";
-  if (n.includes("elss") || n.includes("tax saver") || n.includes("tax plan") || n.includes("long term equity"))
-    return "ELSS";
-  if (n.includes("value")) return "Value";
-  if (n.includes("index") || n.includes("nifty") || n.includes("sensex")) return "Index Fund";
-  if (n.includes("pharma") || n.includes("tech") || n.includes("banking") || n.includes("infra") || n.includes("fmcg") || n.includes("energy") || n.includes("sectoral"))
-    return "Sectoral";
-  if (n.includes("large cap") || n.includes("bluechip") || n.includes("blue chip") || n.includes("top 100"))
-    return "Large Cap";
-  return "Flexi Cap";
-};
-
-const inferFundHouse = (name: string): string => {
-  // First word(s) before "Mutual Fund" / "MF" / first hyphen often = AMC
-  const first = name.split(/\s+/)[0];
-  return first || "Unknown";
-};
-
-const fromAmfiScheme = (s: { schemeCode: number | string; schemeName: string }): MutualFundInfo => {
-  const sub = inferSubCategory(s.schemeName);
-  return {
-    schemeCode: String(s.schemeCode),
-    schemeName: s.schemeName,
-    category: ["Liquid", "Short Duration", "Long Duration", "Gilt", "Corporate Bond", "Banking & PSU", "Ultra Short Duration", "Medium Duration"].includes(sub)
-      ? "Debt"
-      : "Equity",
-    subCategory: sub,
-    fundHouse: inferFundHouse(s.schemeName),
-    plan: s.schemeName.toLowerCase().includes("direct") ? "Direct" : "Regular",
-    nav: 0,
-    aum: 0,
-    expenseRatio: 0,
-    rating: 0,
-    riskLevel: "High",
-    returns1Y: 0,
-    returns3Y: 0,
-    returns5Y: 0,
-    returns10Y: 0,
-    sipMinimum: 500,
-    lumpSumMinimum: 5000,
-    exitLoad: "—",
-    benchmark: "—",
-    fundManager: "—",
-    inceptionDate: "—",
-  };
-};
 
 const PortfolioOverlapPage = () => {
   const [selected, setSelected] = useState<MutualFundInfo[]>([]);
