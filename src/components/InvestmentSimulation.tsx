@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import {
+  ResponsiveContainer,
+  LineChart as RLineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceDot,
+} from 'recharts';
 import { 
   LineChart, 
   TrendingUp, 
@@ -41,6 +52,20 @@ interface SimulationState {
   currentEvent?: MarketEvent;
 }
 
+interface HistoryPoint {
+  year: number;
+  label: string;
+  conservative: number;
+  moderate: number;
+  aggressive: number;
+  event: string;
+  return: number;
+}
+
+const initialHistory: HistoryPoint[] = [
+  { year: 0, label: 'Start', conservative: 10000, moderate: 10000, aggressive: 10000, event: 'Initial Investment', return: 0 },
+];
+
 const InvestmentSimulation = () => {
   const [simState, setSimState] = useState<SimulationState>({
     currentYear: 0,
@@ -50,6 +75,7 @@ const InvestmentSimulation = () => {
     totalInvested: 30000,
     currentEvent: undefined
   });
+  const [history, setHistory] = useState<HistoryPoint[]>(initialHistory);
 
   const [selectedStrategy, setSelectedStrategy] = useState<keyof Portfolio | null>(null);
   const [speed, setSpeed] = useState(1000); // milliseconds
@@ -144,12 +170,14 @@ const InvestmentSimulation = () => {
   };
 
   const startSimulation = () => {
+    setHistory(initialHistory);
     setSimState(prev => ({
       ...prev,
       isRunning: true,
       currentYear: 0,
       isComplete: false,
-      portfolio: { conservative: 10000, moderate: 10000, aggressive: 10000 }
+      portfolio: { conservative: 10000, moderate: 10000, aggressive: 10000 },
+      currentEvent: undefined,
     }));
   };
 
@@ -158,6 +186,7 @@ const InvestmentSimulation = () => {
   };
 
   const resetSimulation = () => {
+    setHistory(initialHistory);
     setSimState({
       currentYear: 0,
       isRunning: false,
@@ -189,6 +218,19 @@ const InvestmentSimulation = () => {
           moderate: prev.portfolio.moderate * (1 + getStrategyMultiplier('moderate', event.return)),
           aggressive: prev.portfolio.aggressive * (1 + getStrategyMultiplier('aggressive', event.return))
         };
+
+        setHistory(h => [
+          ...h,
+          {
+            year: nextYear,
+            label: event.event.split(':')[0],
+            conservative: Math.round(newPortfolio.conservative),
+            moderate: Math.round(newPortfolio.moderate),
+            aggressive: Math.round(newPortfolio.aggressive),
+            event: event.event,
+            return: event.return,
+          },
+        ]);
 
         return {
           ...prev,
@@ -321,6 +363,112 @@ const InvestmentSimulation = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Market & Portfolio Chart */}
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <LineChart className="w-5 h-5 mr-2 text-financial-accent" />
+            Market Events & Portfolio Reaction
+          </CardTitle>
+          <CardDescription>
+            Watch each strategy respond to historical market events year by year
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[360px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RLineChart data={history} margin={{ top: 20, right: 24, left: 8, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                  interval={0}
+                  angle={-25}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  domain={['dataMin - 1000', 'dataMax + 1000']}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                  formatter={(value: number, name: string) => [formatCurrency(value), name]}
+                  labelFormatter={(label, payload) => {
+                    const p = payload?.[0]?.payload as HistoryPoint | undefined;
+                    if (!p) return label;
+                    const sign = p.return > 0 ? '+' : '';
+                    return p.year === 0
+                      ? p.event
+                      : `${p.event} (${sign}${(p.return * 100).toFixed(1)}%)`;
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Line
+                  type="monotone"
+                  dataKey="conservative"
+                  name="Conservative"
+                  stroke="hsl(217 91% 60%)"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="moderate"
+                  name="Moderate"
+                  stroke="hsl(var(--financial-accent))"
+                  strokeWidth={2.5}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="aggressive"
+                  name="Aggressive"
+                  stroke="hsl(0 84% 60%)"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  isAnimationActive={false}
+                />
+                {history
+                  .filter((p) => p.return < 0)
+                  .map((p) => (
+                    <ReferenceDot
+                      key={`crash-${p.year}`}
+                      x={p.label}
+                      y={p.moderate}
+                      r={6}
+                      fill="hsl(0 84% 60%)"
+                      stroke="hsl(var(--background))"
+                      strokeWidth={2}
+                      ifOverflow="extendDomain"
+                    />
+                  ))}
+              </RLineChart>
+            </ResponsiveContainer>
+          </div>
+          {history.length === 1 ? (
+            <p className="text-xs text-center text-muted-foreground mt-3">
+              Press <span className="font-semibold text-foreground">Start Simulation</span> to see how each strategy reacts to 10 years of Indian market events
+            </p>
+          ) : (
+            <p className="text-xs text-center text-muted-foreground mt-3">
+              Red dots mark market crashes — notice how the aggressive strategy drops further but recovers faster
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Portfolio Performance */}
       <div className="grid md:grid-cols-3 gap-6">
