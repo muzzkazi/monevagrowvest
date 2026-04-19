@@ -305,40 +305,73 @@ const PortfolioOverlapPage = () => {
 
             {/* Overlap output */}
             <div>
-              {selected.length < 2 ? (
-                <Card className="border-2 border-dashed bg-gradient-to-br from-muted/20 to-card overflow-hidden">
-                  <CardContent className="p-12 lg:p-16 text-center">
-                    <div className="relative w-24 h-24 mx-auto mb-6">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-financial-accent/20 to-financial-gold/20 blur-xl" />
-                      <div className="relative w-full h-full rounded-full bg-gradient-to-br from-financial-accent/10 to-financial-gold/10 flex items-center justify-center border-2 border-financial-accent/20">
-                        <Layers className="w-10 h-10 text-financial-accent" />
-                      </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-3">
-                      {selected.length === 0
-                        ? "Pick your first fund"
-                        : "Add one more fund to start"}
-                    </h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed mb-6">
-                      Use the search panel on the left to add mutual funds. You'll instantly see how
-                      much they overlap, the exact common holdings, and pairwise comparisons.
-                    </p>
-                    <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
-                      <span className="px-3 py-1.5 rounded-full bg-muted/50 border">
-                        ✓ Donut overlap %
-                      </span>
-                      <span className="px-3 py-1.5 rounded-full bg-muted/50 border">
-                        ✓ Common stocks
-                      </span>
-                      <span className="px-3 py-1.5 rounded-full bg-muted/50 border">
-                        ✓ Pairwise matrix
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <FundOverlap funds={selected} />
-              )}
+              <AnimatePresence mode="wait">
+                {selected.length < 2 ? (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card className="border-2 border-dashed bg-gradient-to-br from-muted/20 to-card overflow-hidden">
+                      <CardContent className="p-12 lg:p-16 text-center">
+                        <motion.div
+                          animate={{ y: [0, -8, 0] }}
+                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                          className="relative w-24 h-24 mx-auto mb-6"
+                        >
+                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-financial-accent/20 to-financial-gold/20 blur-xl animate-pulse" />
+                          <div className="relative w-full h-full rounded-full bg-gradient-to-br from-financial-accent/10 to-financial-gold/10 flex items-center justify-center border-2 border-financial-accent/20">
+                            <Layers className="w-10 h-10 text-financial-accent" />
+                          </div>
+                        </motion.div>
+                        <h3 className="text-2xl font-bold text-foreground mb-3">
+                          {selected.length === 0
+                            ? "Pick your first fund"
+                            : "Add one more fund to start"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed mb-6">
+                          Use the search panel on the left to add mutual funds. You'll instantly see how
+                          much they overlap, the exact common holdings, and pairwise comparisons.
+                        </p>
+                        <motion.div
+                          initial="hidden"
+                          animate="visible"
+                          variants={{
+                            hidden: {},
+                            visible: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } },
+                          }}
+                          className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground"
+                        >
+                          {["✓ Donut overlap %", "✓ Common stocks", "✓ Pairwise matrix"].map((t) => (
+                            <motion.span
+                              key={t}
+                              variants={{
+                                hidden: { opacity: 0, scale: 0.8 },
+                                visible: { opacity: 1, scale: 1 },
+                              }}
+                              className="px-3 py-1.5 rounded-full bg-muted/50 border"
+                            >
+                              {t}
+                            </motion.span>
+                          ))}
+                        </motion.div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="output"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                  >
+                    <FundOverlap funds={selected} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
