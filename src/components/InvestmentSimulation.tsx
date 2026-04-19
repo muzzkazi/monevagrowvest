@@ -248,7 +248,7 @@ const InvestmentSimulation = () => {
                 Investment Time Machine
               </CardTitle>
               <CardDescription>
-                Experience 10 years of market volatility with ₹10,000 in each strategy
+                Experience {marketEvents.length} years of market volatility with ₹10,000 in each strategy
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
@@ -276,7 +276,7 @@ const InvestmentSimulation = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center">
                 <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
-                <span className="text-sm">Year {simState.currentYear}/10</span>
+                <span className="text-sm">Year {simState.currentYear}/{marketEvents.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-muted-foreground">Speed:</span>
@@ -305,7 +305,7 @@ const InvestmentSimulation = () => {
             </div>
           </div>
           
-          <Progress value={(simState.currentYear / 10) * 100} className="h-2" />
+          <Progress value={(simState.currentYear / marketEvents.length) * 100} className="h-2" />
         </CardContent>
       </Card>
 
@@ -506,7 +506,7 @@ const InvestmentSimulation = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Award className="w-6 h-6 mr-2 text-financial-gold" />
-              10-Year Simulation Complete!
+              {marketEvents.length}-Year Simulation Complete!
             </CardTitle>
             <CardDescription>Here's how each strategy performed</CardDescription>
           </CardHeader>
