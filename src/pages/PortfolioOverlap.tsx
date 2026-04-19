@@ -211,11 +211,14 @@ const PortfolioOverlapPage = () => {
                   {searchResults.length > 0 && (
                     <ScrollArea className="max-h-72">
                       <div className="space-y-1.5 pr-2">
-                        {searchResults.map((fund) => (
-                          <button
+                        {searchResults.map((fund, i) => (
+                          <motion.button
                             key={fund.schemeCode}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.2, delay: i * 0.03 }}
                             onClick={() => addFund(fund)}
-                            className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-all group"
+                            className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-colors group"
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
@@ -235,7 +238,7 @@ const PortfolioOverlapPage = () => {
                                 <Plus className="w-3.5 h-3.5 text-muted-foreground group-hover:text-financial-accent" />
                               </div>
                             </div>
-                          </button>
+                          </motion.button>
                         ))}
                       </div>
                     </ScrollArea>
