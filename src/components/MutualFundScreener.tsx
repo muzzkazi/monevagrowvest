@@ -305,7 +305,10 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         setMutualFunds(prev => {
           const have = new Set(prev.map(f => f.schemeCode));
           const additions = enriched.filter(e => !have.has(e.schemeCode));
-          return additions.length === 0 ? prev : [...prev, ...additions];
+          if (additions.length === 0) return prev;
+          const next = [...prev, ...additions];
+          saveAmfiCache(next);
+          return next;
         });
 
         // Loosen numeric filters so zero-AUM AMFI funds remain visible
