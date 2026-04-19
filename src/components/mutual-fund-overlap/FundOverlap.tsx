@@ -172,9 +172,15 @@ const FundOverlap = ({ funds }: FundOverlapProps) => {
                         <th className="text-right p-3 font-medium">Overlap Wt.</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody key={`${fundAIdx}-${fundBIdx}`}>
                       {overlap.commonStocks.map((s, idx) => (
-                        <tr key={s.symbol} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
+                        <motion.tr
+                          key={s.symbol}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.35, delay: 0.4 + idx * 0.05, ease: "easeOut" }}
+                          className={idx % 2 === 0 ? "bg-muted/30" : ""}
+                        >
                           <td className="p-3">
                             <div className="font-medium text-foreground">{s.symbol}</div>
                             <div className="text-xs text-muted-foreground">{s.name}</div>
@@ -185,7 +191,7 @@ const FundOverlap = ({ funds }: FundOverlapProps) => {
                           <td className="p-3 text-right tabular-nums font-medium text-financial-accent">
                             {s.minWeight.toFixed(2)}%
                           </td>
-                        </tr>
+                        </motion.tr>
                       ))}
                     </tbody>
                   </table>
