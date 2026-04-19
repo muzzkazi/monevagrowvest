@@ -304,48 +304,73 @@ const PortfolioOverlapPage = () => {
                       placeholder={
                         selected.length >= MAX_FUNDS
                           ? `Maximum ${MAX_FUNDS} reached`
-                          : "Search funds to add..."
+                          : "Search any AMFI mutual fund..."
                       }
                       disabled={selected.length >= MAX_FUNDS}
-                      className="pl-9 h-10"
+                      className="pl-9 pr-9 h-10"
                     />
+                    {searching && (
+                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground animate-spin" />
+                    )}
                   </div>
+
+                  {/* Hint */}
+                  {query.trim().length > 0 && query.trim().length < 3 && (
+                    <p className="text-[11px] text-muted-foreground -mt-2">
+                      Type at least 3 characters to search all AMFI schemes
+                    </p>
+                  )}
 
                   {/* Search results */}
                   {searchResults.length > 0 && (
                     <ScrollArea className="max-h-72">
                       <div className="space-y-1.5 pr-2">
-                        {searchResults.map((fund, i) => (
-                          <motion.button
-                            key={fund.schemeCode}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.2, delay: i * 0.03 }}
-                            onClick={() => addFund(fund)}
-                            className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-colors group"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-foreground truncate">
-                                  {fund.schemeName.split(" - ")[0]}
+                        {searchResults.map((fund, i) => {
+                          const isRemote = !mutualFunds.some((m) => m.schemeCode === fund.schemeCode);
+                          return (
+                            <motion.button
+                              key={fund.schemeCode}
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.02 }}
+                              onClick={() => addFund(fund)}
+                              className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-colors group"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-foreground truncate">
+                                    {fund.schemeName.split(" - ")[0]}
+                                  </div>
+                                  <div className="flex gap-1.5 mt-1 items-center flex-wrap">
+                                    <Badge variant="outline" className="text-[10px]">
+                                      {fund.subCategory}
+                                    </Badge>
+                                    {isRemote && (
+                                      <Badge variant="secondary" className="text-[10px] py-0">
+                                        AMFI
+                                      </Badge>
+                                    )}
+                                    <span className="text-[10px] text-muted-foreground truncate">
+                                      {fund.fundHouse}
+                                    </span>
+                                  </div>
                                 </div>
-                                <div className="flex gap-1.5 mt-1 items-center">
-                                  <Badge variant="outline" className="text-[10px]">
-                                    {fund.subCategory}
-                                  </Badge>
-                                  <span className="text-[10px] text-muted-foreground truncate">
-                                    {fund.fundHouse}
-                                  </span>
+                                <div className="shrink-0 w-6 h-6 rounded-md bg-muted group-hover:bg-financial-accent/15 flex items-center justify-center transition-colors">
+                                  <Plus className="w-3.5 h-3.5 text-muted-foreground group-hover:text-financial-accent" />
                                 </div>
                               </div>
-                              <div className="shrink-0 w-6 h-6 rounded-md bg-muted group-hover:bg-financial-accent/15 flex items-center justify-center transition-colors">
-                                <Plus className="w-3.5 h-3.5 text-muted-foreground group-hover:text-financial-accent" />
-                              </div>
-                            </div>
-                          </motion.button>
-                        ))}
+                            </motion.button>
+                          );
+                        })}
                       </div>
                     </ScrollArea>
+                  )}
+
+                  {/* No results */}
+                  {!searching && query.trim().length >= 3 && searchResults.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center py-3">
+                      No funds found for "{query.trim()}"
+                    </p>
                   )}
 
                   {/* Suggestions */}
