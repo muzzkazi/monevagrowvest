@@ -465,79 +465,12 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         </div>
       </div>
 
-      {/* AMFI-wide search results — funds outside our curated list */}
-      {amfiResults.length > 0 && (
-        <Card className="border-financial-accent/30 bg-financial-accent/5">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-financial-accent" />
-                <h4 className="text-sm font-semibold text-foreground">
-                  {selectedSubCategory !== "All" && searchQuery.trim().length < 3
-                    ? `More ${selectedSubCategory} funds from AMFI`
-                    : "More from AMFI database"}
-                </h4>
-                <Badge variant="secondary" className="text-[10px]">
-                  {amfiResults.length} found
-                </Badge>
-              </div>
-              <button
-                onClick={() => setAmfiResults([])}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                Hide
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mb-3">
-              Funds beyond our curated list of 39. Click "Add" to include any fund in the table with its live NAV.
-            </p>
-            <ScrollArea className="max-h-72">
-              <div className="grid sm:grid-cols-2 gap-2 pr-2">
-                {amfiResults.map((fund) => (
-                  <div
-                    key={fund.schemeCode}
-                    className="flex items-start justify-between gap-2 p-2.5 rounded-lg border bg-card"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-foreground truncate">
-                        {fund.schemeName.split(" - ")[0]}
-                      </div>
-                      <div className="flex gap-1.5 mt-1 items-center flex-wrap">
-                        <Badge variant="outline" className="text-[10px] py-0 px-1.5">
-                          {fund.subCategory}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground truncate">
-                          {fund.fundHouse}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={addingCode === fund.schemeCode}
-                      onClick={() => addAmfiFund(fund)}
-                      className="shrink-0 h-7 px-2 gap-1 text-xs"
-                    >
-                      {addingCode === fund.schemeCode ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <Plus className="w-3 h-3" />
-                      )}
-                      Add
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Hint when query too short */}
-      {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 && (
-        <p className="text-xs text-muted-foreground -mt-3">
-          Type at least 3 characters to search the full AMFI database
-        </p>
+      {/* Inline AMFI loading hint while merging sub-category funds into the table */}
+      {amfiSearching && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground -mt-2">
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          Loading more {selectedSubCategory !== "All" ? selectedSubCategory + " " : ""}funds from AMFI…
+        </div>
       )}
 
       {/* Filters panel */}
