@@ -411,9 +411,18 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         case "returns1Y": aVal = a.returns1Y; bVal = b.returns1Y; break;
         case "returns3Y": aVal = a.returns3Y; bVal = b.returns3Y; break;
         case "returns5Y": aVal = a.returns5Y; bVal = b.returns5Y; break;
-        case "aum": aVal = a.aum; bVal = b.aum; break;
-        case "expenseRatio": aVal = a.expenseRatio; bVal = b.expenseRatio; break;
-        case "rating": aVal = a.rating; bVal = b.rating; break;
+        case "aum":
+        case "expenseRatio":
+        case "rating": {
+          const aMissing = a[sortField] === 0;
+          const bMissing = b[sortField] === 0;
+          // Always push rows with missing premium data to the bottom,
+          // regardless of asc/desc direction.
+          if (aMissing && !bMissing) return 1;
+          if (!aMissing && bMissing) return -1;
+          aVal = a[sortField]; bVal = b[sortField];
+          break;
+        }
         default: aVal = 0; bVal = 0;
       }
       return sortDirection === "asc" ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
