@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, Filter, Star, TrendingUp, ArrowUpDown, ChevronUp, ChevronDown, 
-  X, BarChart3, Plus, Minus, SlidersHorizontal, RotateCcw, RefreshCw, Wifi 
+  X, BarChart3, Plus, Minus, SlidersHorizontal, RotateCcw, RefreshCw, Wifi, Loader2, Sparkles
 } from "lucide-react";
 import { 
   mutualFunds as staticFunds, fundCategories, fundSubCategories, fundHouses, 
@@ -27,6 +27,53 @@ type SortDirection = "asc" | "desc";
 interface MutualFundScreenerProps {
   onCompare?: (funds: MutualFundInfo[]) => void;
 }
+
+// ---- AMFI search helpers (for funds beyond the curated list) ----
+const inferSubCategory = (name: string): string => {
+  const n = name.toLowerCase();
+  if (n.includes("small cap") || n.includes("smallcap")) return "Small Cap";
+  if (n.includes("mid cap") || n.includes("midcap") || n.includes("emerging")) return "Mid Cap";
+  if (n.includes("large & mid") || n.includes("large and mid")) return "Large & Mid Cap";
+  if (n.includes("flexi cap") || n.includes("flexicap")) return "Flexi Cap";
+  if (n.includes("multi cap") || n.includes("multicap")) return "Multi Cap";
+  if (n.includes("elss") || n.includes("tax saver") || n.includes("tax plan") || n.includes("long term equity")) return "ELSS";
+  if (n.includes("value")) return "Value";
+  if (n.includes("liquid")) return "Liquid";
+  if (n.includes("ultra short")) return "Ultra Short Duration";
+  if (n.includes("short duration") || n.includes("short term")) return "Short Duration";
+  if (n.includes("gilt")) return "Gilt";
+  if (n.includes("corporate bond")) return "Corporate Bond";
+  if (n.includes("arbitrage")) return "Arbitrage";
+  if (n.includes("balanced advantage")) return "Balanced Advantage";
+  if (n.includes("hybrid")) return "Aggressive Hybrid";
+  if (n.includes("index") || n.includes("nifty") || n.includes("sensex")) return "Index Fund";
+  if (n.includes("pharma") || n.includes("tech") || n.includes("digital") || n.includes("banking") || n.includes("infra") || n.includes("fmcg") || n.includes("energy") || n.includes("sectoral")) return "Sectoral";
+  if (n.includes("large cap") || n.includes("bluechip") || n.includes("blue chip") || n.includes("top 100")) return "Large Cap";
+  return "Flexi Cap";
+};
+
+const inferFundHouse = (name: string): string => name.split(/\s+/)[0] || "Unknown";
+
+const fromAmfiScheme = (s: { schemeCode: number | string; schemeName: string }): MutualFundInfo => {
+  const sub = inferSubCategory(s.schemeName);
+  const debt = ["Liquid", "Short Duration", "Long Duration", "Gilt", "Corporate Bond", "Banking & PSU", "Ultra Short Duration", "Medium Duration"].includes(sub);
+  return {
+    schemeCode: String(s.schemeCode),
+    schemeName: s.schemeName,
+    category: debt ? "Debt" : sub === "Aggressive Hybrid" || sub === "Arbitrage" || sub === "Balanced Advantage" ? "Hybrid" : "Equity",
+    subCategory: sub,
+    fundHouse: inferFundHouse(s.schemeName),
+    plan: s.schemeName.toLowerCase().includes("direct") ? "Direct" : "Regular",
+    nav: 0,
+    aum: 0,
+    expenseRatio: 0,
+    rating: 0,
+    riskLevel: debt ? "Low" : "High",
+    returns1Y: 0, returns3Y: 0, returns5Y: 0, returns10Y: 0,
+    sipMinimum: 500, lumpSumMinimum: 5000,
+    exitLoad: "—", benchmark: "—", fundManager: "—", inceptionDate: "—",
+  };
+};
 
 const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   const { toast } = useToast();
@@ -60,6 +107,11 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   // Fund detail modal
   const [selectedFund, setSelectedFund] = useState<MutualFundInfo | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+
+  // AMFI-wide search
+  const [amfiResults, setAmfiResults] = useState<MutualFundInfo[]>([]);
+  const [amfiSearching, setAmfiSearching] = useState(false);
+  const [addingCode, setAddingCode] = useState<string | null>(null);
 
   // Fetch live NAV data
   const fetchLiveNAVs = useCallback(async () => {
@@ -125,6 +177,72 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   useEffect(() => {
     fetchLiveNAVs();
   }, [fetchLiveNAVs]);
+
+  // Debounced AMFI-wide search (only when query is meaningful)
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 3) {
+      setAmfiResults([]);
+      setAmfiSearching(false);
+      return;
+    }
+    setAmfiSearching(true);
+    const ctrl = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
+        const res = await fetch(
+          `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`,
+          { signal: ctrl.signal },
+        );
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const existing = new Set(mutualFunds.map(f => f.schemeCode));
+          const mapped = data
+            .filter((s: any) => s && s.schemeCode && s.schemeName)
+            .map((s: any) => fromAmfiScheme(s))
+            .filter((f) => !existing.has(f.schemeCode))
+            .slice(0, 25);
+          setAmfiResults(mapped);
+        } else {
+          setAmfiResults([]);
+        }
+      } catch (e: any) {
+        if (e?.name !== "AbortError") setAmfiResults([]);
+      } finally {
+        setAmfiSearching(false);
+      }
+    }, 350);
+    return () => { ctrl.abort(); clearTimeout(t); };
+  }, [searchQuery, mutualFunds]);
+
+  // Add an AMFI fund to the list (with live NAV) and open its detail modal
+  const addAmfiFund = useCallback(async (fund: MutualFundInfo) => {
+    setAddingCode(fund.schemeCode);
+    try {
+      const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
+      const res = await fetch(
+        `${SUPABASE_URL}/functions/v1/mutual-funds?action=latest&code=${fund.schemeCode}`,
+      );
+      const data = await res.json();
+      let nav = 0;
+      if (data?.data?.[0]?.nav) nav = parseFloat(data.data[0].nav) || 0;
+      const enriched: MutualFundInfo = { ...fund, nav };
+      setMutualFunds(prev => prev.some(f => f.schemeCode === enriched.schemeCode) ? prev : [enriched, ...prev]);
+      setAmfiResults(prev => prev.filter(f => f.schemeCode !== fund.schemeCode));
+      // Reset numeric range filters so the new (zero-data) fund is visible in the table
+      setAumRange([0, 80000]);
+      setExpenseRange([0, 1.5]);
+      setReturns3YRange([-5, 40]);
+      setMinRating(0);
+      setRiskLevels([]);
+      toast({ title: "Added from AMFI", description: fund.schemeName.split(" - ")[0] });
+    } catch {
+      toast({ title: "Could not add fund", description: "Try again.", variant: "destructive" });
+    } finally {
+      setAddingCode(null);
+    }
+  }, [toast]);
 
   const subCategories = useMemo(() => {
     if (selectedCategory === "All") {
@@ -291,11 +409,14 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search mutual funds or fund house..."
+            placeholder="Search any AMFI mutual fund or fund house..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-9 pr-9"
           />
+          {amfiSearching && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground animate-spin" />
+          )}
         </div>
         <div className="flex gap-2">
           <Button
@@ -315,6 +436,79 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           )}
         </div>
       </div>
+
+      {/* AMFI-wide search results — funds outside our curated list */}
+      {amfiResults.length > 0 && (
+        <Card className="border-financial-accent/30 bg-financial-accent/5">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-financial-accent" />
+                <h4 className="text-sm font-semibold text-foreground">
+                  More from AMFI database
+                </h4>
+                <Badge variant="secondary" className="text-[10px]">
+                  {amfiResults.length} found
+                </Badge>
+              </div>
+              <button
+                onClick={() => setAmfiResults([])}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                Hide
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Funds beyond our curated list. Click "Add" to include any fund in the table with its live NAV.
+            </p>
+            <ScrollArea className="max-h-72">
+              <div className="grid sm:grid-cols-2 gap-2 pr-2">
+                {amfiResults.map((fund) => (
+                  <div
+                    key={fund.schemeCode}
+                    className="flex items-start justify-between gap-2 p-2.5 rounded-lg border bg-card"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">
+                        {fund.schemeName.split(" - ")[0]}
+                      </div>
+                      <div className="flex gap-1.5 mt-1 items-center flex-wrap">
+                        <Badge variant="outline" className="text-[10px] py-0 px-1.5">
+                          {fund.subCategory}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground truncate">
+                          {fund.fundHouse}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={addingCode === fund.schemeCode}
+                      onClick={() => addAmfiFund(fund)}
+                      className="shrink-0 h-7 px-2 gap-1 text-xs"
+                    >
+                      {addingCode === fund.schemeCode ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Plus className="w-3 h-3" />
+                      )}
+                      Add
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Hint when query too short */}
+      {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 && (
+        <p className="text-xs text-muted-foreground -mt-3">
+          Type at least 3 characters to search the full AMFI database
+        </p>
+      )}
 
       {/* Filters panel */}
       {showFilters && (
