@@ -80,78 +80,51 @@ const InvestmentSimulation = () => {
   const [selectedStrategy, setSelectedStrategy] = useState<keyof Portfolio | null>(null);
   const [speed, setSpeed] = useState(1000); // milliseconds
 
-  const marketEvents: MarketEvent[] = [
-    {
-      year: 1,
-      event: '2014: Modi Wave',
-      return: 0.29,
-      description: 'BJP victory and reform expectations drive massive rally',
-      news: '🗳️ Sensex hits record highs on Modi victory, FII inflows surge'
-    },
-    {
-      year: 2,
-      event: '2015: Rate Cut Cycle',
-      return: 0.05,
-      description: 'RBI cuts rates but global headwinds limit gains',
-      news: '🏦 RBI cuts repo rate, but China slowdown weighs on markets'
-    },
-    {
-      year: 3,
-      event: '2016: Demonetization',
-      return: 0.02,
-      description: 'Currency ban creates uncertainty, markets flat',
-      news: '💸 Demonetization shocks economy, markets remain volatile'
-    },
-    {
-      year: 4,
-      event: '2017: GST Implementation',
-      return: 0.28,
-      description: 'GST launch and global liquidity drive strong gains',
-      news: '📊 GST rollout smooth, Sensex crosses 30,000 for first time'
-    },
-    {
-      year: 5,
-      event: '2018: NBFC Crisis',
-      return: 0.03,
-      description: 'IL&FS default triggers NBFC sector crisis',
-      news: '🏛️ IL&FS default sparks liquidity crisis in shadow banking'
-    },
-    {
-      year: 6,
-      event: '2019: Election Volatility',
-      return: 0.14,
-      description: 'Modi re-election and rate cuts support markets',
-      news: '🎯 Modi 2.0 victory rally, RBI cuts rates aggressively'
-    },
-    {
-      year: 7,
-      event: '2020: COVID Crash',
-      return: -0.24,
-      description: 'Pandemic and lockdown crash Indian markets',
-      news: '🦠 Sensex crashes 38% in March, worst fall since 2008'
-    },
-    {
-      year: 8,
-      event: '2021: Retail Boom',
-      return: 0.23,
-      description: 'Retail investor surge and liquidity drive rally',
-      news: '📱 Zerodha crosses 6 million users, Sensex hits 60,000'
-    },
-    {
-      year: 9,
-      event: '2022: Rate Hike Cycle',
-      return: 0.04,
-      description: 'RBI hikes rates aggressively to combat inflation',
-      news: '📈 RBI hikes repo rate 190 bps, FIIs sell ₹1.2 lakh crore'
-    },
-    {
-      year: 10,
-      event: '2023: Resilient India',
-      return: 0.20,
-      description: 'India outperforms global markets amid growth optimism',
-      news: '🇮🇳 India fastest growing major economy, markets at record highs'
-    }
+  // Full historical timeline 1999–2023. `year` is the position; calendar year is in `event` text.
+  const allMarketEvents: MarketEvent[] = [
+    { year: 1, event: '1999: Y2K & IT Boom', return: 0.64, description: 'Tech euphoria sweeps Indian markets', news: '💻 Sensex doubles on IT optimism, Infosys becomes a household name' },
+    { year: 2, event: '2000: Dot-com Crash', return: -0.21, description: 'Global tech bubble bursts, IT stocks collapse', news: '📉 Nasdaq plunge drags Sensex; first lesson in bubbles' },
+    { year: 3, event: '2001: 9/11 & Ketan Parekh Scam', return: -0.18, description: 'Geopolitical shock and broker fraud rattle markets', news: '🚨 Ketan Parekh scam exposed; markets crash post-9/11' },
+    { year: 4, event: '2002: Slow Recovery', return: 0.04, description: 'Markets stabilise after two brutal years', news: '🐢 Patience pays as Sensex inches back from lows' },
+    { year: 5, event: '2003: Bull Run Begins', return: 0.73, description: 'Historic rally driven by global liquidity and reforms', news: '🚀 Sensex up 73% — one of the best years ever' },
+    { year: 6, event: '2004: Election Shock', return: 0.13, description: 'May 17 crash, then strong recovery', news: '🗳️ Sensex hits lower circuit; Manmohan-led UPA reassures markets' },
+    { year: 7, event: '2005: FII Inflow Surge', return: 0.42, description: 'Foreign capital floods Indian equities', news: '🌏 Sensex crosses 9,000 for the first time' },
+    { year: 8, event: '2006: Mid-cap Mania', return: 0.47, description: 'Broader market rally with mid/small caps leading', news: '📊 Sensex doubles in two years; retail investors pile in' },
+    { year: 9, event: '2007: Pre-Crisis Peak', return: 0.47, description: 'Sensex hits 20,000 amid global liquidity boom', news: '🏔️ Markets at all-time highs as global cracks emerge' },
+    { year: 10, event: '2008: Global Financial Crisis', return: -0.52, description: 'Lehman collapse triggers worst crash in modern history', news: '💥 Sensex halved in a year — the ultimate stress test' },
+    { year: 11, event: '2009: V-Shaped Recovery', return: 0.81, description: 'Massive rebound rewards investors who stayed put', news: '📈 Sensex up 81% — patience after panic pays off big' },
+    { year: 12, event: '2010: Post-Crisis Rally', return: 0.17, description: 'Steady gains as global stimulus continues', news: '🏦 RBI begins normalising rates; Sensex hits 21,000 again' },
+    { year: 13, event: '2011: Eurozone Crisis', return: -0.25, description: 'Sovereign debt fears + high domestic inflation', news: '🇪🇺 European debt scare drags Sensex 25% lower' },
+    { year: 14, event: '2012: QE Rally', return: 0.26, description: 'Global central bank stimulus lifts emerging markets', news: '💵 Fed QE3 + ECB OMT spark a strong recovery year' },
+    { year: 15, event: '2013: Taper Tantrum', return: 0.09, description: 'Rupee crashes on Fed taper fears, but markets recover', news: '💱 Rupee hits record low; RBI Governor Rajan steadies the ship' },
+    { year: 16, event: '2014: Modi Wave', return: 0.29, description: 'BJP victory and reform expectations drive massive rally', news: '🗳️ Sensex hits record highs on Modi victory, FII inflows surge' },
+    { year: 17, event: '2015: Rate Cut Cycle', return: 0.05, description: 'RBI cuts rates but global headwinds limit gains', news: '🏦 RBI cuts repo rate, but China slowdown weighs on markets' },
+    { year: 18, event: '2016: Demonetization', return: 0.02, description: 'Currency ban creates uncertainty, markets flat', news: '💸 Demonetization shocks economy, markets remain volatile' },
+    { year: 19, event: '2017: GST Implementation', return: 0.28, description: 'GST launch and global liquidity drive strong gains', news: '📊 GST rollout smooth, Sensex crosses 30,000 for first time' },
+    { year: 20, event: '2018: NBFC Crisis', return: 0.03, description: 'IL&FS default triggers NBFC sector crisis', news: '🏛️ IL&FS default sparks liquidity crisis in shadow banking' },
+    { year: 21, event: '2019: Election Volatility', return: 0.14, description: 'Modi re-election and rate cuts support markets', news: '🎯 Modi 2.0 victory rally, RBI cuts rates aggressively' },
+    { year: 22, event: '2020: COVID Crash', return: -0.24, description: 'Pandemic and lockdown crash Indian markets', news: '🦠 Sensex crashes 38% in March, worst fall since 2008' },
+    { year: 23, event: '2021: Retail Boom', return: 0.23, description: 'Retail investor surge and liquidity drive rally', news: '📱 Zerodha crosses 6 million users, Sensex hits 60,000' },
+    { year: 24, event: '2022: Rate Hike Cycle', return: 0.04, description: 'RBI hikes rates aggressively to combat inflation', news: '📈 RBI hikes repo rate 190 bps, FIIs sell ₹1.2 lakh crore' },
+    { year: 25, event: '2023: Resilient India', return: 0.20, description: 'India outperforms global markets amid growth optimism', news: '🇮🇳 India fastest growing major economy, markets at record highs' },
   ];
+
+  // Start-year options: end is always 2023. Slice the master array from the chosen start.
+  const startYearOptions = [
+    { startCalendar: 2014, label: '10 yrs (2014–2023)' },
+    { startCalendar: 2009, label: '15 yrs (2009–2023)' },
+    { startCalendar: 2004, label: '20 yrs (2004–2023)' },
+    { startCalendar: 1999, label: '25 yrs (1999–2023)' },
+  ];
+  const [startCalendarYear, setStartCalendarYear] = useState<number>(2014);
+
+  const marketEvents: MarketEvent[] = useMemo(() => {
+    const sliceStart = startCalendarYear - 1999; // index of chosen start year in allMarketEvents
+    return allMarketEvents
+      .slice(sliceStart)
+      .map((e, i) => ({ ...e, year: i + 1 }));
+  }, [startCalendarYear]);
+
 
   const getStrategyMultiplier = (strategy: keyof Portfolio, baseReturn: number): number => {
     switch (strategy) {
@@ -275,7 +248,7 @@ const InvestmentSimulation = () => {
                 Investment Time Machine
               </CardTitle>
               <CardDescription>
-                Experience 10 years of market volatility with ₹10,000 in each strategy
+                Experience {marketEvents.length} years of market volatility with ₹10,000 in each strategy
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
@@ -299,11 +272,31 @@ const InvestmentSimulation = () => {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Timeframe selector — disabled mid-run */}
+          <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-border">
+            <span className="text-sm text-muted-foreground mr-1">Timeframe:</span>
+            {startYearOptions.map((opt) => (
+              <Button
+                key={opt.startCalendar}
+                size="sm"
+                variant={startCalendarYear === opt.startCalendar ? 'default' : 'outline'}
+                disabled={simState.isRunning || simState.currentYear > 0}
+                onClick={() => {
+                  setStartCalendarYear(opt.startCalendar);
+                  setHistory(initialHistory);
+                }}
+                className={startCalendarYear === opt.startCalendar ? 'bg-financial-accent hover:bg-financial-accent/90' : ''}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">
               <div className="flex items-center">
                 <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
-                <span className="text-sm">Year {simState.currentYear}/10</span>
+                <span className="text-sm">Year {simState.currentYear}/{marketEvents.length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-muted-foreground">Speed:</span>
@@ -332,7 +325,7 @@ const InvestmentSimulation = () => {
             </div>
           </div>
           
-          <Progress value={(simState.currentYear / 10) * 100} className="h-2" />
+          <Progress value={(simState.currentYear / marketEvents.length) * 100} className="h-2" />
         </CardContent>
       </Card>
 
@@ -533,7 +526,7 @@ const InvestmentSimulation = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Award className="w-6 h-6 mr-2 text-financial-gold" />
-              10-Year Simulation Complete!
+              {marketEvents.length}-Year Simulation Complete!
             </CardTitle>
             <CardDescription>Here's how each strategy performed</CardDescription>
           </CardHeader>
