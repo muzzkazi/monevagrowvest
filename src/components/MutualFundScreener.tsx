@@ -842,10 +842,52 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
                       {fund.returns5Y > 0 ? `+${fund.returns5Y.toFixed(1)}%` : '—'}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right hidden lg:table-cell text-sm">{formatAUM(fund.aum)}</TableCell>
-                  <TableCell className="text-right hidden lg:table-cell text-sm">{fund.expenseRatio.toFixed(2)}%</TableCell>
+                  <TableCell className="text-right hidden lg:table-cell text-sm">
+                    {fund.aum > 0 ? (
+                      formatAUM(fund.aum)
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-muted-foreground/60 cursor-help border-b border-dashed border-muted-foreground/30">—</span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[220px]">
+                          <p className="font-medium text-xs">Premium data</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">AUM is sourced from paid providers (Value Research / Morningstar) and isn't available for funds added on the fly from AMFI.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right hidden lg:table-cell text-sm">
+                    {fund.expenseRatio > 0 ? (
+                      `${fund.expenseRatio.toFixed(2)}%`
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-muted-foreground/60 cursor-help border-b border-dashed border-muted-foreground/30">—</span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[220px]">
+                          <p className="font-medium text-xs">Premium data</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">Expense ratio is published by AMCs but not exposed via AMFI's free feed. Available only for our curated funds.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </TableCell>
                   <TableCell className="hidden xl:table-cell">
-                    <div className="flex items-center justify-center gap-0.5">{renderStars(fund.rating)}</div>
+                    {fund.rating > 0 ? (
+                      <div className="flex items-center justify-center gap-0.5">{renderStars(fund.rating)}</div>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center justify-center gap-0.5 cursor-help">
+                            {renderStars(0)}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[220px]">
+                          <p className="font-medium text-xs">Premium data</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">Star ratings come from third-party analysts (Value Research, Morningstar). Only our curated funds have ratings.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
