@@ -102,16 +102,6 @@ const PortfolioOverlapPage = () => {
     const ctrl = new AbortController();
     const t = setTimeout(async () => {
       try {
-        const { data, error } = await supabase.functions.invoke("mutual-funds", {
-          body: undefined,
-          method: "GET" as never,
-          // pass query string via URL search params
-        } as never);
-        // supabase.functions.invoke doesn't natively accept query params; fall back to fetch
-      } catch {
-        /* ignored — fallback below */
-      }
-      try {
         const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
         const res = await fetch(
           `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`,
