@@ -159,11 +159,20 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
     const run = async () => {
       try {
         const houseNorm = houseActive ? normalizeHouse(selectedFundHouse) : "";
-        const queries = subActive
+
+        // Pick the base keyword set (sub-category > category > generic equity fan-out)
+        const baseQueries = subActive
           ? (SUB_CATEGORY_QUERIES[selectedSubCategory] ?? [selectedSubCategory.toLowerCase()])
           : catActive
             ? (CATEGORY_QUERIES[selectedCategory] ?? [selectedCategory.toLowerCase()])
-            : [houseNorm];
+            : (CATEGORY_QUERIES["Equity"]?.concat(CATEGORY_QUERIES["Hybrid"] ?? [], CATEGORY_QUERIES["Debt"] ?? []) ?? []);
+
+        // When a Fund House is selected, prefix every keyword with the house name
+        // so AMFI's name-prefix search returns the full catalog for that house
+        // (e.g. "tata large cap", "tata mid cap", …). Plus a bare "<house>" query.
+        const queries = houseActive
+          ? Array.from(new Set([houseNorm, ...baseQueries.map(q => `${houseNorm} ${q}`)]))
+          : baseQueries;
 
         const merged = await searchAmfiMany(queries, ctrl.signal);
         if (aborted) return;
@@ -181,7 +190,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           })
           // Prefer Direct Growth plans first
           .sort((a, b) => Number(b.plan === "Direct") - Number(a.plan === "Direct"))
-          .slice(0, 50);
+          .slice(0, 80);
 
         if (candidates.length === 0 || aborted) {
           setAmfiSearching(false);
