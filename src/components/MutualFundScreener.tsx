@@ -54,7 +54,19 @@ const inferSubCategory = (name: string): string => {
   return "Flexi Cap";
 };
 
-const inferFundHouse = (name: string): string => name.split(/\s+/)[0] || "Unknown";
+const inferFundHouse = (name: string): string => {
+  const n = name.toLowerCase();
+
+  const knownFundHouse = fundHouses.find((house) => {
+    if (house === "All") return false;
+    const normalizedHouse = house.toLowerCase().replace(/\bmutual fund\b/g, "").trim();
+    return n.includes(normalizedHouse);
+  });
+
+  if (knownFundHouse) return knownFundHouse;
+
+  return name.split(/\s+/).slice(0, 2).join(" ") || "Unknown";
+};
 
 const fromAmfiScheme = (s: { schemeCode: number | string; schemeName: string }): MutualFundInfo => {
   const sub = inferSubCategory(s.schemeName);
