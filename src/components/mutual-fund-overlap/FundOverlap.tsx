@@ -155,8 +155,20 @@ const FundOverlap = ({ funds }: FundOverlapProps) => {
               <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
                 {/* Donut */}
                 <div className="relative w-44 h-44 mx-auto lg:mx-0 shrink-0">
-                  {/* Glow */}
-                  <div className={`absolute inset-2 rounded-full bg-gradient-to-br ${tone.gradient} blur-2xl opacity-60`} />
+                  {/* Soft ambient ring glow behind donut — pulses gently */}
+                  <motion.div
+                    aria-hidden
+                    initial={{ opacity: 0.3, scale: 0.95 }}
+                    animate={{ opacity: [0.35, 0.55, 0.35], scale: [1, 1.05, 1] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className={`absolute inset-3 rounded-full bg-gradient-to-br ${tone.gradient} blur-xl`}
+                    style={{
+                      maskImage:
+                        "radial-gradient(circle, transparent 38%, black 46%, black 70%, transparent 80%)",
+                      WebkitMaskImage:
+                        "radial-gradient(circle, transparent 38%, black 46%, black 70%, transparent 80%)",
+                    }}
+                  />
                   <svg viewBox="0 0 100 100" className="relative w-full h-full -rotate-90">
                     <circle
                       cx="50"
