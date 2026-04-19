@@ -533,13 +533,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         </div>
       </div>
 
-      {/* Inline AMFI loading hint while merging sub-category funds into the table */}
-      {amfiSearching && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground -mt-2">
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          Loading more {selectedSubCategory !== "All" ? selectedSubCategory + " " : ""}funds from AMFI…
-        </div>
-      )}
+
 
       {/* Filters panel */}
       {showFilters && (
