@@ -218,11 +218,6 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           .sort((a, b) => Number(b.plan === "Direct") - Number(a.plan === "Direct"))
           .slice(0, 120);
 
-        console.log("[AMFI fan-out]", {
-          house: selectedFundHouse, queries: queries.length,
-          rawHits: merged.length, candidates: candidates.length,
-        });
-
         if (candidates.length === 0 || aborted) {
           setAmfiSearching(false);
           return;
@@ -234,9 +229,14 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         setMutualFunds(prev => {
           const have = new Set(prev.map(f => f.schemeCode));
           const additions = enriched.filter(e => !have.has(e.schemeCode));
-          console.log("[AMFI fan-out] additions:", additions.length);
-          if (additions.length === 0) return prev;
-          return [...prev, ...additions];
+          // Always update fundHouse on existing rows so the active filter matches
+          // (prevents stale houses like "PPFAS" vs "Parag Parikh Mutual Fund")
+          const updated = prev.map(p => {
+            const match = enriched.find(e => e.schemeCode === p.schemeCode);
+            return match ? { ...p, fundHouse: match.fundHouse } : p;
+          });
+          if (additions.length === 0) return updated;
+          return [...updated, ...additions];
         });
 
         // Loosen numeric filters once so zero-AUM/return AMFI funds aren't hidden
