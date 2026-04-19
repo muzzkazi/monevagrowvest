@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PageLayout from "@/components/shared/PageLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,19 +6,77 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Layers, Search, X, Plus, Sparkles, TrendingDown, Target, Eye } from "lucide-react";
+import { Layers, Search, X, Plus, Sparkles, TrendingDown, Target, Eye, Loader2 } from "lucide-react";
 import { mutualFunds, MutualFundInfo } from "@/data/mutualFundDatabase";
 import FundOverlap from "@/components/mutual-fund-overlap/FundOverlap";
 
+
 const MAX_FUNDS = 4;
+
+// Infer sub-category from AMFI scheme name so overlap engine has a stock pool to work with.
+const inferSubCategory = (name: string): string => {
+  const n = name.toLowerCase();
+  if (n.includes("small cap") || n.includes("smallcap")) return "Small Cap";
+  if (n.includes("mid cap") || n.includes("midcap") || n.includes("emerging")) return "Mid Cap";
+  if (n.includes("large & mid") || n.includes("large and mid")) return "Large & Mid Cap";
+  if (n.includes("flexi cap") || n.includes("flexicap")) return "Flexi Cap";
+  if (n.includes("multi cap") || n.includes("multicap")) return "Multi Cap";
+  if (n.includes("elss") || n.includes("tax saver") || n.includes("tax plan") || n.includes("long term equity"))
+    return "ELSS";
+  if (n.includes("value")) return "Value";
+  if (n.includes("index") || n.includes("nifty") || n.includes("sensex")) return "Index Fund";
+  if (n.includes("pharma") || n.includes("tech") || n.includes("banking") || n.includes("infra") || n.includes("fmcg") || n.includes("energy") || n.includes("sectoral"))
+    return "Sectoral";
+  if (n.includes("large cap") || n.includes("bluechip") || n.includes("blue chip") || n.includes("top 100"))
+    return "Large Cap";
+  return "Flexi Cap";
+};
+
+const inferFundHouse = (name: string): string => {
+  // First word(s) before "Mutual Fund" / "MF" / first hyphen often = AMC
+  const first = name.split(/\s+/)[0];
+  return first || "Unknown";
+};
+
+const fromAmfiScheme = (s: { schemeCode: number | string; schemeName: string }): MutualFundInfo => {
+  const sub = inferSubCategory(s.schemeName);
+  return {
+    schemeCode: String(s.schemeCode),
+    schemeName: s.schemeName,
+    category: ["Liquid", "Short Duration", "Long Duration", "Gilt", "Corporate Bond", "Banking & PSU", "Ultra Short Duration", "Medium Duration"].includes(sub)
+      ? "Debt"
+      : "Equity",
+    subCategory: sub,
+    fundHouse: inferFundHouse(s.schemeName),
+    plan: s.schemeName.toLowerCase().includes("direct") ? "Direct" : "Regular",
+    nav: 0,
+    aum: 0,
+    expenseRatio: 0,
+    rating: 0,
+    riskLevel: "High",
+    returns1Y: 0,
+    returns3Y: 0,
+    returns5Y: 0,
+    returns10Y: 0,
+    sipMinimum: 500,
+    lumpSumMinimum: 5000,
+    exitLoad: "—",
+    benchmark: "—",
+    fundManager: "—",
+    inceptionDate: "—",
+  };
+};
 
 const PortfolioOverlapPage = () => {
   const [selected, setSelected] = useState<MutualFundInfo[]>([]);
   const [query, setQuery] = useState("");
+  const [remoteResults, setRemoteResults] = useState<MutualFundInfo[]>([]);
+  const [searching, setSearching] = useState(false);
 
   const selectedCodes = useMemo(() => new Set(selected.map((f) => f.schemeCode)), [selected]);
 
-  const searchResults = useMemo(() => {
+  // Local matches (rich data) — shown first
+  const localResults = useMemo(() => {
     if (!query.trim()) return [];
     const q = query.toLowerCase();
     return mutualFunds
@@ -29,8 +87,54 @@ const PortfolioOverlapPage = () => {
             f.fundHouse.toLowerCase().includes(q) ||
             f.subCategory.toLowerCase().includes(q)),
       )
-      .slice(0, 10);
+      .slice(0, 6);
   }, [query, selectedCodes]);
+
+  // Debounced AMFI-wide search via edge function
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 3) {
+      setRemoteResults([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const ctrl = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
+        const res = await fetch(
+          `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`,
+          { signal: ctrl.signal },
+        );
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const localCodes = new Set(mutualFunds.map((f) => f.schemeCode));
+          const mapped: MutualFundInfo[] = data
+            .filter((s: any) => s && s.schemeCode && s.schemeName)
+            .map((s: any) => fromAmfiScheme(s))
+            .filter((f) => !selectedCodes.has(f.schemeCode) && !localCodes.has(f.schemeCode))
+            .slice(0, 40);
+          setRemoteResults(mapped);
+        } else {
+          setRemoteResults([]);
+        }
+      } catch (e: any) {
+        if (e?.name !== "AbortError") setRemoteResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+    return () => {
+      ctrl.abort();
+      clearTimeout(t);
+    };
+  }, [query, selectedCodes]);
+
+  const searchResults = useMemo(
+    () => [...localResults, ...remoteResults],
+    [localResults, remoteResults],
+  );
 
   const addFund = (fund: MutualFundInfo) => {
     if (selected.length >= MAX_FUNDS) return;
@@ -200,48 +304,73 @@ const PortfolioOverlapPage = () => {
                       placeholder={
                         selected.length >= MAX_FUNDS
                           ? `Maximum ${MAX_FUNDS} reached`
-                          : "Search funds to add..."
+                          : "Search any AMFI mutual fund..."
                       }
                       disabled={selected.length >= MAX_FUNDS}
-                      className="pl-9 h-10"
+                      className="pl-9 pr-9 h-10"
                     />
+                    {searching && (
+                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground animate-spin" />
+                    )}
                   </div>
+
+                  {/* Hint */}
+                  {query.trim().length > 0 && query.trim().length < 3 && (
+                    <p className="text-[11px] text-muted-foreground -mt-2">
+                      Type at least 3 characters to search all AMFI schemes
+                    </p>
+                  )}
 
                   {/* Search results */}
                   {searchResults.length > 0 && (
                     <ScrollArea className="max-h-72">
                       <div className="space-y-1.5 pr-2">
-                        {searchResults.map((fund, i) => (
-                          <motion.button
-                            key={fund.schemeCode}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.2, delay: i * 0.03 }}
-                            onClick={() => addFund(fund)}
-                            className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-colors group"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-foreground truncate">
-                                  {fund.schemeName.split(" - ")[0]}
+                        {searchResults.map((fund, i) => {
+                          const isRemote = !mutualFunds.some((m) => m.schemeCode === fund.schemeCode);
+                          return (
+                            <motion.button
+                              key={fund.schemeCode}
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.02 }}
+                              onClick={() => addFund(fund)}
+                              className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-colors group"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-foreground truncate">
+                                    {fund.schemeName.split(" - ")[0]}
+                                  </div>
+                                  <div className="flex gap-1.5 mt-1 items-center flex-wrap">
+                                    <Badge variant="outline" className="text-[10px]">
+                                      {fund.subCategory}
+                                    </Badge>
+                                    {isRemote && (
+                                      <Badge variant="secondary" className="text-[10px] py-0">
+                                        AMFI
+                                      </Badge>
+                                    )}
+                                    <span className="text-[10px] text-muted-foreground truncate">
+                                      {fund.fundHouse}
+                                    </span>
+                                  </div>
                                 </div>
-                                <div className="flex gap-1.5 mt-1 items-center">
-                                  <Badge variant="outline" className="text-[10px]">
-                                    {fund.subCategory}
-                                  </Badge>
-                                  <span className="text-[10px] text-muted-foreground truncate">
-                                    {fund.fundHouse}
-                                  </span>
+                                <div className="shrink-0 w-6 h-6 rounded-md bg-muted group-hover:bg-financial-accent/15 flex items-center justify-center transition-colors">
+                                  <Plus className="w-3.5 h-3.5 text-muted-foreground group-hover:text-financial-accent" />
                                 </div>
                               </div>
-                              <div className="shrink-0 w-6 h-6 rounded-md bg-muted group-hover:bg-financial-accent/15 flex items-center justify-center transition-colors">
-                                <Plus className="w-3.5 h-3.5 text-muted-foreground group-hover:text-financial-accent" />
-                              </div>
-                            </div>
-                          </motion.button>
-                        ))}
+                            </motion.button>
+                          );
+                        })}
                       </div>
                     </ScrollArea>
+                  )}
+
+                  {/* No results */}
+                  {!searching && query.trim().length >= 3 && searchResults.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center py-3">
+                      No funds found for "{query.trim()}"
+                    </p>
                   )}
 
                   {/* Suggestions */}
