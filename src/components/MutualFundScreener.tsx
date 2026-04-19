@@ -560,7 +560,15 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
                 </Select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Fund House</label>
+                <div className="flex items-center justify-between gap-1.5 min-h-[1rem]">
+                  <label className="text-xs font-medium text-muted-foreground">Fund House</label>
+                  {amfiSearching && (
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      AMFI…
+                    </span>
+                  )}
+                </div>
                 <Select value={selectedFundHouse} onValueChange={setSelectedFundHouse}>
                   <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
                   <SelectContent>
