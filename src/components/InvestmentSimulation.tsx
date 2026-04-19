@@ -262,7 +262,7 @@ const InvestmentSimulation = () => {
               {!simState.isRunning && !simState.isComplete && (
                 <Button onClick={startSimulation} className="bg-financial-accent hover:bg-financial-accent/90">
                   <Play className="w-4 h-4 mr-2" />
-                  Start Simulation
+                  {simState.currentYear > 0 ? 'Resume' : 'Start Simulation'}
                 </Button>
               )}
               {simState.isRunning && (
