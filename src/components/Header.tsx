@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Sparkles, Target, TrendingUp, Wallet, Receipt, Landmark, Clock, LineChart, PieChart, Menu, FileText, Wrench, PiggyBank, GraduationCap, Info, Layers, ClipboardCheck } from "lucide-react";
+import { Phone, Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from "@/components/ui/sheet";
@@ -90,39 +90,36 @@ const Header = () => {
                 <span className={`${navLinkClass(
                   ['/calculators', '/stock-screener', '/mutual-fund-comparison', '/portfolio-overlap', '/portfolio-review', '/budget-tracker', '/debt-management'].includes(location.pathname)
                 )} flex items-center gap-1.5`}>
-                  <Wrench className="h-4 w-4" /> Tools
+                  Tools
                 </span>
                 <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
                   <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[260px] py-2 overflow-hidden">
                     <div className="px-5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Calculators</div>
                     <Link to="/calculators?tab=sip" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <TrendingUp className="h-4 w-4" /> SIP Calculator
+                      SIP Calculator
                     </Link>
                     <Link to="/calculators?tab=emi" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <Receipt className="h-4 w-4" /> EMI Calculator
+                      EMI Calculator
                     </Link>
                     <Link to="/calculators?tab=tax" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <Landmark className="h-4 w-4" /> Tax Calculator
+                      Tax Calculator
                     </Link>
                     <Link to="/calculators?tab=retirement" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <Clock className="h-4 w-4" /> Retirement Planner
+                      Retirement Planner
                     </Link>
                     <div className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Screeners</div>
                     <Link to="/stock-screener" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 group-hover/item:bg-blue-500/20 transition-colors dark:bg-blue-500/20 dark:text-blue-400">
-                        <LineChart className="h-4 w-4" />
                       </div>
                       Stock Screener
                     </Link>
                     <Link to="/mutual-fund-comparison" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover/item:bg-emerald-500/20 transition-colors dark:bg-emerald-500/20 dark:text-emerald-400">
-                        <PieChart className="h-4 w-4" />
                       </div>
                       Mutual Fund Screener
                     </Link>
                     <Link to="/portfolio-overlap" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 group-hover/item:bg-amber-500/20 transition-colors dark:bg-amber-500/20 dark:text-amber-400">
-                        <Layers className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
                         <span>Portfolio Overlap</span>
@@ -131,7 +128,6 @@ const Header = () => {
                     </Link>
                     <Link to="/portfolio-review" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-600 group-hover/item:bg-purple-500/20 transition-colors dark:bg-purple-500/20 dark:text-purple-400">
-                        <ClipboardCheck className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
                         <span>AI Portfolio Review</span>
@@ -140,10 +136,10 @@ const Header = () => {
                     </Link>
                     <div className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Money Management</div>
                     <Link to="/budget-tracker" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <PiggyBank className="h-4 w-4" /> Budget Tracker
+                      Budget Tracker
                     </Link>
                     <Link to="/debt-management" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <Wallet className="h-4 w-4" /> Debt Management
+                      Debt Management
                     </Link>
                   </div>
                 </div>
