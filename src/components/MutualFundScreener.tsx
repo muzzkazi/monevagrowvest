@@ -194,12 +194,14 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
       try {
         const houseTerms = houseActive ? houseSearchTerms(selectedFundHouse) : [];
 
-        // Pick the base keyword set (sub-category > category > generic equity fan-out)
+        // Pick the base keyword set (sub-category > category > top fund houses)
+        // For the landing page (no filters), we fan-out across the biggest AMCs
+        // so the table fills with real popular schemes (not obscure AMFI rows).
         const baseQueries = subActive
           ? (SUB_CATEGORY_QUERIES[selectedSubCategory] ?? [selectedSubCategory.toLowerCase()])
           : catActive
             ? (CATEGORY_QUERIES[selectedCategory] ?? [selectedCategory.toLowerCase()])
-            : (CATEGORY_QUERIES["Equity"]?.concat(CATEGORY_QUERIES["Hybrid"] ?? [], CATEGORY_QUERIES["Debt"] ?? []) ?? []);
+            : ["sbi", "hdfc", "icici prudential", "axis", "kotak", "nippon india", "mirae asset", "uti", "dsp", "tata", "aditya birla", "parag parikh"];
 
         // When a Fund House is selected, fan-out across every alias × keyword
         // so AMFI's full-list matcher returns the complete catalog for that house.
@@ -209,6 +211,8 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
               ...houseTerms.flatMap(h => baseQueries.map(q => `${h} ${q}`)),
             ]))
           : baseQueries;
+
+
 
         const merged = await searchAmfiMany(queries, ctrl.signal);
         if (aborted) return;
