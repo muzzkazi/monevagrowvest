@@ -137,87 +137,36 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
     fetchLiveNAVs();
   }, [fetchLiveNAVs]);
 
-  // Auto-merge AMFI funds into the table when a sub-category is selected.
-  // Uses several search queries against AMFI to maximise hits, then keeps only schemes
-  // that classify into the selected sub-category. New schemes get live NAV in batch.
+  // Auto-merge AMFI funds into the table when either:
+  //   • a Sub Category is picked   → keep only schemes classifying to that sub-category
+  //   • only a Category is picked  → fan-out across that category's umbrella keywords
+  // New schemes are enriched with live NAV + 1Y/3Y/5Y CAGR via the edge function.
   useEffect(() => {
-    if (selectedSubCategory === "All") return;
+    const subActive = selectedSubCategory !== "All";
+    const catActive = selectedCategory !== "All";
+    if (!subActive && !catActive) return;
 
     let aborted = false;
     const ctrl = new AbortController();
     setAmfiSearching(true);
 
-    // Map each sub-category -> list of AMFI search keywords likely to surface matches.
-    // AMFI scheme names rarely contain the exact SEBI sub-category label, so we try
-    // multiple synonyms and aggregate results.
-    const SUB_QUERIES: Record<string, string[]> = {
-      "Large Cap": ["large cap", "bluechip", "blue chip", "top 100"],
-      "Mid Cap": ["mid cap", "midcap", "emerging"],
-      "Small Cap": ["small cap", "smallcap"],
-      "Large & Mid Cap": ["large & mid", "large and mid", "large midcap", "large mid cap"],
-      "Multi Cap": ["multi cap", "multicap"],
-      "Flexi Cap": ["flexi cap", "flexicap"],
-      "ELSS": ["elss", "tax saver", "tax plan", "long term equity"],
-      "Sectoral": ["pharma", "tech", "digital", "banking", "infra", "fmcg", "energy", "sectoral"],
-      "Index Fund": ["index", "nifty", "sensex"],
-      "Value": ["value"],
-      "Liquid": ["liquid"],
-      "Ultra Short Duration": ["ultra short"],
-      "Short Duration": ["short duration", "short term"],
-      "Medium Duration": ["medium duration"],
-      "Long Duration": ["long duration"],
-      "Corporate Bond": ["corporate bond"],
-      "Gilt": ["gilt"],
-      "Banking & PSU": ["banking psu", "banking and psu", "psu debt"],
-      "Aggressive Hybrid": ["hybrid", "equity hybrid", "balanced"],
-      "Conservative Hybrid": ["conservative hybrid", "regular savings", "monthly income"],
-      "Balanced Advantage": ["balanced advantage", "dynamic asset"],
-      "Multi Asset Allocation": ["multi asset"],
-      "Arbitrage": ["arbitrage"],
-      "Retirement": ["retirement"],
-      "Children's Fund": ["children", "child"],
-      "International": ["nasdaq", "us equity", "global", "international"],
-      "Fund of Funds": ["fund of funds", "fof"],
-      "ETF": ["etf"],
-    };
-
     const run = async () => {
       try {
-        const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
-        const PUBLISHABLE_KEY = (import.meta as any).env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const queries = subActive
+          ? (SUB_CATEGORY_QUERIES[selectedSubCategory] ?? [selectedSubCategory.toLowerCase()])
+          : (CATEGORY_QUERIES[selectedCategory] ?? [selectedCategory.toLowerCase()]);
 
-        const queries = SUB_QUERIES[selectedSubCategory] ?? [selectedSubCategory.toLowerCase()];
-
-        // 1. Run all keyword searches in parallel and de-dupe by schemeCode
-        const searchResponses = await Promise.all(
-          queries.map(q =>
-            fetch(
-              `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`,
-              { signal: ctrl.signal },
-            )
-              .then(r => r.ok ? r.json() : [])
-              .catch(() => []),
-          ),
-        );
+        const merged = await searchAmfiMany(queries, ctrl.signal);
         if (aborted) return;
-
-        const seen = new Set<string>();
-        const merged: any[] = [];
-        for (const arr of searchResponses) {
-          if (!Array.isArray(arr)) continue;
-          for (const s of arr) {
-            const code = String(s?.schemeCode ?? "");
-            if (!code || seen.has(code)) continue;
-            seen.add(code);
-            merged.push(s);
-          }
-        }
 
         const existing = new Set(staticFunds.map(f => f.schemeCode));
         const candidates = merged
-          .filter((s: any) => s && s.schemeCode && s.schemeName)
-          .map((s: any) => fromAmfiScheme(s))
-          .filter((f) => f.subCategory === selectedSubCategory && !existing.has(f.schemeCode))
+          .map(fromAmfiScheme)
+          .filter((f) => {
+            if (existing.has(f.schemeCode)) return false;
+            if (subActive) return f.subCategory === selectedSubCategory;
+            return f.category === selectedCategory;
+          })
           // Prefer Direct Growth plans first
           .sort((a, b) => Number(b.plan === "Direct") - Number(a.plan === "Direct"))
           .slice(0, 50);
@@ -227,76 +176,9 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           return;
         }
 
-        // 2. Batch-fetch full NAV history in chunks of 20, then compute current NAV + CAGR
-        const codes = candidates.map(c => c.schemeCode);
-        const enriched: MutualFundInfo[] = [...candidates];
-
-        // Parse "DD-MM-YYYY" -> Date
-        const parseDate = (s: string): Date => {
-          const [d, m, y] = s.split("-").map(Number);
-          return new Date(y, (m || 1) - 1, d || 1);
-        };
-        // Find NAV closest to the target date (NAV history is newest-first)
-        const navOnOrBefore = (history: Array<{ date: string; nav: string }>, target: Date) => {
-          for (let i = 0; i < history.length; i++) {
-            const d = parseDate(history[i].date);
-            if (d <= target) {
-              const v = parseFloat(history[i].nav);
-              return isNaN(v) ? null : v;
-            }
-          }
-          return null;
-        };
-        const cagr = (start: number, end: number, years: number) =>
-          start > 0 && end > 0 ? (Math.pow(end / start, 1 / years) - 1) * 100 : 0;
-
-        for (let i = 0; i < codes.length; i += 20) {
-          if (aborted) return;
-          const chunk = codes.slice(i, i + 20);
-          const navRes = await fetch(
-            `${SUPABASE_URL}/functions/v1/mutual-funds?action=batch-history`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                apikey: PUBLISHABLE_KEY,
-              },
-              body: JSON.stringify({ codes: chunk }),
-              signal: ctrl.signal,
-            },
-          );
-          const navJson = await navRes.json();
-          if (navJson?.results) {
-            for (const r of navJson.results) {
-              const idx = enriched.findIndex(e => e.schemeCode === r.code);
-              if (idx < 0 || !Array.isArray(r.data) || r.data.length === 0) continue;
-
-              const latestNav = parseFloat(r.data[0].nav);
-              if (isNaN(latestNav)) continue;
-
-              const now = parseDate(r.data[0].date);
-              const oneY  = new Date(now); oneY.setFullYear(now.getFullYear() - 1);
-              const threeY = new Date(now); threeY.setFullYear(now.getFullYear() - 3);
-              const fiveY  = new Date(now); fiveY.setFullYear(now.getFullYear() - 5);
-
-              const nav1Y = navOnOrBefore(r.data, oneY);
-              const nav3Y = navOnOrBefore(r.data, threeY);
-              const nav5Y = navOnOrBefore(r.data, fiveY);
-
-              enriched[idx] = {
-                ...enriched[idx],
-                nav: latestNav,
-                returns1Y: nav1Y ? +cagr(nav1Y, latestNav, 1).toFixed(2) : 0,
-                returns3Y: nav3Y ? +cagr(nav3Y, latestNav, 3).toFixed(2) : 0,
-                returns5Y: nav5Y ? +cagr(nav5Y, latestNav, 5).toFixed(2) : 0,
-              };
-            }
-          }
-        }
-
+        const enriched = await enrichFundsWithHistory(candidates, ctrl.signal);
         if (aborted) return;
 
-        // 3. Merge into the table (skip duplicates already added)
         setMutualFunds(prev => {
           const have = new Set(prev.map(f => f.schemeCode));
           const additions = enriched.filter(e => !have.has(e.schemeCode));
@@ -304,13 +186,13 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           return [...prev, ...additions];
         });
 
-        // 4. Loosen numeric filters once so newly-added (zero AUM/return) funds aren't hidden
+        // Loosen numeric filters once so zero-AUM/return AMFI funds aren't hidden
         setAumRange([0, 80000]);
         setExpenseRange([0, 1.5]);
         setReturns3YRange([-5, 40]);
       } catch (e: any) {
         if (e?.name !== "AbortError") {
-          console.error("AMFI sub-category fetch failed", e);
+          console.error("AMFI category/sub-category fetch failed", e);
         }
       } finally {
         if (!aborted) setAmfiSearching(false);
@@ -319,7 +201,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
 
     run();
     return () => { aborted = true; ctrl.abort(); };
-  }, [selectedSubCategory]);
+  }, [selectedCategory, selectedSubCategory]);
 
   const subCategories = useMemo(() => {
     if (selectedCategory === "All") {
