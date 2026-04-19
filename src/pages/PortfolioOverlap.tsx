@@ -36,7 +36,8 @@ const PortfolioOverlapPage = () => {
       .slice(0, 6);
   }, [query, selectedCodes]);
 
-  // Debounced AMFI-wide search via edge function
+  // Debounced AMFI-wide search via cached edge-function helper.
+  // Re-typing the same prefix is instant because results are cached in memory.
   useEffect(() => {
     const q = query.trim();
     if (q.length < 3) {
@@ -47,45 +48,40 @@ const PortfolioOverlapPage = () => {
     setSearching(true);
     const ctrl = new AbortController();
     const t = setTimeout(async () => {
-      try {
-        const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
-        const res = await fetch(
-          `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`,
-          { signal: ctrl.signal },
-        );
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          const localCodes = new Set(mutualFunds.map((f) => f.schemeCode));
-          const mapped: MutualFundInfo[] = data
-            .filter((s: any) => s && s.schemeCode && s.schemeName)
-            .map((s: any) => fromAmfiScheme(s))
-            .filter((f) => !selectedCodes.has(f.schemeCode) && !localCodes.has(f.schemeCode))
-            .slice(0, 40);
-          setRemoteResults(mapped);
-        } else {
-          setRemoteResults([]);
-        }
-      } catch (e: any) {
-        if (e?.name !== "AbortError") setRemoteResults([]);
-      } finally {
-        setSearching(false);
-      }
-    }, 300);
+      const data = await searchAmfi(q, ctrl.signal);
+      const localCodes = new Set(mutualFunds.map((f) => f.schemeCode));
+      const mapped: MutualFundInfo[] = data
+        .filter((s: any) => s && s.schemeCode && s.schemeName)
+        .map((s: any) => fromAmfiScheme(s))
+        .filter((f) => !selectedCodes.has(f.schemeCode) && !localCodes.has(f.schemeCode))
+        .slice(0, 40);
+      setRemoteResults(mapped);
+      setSearching(false);
+    }, 250);
     return () => {
       ctrl.abort();
       clearTimeout(t);
     };
   }, [query, selectedCodes]);
 
-  const searchResults = useMemo(
-    () => [...localResults, ...remoteResults],
-    [localResults, remoteResults],
-  );
-
-  const addFund = (fund: MutualFundInfo) => {
+  const addFund = async (fund: MutualFundInfo) => {
     if (selected.length >= MAX_FUNDS) return;
     setSelected((prev) => [...prev, fund]);
     setQuery("");
+
+    // For AMFI-imported funds (NAV = 0), fetch the latest NAV in the background
+    // so the overlap card displays a real number instead of ₹0.
+    if (fund.nav === 0) {
+      const navMap = await fetchLatestNAVs([fund.schemeCode]);
+      const live = navMap.get(fund.schemeCode);
+      if (live && live > 0) {
+        setSelected((prev) =>
+          prev.map((f) =>
+            f.schemeCode === fund.schemeCode ? { ...f, nav: live } : f,
+          ),
+        );
+      }
+    }
   };
 
   const removeFund = (code: string) => {
