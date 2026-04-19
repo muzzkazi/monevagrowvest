@@ -418,11 +418,26 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         </Card>
       )}
 
-      {/* Compare bar */}
+      {/* Compare hint banner — visible when no funds selected */}
+      {compareList.length === 0 && (
+        <div className="flex items-start sm:items-center gap-3 p-3 rounded-lg border border-dashed border-primary/30 bg-primary/5">
+          <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <BarChart3 className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1 text-sm">
+            <span className="font-semibold text-foreground">Compare funds side by side.</span>{" "}
+            <span className="text-muted-foreground">
+              Click the <Plus className="inline w-3.5 h-3.5 mx-0.5 text-primary" /> button next to any fund (up to 4) to compare returns, risk, and portfolio overlap.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Sticky compare bar */}
       {compareList.length > 0 && (
-        <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-lg border border-primary/20">
-          <BarChart3 className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium">Compare ({compareList.length}/4):</span>
+        <div className="sticky top-20 z-20 flex items-center gap-3 p-3 bg-primary/10 backdrop-blur-sm rounded-lg border-2 border-primary/40 shadow-lg animate-in slide-in-from-top-2">
+          <BarChart3 className="w-5 h-5 text-primary shrink-0" />
+          <span className="text-sm font-semibold whitespace-nowrap">Compare ({compareList.length}/4):</span>
           <div className="flex gap-2 flex-1 flex-wrap">
             {compareList.map(fund => (
               <Badge key={fund.schemeCode} variant="secondary" className="gap-1">
@@ -432,9 +447,20 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
                 </button>
               </Badge>
             ))}
+            {compareList.length < 2 && (
+              <span className="text-xs text-muted-foreground italic self-center">
+                Add at least one more to compare →
+              </span>
+            )}
           </div>
-          <Button size="sm" onClick={() => onCompare?.(compareList)} disabled={compareList.length < 2}>
-            Compare
+          <Button
+            size="sm"
+            onClick={() => onCompare?.(compareList)}
+            disabled={compareList.length < 2}
+            className="shrink-0 gap-1.5"
+          >
+            <BarChart3 className="w-4 h-4" />
+            Compare Now
           </Button>
         </div>
       )}
@@ -470,7 +496,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-10"></TableHead>
+              <TableHead className="w-16 text-center text-xs font-medium">Compare</TableHead>
               <TableHead>
                 <button className="flex items-center hover:text-foreground transition-colors text-xs" onClick={() => handleSort("schemeName")}>
                   Fund Name <SortIcon field="schemeName" />
@@ -523,17 +549,21 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
             ) : (
               filteredFunds.map(fund => (
                 <TableRow key={fund.schemeCode} className="cursor-pointer hover:bg-muted/50" onClick={() => { setSelectedFund(fund); setDetailModalOpen(true); }}>
-                  <TableCell className="w-10 pr-0">
+                  <TableCell className="w-16 pr-0 text-center">
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleCompare(fund); }}
-                      className={`p-1 rounded transition-colors ${
-                        isInCompare(fund.schemeCode) 
-                          ? 'text-primary bg-primary/10' 
-                          : 'text-muted-foreground hover:text-primary'
+                      className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md border text-xs font-medium transition-all ${
+                        isInCompare(fund.schemeCode)
+                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                          : 'bg-background text-muted-foreground border-border hover:border-primary hover:text-primary hover:bg-primary/5'
                       }`}
                       title={isInCompare(fund.schemeCode) ? "Remove from compare" : "Add to compare"}
                     >
-                      {isInCompare(fund.schemeCode) ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                      {isInCompare(fund.schemeCode) ? (
+                        <><Minus className="w-3 h-3" /> Added</>
+                      ) : (
+                        <><Plus className="w-3 h-3" /> Add</>
+                      )}
                     </button>
                   </TableCell>
                   <TableCell>
