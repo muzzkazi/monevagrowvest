@@ -28,6 +28,7 @@ import {
   SUB_CATEGORY_QUERIES,
   CATEGORY_QUERIES,
 } from "@/lib/amfiSearch";
+import { loadAmfiCache, saveAmfiCache } from "@/lib/amfiCache";
 
 type SortField = "schemeName" | "nav" | "returns1Y" | "returns3Y" | "returns5Y" | "aum" | "expenseRatio" | "rating";
 type SortDirection = "asc" | "desc";
@@ -38,7 +39,18 @@ interface MutualFundScreenerProps {
 
 const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   const { toast } = useToast();
-  const [mutualFunds, setMutualFunds] = useState<MutualFundInfo[]>(staticFunds);
+  const [mutualFunds, setMutualFunds] = useState<MutualFundInfo[]>(() => {
+    const cached = loadAmfiCache();
+    if (!cached || cached.length === 0) return staticFunds;
+    // Merge cached AMFI rows on top of static seed so reloads are instant.
+    const have = new Set(staticFunds.map(f => f.schemeCode));
+    const additions = cached.filter(c => !have.has(c.schemeCode));
+    const updated = staticFunds.map(s => {
+      const m = cached.find(c => c.schemeCode === s.schemeCode);
+      return m ? { ...s, fundHouse: m.fundHouse, nav: m.nav || s.nav } : s;
+    });
+    return [...updated, ...additions];
+  });
   const [isLoadingLive, setIsLoadingLive] = useState(false);
   const [liveDataLoaded, setLiveDataLoaded] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -235,8 +247,10 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
             const match = enriched.find(e => e.schemeCode === p.schemeCode);
             return match ? { ...p, fundHouse: match.fundHouse } : p;
           });
-          if (additions.length === 0) return updated;
-          return [...updated, ...additions];
+          const next = additions.length === 0 ? updated : [...updated, ...additions];
+          // Persist enriched AMFI metadata to localStorage (1h TTL) for instant reloads
+          saveAmfiCache(next);
+          return next;
         });
 
         // Loosen numeric filters once so zero-AUM/return AMFI funds aren't hidden
@@ -291,7 +305,10 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         setMutualFunds(prev => {
           const have = new Set(prev.map(f => f.schemeCode));
           const additions = enriched.filter(e => !have.has(e.schemeCode));
-          return additions.length === 0 ? prev : [...prev, ...additions];
+          if (additions.length === 0) return prev;
+          const next = [...prev, ...additions];
+          saveAmfiCache(next);
+          return next;
         });
 
         // Loosen numeric filters so zero-AUM AMFI funds remain visible
@@ -516,13 +533,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         </div>
       </div>
 
-      {/* Inline AMFI loading hint while merging sub-category funds into the table */}
-      {amfiSearching && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground -mt-2">
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          Loading more {selectedSubCategory !== "All" ? selectedSubCategory + " " : ""}funds from AMFI…
-        </div>
-      )}
+
 
       {/* Filters panel */}
       {showFilters && (
@@ -549,7 +560,15 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
                 </Select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Fund House</label>
+                <div className="flex items-center justify-between gap-1.5 min-h-[1rem]">
+                  <label className="text-xs font-medium text-muted-foreground">Fund House</label>
+                  {amfiSearching && (
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      AMFI…
+                    </span>
+                  )}
+                </div>
                 <Select value={selectedFundHouse} onValueChange={setSelectedFundHouse}>
                   <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
                   <SelectContent>
