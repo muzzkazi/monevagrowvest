@@ -213,7 +213,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
 
     run();
     return () => { aborted = true; ctrl.abort(); };
-  }, [selectedCategory, selectedSubCategory]);
+  }, [selectedCategory, selectedSubCategory, selectedFundHouse]);
 
   const subCategories = useMemo(() => {
     if (selectedCategory === "All") {
