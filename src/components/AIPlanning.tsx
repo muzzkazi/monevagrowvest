@@ -137,8 +137,8 @@ const AIPlanning = () => {
                   <li>• Goal-specific allocations</li>
                   <li>• Priority-based planning</li>
                 </ul>
-                <Button className="mt-auto pt-0 w-full bg-financial-accent hover:bg-financial-accent/90" style={{ marginTop: 'auto' }}>
-                  <span className="sr-only">Start </span>Start Goal-Based Planning
+                <Button className="mt-auto w-full bg-financial-accent hover:bg-financial-accent/90">
+                  Start Goal-Based Planning
                 </Button>
               </CardContent>
             </Card>
