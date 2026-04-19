@@ -1,10 +1,23 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Layers, AlertCircle, Info, ArrowRight, TrendingUp } from "lucide-react";
 import { MutualFundInfo } from "@/data/mutualFundDatabase";
 import { calculateOverlap } from "@/lib/fundHoldings";
+
+const AnimatedPercent = ({ value }: { value: number }) => {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (v) => (Math.round(v * 10) / 10).toFixed(1));
+
+  useEffect(() => {
+    const controls = animate(count, value, { duration: 1.2, ease: "easeOut" });
+    return () => controls.stop();
+  }, [value, count]);
+
+  return <motion.span>{rounded}</motion.span>;
+};
 
 interface FundOverlapProps {
   funds: MutualFundInfo[];
@@ -152,14 +165,17 @@ const FundOverlap = ({ funds }: FundOverlapProps) => {
                       className="fill-none stroke-muted/40"
                       strokeWidth="9"
                     />
-                    <circle
+                    <motion.circle
                       cx="50"
                       cy="50"
                       r="42"
-                      className={`fill-none ${tone.ring} transition-all duration-700`}
+                      className={`fill-none ${tone.ring}`}
                       strokeWidth="9"
                       strokeLinecap="round"
-                      strokeDasharray={`${dashLength} 263.9`}
+                      strokeDasharray="263.9 263.9"
+                      initial={{ strokeDashoffset: 263.9 }}
+                      animate={{ strokeDashoffset: 263.9 - dashLength }}
+                      transition={{ duration: 1.2, ease: "easeOut" }}
                       style={{
                         filter: `drop-shadow(0 0 8px currentColor)`,
                       }}
@@ -167,7 +183,7 @@ const FundOverlap = ({ funds }: FundOverlapProps) => {
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-5xl font-bold text-foreground tabular-nums tracking-tight">
-                      {overlap.overlapPercent}
+                      <AnimatedPercent value={overlap.overlapPercent} />
                       <span className="text-2xl text-muted-foreground">%</span>
                     </span>
                     <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mt-1">
