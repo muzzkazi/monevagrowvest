@@ -904,6 +904,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         onSelectFund={(sf) => setSelectedFund(sf)}
       />
     </div>
+    </TooltipProvider>
   );
 };
 
