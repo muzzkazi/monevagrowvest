@@ -212,14 +212,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
             ]))
           : baseQueries;
 
-        // When a Fund House is selected, fan-out across every alias × keyword
-        // so AMFI's full-list matcher returns the complete catalog for that house.
-        const queries = houseActive
-          ? Array.from(new Set([
-              ...houseTerms,
-              ...houseTerms.flatMap(h => baseQueries.map(q => `${h} ${q}`)),
-            ]))
-          : baseQueries;
+
 
         const merged = await searchAmfiMany(queries, ctrl.signal);
         if (aborted) return;
