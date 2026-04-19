@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Sparkles, Target, TrendingUp, BarChart3, Wallet, Calculator, Receipt, Landmark, Clock, SlidersHorizontal, LineChart, PieChart, Menu, X, FileText } from "lucide-react";
+import { Phone, Sparkles, Target, TrendingUp, Wallet, Receipt, Landmark, Clock, LineChart, PieChart, Menu, FileText, Wrench, PiggyBank, GraduationCap, Info } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from "@/components/ui/sheet";
@@ -81,51 +81,73 @@ const Header = () => {
               />
             </Link>
 
-            {/* Desktop nav */}
+            {/* Desktop nav — collapsed to 5 top-level groups */}
             <nav className="hidden lg:flex items-center space-x-5 ml-8 flex-shrink-0">
               <Link to="/" className={navLinkClass(location.pathname === '/')}>Home</Link>
-              <Link to="/about" className={navLinkClass(location.pathname === '/about')}>About</Link>
-              <Link to="/services" className={navLinkClass(location.pathname === '/services')}>Services</Link>
 
-              {/* Calculators dropdown */}
+              {/* Tools dropdown — calculators, screeners, budget, debt */}
               <div className="relative group">
-                <span className={navLinkClass(location.pathname === '/calculators')}>Calculators</span>
+                <span className={`${navLinkClass(
+                  ['/calculators', '/stock-screener', '/mutual-fund-comparison', '/budget-tracker', '/debt-management'].includes(location.pathname)
+                )} flex items-center gap-1.5`}>
+                  <Wrench className="h-4 w-4" /> Tools
+                </span>
                 <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
-                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[220px] py-2 overflow-hidden">
-                    <Link to="/calculators?tab=sip" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[260px] py-2 overflow-hidden">
+                    <div className="px-5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Calculators</div>
+                    <Link to="/calculators?tab=sip" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       <TrendingUp className="h-4 w-4" /> SIP Calculator
                     </Link>
-                    <Link to="/calculators?tab=emi" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/calculators?tab=emi" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       <Receipt className="h-4 w-4" /> EMI Calculator
                     </Link>
-                    <Link to="/calculators?tab=tax" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/calculators?tab=tax" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       <Landmark className="h-4 w-4" /> Tax Calculator
                     </Link>
-                    <Link to="/calculators?tab=retirement" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/calculators?tab=retirement" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       <Clock className="h-4 w-4" /> Retirement Planner
+                    </Link>
+                    <div className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Screeners</div>
+                    <Link to="/stock-screener" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                      <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 group-hover/item:bg-blue-500/20 transition-colors dark:bg-blue-500/20 dark:text-blue-400">
+                        <LineChart className="h-4 w-4" />
+                      </div>
+                      Stock Screener
+                    </Link>
+                    <Link to="/mutual-fund-comparison" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                      <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover/item:bg-emerald-500/20 transition-colors dark:bg-emerald-500/20 dark:text-emerald-400">
+                        <PieChart className="h-4 w-4" />
+                      </div>
+                      Mutual Fund Screener
+                    </Link>
+                    <div className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Money Management</div>
+                    <Link to="/budget-tracker" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                      <PiggyBank className="h-4 w-4" /> Budget Tracker
+                    </Link>
+                    <Link to="/debt-management" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                      <Wallet className="h-4 w-4" /> Debt Management
                     </Link>
                   </div>
                 </div>
               </div>
 
-              {/* AI Planning dropdown */}
+              {/* AI Planning dropdown — pure planning flows */}
               <div className="relative group">
-                <span className={navLinkClass(
-                  location.pathname.startsWith('/ai-planning') || location.pathname === '/goal-based-planning' || location.pathname === '/sip-based-planning' || location.pathname === '/debt-management' || location.pathname === '/tax-planning'
-                )}>AI Planning</span>
+                <span className={`${navLinkClass(
+                  location.pathname.startsWith('/ai-planning') || location.pathname === '/tax-planning'
+                )} flex items-center gap-1.5`}>
+                  <Sparkles className="h-4 w-4" /> AI Planning
+                </span>
                 <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
-                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[220px] py-2 overflow-hidden">
+                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[240px] py-2 overflow-hidden">
                     <Link to="/ai-planning" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       <Sparkles className="h-4 w-4" /> AI Planner Overview
                     </Link>
-                    <Link to="/goal-based-planning" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/ai-planning?mode=goals" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       <Target className="h-4 w-4" /> Goal Based Planning
                     </Link>
-                    <Link to="/sip-based-planning" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/ai-planning?mode=sip" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       <TrendingUp className="h-4 w-4" /> SIP Based Planning
-                    </Link>
-                    <Link to="/debt-management" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <Wallet className="h-4 w-4" /> Debt Management
                     </Link>
                     <Link to="/tax-planning" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       <FileText className="h-4 w-4" /> Tax Planning
@@ -134,33 +156,27 @@ const Header = () => {
                 </div>
               </div>
 
-              {/* Screener dropdown */}
+              <Link to="/financial-education" className={`${navLinkClass(location.pathname === '/financial-education')} flex items-center gap-1.5`}>
+                <GraduationCap className="h-4 w-4" /> Learning
+              </Link>
+
+              {/* Company dropdown — about, services, blog, contact */}
               <div className="relative group">
-                <span className={`${navLinkClass(location.pathname === '/stock-screener' || location.pathname === '/mutual-fund-comparison')} flex items-center gap-1.5`}>
-                  <SlidersHorizontal className="h-4 w-4" /> Screener
+                <span className={`${navLinkClass(
+                  ['/about', '/services', '/contact', '/blog'].includes(location.pathname)
+                )} flex items-center gap-1.5`}>
+                  <Info className="h-4 w-4" /> Company
                 </span>
                 <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
-                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[220px] py-2 overflow-hidden">
-                    <Link to="/stock-screener" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
-                      <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 group-hover/item:bg-blue-500/20 transition-colors dark:bg-blue-500/20 dark:text-blue-400">
-                        <LineChart className="h-4 w-4" />
-                      </div>
-                      Stock Screener
-                    </Link>
-                    <Link to="/mutual-fund-comparison" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
-                      <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover/item:bg-emerald-500/20 transition-colors dark:bg-emerald-500/20 dark:text-emerald-400">
-                        <PieChart className="h-4 w-4" />
-                      </div>
-                      Mutual Fund Screener
-                    </Link>
+                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[200px] py-2 overflow-hidden">
+                    <Link to="/about" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">About Us</Link>
+                    <Link to="/services" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">Our Services</Link>
+                    <Link to="/blog" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">Blog</Link>
+                    <Link to="/contact" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">Contact</Link>
                   </div>
                 </div>
               </div>
-
-              <Link to="/financial-education" className={navLinkClass(location.pathname === '/financial-education')}>Learning</Link>
-              <Link to="/contact" className={navLinkClass(location.pathname === '/contact')}>Contact</Link>
             </nav>
-
             {/* Right side */}
             <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
               <ThemeToggle />
@@ -194,10 +210,8 @@ const Header = () => {
 
                   <div className="py-2">
                     <MobileNavLink to="/" onClick={closeMobile}>Home</MobileNavLink>
-                    <MobileNavLink to="/about" onClick={closeMobile}>About</MobileNavLink>
-                    <MobileNavLink to="/services" onClick={closeMobile}>Services</MobileNavLink>
 
-                    <MobileSectionLabel>Calculators</MobileSectionLabel>
+                    <MobileSectionLabel>Tools — Calculators</MobileSectionLabel>
                     <MobileNavLink to="/calculators?tab=sip" onClick={closeMobile}>
                       <TrendingUp className="h-4 w-4" /> SIP Calculator
                     </MobileNavLink>
@@ -211,24 +225,7 @@ const Header = () => {
                       <Clock className="h-4 w-4" /> Retirement Planner
                     </MobileNavLink>
 
-                    <MobileSectionLabel>AI Planning</MobileSectionLabel>
-                    <MobileNavLink to="/ai-planning" onClick={closeMobile}>
-                      <Sparkles className="h-4 w-4" /> AI Planner Overview
-                    </MobileNavLink>
-                    <MobileNavLink to="/goal-based-planning" onClick={closeMobile}>
-                      <Target className="h-4 w-4" /> Goal Based Planning
-                    </MobileNavLink>
-                    <MobileNavLink to="/sip-based-planning" onClick={closeMobile}>
-                      <TrendingUp className="h-4 w-4" /> SIP Based Planning
-                    </MobileNavLink>
-                    <MobileNavLink to="/debt-management" onClick={closeMobile}>
-                      <Wallet className="h-4 w-4" /> Debt Management
-                    </MobileNavLink>
-                    <MobileNavLink to="/tax-planning" onClick={closeMobile}>
-                      <FileText className="h-4 w-4" /> Tax Planning
-                    </MobileNavLink>
-
-                    <MobileSectionLabel>Screener</MobileSectionLabel>
+                    <MobileSectionLabel>Tools — Screeners</MobileSectionLabel>
                     <MobileNavLink to="/stock-screener" onClick={closeMobile}>
                       <LineChart className="h-4 w-4" /> Stock Screener
                     </MobileNavLink>
@@ -236,8 +233,37 @@ const Header = () => {
                       <PieChart className="h-4 w-4" /> Mutual Fund Screener
                     </MobileNavLink>
 
+                    <MobileSectionLabel>Tools — Money Management</MobileSectionLabel>
+                    <MobileNavLink to="/budget-tracker" onClick={closeMobile}>
+                      <PiggyBank className="h-4 w-4" /> Budget Tracker
+                    </MobileNavLink>
+                    <MobileNavLink to="/debt-management" onClick={closeMobile}>
+                      <Wallet className="h-4 w-4" /> Debt Management
+                    </MobileNavLink>
+
+                    <MobileSectionLabel>AI Planning</MobileSectionLabel>
+                    <MobileNavLink to="/ai-planning" onClick={closeMobile}>
+                      <Sparkles className="h-4 w-4" /> AI Planner Overview
+                    </MobileNavLink>
+                    <MobileNavLink to="/ai-planning?mode=goals" onClick={closeMobile}>
+                      <Target className="h-4 w-4" /> Goal Based Planning
+                    </MobileNavLink>
+                    <MobileNavLink to="/ai-planning?mode=sip" onClick={closeMobile}>
+                      <TrendingUp className="h-4 w-4" /> SIP Based Planning
+                    </MobileNavLink>
+                    <MobileNavLink to="/tax-planning" onClick={closeMobile}>
+                      <FileText className="h-4 w-4" /> Tax Planning
+                    </MobileNavLink>
+
                     <div className="my-2 border-t border-border" />
-                    <MobileNavLink to="/financial-education" onClick={closeMobile}>Learning</MobileNavLink>
+                    <MobileNavLink to="/financial-education" onClick={closeMobile}>
+                      <GraduationCap className="h-4 w-4" /> Learning
+                    </MobileNavLink>
+
+                    <MobileSectionLabel>Company</MobileSectionLabel>
+                    <MobileNavLink to="/about" onClick={closeMobile}>About Us</MobileNavLink>
+                    <MobileNavLink to="/services" onClick={closeMobile}>Our Services</MobileNavLink>
+                    <MobileNavLink to="/blog" onClick={closeMobile}>Blog</MobileNavLink>
                     <MobileNavLink to="/contact" onClick={closeMobile}>Contact</MobileNavLink>
                   </div>
 

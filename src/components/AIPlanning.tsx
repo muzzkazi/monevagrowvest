@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,8 +29,19 @@ interface SIPData {
 }
 
 const AIPlanning = () => {
-  const [planningMode, setPlanningMode] = useState<"goals" | "sip" | null>(null);
-  const [currentStep, setCurrentStep] = useState("selection");
+  const [searchParams] = useSearchParams();
+  const modeParam = searchParams.get("mode");
+  const initialMode: "goals" | "sip" | null =
+    modeParam === "goals" || modeParam === "sip" ? modeParam : null;
+  const [planningMode, setPlanningMode] = useState<"goals" | "sip" | null>(initialMode);
+  const [currentStep, setCurrentStep] = useState<string>(initialMode ?? "selection");
+
+  useEffect(() => {
+    if (modeParam === "goals" || modeParam === "sip") {
+      setPlanningMode(modeParam);
+      setCurrentStep(modeParam);
+    }
+  }, [modeParam]);
   const [completionProgress, setCompletionProgress] = useState(0);
   const [userGoals, setUserGoals] = useState<FinancialGoal[]>([]);
   const [sipData, setSipData] = useState<SIPData | null>(null);

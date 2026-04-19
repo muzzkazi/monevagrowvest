@@ -14,15 +14,10 @@ import {
 } from 'lucide-react';
 
 import InvestmentSimulation from './InvestmentSimulation';
-import RiskProfiler from './education/RiskProfiler';
 import MarketExplorer from './education/MarketExplorer';
 
 const FinancialEducation = () => {
   const [activeTab, setActiveTab] = useState('time-machine');
-
-  const handleRiskProfileComplete = (profile: string, score: number) => {
-    // Risk profile completed
-  };
 
   return (
     <section className="py-20 bg-gradient-hero relative overflow-hidden">
@@ -53,7 +48,7 @@ const FinancialEducation = () => {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="time-machine" className="flex items-center">
               <LineChart className="w-4 h-4 mr-2" />
               Time Machine
@@ -61,10 +56,6 @@ const FinancialEducation = () => {
             <TabsTrigger value="market-explorer" className="flex items-center">
               <BarChart3 className="w-4 h-4 mr-2" />
               Market Explorer
-            </TabsTrigger>
-            <TabsTrigger value="risk-profiler" className="flex items-center">
-              <Target className="w-4 h-4 mr-2" />
-              Risk Profiler
             </TabsTrigger>
           </TabsList>
 
@@ -77,15 +68,6 @@ const FinancialEducation = () => {
             <InvestmentSimulation />
           </TabsContent>
 
-          {/* Risk Profiler Tab */}
-          <TabsContent value="risk-profiler" className="space-y-8">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold mb-4">Discover Your Risk Profile</h3>
-              <p className="text-muted-foreground">Answer a few questions to understand your investment personality and get personalized recommendations</p>
-            </div>
-            <RiskProfiler onProfileComplete={handleRiskProfileComplete} />
-          </TabsContent>
-
           {/* Market Explorer Tab */}
           <TabsContent value="market-explorer" className="space-y-8">
             <div className="text-center mb-8">
@@ -95,6 +77,9 @@ const FinancialEducation = () => {
             <MarketExplorer />
           </TabsContent>
         </Tabs>
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          Want a personalized risk profile? It's now part of our <a href="/ai-planning" className="text-financial-accent hover:underline font-medium">AI Planning wizard</a>.
+        </p>
       </div>
     </section>
   );
