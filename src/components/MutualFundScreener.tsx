@@ -385,8 +385,9 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
       return sortDirection === "asc" ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
     });
 
-    // Cap to top 50 (per market sub-category, or overall)
-    return filtered.slice(0, 50);
+    // Cap: top 20 when filtering by a single Fund House, otherwise top 50
+    const cap = selectedFundHouse !== "All" ? 20 : 50;
+    return filtered.slice(0, cap);
   }, [mutualFunds, searchQuery, selectedCategory, selectedSubCategory, selectedFundHouse, selectedPlan, aumRange, expenseRange, returns3YRange, minRating, riskLevels, sortField, sortDirection, activePreset]);
 
   const handleSort = (field: SortField) => {
