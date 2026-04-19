@@ -81,8 +81,8 @@ const Header = () => {
               />
             </Link>
 
-            {/* Desktop nav — collapsed to 5 top-level groups */}
-            <nav className="hidden lg:flex items-center space-x-5 ml-8 flex-shrink-0">
+            {/* Desktop nav — spread across available space */}
+            <nav className="hidden lg:flex items-center justify-between flex-1 px-8">
               <Link to="/" className={navLinkClass(location.pathname === '/')}>Home</Link>
 
               {/* Tools dropdown — calculators, screeners, budget, debt */}
