@@ -150,7 +150,7 @@ const AIPlanning = () => {
               <CardContent className="p-8 text-center flex flex-col flex-1">
                 <PiggyBank className="h-16 w-16 text-financial-accent mx-auto mb-6" />
                 <h3 className="text-2xl font-bold mb-4">SIP-Based Planning</h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+                <p className="text-muted-foreground mb-6 leading-relaxed min-h-[84px]">
                   Start with your monthly investment capacity. Get optimized portfolio recommendations 
                   based on your SIP amount and tax preferences.
                 </p>
