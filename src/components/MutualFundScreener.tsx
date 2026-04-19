@@ -459,7 +459,9 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-financial-accent" />
                 <h4 className="text-sm font-semibold text-foreground">
-                  More from AMFI database
+                  {selectedSubCategory !== "All" && searchQuery.trim().length < 3
+                    ? `More ${selectedSubCategory} funds from AMFI`
+                    : "More from AMFI database"}
                 </h4>
                 <Badge variant="secondary" className="text-[10px]">
                   {amfiResults.length} found
@@ -473,7 +475,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
               </button>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Funds beyond our curated list. Click "Add" to include any fund in the table with its live NAV.
+              Funds beyond our curated list of 39. Click "Add" to include any fund in the table with its live NAV.
             </p>
             <ScrollArea className="max-h-72">
               <div className="grid sm:grid-cols-2 gap-2 pr-2">
