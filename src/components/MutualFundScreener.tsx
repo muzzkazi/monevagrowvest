@@ -247,8 +247,10 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
             const match = enriched.find(e => e.schemeCode === p.schemeCode);
             return match ? { ...p, fundHouse: match.fundHouse } : p;
           });
-          if (additions.length === 0) return updated;
-          return [...updated, ...additions];
+          const next = additions.length === 0 ? updated : [...updated, ...additions];
+          // Persist enriched AMFI metadata to localStorage (1h TTL) for instant reloads
+          saveAmfiCache(next);
+          return next;
         });
 
         // Loosen numeric filters once so zero-AUM/return AMFI funds aren't hidden
