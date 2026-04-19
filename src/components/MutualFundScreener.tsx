@@ -137,14 +137,20 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
     fetchLiveNAVs();
   }, [fetchLiveNAVs]);
 
+  // Normalize a fund-house label so "Tata", "Tata Mutual", and "Tata Mutual Fund" all match.
+  const normalizeHouse = (s: string) =>
+    s.toLowerCase().replace(/\bmutual fund\b/g, "").replace(/\s+/g, " ").trim();
+
   // Auto-merge AMFI funds into the table when either:
   //   • a Sub Category is picked   → keep only schemes classifying to that sub-category
   //   • only a Category is picked  → fan-out across that category's umbrella keywords
+  //   • only a Fund House is picked → fan-out across that house's name keyword
   // New schemes are enriched with live NAV + 1Y/3Y/5Y CAGR via the edge function.
   useEffect(() => {
     const subActive = selectedSubCategory !== "All";
     const catActive = selectedCategory !== "All";
-    if (!subActive && !catActive) return;
+    const houseActive = selectedFundHouse !== "All";
+    if (!subActive && !catActive && !houseActive) return;
 
     let aborted = false;
     const ctrl = new AbortController();
@@ -152,9 +158,12 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
 
     const run = async () => {
       try {
+        const houseNorm = houseActive ? normalizeHouse(selectedFundHouse) : "";
         const queries = subActive
           ? (SUB_CATEGORY_QUERIES[selectedSubCategory] ?? [selectedSubCategory.toLowerCase()])
-          : (CATEGORY_QUERIES[selectedCategory] ?? [selectedCategory.toLowerCase()]);
+          : catActive
+            ? (CATEGORY_QUERIES[selectedCategory] ?? [selectedCategory.toLowerCase()])
+            : [houseNorm];
 
         const merged = await searchAmfiMany(queries, ctrl.signal);
         if (aborted) return;
@@ -164,8 +173,11 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           .map(fromAmfiScheme)
           .filter((f) => {
             if (existing.has(f.schemeCode)) return false;
-            if (subActive) return f.subCategory === selectedSubCategory;
-            return f.category === selectedCategory;
+            if (subActive && f.subCategory !== selectedSubCategory) return false;
+            if (catActive && f.category !== selectedCategory) return false;
+            if (houseActive && !normalizeHouse(f.fundHouse).includes(houseNorm) &&
+                !f.schemeName.toLowerCase().includes(houseNorm)) return false;
+            return true;
           })
           // Prefer Direct Growth plans first
           .sort((a, b) => Number(b.plan === "Direct") - Number(a.plan === "Direct"))
