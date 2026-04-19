@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, Filter, Star, TrendingUp, ArrowUpDown, ChevronUp, ChevronDown, 
-  X, BarChart3, Plus, Minus, SlidersHorizontal, RotateCcw, RefreshCw, Wifi, Loader2, Sparkles
+  X, BarChart3, Plus, Minus, SlidersHorizontal, RotateCcw, RefreshCw, Wifi, Loader2
 } from "lucide-react";
 import { 
   mutualFunds as staticFunds, fundCategories, fundSubCategories, fundHouses, 
@@ -109,9 +109,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
 
   // AMFI-wide search
-  const [amfiResults, setAmfiResults] = useState<MutualFundInfo[]>([]);
   const [amfiSearching, setAmfiSearching] = useState(false);
-  const [addingCode, setAddingCode] = useState<string | null>(null);
 
   // Fetch live NAV data
   const fetchLiveNAVs = useCallback(async () => {
@@ -178,85 +176,99 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
     fetchLiveNAVs();
   }, [fetchLiveNAVs]);
 
-  // Debounced AMFI-wide search — triggers on free-text query OR a sub-category filter
+  // Auto-merge AMFI funds into the table when a sub-category is selected.
+  // Uses the sub-category as a search query against AMFI; new schemes get live NAV in batch.
   useEffect(() => {
-    const text = searchQuery.trim();
-    const subFilterActive = selectedSubCategory !== "All";
-    // Build query: prefer user text; otherwise use sub-category as the search term
-    const q = text.length >= 3 ? text : subFilterActive ? selectedSubCategory : "";
+    if (selectedSubCategory === "All") return;
 
-    if (!q) {
-      setAmfiResults([]);
-      setAmfiSearching(false);
-      return;
-    }
-
-    setAmfiSearching(true);
+    let aborted = false;
     const ctrl = new AbortController();
-    const t = setTimeout(async () => {
+    setAmfiSearching(true);
+
+    const run = async () => {
       try {
         const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
-        const res = await fetch(
-          `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`,
+        const PUBLISHABLE_KEY = (import.meta as any).env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+        // 1. Search AMFI by sub-category name
+        const searchRes = await fetch(
+          `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(selectedSubCategory)}`,
           { signal: ctrl.signal },
         );
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          const existing = new Set(mutualFunds.map(f => f.schemeCode));
-          let mapped = data
-            .filter((s: any) => s && s.schemeCode && s.schemeName)
-            .map((s: any) => fromAmfiScheme(s))
-            .filter((f) => !existing.has(f.schemeCode));
+        const searchData = await searchRes.json();
+        if (!Array.isArray(searchData) || aborted) return;
 
-          // If user picked a sub-category, only keep matches in that bucket
-          if (subFilterActive) {
-            mapped = mapped.filter(f => f.subCategory === selectedSubCategory);
-          }
-          // Respect plan filter when active
-          if (selectedPlan !== "All") {
-            mapped = mapped.filter(f => f.plan === selectedPlan);
-          }
+        const existing = new Set(staticFunds.map(f => f.schemeCode));
+        const candidates = searchData
+          .filter((s: any) => s && s.schemeCode && s.schemeName)
+          .map((s: any) => fromAmfiScheme(s))
+          // Keep only ones matching the chosen sub-category & not already curated
+          .filter((f) => f.subCategory === selectedSubCategory && !existing.has(f.schemeCode))
+          // Prefer Direct plans; cap to ~50
+          .sort((a, b) => Number(b.plan === "Direct") - Number(a.plan === "Direct"))
+          .slice(0, 50);
 
-          setAmfiResults(mapped.slice(0, 50));
-        } else {
-          setAmfiResults([]);
+        if (candidates.length === 0 || aborted) {
+          setAmfiSearching(false);
+          return;
         }
-      } catch (e: any) {
-        if (e?.name !== "AbortError") setAmfiResults([]);
-      } finally {
-        setAmfiSearching(false);
-      }
-    }, 350);
-    return () => { ctrl.abort(); clearTimeout(t); };
-  }, [searchQuery, selectedSubCategory, selectedPlan, mutualFunds]);
 
-  // Add an AMFI fund to the list (with live NAV) and open its detail modal
-  const addAmfiFund = useCallback(async (fund: MutualFundInfo) => {
-    setAddingCode(fund.schemeCode);
-    try {
-      const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
-      const res = await fetch(
-        `${SUPABASE_URL}/functions/v1/mutual-funds?action=latest&code=${fund.schemeCode}`,
-      );
-      const data = await res.json();
-      let nav = 0;
-      if (data?.data?.[0]?.nav) nav = parseFloat(data.data[0].nav) || 0;
-      const enriched: MutualFundInfo = { ...fund, nav };
-      setMutualFunds(prev => prev.some(f => f.schemeCode === enriched.schemeCode) ? prev : [enriched, ...prev]);
-      setAmfiResults(prev => prev.filter(f => f.schemeCode !== fund.schemeCode));
-      // Reset numeric range filters so the new (zero-data) fund is visible in the table
-      setAumRange([0, 80000]);
-      setExpenseRange([0, 1.5]);
-      setReturns3YRange([-5, 40]);
-      setMinRating(0);
-      setRiskLevels([]);
-      toast({ title: "Added from AMFI", description: fund.schemeName.split(" - ")[0] });
-    } catch {
-      toast({ title: "Could not add fund", description: "Try again.", variant: "destructive" });
-    } finally {
-      setAddingCode(null);
-    }
-  }, [toast]);
+        // 2. Batch-fetch live NAVs in chunks of 30
+        const codes = candidates.map(c => c.schemeCode);
+        const enriched: MutualFundInfo[] = [...candidates];
+        for (let i = 0; i < codes.length; i += 30) {
+          if (aborted) return;
+          const chunk = codes.slice(i, i + 30);
+          const navRes = await fetch(
+            `${SUPABASE_URL}/functions/v1/mutual-funds?action=batch`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                apikey: PUBLISHABLE_KEY,
+              },
+              body: JSON.stringify({ codes: chunk }),
+              signal: ctrl.signal,
+            },
+          );
+          const navJson = await navRes.json();
+          if (navJson?.results) {
+            for (const r of navJson.results) {
+              const idx = enriched.findIndex(e => e.schemeCode === r.code);
+              if (idx >= 0 && r.data?.[0]?.nav) {
+                const navVal = parseFloat(r.data[0].nav);
+                if (!isNaN(navVal)) enriched[idx] = { ...enriched[idx], nav: navVal };
+              }
+            }
+          }
+        }
+
+        if (aborted) return;
+
+        // 3. Merge into the table (skip duplicates already added)
+        setMutualFunds(prev => {
+          const have = new Set(prev.map(f => f.schemeCode));
+          const additions = enriched.filter(e => !have.has(e.schemeCode));
+          if (additions.length === 0) return prev;
+          return [...prev, ...additions];
+        });
+
+        // 4. Loosen numeric filters once so newly-added (zero AUM/return) funds aren't hidden
+        setAumRange([0, 80000]);
+        setExpenseRange([0, 1.5]);
+        setReturns3YRange([-5, 40]);
+      } catch (e: any) {
+        if (e?.name !== "AbortError") {
+          console.error("AMFI sub-category fetch failed", e);
+        }
+      } finally {
+        if (!aborted) setAmfiSearching(false);
+      }
+    };
+
+    run();
+    return () => { aborted = true; ctrl.abort(); };
+  }, [selectedSubCategory]);
 
   const subCategories = useMemo(() => {
     if (selectedCategory === "All") {
@@ -303,8 +315,9 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
       return sortDirection === "asc" ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
     });
 
-    return filtered;
-  }, [searchQuery, selectedCategory, selectedSubCategory, selectedFundHouse, selectedPlan, aumRange, expenseRange, returns3YRange, minRating, riskLevels, sortField, sortDirection, activePreset]);
+    // Cap to top 50 (per market sub-category, or overall)
+    return filtered.slice(0, 50);
+  }, [mutualFunds, searchQuery, selectedCategory, selectedSubCategory, selectedFundHouse, selectedPlan, aumRange, expenseRange, returns3YRange, minRating, riskLevels, sortField, sortDirection, activePreset]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -451,79 +464,12 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         </div>
       </div>
 
-      {/* AMFI-wide search results — funds outside our curated list */}
-      {amfiResults.length > 0 && (
-        <Card className="border-financial-accent/30 bg-financial-accent/5">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-financial-accent" />
-                <h4 className="text-sm font-semibold text-foreground">
-                  {selectedSubCategory !== "All" && searchQuery.trim().length < 3
-                    ? `More ${selectedSubCategory} funds from AMFI`
-                    : "More from AMFI database"}
-                </h4>
-                <Badge variant="secondary" className="text-[10px]">
-                  {amfiResults.length} found
-                </Badge>
-              </div>
-              <button
-                onClick={() => setAmfiResults([])}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                Hide
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mb-3">
-              Funds beyond our curated list of 39. Click "Add" to include any fund in the table with its live NAV.
-            </p>
-            <ScrollArea className="max-h-72">
-              <div className="grid sm:grid-cols-2 gap-2 pr-2">
-                {amfiResults.map((fund) => (
-                  <div
-                    key={fund.schemeCode}
-                    className="flex items-start justify-between gap-2 p-2.5 rounded-lg border bg-card"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-foreground truncate">
-                        {fund.schemeName.split(" - ")[0]}
-                      </div>
-                      <div className="flex gap-1.5 mt-1 items-center flex-wrap">
-                        <Badge variant="outline" className="text-[10px] py-0 px-1.5">
-                          {fund.subCategory}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground truncate">
-                          {fund.fundHouse}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={addingCode === fund.schemeCode}
-                      onClick={() => addAmfiFund(fund)}
-                      className="shrink-0 h-7 px-2 gap-1 text-xs"
-                    >
-                      {addingCode === fund.schemeCode ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <Plus className="w-3 h-3" />
-                      )}
-                      Add
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Hint when query too short */}
-      {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 && (
-        <p className="text-xs text-muted-foreground -mt-3">
-          Type at least 3 characters to search the full AMFI database
-        </p>
+      {/* Inline AMFI loading hint while merging sub-category funds into the table */}
+      {amfiSearching && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground -mt-2">
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          Loading more {selectedSubCategory !== "All" ? selectedSubCategory + " " : ""}funds from AMFI…
+        </div>
       )}
 
       {/* Filters panel */}
@@ -678,7 +624,9 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
       {/* Results count & live data indicator */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing <span className="font-semibold text-foreground">{filteredFunds.length}</span> mutual funds
+          Showing top <span className="font-semibold text-foreground">{filteredFunds.length}</span>
+          {selectedSubCategory !== "All" ? ` ${selectedSubCategory}` : ""} mutual funds
+          {filteredFunds.length === 50 && <span className="ml-1 text-xs">(capped)</span>}
         </p>
         <div className="flex items-center gap-3">
           {liveDataLoaded && (
