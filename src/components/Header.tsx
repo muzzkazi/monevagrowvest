@@ -134,32 +134,6 @@ const Header = () => {
                 </div>
               </div>
 
-              {/* Screener dropdown */}
-              <div className="relative group">
-                <span className={`${navLinkClass(location.pathname === '/stock-screener' || location.pathname === '/mutual-fund-comparison')} flex items-center gap-1.5`}>
-                  <SlidersHorizontal className="h-4 w-4" /> Screener
-                </span>
-                <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
-                  <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[220px] py-2 overflow-hidden">
-                    <Link to="/stock-screener" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
-                      <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 group-hover/item:bg-blue-500/20 transition-colors dark:bg-blue-500/20 dark:text-blue-400">
-                        <LineChart className="h-4 w-4" />
-                      </div>
-                      Stock Screener
-                    </Link>
-                    <Link to="/mutual-fund-comparison" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
-                      <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover/item:bg-emerald-500/20 transition-colors dark:bg-emerald-500/20 dark:text-emerald-400">
-                        <PieChart className="h-4 w-4" />
-                      </div>
-                      Mutual Fund Screener
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              <Link to="/financial-education" className={navLinkClass(location.pathname === '/financial-education')}>Learning</Link>
-              <Link to="/contact" className={navLinkClass(location.pathname === '/contact')}>Contact</Link>
-            </nav>
 
             {/* Right side */}
             <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
