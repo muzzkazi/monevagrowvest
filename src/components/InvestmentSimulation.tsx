@@ -52,6 +52,20 @@ interface SimulationState {
   currentEvent?: MarketEvent;
 }
 
+interface HistoryPoint {
+  year: number;
+  label: string;
+  conservative: number;
+  moderate: number;
+  aggressive: number;
+  event: string;
+  return: number;
+}
+
+const initialHistory: HistoryPoint[] = [
+  { year: 0, label: 'Start', conservative: 10000, moderate: 10000, aggressive: 10000, event: 'Initial Investment', return: 0 },
+];
+
 const InvestmentSimulation = () => {
   const [simState, setSimState] = useState<SimulationState>({
     currentYear: 0,
@@ -61,6 +75,7 @@ const InvestmentSimulation = () => {
     totalInvested: 30000,
     currentEvent: undefined
   });
+  const [history, setHistory] = useState<HistoryPoint[]>(initialHistory);
 
   const [selectedStrategy, setSelectedStrategy] = useState<keyof Portfolio | null>(null);
   const [speed, setSpeed] = useState(1000); // milliseconds
