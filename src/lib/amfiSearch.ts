@@ -30,13 +30,20 @@ export const inferSubCategory = (name: string): string => {
 
 export const inferFundHouse = (name: string): string => {
   const n = name.toLowerCase();
+  // 1) Try to match a known canonical fund-house entry first.
   const known = fundHouses.find((house) => {
     if (house === "All") return false;
     const norm = house.toLowerCase().replace(/\bmutual fund\b/g, "").trim();
-    return n.includes(norm);
+    return norm.length > 0 && n.includes(norm);
   });
   if (known) return known;
-  return name.split(/\s+/).slice(0, 2).join(" ") || "Unknown";
+
+  // 2) Fallback: take the first 1-2 words of the scheme name and append
+  // " Mutual Fund" so it's visually consistent with curated rows
+  // (avoids "Tata" vs "Tata Mutual Fund" looking like two different houses).
+  const head = name.split(/\s+/).slice(0, 2).join(" ").trim();
+  if (!head) return "Unknown";
+  return /mutual fund/i.test(head) ? head : `${head} Mutual Fund`;
 };
 
 const DEBT_SUBS = new Set([
