@@ -170,12 +170,14 @@ const InvestmentSimulation = () => {
   };
 
   const startSimulation = () => {
+    setHistory(initialHistory);
     setSimState(prev => ({
       ...prev,
       isRunning: true,
       currentYear: 0,
       isComplete: false,
-      portfolio: { conservative: 10000, moderate: 10000, aggressive: 10000 }
+      portfolio: { conservative: 10000, moderate: 10000, aggressive: 10000 },
+      currentEvent: undefined,
     }));
   };
 
@@ -184,6 +186,7 @@ const InvestmentSimulation = () => {
   };
 
   const resetSimulation = () => {
+    setHistory(initialHistory);
     setSimState({
       currentYear: 0,
       isRunning: false,
@@ -215,6 +218,19 @@ const InvestmentSimulation = () => {
           moderate: prev.portfolio.moderate * (1 + getStrategyMultiplier('moderate', event.return)),
           aggressive: prev.portfolio.aggressive * (1 + getStrategyMultiplier('aggressive', event.return))
         };
+
+        setHistory(h => [
+          ...h,
+          {
+            year: nextYear,
+            label: event.event.split(':')[0],
+            conservative: Math.round(newPortfolio.conservative),
+            moderate: Math.round(newPortfolio.moderate),
+            aggressive: Math.round(newPortfolio.aggressive),
+            event: event.event,
+            return: event.return,
+          },
+        ]);
 
         return {
           ...prev,
