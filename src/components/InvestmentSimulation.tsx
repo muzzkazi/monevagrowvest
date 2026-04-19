@@ -407,7 +407,7 @@ const InvestmentSimulation = () => {
                     const sign = p.return > 0 ? '+' : '';
                     return p.year === 0
                       ? p.event
-                      : `${p.event} (${sign}${(p.return * 100).toFixed(1)}%)`;
+                      : `${p.event} — Market: ${sign}${(p.return * 100).toFixed(1)}%`;
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
