@@ -585,13 +585,6 @@ const InvestmentSimulation = () => {
                   <div>• Diversification across strategies can balance risk and reward</div>
                 </div>
               </div>
-              
-              <div className="flex justify-center space-x-4 mt-6">
-                <Button onClick={resetSimulation}>
-                  <Play className="w-4 h-4 mr-2" />
-                  Run Another Simulation
-                </Button>
-              </div>
             </div>
           </CardContent>
         </Card>
