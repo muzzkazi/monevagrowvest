@@ -178,7 +178,8 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   }, [fetchLiveNAVs]);
 
   // Auto-merge AMFI funds into the table when a sub-category is selected.
-  // Uses the sub-category as a search query against AMFI; new schemes get live NAV in batch.
+  // Uses several search queries against AMFI to maximise hits, then keeps only schemes
+  // that classify into the selected sub-category. New schemes get live NAV in batch.
   useEffect(() => {
     if (selectedSubCategory === "All") return;
 
@@ -186,26 +187,78 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
     const ctrl = new AbortController();
     setAmfiSearching(true);
 
+    // Map each sub-category -> list of AMFI search keywords likely to surface matches.
+    // AMFI scheme names rarely contain the exact SEBI sub-category label, so we try
+    // multiple synonyms and aggregate results.
+    const SUB_QUERIES: Record<string, string[]> = {
+      "Large Cap": ["large cap", "bluechip", "blue chip", "top 100"],
+      "Mid Cap": ["mid cap", "midcap", "emerging"],
+      "Small Cap": ["small cap", "smallcap"],
+      "Large & Mid Cap": ["large & mid", "large and mid", "large midcap", "large mid cap"],
+      "Multi Cap": ["multi cap", "multicap"],
+      "Flexi Cap": ["flexi cap", "flexicap"],
+      "ELSS": ["elss", "tax saver", "tax plan", "long term equity"],
+      "Sectoral": ["pharma", "tech", "digital", "banking", "infra", "fmcg", "energy", "sectoral"],
+      "Index Fund": ["index", "nifty", "sensex"],
+      "Value": ["value"],
+      "Liquid": ["liquid"],
+      "Ultra Short Duration": ["ultra short"],
+      "Short Duration": ["short duration", "short term"],
+      "Medium Duration": ["medium duration"],
+      "Long Duration": ["long duration"],
+      "Corporate Bond": ["corporate bond"],
+      "Gilt": ["gilt"],
+      "Banking & PSU": ["banking psu", "banking and psu", "psu debt"],
+      "Aggressive Hybrid": ["hybrid", "equity hybrid", "balanced"],
+      "Conservative Hybrid": ["conservative hybrid", "regular savings", "monthly income"],
+      "Balanced Advantage": ["balanced advantage", "dynamic asset"],
+      "Multi Asset Allocation": ["multi asset"],
+      "Arbitrage": ["arbitrage"],
+      "Retirement": ["retirement"],
+      "Children's Fund": ["children", "child"],
+      "International": ["nasdaq", "us equity", "global", "international"],
+      "Fund of Funds": ["fund of funds", "fof"],
+      "ETF": ["etf"],
+    };
+
     const run = async () => {
       try {
         const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
         const PUBLISHABLE_KEY = (import.meta as any).env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-        // 1. Search AMFI by sub-category name
-        const searchRes = await fetch(
-          `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(selectedSubCategory)}`,
-          { signal: ctrl.signal },
+        const queries = SUB_QUERIES[selectedSubCategory] ?? [selectedSubCategory.toLowerCase()];
+
+        // 1. Run all keyword searches in parallel and de-dupe by schemeCode
+        const searchResponses = await Promise.all(
+          queries.map(q =>
+            fetch(
+              `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`,
+              { signal: ctrl.signal },
+            )
+              .then(r => r.ok ? r.json() : [])
+              .catch(() => []),
+          ),
         );
-        const searchData = await searchRes.json();
-        if (!Array.isArray(searchData) || aborted) return;
+        if (aborted) return;
+
+        const seen = new Set<string>();
+        const merged: any[] = [];
+        for (const arr of searchResponses) {
+          if (!Array.isArray(arr)) continue;
+          for (const s of arr) {
+            const code = String(s?.schemeCode ?? "");
+            if (!code || seen.has(code)) continue;
+            seen.add(code);
+            merged.push(s);
+          }
+        }
 
         const existing = new Set(staticFunds.map(f => f.schemeCode));
-        const candidates = searchData
+        const candidates = merged
           .filter((s: any) => s && s.schemeCode && s.schemeName)
           .map((s: any) => fromAmfiScheme(s))
-          // Keep only ones matching the chosen sub-category & not already curated
           .filter((f) => f.subCategory === selectedSubCategory && !existing.has(f.schemeCode))
-          // Prefer Direct plans; cap to ~50
+          // Prefer Direct Growth plans first
           .sort((a, b) => Number(b.plan === "Direct") - Number(a.plan === "Direct"))
           .slice(0, 50);
 
