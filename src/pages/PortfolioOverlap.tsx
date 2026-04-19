@@ -263,57 +263,74 @@ const PortfolioOverlapPage = () => {
                     </p>
                   )}
 
-                  {/* Search results */}
-                  {searchResults.length > 0 && (
+                  {/* Grouped search results: Curated first, then All AMFI schemes */}
+                  {(localResults.length > 0 || remoteResults.length > 0) && (
                     <ScrollArea className="max-h-72">
-                      <div className="space-y-1.5 pr-2">
-                        {searchResults.map((fund, i) => {
-                          const isRemote = !mutualFunds.some((m) => m.schemeCode === fund.schemeCode);
-                          return (
-                            <motion.button
-                              key={fund.schemeCode}
-                              initial={{ opacity: 0, y: 8 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.02 }}
-                              onClick={() => addFund(fund)}
-                              className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-colors group"
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-medium text-foreground truncate">
-                                    {fund.schemeName.split(" - ")[0]}
-                                  </div>
-                                  <div className="flex gap-1.5 mt-1 items-center flex-wrap">
-                                    <Badge variant="outline" className="text-[10px]">
-                                      {fund.subCategory}
-                                    </Badge>
-                                    {isRemote && (
-                                      <Badge variant="secondary" className="text-[10px] py-0">
-                                        AMFI
-                                      </Badge>
-                                    )}
-                                    <span className="text-[10px] text-muted-foreground truncate">
-                                      {fund.fundHouse}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="shrink-0 w-6 h-6 rounded-md bg-muted group-hover:bg-financial-accent/15 flex items-center justify-center transition-colors">
-                                  <Plus className="w-3.5 h-3.5 text-muted-foreground group-hover:text-financial-accent" />
-                                </div>
+                      <div className="space-y-3 pr-2">
+                        {[
+                          { label: "Curated funds", funds: localResults, isRemote: false },
+                          { label: "All AMFI schemes", funds: remoteResults, isRemote: true },
+                        ].map((section) =>
+                          section.funds.length === 0 ? null : (
+                            <div key={section.label} className="space-y-1.5">
+                              <div className="flex items-center justify-between px-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                  {section.label}
+                                </span>
+                                <span className="text-[10px] tabular-nums text-muted-foreground">
+                                  {section.funds.length}
+                                </span>
                               </div>
-                            </motion.button>
-                          );
-                        })}
+                              {section.funds.map((fund, i) => (
+                                <motion.button
+                                  key={fund.schemeCode}
+                                  initial={{ opacity: 0, y: 8 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.02 }}
+                                  onClick={() => addFund(fund)}
+                                  className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-colors group"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-sm font-medium text-foreground truncate">
+                                        {fund.schemeName.split(" - ")[0]}
+                                      </div>
+                                      <div className="flex gap-1.5 mt-1 items-center flex-wrap">
+                                        <Badge variant="outline" className="text-[10px]">
+                                          {fund.subCategory}
+                                        </Badge>
+                                        {section.isRemote && (
+                                          <Badge variant="secondary" className="text-[10px] py-0">
+                                            AMFI
+                                          </Badge>
+                                        )}
+                                        <span className="text-[10px] text-muted-foreground truncate">
+                                          {fund.fundHouse}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="shrink-0 w-6 h-6 rounded-md bg-muted group-hover:bg-financial-accent/15 flex items-center justify-center transition-colors">
+                                      <Plus className="w-3.5 h-3.5 text-muted-foreground group-hover:text-financial-accent" />
+                                    </div>
+                                  </div>
+                                </motion.button>
+                              ))}
+                            </div>
+                          ),
+                        )}
                       </div>
                     </ScrollArea>
                   )}
 
                   {/* No results */}
-                  {!searching && query.trim().length >= 3 && searchResults.length === 0 && (
-                    <p className="text-xs text-muted-foreground text-center py-3">
-                      No funds found for "{query.trim()}"
-                    </p>
-                  )}
+                  {!searching &&
+                    query.trim().length >= 3 &&
+                    localResults.length === 0 &&
+                    remoteResults.length === 0 && (
+                      <p className="text-xs text-muted-foreground text-center py-3">
+                        No funds found for "{query.trim()}"
+                      </p>
+                    )}
 
                   {/* Suggestions */}
                   {selected.length === 0 && !query && (
