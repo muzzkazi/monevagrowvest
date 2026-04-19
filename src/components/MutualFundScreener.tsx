@@ -31,9 +31,10 @@ interface MutualFundScreenerProps {
 // ---- AMFI search helpers (for funds beyond the curated list) ----
 const inferSubCategory = (name: string): string => {
   const n = name.toLowerCase();
+  // Order matters — check most specific first
+  if (n.includes("large & mid") || n.includes("large and mid") || n.includes("large&mid")) return "Large & Mid Cap";
   if (n.includes("small cap") || n.includes("smallcap")) return "Small Cap";
   if (n.includes("mid cap") || n.includes("midcap") || n.includes("emerging")) return "Mid Cap";
-  if (n.includes("large & mid") || n.includes("large and mid")) return "Large & Mid Cap";
   if (n.includes("flexi cap") || n.includes("flexicap")) return "Flexi Cap";
   if (n.includes("multi cap") || n.includes("multicap")) return "Multi Cap";
   if (n.includes("elss") || n.includes("tax saver") || n.includes("tax plan") || n.includes("long term equity")) return "ELSS";
