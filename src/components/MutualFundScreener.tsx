@@ -141,6 +141,25 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   const normalizeHouse = (s: string) =>
     s.toLowerCase().replace(/\bmutual fund\b/g, "").replace(/\s+/g, " ").trim();
 
+  // AMFI uses different legal names than our display labels — alias them
+  // so each fund-house filter returns its full catalog from the scheme list.
+  const HOUSE_ALIASES: Record<string, string[]> = {
+    "ppfas": ["parag parikh"],
+    "icici prudential": ["icici prudential", "icici pru"],
+    "aditya birla sun life": ["aditya birla", "absl", "birla sun life"],
+    "nippon india": ["nippon india", "reliance"],
+    "mirae asset": ["mirae asset"],
+    "franklin templeton": ["franklin"],
+    "motilal oswal": ["motilal oswal"],
+    "parag parikh": ["parag parikh"],
+    "canara robeco": ["canara robeco"],
+  };
+  const houseSearchTerms = (label: string): string[] => {
+    const norm = normalizeHouse(label);
+    return HOUSE_ALIASES[norm] ?? [norm];
+  };
+
+
   // Auto-merge AMFI funds into the table when either:
   //   • a Sub Category is picked   → keep only schemes classifying to that sub-category
   //   • only a Category is picked  → fan-out across that category's umbrella keywords
