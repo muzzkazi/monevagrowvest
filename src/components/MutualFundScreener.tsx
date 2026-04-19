@@ -108,6 +108,11 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   const [selectedFund, setSelectedFund] = useState<MutualFundInfo | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
 
+  // AMFI-wide search
+  const [amfiResults, setAmfiResults] = useState<MutualFundInfo[]>([]);
+  const [amfiSearching, setAmfiSearching] = useState(false);
+  const [addingCode, setAddingCode] = useState<string | null>(null);
+
   // Fetch live NAV data
   const fetchLiveNAVs = useCallback(async () => {
     setIsLoadingLive(true);
