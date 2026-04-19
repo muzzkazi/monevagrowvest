@@ -1,10 +1,23 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Layers, AlertCircle, Info, ArrowRight, TrendingUp } from "lucide-react";
 import { MutualFundInfo } from "@/data/mutualFundDatabase";
 import { calculateOverlap } from "@/lib/fundHoldings";
+
+const AnimatedPercent = ({ value }: { value: number }) => {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (v) => (Math.round(v * 10) / 10).toFixed(1));
+
+  useEffect(() => {
+    const controls = animate(count, value, { duration: 1.2, ease: "easeOut" });
+    return () => controls.stop();
+  }, [value, count]);
+
+  return <motion.span>{rounded}</motion.span>;
+};
 
 interface FundOverlapProps {
   funds: MutualFundInfo[];
