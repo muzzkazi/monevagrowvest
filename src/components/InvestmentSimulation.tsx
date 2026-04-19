@@ -143,15 +143,22 @@ const InvestmentSimulation = () => {
   };
 
   const startSimulation = () => {
-    setHistory(initialHistory);
-    setSimState(prev => ({
-      ...prev,
-      isRunning: true,
-      currentYear: 0,
-      isComplete: false,
-      portfolio: { conservative: 10000, moderate: 10000, aggressive: 10000 },
-      currentEvent: undefined,
-    }));
+    setSimState(prev => {
+      // Resume if paused mid-run; otherwise start fresh
+      const isFreshStart = prev.currentYear === 0 || prev.isComplete;
+      if (isFreshStart) {
+        setHistory(initialHistory);
+        return {
+          ...prev,
+          isRunning: true,
+          currentYear: 0,
+          isComplete: false,
+          portfolio: { conservative: 10000, moderate: 10000, aggressive: 10000 },
+          currentEvent: undefined,
+        };
+      }
+      return { ...prev, isRunning: true };
+    });
   };
 
   const pauseSimulation = () => {
