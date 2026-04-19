@@ -176,9 +176,6 @@ const FundOverlap = ({ funds }: FundOverlapProps) => {
                       initial={{ strokeDashoffset: 263.9 }}
                       animate={{ strokeDashoffset: 263.9 - dashLength }}
                       transition={{ duration: 1.2, ease: "easeOut" }}
-                      style={{
-                        filter: `drop-shadow(0 0 8px currentColor)`,
-                      }}
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
