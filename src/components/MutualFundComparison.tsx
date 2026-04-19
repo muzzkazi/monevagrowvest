@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, X, ArrowLeft } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Star, ArrowLeft, Layers, Table2 } from "lucide-react";
 import { MutualFundInfo } from "@/data/mutualFundDatabase";
+import FundOverlap from "./mutual-fund-overlap/FundOverlap";
 
 interface MutualFundComparisonProps {
   funds: MutualFundInfo[];
@@ -62,69 +64,85 @@ const MutualFundComparison = ({ funds, onBack }: MutualFundComparisonProps) => {
         <h2 className="text-lg font-semibold">Comparing {funds.length} Funds</h2>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              {/* Fund headers */}
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-4 w-40 text-sm font-medium text-muted-foreground sticky left-0 bg-card z-10">Metric</th>
-                  {funds.map(fund => (
-                    <th key={fund.schemeCode} className="p-4 text-left min-w-[200px]">
-                      <div className="space-y-2">
-                        <div className="font-semibold text-sm text-foreground leading-tight">
-                          {fund.schemeName.split(" - ")[0]}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-[10px]">{fund.subCategory}</Badge>
-                          {renderStars(fund.rating)}
-                        </div>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, idx) => {
-                  const values = row.getValue ? funds.map(f => row.getValue!(f)) : [];
-                  const bestVal = values.length > 0 ? getBestValue(values, row.higherIsBetter) : null;
-                  
-                  return (
-                    <tr key={row.key} className={idx % 2 === 0 ? 'bg-muted/30' : ''}>
-                      <td className="p-4 text-sm font-medium text-muted-foreground sticky left-0 bg-inherit z-10">{row.label}</td>
-                      {funds.map(fund => {
-                        const val = row.getValue?.(fund);
-                        const isBest = bestVal !== null && val === bestVal && funds.length > 1;
-                        
-                        return (
-                          <td key={fund.schemeCode} className="p-4">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-sm ${isBest ? 'font-bold text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
-                                {row.format(fund)}
-                              </span>
-                              {row.key === "riskLevel" && (
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${riskColor(fund.riskLevel)}`}>
-                                  {fund.riskLevel}
-                                </span>
-                              )}
-                              {isBest && (
-                                <Badge className="text-[9px] py-0 px-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0">
-                                  Best
-                                </Badge>
-                              )}
+      <Tabs defaultValue="table" className="w-full">
+        <TabsList className="grid w-full sm:w-auto grid-cols-2 sm:inline-grid">
+          <TabsTrigger value="table" className="gap-2">
+            <Table2 className="w-4 h-4" />
+            Comparison
+          </TabsTrigger>
+          <TabsTrigger value="overlap" className="gap-2">
+            <Layers className="w-4 h-4" />
+            Portfolio Overlap
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="table" className="mt-4">
+          <Card>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-4 w-40 text-sm font-medium text-muted-foreground sticky left-0 bg-card z-10">Metric</th>
+                      {funds.map(fund => (
+                        <th key={fund.schemeCode} className="p-4 text-left min-w-[200px]">
+                          <div className="space-y-2">
+                            <div className="font-semibold text-sm text-foreground leading-tight">
+                              {fund.schemeName.split(" - ")[0]}
                             </div>
-                          </td>
-                        );
-                      })}
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-[10px]">{fund.subCategory}</Badge>
+                              {renderStars(fund.rating)}
+                            </div>
+                          </div>
+                        </th>
+                      ))}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                  </thead>
+                  <tbody>
+                    {rows.map((row, idx) => {
+                      const values = row.getValue ? funds.map(f => row.getValue!(f)) : [];
+                      const bestVal = values.length > 0 ? getBestValue(values, row.higherIsBetter) : null;
+                      return (
+                        <tr key={row.key} className={idx % 2 === 0 ? 'bg-muted/30' : ''}>
+                          <td className="p-4 text-sm font-medium text-muted-foreground sticky left-0 bg-inherit z-10">{row.label}</td>
+                          {funds.map(fund => {
+                            const val = row.getValue?.(fund);
+                            const isBest = bestVal !== null && val === bestVal && funds.length > 1;
+                            return (
+                              <td key={fund.schemeCode} className="p-4">
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-sm ${isBest ? 'font-bold text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
+                                    {row.format(fund)}
+                                  </span>
+                                  {row.key === "riskLevel" && (
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${riskColor(fund.riskLevel)}`}>
+                                      {fund.riskLevel}
+                                    </span>
+                                  )}
+                                  {isBest && (
+                                    <Badge className="text-[9px] py-0 px-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0">
+                                      Best
+                                    </Badge>
+                                  )}
+                                </div>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="overlap" className="mt-4">
+          <FundOverlap funds={funds} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
