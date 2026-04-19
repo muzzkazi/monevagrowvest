@@ -131,7 +131,7 @@ const AIPlanning = () => {
                   Define specific financial goals like retirement, children's education, or buying a home. 
                   Get personalized portfolio recommendations to achieve your targets.
                 </p>
-                <ul className="text-sm text-muted-foreground space-y-2 text-left">
+                <ul className="text-sm text-muted-foreground space-y-2 text-left mb-6">
                   <li>• Multiple financial goals</li>
                   <li>• Time-bound objectives</li>
                   <li>• Goal-specific allocations</li>
@@ -154,7 +154,7 @@ const AIPlanning = () => {
                   Start with your monthly investment capacity. Get optimized portfolio recommendations 
                   based on your SIP amount and tax preferences.
                 </p>
-                <ul className="text-sm text-muted-foreground space-y-2 text-left">
+                <ul className="text-sm text-muted-foreground space-y-2 text-left mb-6">
                   <li>• Monthly SIP planning</li>
                   <li>• Tax optimization options</li>
                   <li>• Growth projections</li>
