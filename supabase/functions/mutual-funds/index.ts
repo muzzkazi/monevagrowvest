@@ -7,6 +7,25 @@ const corsHeaders = {
 
 const MFAPI_BASE = 'https://api.mfapi.in';
 
+type SchemeListItem = { schemeCode: number | string; schemeName: string };
+
+let schemeListCache: SchemeListItem[] | null = null;
+let schemeListFetchedAt = 0;
+const SCHEME_LIST_TTL_MS = 1000 * 60 * 30;
+
+const getSchemeList = async () => {
+  const now = Date.now();
+  if (schemeListCache && now - schemeListFetchedAt < SCHEME_LIST_TTL_MS) {
+    return schemeListCache;
+  }
+
+  const response = await fetch(`${MFAPI_BASE}/mf`);
+  const data = await response.json();
+  schemeListCache = Array.isArray(data) ? data : [];
+  schemeListFetchedAt = now;
+  return schemeListCache;
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -17,10 +36,34 @@ serve(async (req) => {
     const action = url.searchParams.get('action') || 'search';
 
     if (action === 'search') {
-      const query = url.searchParams.get('q') || '';
-      const response = await fetch(`${MFAPI_BASE}/mf/search?q=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      return new Response(JSON.stringify(data), {
+      const query = (url.searchParams.get('q') || '').trim().toLowerCase();
+      if (!query) {
+        return new Response(JSON.stringify([]), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const schemes = await getSchemeList();
+      const words = query.split(/\s+/).filter(Boolean);
+      const ranked = schemes
+        .filter((scheme) => {
+          const name = String(scheme.schemeName || '').toLowerCase();
+          return words.every((word) => name.includes(word));
+        })
+        .sort((a, b) => {
+          const aName = String(a.schemeName || '').toLowerCase();
+          const bName = String(b.schemeName || '').toLowerCase();
+          const aStarts = aName.startsWith(query) ? 1 : 0;
+          const bStarts = bName.startsWith(query) ? 1 : 0;
+          if (aStarts !== bStarts) return bStarts - aStarts;
+          const aDirect = aName.includes('direct') ? 1 : 0;
+          const bDirect = bName.includes('direct') ? 1 : 0;
+          if (aDirect !== bDirect) return bDirect - aDirect;
+          return aName.localeCompare(bName);
+        })
+        .slice(0, 300);
+
+      return new Response(JSON.stringify(ranked), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
