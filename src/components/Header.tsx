@@ -150,28 +150,28 @@ const Header = () => {
                 <span className={`${navLinkClass(
                   location.pathname.startsWith('/ai-planning') || location.pathname === '/tax-planning'
                 )} flex items-center gap-1.5`}>
-                  <Sparkles className="h-4 w-4" /> AI Planning
+                  AI Planning
                 </span>
                 <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
                   <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[240px] py-2 overflow-hidden">
                     <Link to="/ai-planning" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <Sparkles className="h-4 w-4" /> AI Planner Overview
+                      AI Planner Overview
                     </Link>
                     <Link to="/ai-planning?mode=goals" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <Target className="h-4 w-4" /> Goal Based Planning
+                      Goal Based Planning
                     </Link>
                     <Link to="/ai-planning?mode=sip" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <TrendingUp className="h-4 w-4" /> SIP Based Planning
+                      SIP Based Planning
                     </Link>
                     <Link to="/tax-planning" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
-                      <FileText className="h-4 w-4" /> Tax Planning
+                      Tax Planning
                     </Link>
                   </div>
                 </div>
               </div>
 
               <Link to="/financial-education" className={`${navLinkClass(location.pathname === '/financial-education')} flex items-center gap-1.5`}>
-                <GraduationCap className="h-4 w-4" /> Learning
+                Learning
               </Link>
 
               {/* Company dropdown — about, services, blog, contact */}
@@ -179,7 +179,7 @@ const Header = () => {
                 <span className={`${navLinkClass(
                   ['/about', '/services', '/contact', '/blog'].includes(location.pathname)
                 )} flex items-center gap-1.5`}>
-                  <Info className="h-4 w-4" /> Company
+                  Company
                 </span>
                 <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
                   <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[200px] py-2 overflow-hidden">
@@ -227,57 +227,57 @@ const Header = () => {
 
                     <MobileSectionLabel>Tools — Calculators</MobileSectionLabel>
                     <MobileNavLink to="/calculators?tab=sip" onClick={closeMobile}>
-                      <TrendingUp className="h-4 w-4" /> SIP Calculator
+                      SIP Calculator
                     </MobileNavLink>
                     <MobileNavLink to="/calculators?tab=emi" onClick={closeMobile}>
-                      <Receipt className="h-4 w-4" /> EMI Calculator
+                      EMI Calculator
                     </MobileNavLink>
                     <MobileNavLink to="/calculators?tab=tax" onClick={closeMobile}>
-                      <Landmark className="h-4 w-4" /> Tax Calculator
+                      Tax Calculator
                     </MobileNavLink>
                     <MobileNavLink to="/calculators?tab=retirement" onClick={closeMobile}>
-                      <Clock className="h-4 w-4" /> Retirement Planner
+                      Retirement Planner
                     </MobileNavLink>
 
                     <MobileSectionLabel>Tools — Screeners</MobileSectionLabel>
                     <MobileNavLink to="/stock-screener" onClick={closeMobile}>
-                      <LineChart className="h-4 w-4" /> Stock Screener
+                      Stock Screener
                     </MobileNavLink>
                     <MobileNavLink to="/mutual-fund-comparison" onClick={closeMobile}>
-                      <PieChart className="h-4 w-4" /> Mutual Fund Screener
+                      Mutual Fund Screener
                     </MobileNavLink>
                     <MobileNavLink to="/portfolio-overlap" onClick={closeMobile}>
-                      <Layers className="h-4 w-4" /> Portfolio Overlap
+                      Portfolio Overlap
                     </MobileNavLink>
                     <MobileNavLink to="/portfolio-review" onClick={closeMobile}>
-                      <ClipboardCheck className="h-4 w-4" /> AI Portfolio Review
+                      AI Portfolio Review
                     </MobileNavLink>
 
                     <MobileSectionLabel>Tools — Money Management</MobileSectionLabel>
                     <MobileNavLink to="/budget-tracker" onClick={closeMobile}>
-                      <PiggyBank className="h-4 w-4" /> Budget Tracker
+                      Budget Tracker
                     </MobileNavLink>
                     <MobileNavLink to="/debt-management" onClick={closeMobile}>
-                      <Wallet className="h-4 w-4" /> Debt Management
+                      Debt Management
                     </MobileNavLink>
 
                     <MobileSectionLabel>AI Planning</MobileSectionLabel>
                     <MobileNavLink to="/ai-planning" onClick={closeMobile}>
-                      <Sparkles className="h-4 w-4" /> AI Planner Overview
+                      AI Planner Overview
                     </MobileNavLink>
                     <MobileNavLink to="/ai-planning?mode=goals" onClick={closeMobile}>
-                      <Target className="h-4 w-4" /> Goal Based Planning
+                      Goal Based Planning
                     </MobileNavLink>
                     <MobileNavLink to="/ai-planning?mode=sip" onClick={closeMobile}>
-                      <TrendingUp className="h-4 w-4" /> SIP Based Planning
+                      SIP Based Planning
                     </MobileNavLink>
                     <MobileNavLink to="/tax-planning" onClick={closeMobile}>
-                      <FileText className="h-4 w-4" /> Tax Planning
+                      Tax Planning
                     </MobileNavLink>
 
                     <div className="my-2 border-t border-border" />
                     <MobileNavLink to="/financial-education" onClick={closeMobile}>
-                      <GraduationCap className="h-4 w-4" /> Learning
+                      Learning
                     </MobileNavLink>
 
                     <MobileSectionLabel>Company</MobileSectionLabel>
