@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Layers, Search, X, Plus, Sparkles, TrendingDown, Target, Eye, Loader2 } from "lucide-react";
 import { mutualFunds, MutualFundInfo } from "@/data/mutualFundDatabase";
 import FundOverlap from "@/components/mutual-fund-overlap/FundOverlap";
-import { supabase } from "@/integrations/supabase/client";
+
 
 const MAX_FUNDS = 4;
 
