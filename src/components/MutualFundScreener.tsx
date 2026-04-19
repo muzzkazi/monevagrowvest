@@ -624,7 +624,9 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
       {/* Results count & live data indicator */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing <span className="font-semibold text-foreground">{filteredFunds.length}</span> mutual funds
+          Showing top <span className="font-semibold text-foreground">{filteredFunds.length}</span>
+          {selectedSubCategory !== "All" ? ` ${selectedSubCategory}` : ""} mutual funds
+          {filteredFunds.length === 50 && <span className="ml-1 text-xs">(capped)</span>}
         </p>
         <div className="flex items-center gap-3">
           {liveDataLoaded && (
