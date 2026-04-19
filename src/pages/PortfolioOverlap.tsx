@@ -59,15 +59,25 @@ const PortfolioOverlapPage = () => {
 
           <div className="relative container mx-auto px-4 py-12 max-w-7xl">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-              <div className="max-w-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="max-w-2xl"
+              >
                 <Badge className="mb-4 bg-financial-accent/10 text-financial-accent border-financial-accent/20 hover:bg-financial-accent/20">
                   <Sparkles className="w-3 h-3 mr-1.5" />
                   New Tool
                 </Badge>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-financial-accent to-financial-gold flex items-center justify-center shadow-lg shadow-financial-accent/30">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2, type: "spring", stiffness: 200 }}
+                    className="w-12 h-12 rounded-xl bg-gradient-to-br from-financial-accent to-financial-gold flex items-center justify-center shadow-lg shadow-financial-accent/30"
+                  >
                     <Layers className="w-6 h-6 text-white" />
-                  </div>
+                  </motion.div>
                   <h1 className="text-4xl sm:text-5xl font-bold text-foreground tracking-tight">
                     Portfolio Overlap
                   </h1>
@@ -76,26 +86,38 @@ const PortfolioOverlapPage = () => {
                   Compare up to {MAX_FUNDS} mutual funds and see exactly how much they duplicate
                   each other. Discover real diversification gaps before you invest.
                 </p>
-              </div>
+              </motion.div>
 
               {/* Stat tiles */}
-              <div className="grid grid-cols-3 gap-3 md:gap-4">
-                <div className="bg-card/60 backdrop-blur-sm border rounded-xl p-3 text-center min-w-[90px]">
-                  <Target className="w-4 h-4 mx-auto mb-1.5 text-financial-accent" />
-                  <div className="text-xs text-muted-foreground">Up to</div>
-                  <div className="text-lg font-bold text-foreground">{MAX_FUNDS} funds</div>
-                </div>
-                <div className="bg-card/60 backdrop-blur-sm border rounded-xl p-3 text-center min-w-[90px]">
-                  <TrendingDown className="w-4 h-4 mx-auto mb-1.5 text-emerald-600" />
-                  <div className="text-xs text-muted-foreground">Avoid</div>
-                  <div className="text-lg font-bold text-foreground">overlap</div>
-                </div>
-                <div className="bg-card/60 backdrop-blur-sm border rounded-xl p-3 text-center min-w-[90px]">
-                  <Eye className="w-4 h-4 mx-auto mb-1.5 text-financial-gold" />
-                  <div className="text-xs text-muted-foreground">See</div>
-                  <div className="text-lg font-bold text-foreground">holdings</div>
-                </div>
-              </div>
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.3 } },
+                }}
+                className="grid grid-cols-3 gap-3 md:gap-4"
+              >
+                {[
+                  { Icon: Target, color: "text-financial-accent", label: "Up to", value: `${MAX_FUNDS} funds` },
+                  { Icon: TrendingDown, color: "text-emerald-600", label: "Avoid", value: "overlap" },
+                  { Icon: Eye, color: "text-financial-gold", label: "See", value: "holdings" },
+                ].map(({ Icon, color, label, value }) => (
+                  <motion.div
+                    key={label}
+                    variants={{
+                      hidden: { opacity: 0, y: 15 },
+                      visible: { opacity: 1, y: 0 },
+                    }}
+                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                    className="bg-card/60 backdrop-blur-sm border rounded-xl p-3 text-center min-w-[90px]"
+                  >
+                    <Icon className={`w-4 h-4 mx-auto mb-1.5 ${color}`} />
+                    <div className="text-xs text-muted-foreground">{label}</div>
+                    <div className="text-lg font-bold text-foreground">{value}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
           </div>
         </div>
