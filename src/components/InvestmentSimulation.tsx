@@ -272,6 +272,26 @@ const InvestmentSimulation = () => {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Timeframe selector — disabled mid-run */}
+          <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-border">
+            <span className="text-sm text-muted-foreground mr-1">Timeframe:</span>
+            {startYearOptions.map((opt) => (
+              <Button
+                key={opt.startCalendar}
+                size="sm"
+                variant={startCalendarYear === opt.startCalendar ? 'default' : 'outline'}
+                disabled={simState.isRunning || simState.currentYear > 0}
+                onClick={() => {
+                  setStartCalendarYear(opt.startCalendar);
+                  setHistory(initialHistory);
+                }}
+                className={startCalendarYear === opt.startCalendar ? 'bg-financial-accent hover:bg-financial-accent/90' : ''}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">
               <div className="flex items-center">
