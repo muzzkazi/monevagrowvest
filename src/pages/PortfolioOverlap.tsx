@@ -59,15 +59,25 @@ const PortfolioOverlapPage = () => {
 
           <div className="relative container mx-auto px-4 py-12 max-w-7xl">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-              <div className="max-w-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="max-w-2xl"
+              >
                 <Badge className="mb-4 bg-financial-accent/10 text-financial-accent border-financial-accent/20 hover:bg-financial-accent/20">
                   <Sparkles className="w-3 h-3 mr-1.5" />
                   New Tool
                 </Badge>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-financial-accent to-financial-gold flex items-center justify-center shadow-lg shadow-financial-accent/30">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2, type: "spring", stiffness: 200 }}
+                    className="w-12 h-12 rounded-xl bg-gradient-to-br from-financial-accent to-financial-gold flex items-center justify-center shadow-lg shadow-financial-accent/30"
+                  >
                     <Layers className="w-6 h-6 text-white" />
-                  </div>
+                  </motion.div>
                   <h1 className="text-4xl sm:text-5xl font-bold text-foreground tracking-tight">
                     Portfolio Overlap
                   </h1>
@@ -76,26 +86,38 @@ const PortfolioOverlapPage = () => {
                   Compare up to {MAX_FUNDS} mutual funds and see exactly how much they duplicate
                   each other. Discover real diversification gaps before you invest.
                 </p>
-              </div>
+              </motion.div>
 
               {/* Stat tiles */}
-              <div className="grid grid-cols-3 gap-3 md:gap-4">
-                <div className="bg-card/60 backdrop-blur-sm border rounded-xl p-3 text-center min-w-[90px]">
-                  <Target className="w-4 h-4 mx-auto mb-1.5 text-financial-accent" />
-                  <div className="text-xs text-muted-foreground">Up to</div>
-                  <div className="text-lg font-bold text-foreground">{MAX_FUNDS} funds</div>
-                </div>
-                <div className="bg-card/60 backdrop-blur-sm border rounded-xl p-3 text-center min-w-[90px]">
-                  <TrendingDown className="w-4 h-4 mx-auto mb-1.5 text-emerald-600" />
-                  <div className="text-xs text-muted-foreground">Avoid</div>
-                  <div className="text-lg font-bold text-foreground">overlap</div>
-                </div>
-                <div className="bg-card/60 backdrop-blur-sm border rounded-xl p-3 text-center min-w-[90px]">
-                  <Eye className="w-4 h-4 mx-auto mb-1.5 text-financial-gold" />
-                  <div className="text-xs text-muted-foreground">See</div>
-                  <div className="text-lg font-bold text-foreground">holdings</div>
-                </div>
-              </div>
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.3 } },
+                }}
+                className="grid grid-cols-3 gap-3 md:gap-4"
+              >
+                {[
+                  { Icon: Target, color: "text-financial-accent", label: "Up to", value: `${MAX_FUNDS} funds` },
+                  { Icon: TrendingDown, color: "text-emerald-600", label: "Avoid", value: "overlap" },
+                  { Icon: Eye, color: "text-financial-gold", label: "See", value: "holdings" },
+                ].map(({ Icon, color, label, value }) => (
+                  <motion.div
+                    key={label}
+                    variants={{
+                      hidden: { opacity: 0, y: 15 },
+                      visible: { opacity: 1, y: 0 },
+                    }}
+                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                    className="bg-card/60 backdrop-blur-sm border rounded-xl p-3 text-center min-w-[90px]"
+                  >
+                    <Icon className={`w-4 h-4 mx-auto mb-1.5 ${color}`} />
+                    <div className="text-xs text-muted-foreground">{label}</div>
+                    <div className="text-lg font-bold text-foreground">{value}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
           </div>
         </div>
@@ -129,36 +151,43 @@ const PortfolioOverlapPage = () => {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {selected.map((fund, idx) => (
-                        <div
-                          key={fund.schemeCode}
-                          className="group flex items-start gap-3 p-3 rounded-xl border bg-gradient-to-br from-card to-muted/20 hover:border-financial-accent/40 transition-all"
-                        >
-                          <div className="shrink-0 w-7 h-7 rounded-md bg-financial-accent/10 text-financial-accent flex items-center justify-center text-xs font-bold">
-                            {idx + 1}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-semibold text-foreground truncate">
-                              {fund.schemeName.split(" - ")[0]}
-                            </div>
-                            <div className="flex gap-1.5 mt-1 items-center">
-                              <Badge variant="outline" className="text-[10px] py-0 px-1.5">
-                                {fund.subCategory}
-                              </Badge>
-                              <span className="text-[10px] text-muted-foreground truncate">
-                                {fund.fundHouse}
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => removeFund(fund.schemeCode)}
-                            className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive p-1 transition-opacity"
-                            aria-label="Remove"
+                      <AnimatePresence initial={false}>
+                        {selected.map((fund, idx) => (
+                          <motion.div
+                            key={fund.schemeCode}
+                            layout
+                            initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, x: 20, scale: 0.9 }}
+                            transition={{ duration: 0.25, ease: "easeOut" }}
+                            className="group flex items-start gap-3 p-3 rounded-xl border bg-gradient-to-br from-card to-muted/20 hover:border-financial-accent/40 transition-colors"
                           >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
+                            <div className="shrink-0 w-7 h-7 rounded-md bg-financial-accent/10 text-financial-accent flex items-center justify-center text-xs font-bold">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-semibold text-foreground truncate">
+                                {fund.schemeName.split(" - ")[0]}
+                              </div>
+                              <div className="flex gap-1.5 mt-1 items-center">
+                                <Badge variant="outline" className="text-[10px] py-0 px-1.5">
+                                  {fund.subCategory}
+                                </Badge>
+                                <span className="text-[10px] text-muted-foreground truncate">
+                                  {fund.fundHouse}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => removeFund(fund.schemeCode)}
+                              className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive p-1 transition-opacity"
+                              aria-label="Remove"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
                     </div>
                   )}
 
@@ -182,11 +211,14 @@ const PortfolioOverlapPage = () => {
                   {searchResults.length > 0 && (
                     <ScrollArea className="max-h-72">
                       <div className="space-y-1.5 pr-2">
-                        {searchResults.map((fund) => (
-                          <button
+                        {searchResults.map((fund, i) => (
+                          <motion.button
                             key={fund.schemeCode}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.2, delay: i * 0.03 }}
                             onClick={() => addFund(fund)}
-                            className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-all group"
+                            className="w-full text-left p-2.5 rounded-lg border hover:border-financial-accent hover:bg-financial-accent/5 transition-colors group"
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
@@ -206,7 +238,7 @@ const PortfolioOverlapPage = () => {
                                 <Plus className="w-3.5 h-3.5 text-muted-foreground group-hover:text-financial-accent" />
                               </div>
                             </div>
-                          </button>
+                          </motion.button>
                         ))}
                       </div>
                     </ScrollArea>
@@ -273,40 +305,73 @@ const PortfolioOverlapPage = () => {
 
             {/* Overlap output */}
             <div>
-              {selected.length < 2 ? (
-                <Card className="border-2 border-dashed bg-gradient-to-br from-muted/20 to-card overflow-hidden">
-                  <CardContent className="p-12 lg:p-16 text-center">
-                    <div className="relative w-24 h-24 mx-auto mb-6">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-financial-accent/20 to-financial-gold/20 blur-xl" />
-                      <div className="relative w-full h-full rounded-full bg-gradient-to-br from-financial-accent/10 to-financial-gold/10 flex items-center justify-center border-2 border-financial-accent/20">
-                        <Layers className="w-10 h-10 text-financial-accent" />
-                      </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-3">
-                      {selected.length === 0
-                        ? "Pick your first fund"
-                        : "Add one more fund to start"}
-                    </h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed mb-6">
-                      Use the search panel on the left to add mutual funds. You'll instantly see how
-                      much they overlap, the exact common holdings, and pairwise comparisons.
-                    </p>
-                    <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
-                      <span className="px-3 py-1.5 rounded-full bg-muted/50 border">
-                        ✓ Donut overlap %
-                      </span>
-                      <span className="px-3 py-1.5 rounded-full bg-muted/50 border">
-                        ✓ Common stocks
-                      </span>
-                      <span className="px-3 py-1.5 rounded-full bg-muted/50 border">
-                        ✓ Pairwise matrix
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <FundOverlap funds={selected} />
-              )}
+              <AnimatePresence mode="wait">
+                {selected.length < 2 ? (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card className="border-2 border-dashed bg-gradient-to-br from-muted/20 to-card overflow-hidden">
+                      <CardContent className="p-12 lg:p-16 text-center">
+                        <motion.div
+                          animate={{ y: [0, -8, 0] }}
+                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                          className="relative w-24 h-24 mx-auto mb-6"
+                        >
+                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-financial-accent/20 to-financial-gold/20 blur-xl animate-pulse" />
+                          <div className="relative w-full h-full rounded-full bg-gradient-to-br from-financial-accent/10 to-financial-gold/10 flex items-center justify-center border-2 border-financial-accent/20">
+                            <Layers className="w-10 h-10 text-financial-accent" />
+                          </div>
+                        </motion.div>
+                        <h3 className="text-2xl font-bold text-foreground mb-3">
+                          {selected.length === 0
+                            ? "Pick your first fund"
+                            : "Add one more fund to start"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed mb-6">
+                          Use the search panel on the left to add mutual funds. You'll instantly see how
+                          much they overlap, the exact common holdings, and pairwise comparisons.
+                        </p>
+                        <motion.div
+                          initial="hidden"
+                          animate="visible"
+                          variants={{
+                            hidden: {},
+                            visible: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } },
+                          }}
+                          className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground"
+                        >
+                          {["✓ Donut overlap %", "✓ Common stocks", "✓ Pairwise matrix"].map((t) => (
+                            <motion.span
+                              key={t}
+                              variants={{
+                                hidden: { opacity: 0, scale: 0.8 },
+                                visible: { opacity: 1, scale: 1 },
+                              }}
+                              className="px-3 py-1.5 rounded-full bg-muted/50 border"
+                            >
+                              {t}
+                            </motion.span>
+                          ))}
+                        </motion.div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="output"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                  >
+                    <FundOverlap funds={selected} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
