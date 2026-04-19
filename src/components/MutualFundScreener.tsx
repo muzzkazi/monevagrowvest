@@ -39,7 +39,18 @@ interface MutualFundScreenerProps {
 
 const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   const { toast } = useToast();
-  const [mutualFunds, setMutualFunds] = useState<MutualFundInfo[]>(staticFunds);
+  const [mutualFunds, setMutualFunds] = useState<MutualFundInfo[]>(() => {
+    const cached = loadAmfiCache();
+    if (!cached || cached.length === 0) return staticFunds;
+    // Merge cached AMFI rows on top of static seed so reloads are instant.
+    const have = new Set(staticFunds.map(f => f.schemeCode));
+    const additions = cached.filter(c => !have.has(c.schemeCode));
+    const updated = staticFunds.map(s => {
+      const m = cached.find(c => c.schemeCode === s.schemeCode);
+      return m ? { ...s, fundHouse: m.fundHouse, nav: m.nav || s.nav } : s;
+    });
+    return [...updated, ...additions];
+  });
   const [isLoadingLive, setIsLoadingLive] = useState(false);
   const [liveDataLoaded, setLiveDataLoaded] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
