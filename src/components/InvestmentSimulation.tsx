@@ -531,11 +531,19 @@ const InvestmentSimulation = () => {
       {simState.isComplete && (
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Award className="w-6 h-6 mr-2 text-financial-gold" />
-              {marketEvents.length}-Year Simulation Complete!
-            </CardTitle>
-            <CardDescription>Here's how each strategy performed</CardDescription>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <CardTitle className="flex items-center">
+                  <Award className="w-6 h-6 mr-2 text-financial-gold" />
+                  {marketEvents.length}-Year Simulation Complete!
+                </CardTitle>
+                <CardDescription>Here's how each strategy performed</CardDescription>
+              </div>
+              <Button onClick={resetSimulation} className="shrink-0">
+                <Play className="w-4 h-4 mr-2" />
+                Run Another Simulation
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
