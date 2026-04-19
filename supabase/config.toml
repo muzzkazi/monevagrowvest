@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.mutual-funds]
 verify_jwt = false
+
+[functions.portfolio-review]
+verify_jwt = false

@@ -17,6 +17,7 @@ import AIPlanning from "./pages/AIPlanning";
 import DebtManagement from "./pages/DebtManagement";
 import MutualFundComparison from "./pages/MutualFundComparison";
 import PortfolioOverlap from "./pages/PortfolioOverlap";
+import PortfolioReview from "./pages/PortfolioReview";
 import GoalBasedPlanning from "./pages/GoalBasedPlanning";
 import SIPBasedPlanning from "./pages/SIPBasedPlanning";
 import FinancialEducationPage from "./pages/FinancialEducation";
@@ -63,6 +64,7 @@ const AnimatedRoutes = () => {
           <Route path="/debt-management" element={<DebtManagement />} />
           <Route path="/mutual-fund-comparison" element={<MutualFundComparison />} />
           <Route path="/portfolio-overlap" element={<PortfolioOverlap />} />
+          <Route path="/portfolio-review" element={<PortfolioReview />} />
           <Route path="/goal-based-planning" element={<GoalBasedPlanning />} />
           <Route path="/sip-based-planning" element={<SIPBasedPlanning />} />
           <Route path="/financial-education" element={<FinancialEducationPage />} />
