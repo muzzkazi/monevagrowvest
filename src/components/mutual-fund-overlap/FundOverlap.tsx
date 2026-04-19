@@ -104,16 +104,28 @@ const FundOverlap = ({ funds }: FundOverlapProps) => {
                 <div className="relative w-40 h-40 mx-auto md:mx-0 shrink-0">
                   <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
                     <circle cx="50" cy="50" r="42" className="fill-none stroke-muted" strokeWidth="10" />
-                    <circle
+                    <motion.circle
+                      key={`${fundAIdx}-${fundBIdx}`}
                       cx="50" cy="50" r="42"
-                      className="fill-none stroke-financial-accent transition-all"
+                      className="fill-none stroke-financial-accent"
                       strokeWidth="10"
                       strokeLinecap="round"
-                      strokeDasharray={`${(overlap.overlapPercent / 100) * 263.9} 263.9`}
+                      strokeDasharray={`${CIRCUMFERENCE} ${CIRCUMFERENCE}`}
+                      initial={{ strokeDashoffset: CIRCUMFERENCE }}
+                      animate={{ strokeDashoffset: CIRCUMFERENCE - (overlap.overlapPercent / 100) * CIRCUMFERENCE }}
+                      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-bold text-foreground">{overlap.overlapPercent}%</span>
+                    <motion.span
+                      key={`pct-${fundAIdx}-${fundBIdx}-${overlap.overlapPercent}`}
+                      initial={{ opacity: 0, scale: 0.6 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
+                      className="text-3xl font-bold text-foreground"
+                    >
+                      {overlap.overlapPercent}%
+                    </motion.span>
                     <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Overlap</span>
                   </div>
                 </div>
