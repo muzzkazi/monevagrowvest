@@ -28,6 +28,7 @@ import {
   SUB_CATEGORY_QUERIES,
   CATEGORY_QUERIES,
 } from "@/lib/amfiSearch";
+import { loadAmfiCache, saveAmfiCache } from "@/lib/amfiCache";
 
 type SortField = "schemeName" | "nav" | "returns1Y" | "returns3Y" | "returns5Y" | "aum" | "expenseRatio" | "rating";
 type SortDirection = "asc" | "desc";
