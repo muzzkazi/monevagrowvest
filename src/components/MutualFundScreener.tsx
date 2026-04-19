@@ -199,6 +199,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         if (aborted) return;
 
         const existing = new Set(staticFunds.map(f => f.schemeCode));
+        const passedHouseFilter: typeof merged = [];
         const candidates = merged
           .map(fromAmfiScheme)
           .filter((f) => {
@@ -211,11 +212,16 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
               const ok = houseTerms.some(t => fhNorm.includes(t) || sName.includes(t));
               if (!ok) return false;
             }
+            passedHouseFilter.push(f);
             return true;
           })
-          // Prefer Direct Growth plans first
           .sort((a, b) => Number(b.plan === "Direct") - Number(a.plan === "Direct"))
           .slice(0, 120);
+
+        console.log("[AMFI fan-out]", {
+          house: selectedFundHouse, queries: queries.length,
+          rawHits: merged.length, candidates: candidates.length,
+        });
 
         if (candidates.length === 0 || aborted) {
           setAmfiSearching(false);
@@ -228,6 +234,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         setMutualFunds(prev => {
           const have = new Set(prev.map(f => f.schemeCode));
           const additions = enriched.filter(e => !have.has(e.schemeCode));
+          console.log("[AMFI fan-out] additions:", additions.length);
           if (additions.length === 0) return prev;
           return [...prev, ...additions];
         });
