@@ -485,6 +485,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
   ].filter(Boolean).length;
 
   return (
+    <TooltipProvider delayDuration={150}>
     <div className="space-y-6">
       {/* Popular Screens - Tickertape style */}
       <div>
