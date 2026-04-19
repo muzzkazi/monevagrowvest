@@ -317,8 +317,9 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
       return sortDirection === "asc" ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
     });
 
-    return filtered;
-  }, [searchQuery, selectedCategory, selectedSubCategory, selectedFundHouse, selectedPlan, aumRange, expenseRange, returns3YRange, minRating, riskLevels, sortField, sortDirection, activePreset]);
+    // Cap to top 50 (per market sub-category, or overall)
+    return filtered.slice(0, 50);
+  }, [mutualFunds, searchQuery, selectedCategory, selectedSubCategory, selectedFundHouse, selectedPlan, aumRange, expenseRange, returns3YRange, minRating, riskLevels, sortField, sortDirection, activePreset]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
