@@ -120,11 +120,11 @@ const AIPlanning = () => {
 
           {/* Planning Mode Selection */}
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-financial-accent/50" onClick={() => {
+            <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-financial-accent/50 flex flex-col" onClick={() => {
               setPlanningMode("goals");
               setCurrentStep("goals");
             }}>
-              <CardContent className="p-8 text-center">
+              <CardContent className="p-8 text-center flex flex-col flex-1">
                 <Target className="h-16 w-16 text-financial-accent mx-auto mb-6" />
                 <h3 className="text-2xl font-bold mb-4">Goal-Based Planning</h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
@@ -137,17 +137,17 @@ const AIPlanning = () => {
                   <li>• Goal-specific allocations</li>
                   <li>• Priority-based planning</li>
                 </ul>
-                <Button className="mt-6 w-full bg-financial-accent hover:bg-financial-accent/90">
+                <Button className="mt-auto w-full bg-financial-accent hover:bg-financial-accent/90">
                   Start Goal-Based Planning
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-financial-accent/50" onClick={() => {
+            <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-financial-accent/50 flex flex-col" onClick={() => {
               setPlanningMode("sip");
               setCurrentStep("sip");
             }}>
-              <CardContent className="p-8 text-center">
+              <CardContent className="p-8 text-center flex flex-col flex-1">
                 <PiggyBank className="h-16 w-16 text-financial-accent mx-auto mb-6" />
                 <h3 className="text-2xl font-bold mb-4">SIP-Based Planning</h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
@@ -160,7 +160,7 @@ const AIPlanning = () => {
                   <li>• Growth projections</li>
                   <li>• Flexible allocations</li>
                 </ul>
-                <Button className="mt-6 w-full bg-financial-accent hover:bg-financial-accent/90">
+                <Button className="mt-auto w-full bg-financial-accent hover:bg-financial-accent/90">
                   Start SIP Planning
                 </Button>
               </CardContent>
