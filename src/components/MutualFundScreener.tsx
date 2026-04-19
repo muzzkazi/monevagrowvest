@@ -267,14 +267,34 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           return;
         }
 
-        // 2. Batch-fetch live NAVs in chunks of 30
+        // 2. Batch-fetch full NAV history in chunks of 20, then compute current NAV + CAGR
         const codes = candidates.map(c => c.schemeCode);
         const enriched: MutualFundInfo[] = [...candidates];
-        for (let i = 0; i < codes.length; i += 30) {
+
+        // Parse "DD-MM-YYYY" -> Date
+        const parseDate = (s: string): Date => {
+          const [d, m, y] = s.split("-").map(Number);
+          return new Date(y, (m || 1) - 1, d || 1);
+        };
+        // Find NAV closest to the target date (NAV history is newest-first)
+        const navOnOrBefore = (history: Array<{ date: string; nav: string }>, target: Date) => {
+          for (let i = 0; i < history.length; i++) {
+            const d = parseDate(history[i].date);
+            if (d <= target) {
+              const v = parseFloat(history[i].nav);
+              return isNaN(v) ? null : v;
+            }
+          }
+          return null;
+        };
+        const cagr = (start: number, end: number, years: number) =>
+          start > 0 && end > 0 ? (Math.pow(end / start, 1 / years) - 1) * 100 : 0;
+
+        for (let i = 0; i < codes.length; i += 20) {
           if (aborted) return;
-          const chunk = codes.slice(i, i + 30);
+          const chunk = codes.slice(i, i + 20);
           const navRes = await fetch(
-            `${SUPABASE_URL}/functions/v1/mutual-funds?action=batch`,
+            `${SUPABASE_URL}/functions/v1/mutual-funds?action=batch-history`,
             {
               method: "POST",
               headers: {
@@ -289,10 +309,27 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           if (navJson?.results) {
             for (const r of navJson.results) {
               const idx = enriched.findIndex(e => e.schemeCode === r.code);
-              if (idx >= 0 && r.data?.[0]?.nav) {
-                const navVal = parseFloat(r.data[0].nav);
-                if (!isNaN(navVal)) enriched[idx] = { ...enriched[idx], nav: navVal };
-              }
+              if (idx < 0 || !Array.isArray(r.data) || r.data.length === 0) continue;
+
+              const latestNav = parseFloat(r.data[0].nav);
+              if (isNaN(latestNav)) continue;
+
+              const now = parseDate(r.data[0].date);
+              const oneY  = new Date(now); oneY.setFullYear(now.getFullYear() - 1);
+              const threeY = new Date(now); threeY.setFullYear(now.getFullYear() - 3);
+              const fiveY  = new Date(now); fiveY.setFullYear(now.getFullYear() - 5);
+
+              const nav1Y = navOnOrBefore(r.data, oneY);
+              const nav3Y = navOnOrBefore(r.data, threeY);
+              const nav5Y = navOnOrBefore(r.data, fiveY);
+
+              enriched[idx] = {
+                ...enriched[idx],
+                nav: latestNav,
+                returns1Y: nav1Y ? +cagr(nav1Y, latestNav, 1).toFixed(2) : 0,
+                returns3Y: nav3Y ? +cagr(nav3Y, latestNav, 3).toFixed(2) : 0,
+                returns5Y: nav5Y ? +cagr(nav5Y, latestNav, 5).toFixed(2) : 0,
+              };
             }
           }
         }
