@@ -181,7 +181,10 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
     const subActive = selectedSubCategory !== "All";
     const catActive = selectedCategory !== "All";
     const houseActive = selectedFundHouse !== "All";
-    if (!subActive && !catActive && !houseActive) return;
+    // No filters → still fan out a generic mix on first load so the landing
+    // table reaches ~50 funds (skip if cache already filled it past the seed).
+    const noFilters = !subActive && !catActive && !houseActive;
+    if (noFilters && mutualFunds.length > staticFunds.length) return;
 
     let aborted = false;
     const ctrl = new AbortController();
