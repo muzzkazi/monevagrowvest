@@ -399,14 +399,24 @@ const FundOverlap = ({ funds }: FundOverlapProps) => {
                           );
                         }
                         const t = overlapTone(val);
+                        const delay = (i + j) * 0.05;
                         return (
                           <td key={j} className="p-3 text-center">
-                            <span
+                            <motion.span
+                              initial={{ opacity: 0, scale: 0.6 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{
+                                duration: 0.35,
+                                delay,
+                                type: "spring",
+                                stiffness: 260,
+                                damping: 18,
+                              }}
                               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold tabular-nums ${t.classes}`}
                             >
                               <span className={`w-1.5 h-1.5 rounded-full ${t.dot}`} />
                               {val}%
-                            </span>
+                            </motion.span>
                           </td>
                         );
                       })}
