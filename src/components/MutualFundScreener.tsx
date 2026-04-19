@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, Filter, Star, TrendingUp, ArrowUpDown, ChevronUp, ChevronDown, 
-  X, BarChart3, Plus, Minus, SlidersHorizontal, RotateCcw, RefreshCw, Wifi, Loader2, Sparkles
+  X, BarChart3, Plus, Minus, SlidersHorizontal, RotateCcw, RefreshCw, Wifi, Loader2
 } from "lucide-react";
 import { 
   mutualFunds as staticFunds, fundCategories, fundSubCategories, fundHouses, 
