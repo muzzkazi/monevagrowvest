@@ -224,6 +224,58 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
     return () => { aborted = true; ctrl.abort(); };
   }, [selectedCategory, selectedSubCategory, selectedFundHouse]);
 
+  // Free-text search → fan-out AMFI for partial matches (3+ chars, debounced)
+  useEffect(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (q.length < 3) return;
+
+    let aborted = false;
+    const ctrl = new AbortController();
+    const timer = setTimeout(async () => {
+      setAmfiSearching(true);
+      try {
+        const merged = await searchAmfiMany([q], ctrl.signal);
+        if (aborted) return;
+
+        const existing = new Set(staticFunds.map(f => f.schemeCode));
+        const candidates = merged
+          .map(fromAmfiScheme)
+          .filter(f => !existing.has(f.schemeCode))
+          .filter(f =>
+            f.schemeName.toLowerCase().includes(q) ||
+            f.fundHouse.toLowerCase().includes(q),
+          )
+          .sort((a, b) => Number(b.plan === "Direct") - Number(a.plan === "Direct"))
+          .slice(0, 60);
+
+        if (candidates.length === 0 || aborted) {
+          setAmfiSearching(false);
+          return;
+        }
+
+        const enriched = await enrichFundsWithHistory(candidates, ctrl.signal);
+        if (aborted) return;
+
+        setMutualFunds(prev => {
+          const have = new Set(prev.map(f => f.schemeCode));
+          const additions = enriched.filter(e => !have.has(e.schemeCode));
+          return additions.length === 0 ? prev : [...prev, ...additions];
+        });
+
+        // Loosen numeric filters so zero-AUM AMFI funds remain visible
+        setAumRange([0, 80000]);
+        setExpenseRange([0, 1.5]);
+        setReturns3YRange([-5, 40]);
+      } catch (e: any) {
+        if (e?.name !== "AbortError") console.error("AMFI free-text search failed", e);
+      } finally {
+        if (!aborted) setAmfiSearching(false);
+      }
+    }, 350);
+
+    return () => { aborted = true; ctrl.abort(); clearTimeout(timer); };
+  }, [searchQuery]);
+
   const subCategories = useMemo(() => {
     if (selectedCategory === "All") {
       return Object.values(fundSubCategories).flat();
