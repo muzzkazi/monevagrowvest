@@ -1,10 +1,13 @@
 import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Layers, AlertCircle, Info } from "lucide-react";
 import { MutualFundInfo } from "@/data/mutualFundDatabase";
 import { calculateOverlap } from "@/lib/fundHoldings";
+
+const CIRCUMFERENCE = 263.9;
 
 interface FundOverlapProps {
   funds: MutualFundInfo[];
