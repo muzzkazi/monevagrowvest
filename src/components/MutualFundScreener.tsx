@@ -344,9 +344,11 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
       if (selectedCategory !== "All" && fund.category !== selectedCategory) return false;
       if (selectedSubCategory !== "All" && fund.subCategory !== selectedSubCategory) return false;
       if (selectedFundHouse !== "All") {
-        const wanted = normalizeHouse(selectedFundHouse);
+        const terms = houseSearchTerms(selectedFundHouse);
         const have = normalizeHouse(fund.fundHouse);
-        if (!have.includes(wanted) && !fund.schemeName.toLowerCase().includes(wanted)) return false;
+        const sName = fund.schemeName.toLowerCase();
+        const ok = terms.some(t => have.includes(t) || sName.includes(t));
+        if (!ok) return false;
       }
       if (selectedPlan !== "All" && fund.plan !== selectedPlan) return false;
       if (fund.aum < aumRange[0] || fund.aum > aumRange[1]) return false;
