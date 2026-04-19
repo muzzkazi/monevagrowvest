@@ -82,6 +82,35 @@ serve(async (req) => {
       });
     }
 
+    // Batch fetch full NAV history for multiple schemes (used to compute CAGR)
+    if (action === 'batch-history') {
+      const body = await req.json();
+      const codes: string[] = body.codes || [];
+
+      if (codes.length === 0 || codes.length > 20) {
+        return new Response(JSON.stringify({ error: 'Provide 1-20 scheme codes' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const results = await Promise.all(
+        codes.map(async (code) => {
+          try {
+            if (!/^\d{1,10}$/.test(code)) return null;
+            const res = await fetch(`${MFAPI_BASE}/mf/${code}`);
+            const data = await res.json();
+            return { code, meta: data?.meta, data: data?.data };
+          } catch {
+            return null;
+          }
+        })
+      );
+
+      return new Response(JSON.stringify({ results: results.filter(Boolean) }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     return new Response(JSON.stringify({ error: 'Invalid action' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
