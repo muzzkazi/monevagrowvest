@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Sparkles, Target, TrendingUp, Wallet, Receipt, Landmark, Clock, LineChart, PieChart, Menu, FileText, Wrench, PiggyBank, GraduationCap, Info } from "lucide-react";
+import { Phone, Sparkles, Target, TrendingUp, Wallet, Receipt, Landmark, Clock, LineChart, PieChart, Menu, FileText, Wrench, PiggyBank, GraduationCap, Info, Layers } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from "@/components/ui/sheet";
@@ -88,7 +88,7 @@ const Header = () => {
               {/* Tools dropdown — calculators, screeners, budget, debt */}
               <div className="relative group">
                 <span className={`${navLinkClass(
-                  ['/calculators', '/stock-screener', '/mutual-fund-comparison', '/budget-tracker', '/debt-management'].includes(location.pathname)
+                  ['/calculators', '/stock-screener', '/mutual-fund-comparison', '/portfolio-overlap', '/budget-tracker', '/debt-management'].includes(location.pathname)
                 )} flex items-center gap-1.5`}>
                   <Wrench className="h-4 w-4" /> Tools
                 </span>
@@ -119,6 +119,15 @@ const Header = () => {
                         <PieChart className="h-4 w-4" />
                       </div>
                       Mutual Fund Screener
+                    </Link>
+                    <Link to="/portfolio-overlap" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                      <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 group-hover/item:bg-amber-500/20 transition-colors dark:bg-amber-500/20 dark:text-amber-400">
+                        <Layers className="h-4 w-4" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span>Portfolio Overlap</span>
+                        <span className="text-[10px] text-muted-foreground font-normal">Check fund duplication</span>
+                      </div>
                     </Link>
                     <div className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Money Management</div>
                     <Link to="/budget-tracker" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
@@ -231,6 +240,9 @@ const Header = () => {
                     </MobileNavLink>
                     <MobileNavLink to="/mutual-fund-comparison" onClick={closeMobile}>
                       <PieChart className="h-4 w-4" /> Mutual Fund Screener
+                    </MobileNavLink>
+                    <MobileNavLink to="/portfolio-overlap" onClick={closeMobile}>
+                      <Layers className="h-4 w-4" /> Portfolio Overlap
                     </MobileNavLink>
 
                     <MobileSectionLabel>Tools — Money Management</MobileSectionLabel>
