@@ -1,0 +1,773 @@
+import { useEffect, useMemo, useState } from "react";
+import PageLayout from "@/components/shared/PageLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Briefcase, Search, Plus, Trash2, Loader2, TrendingUp, TrendingDown,
+  CircleDot, PieChart as PieIcon, Activity, Trophy, UserCog, Tag,
+  FileText, Edit3, Scale, Newspaper, ExternalLink, AlertTriangle, CheckCircle2,
+} from "lucide-react";
+import { searchAmfi } from "@/lib/amfiSearch";
+import { supabase } from "@/integrations/supabase/client";
+import { useTrackedFunds, type TrackedFund } from "@/hooks/useTrackedFunds";
+import { toast } from "sonner";
+
+interface IntelResult {
+  code: string;
+  error?: string;
+  meta?: {
+    schemeName: string;
+    fundHouse: string | null;
+    schemeType: string | null;
+    schemeCategory: string | null;
+  };
+  returns?: {
+    latestNav: number;
+    asOf: string;
+    inceptionYears: number;
+    y1: number | null;
+    y3: number | null;
+    y5: number | null;
+    y10: number | null;
+    y15: number | null;
+    sinceInception: number | null;
+  };
+  benchmark?: {
+    name: string;
+    returns: { y1: number; y3: number; y5: number; y10: number; y15: number };
+  };
+  benchmarkBeats?: { y5: number | null; y10: number | null; y15: number | null };
+  factsheet?: { available: boolean; reason?: string };
+}
+
+interface NewsItem {
+  title: string;
+  url: string;
+  publishedAt: string;
+  source: string;
+  excerpt: string;
+}
+
+const fmtPct = (v: number | null | undefined) =>
+  v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(2)}%`;
+
+const fmtINR = (v: number) =>
+  v.toLocaleString("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+
+const PageHeader = () => (
+  <section className="bg-financial-muted py-12 sm:py-16">
+    <div className="container mx-auto px-4 max-w-7xl">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="p-2.5 rounded-xl bg-financial-accent/10 text-financial-accent">
+          <Briefcase className="h-6 w-6" />
+        </div>
+        <Badge variant="secondary" className="text-xs">Portfolio Intelligence</Badge>
+      </div>
+      <h1 className="text-3xl sm:text-4xl font-bold mb-3 text-foreground">
+        Mutual Fund Portfolio Tracker
+      </h1>
+      <p className="text-muted-foreground max-w-3xl">
+        Track holdings shifts, sector tilts, performance vs benchmark, fund-manager
+        changes and AMC news — all in one watchdog dashboard. Currently open to all;
+        will move behind sign-in soon. Your tracked funds live in this browser.
+      </p>
+    </div>
+  </section>
+);
+
+// ────────────────────────────────────────────────────────────────────
+// Fund search / add box
+// ────────────────────────────────────────────────────────────────────
+const FundPicker = ({ onAdd }: { onAdd: (f: { code: string; name: string }) => void }) => {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState<Array<{ schemeCode: string; schemeName: string }>>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (q.trim().length < 3) {
+      setResults([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      setLoading(true);
+      const r = await searchAmfi(q);
+      setResults(
+        r.slice(0, 12).map((x) => ({ schemeCode: String(x.schemeCode), schemeName: x.schemeName }))
+      );
+      setLoading(false);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [q]);
+
+  return (
+    <div className="space-y-3">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search fund name (e.g. Parag Parikh Flexi Cap)"
+          className="pl-9"
+        />
+      </div>
+      {loading && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Searching AMFI…
+        </div>
+      )}
+      {results.length > 0 && (
+        <div className="border border-border rounded-lg max-h-72 overflow-auto divide-y divide-border bg-background">
+          {results.map((r) => (
+            <button
+              key={r.schemeCode}
+              onClick={() => {
+                onAdd({ code: r.schemeCode, name: r.schemeName });
+                setQ("");
+                setResults([]);
+              }}
+              className="w-full text-left px-3 py-2.5 hover:bg-financial-accent/5 transition-colors flex items-center justify-between gap-3"
+            >
+              <span className="text-sm truncate">{r.schemeName}</span>
+              <Plus className="h-4 w-4 text-financial-accent shrink-0" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// Portfolio tab — list of tracked funds with SIP editing
+// ────────────────────────────────────────────────────────────────────
+const PortfolioTab = ({
+  funds,
+  intel,
+  removeFund,
+  updateSIP,
+  addFund,
+}: {
+  funds: TrackedFund[];
+  intel: Record<string, IntelResult | undefined>;
+  removeFund: (code: string) => void;
+  updateSIP: (code: string, sip: number) => void;
+  addFund: (f: Omit<TrackedFund, "addedAt">) => void;
+}) => {
+  const totalSIP = funds.reduce((s, f) => s + (f.monthlySIP || 0), 0);
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Add a fund to track</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <FundPicker
+            onAdd={(f) => {
+              addFund({ code: f.code, name: f.name, monthlySIP: 5000 });
+              toast.success("Fund added to tracker");
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {funds.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            No funds tracked yet. Add your first one above.
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg">Your tracked portfolio</CardTitle>
+            <div className="text-right">
+              <div className="text-xs text-muted-foreground">Total monthly SIP</div>
+              <div className="text-xl font-semibold text-financial-accent">{fmtINR(totalSIP)}</div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {funds.map((f) => {
+              const i = intel[f.code];
+              return (
+                <div
+                  key={f.code}
+                  className="border border-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 hover:border-financial-accent/40 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate">{f.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
+                      <span>Code: {f.code}</span>
+                      {i?.meta?.schemeCategory && (
+                        <Badge variant="outline" className="text-[10px] py-0">{i.meta.schemeCategory}</Badge>
+                      )}
+                      {i?.returns?.latestNav && (
+                        <span>NAV ₹{i.returns.latestNav.toFixed(2)}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">SIP ₹</span>
+                    <Input
+                      type="number"
+                      value={f.monthlySIP}
+                      onChange={(e) => updateSIP(f.code, Number(e.target.value) || 0)}
+                      className="w-28 h-9"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFund(f.code)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// Performance tab
+// ────────────────────────────────────────────────────────────────────
+const PerformanceTab = ({
+  funds,
+  intel,
+  loading,
+}: {
+  funds: TrackedFund[];
+  intel: Record<string, IntelResult | undefined>;
+  loading: boolean;
+}) => {
+  if (funds.length === 0) return <EmptyState msg="Add funds to see performance." />;
+  if (loading) return <LoadingGrid />;
+
+  return (
+    <div className="space-y-4">
+      {funds.map((f) => {
+        const i = intel[f.code];
+        if (!i || !i.returns) {
+          return (
+            <Card key={f.code}>
+              <CardContent className="py-6 text-sm text-muted-foreground">
+                Could not load returns for {f.name}.
+              </CardContent>
+            </Card>
+          );
+        }
+        const r = i.returns;
+        const b = i.benchmark!.returns;
+        const rows = [
+          { label: "1 Year", fund: r.y1, bench: b.y1 },
+          { label: "3 Year", fund: r.y3, bench: b.y3 },
+          { label: "5 Year", fund: r.y5, bench: b.y5 },
+          { label: "10 Year", fund: r.y10, bench: b.y10 },
+          { label: "Since Inception", fund: r.sinceInception, bench: null },
+        ];
+        return (
+          <Card key={f.code}>
+            <CardHeader>
+              <CardTitle className="text-base">{f.name}</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Benchmark: {i.benchmark!.name} • NAV as of {r.asOf} • Age {r.inceptionYears} yrs
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                {rows.map((row) => {
+                  const diff = row.fund != null && row.bench != null ? row.fund - row.bench : null;
+                  return (
+                    <div key={row.label} className="border border-border rounded-lg p-3">
+                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{row.label}</div>
+                      <div className="text-lg font-semibold mt-1">{fmtPct(row.fund)}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        Bench: {row.bench != null ? `${row.bench.toFixed(1)}%` : "—"}
+                      </div>
+                      {diff != null && (
+                        <div
+                          className={`text-xs font-medium mt-1 flex items-center gap-1 ${
+                            diff >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                          }`}
+                        >
+                          {diff >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                          {fmtPct(diff)} vs bench
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// Benchmark Beating tab
+// ────────────────────────────────────────────────────────────────────
+const BenchmarkTab = ({
+  funds,
+  intel,
+  loading,
+}: {
+  funds: TrackedFund[];
+  intel: Record<string, IntelResult | undefined>;
+  loading: boolean;
+}) => {
+  if (funds.length === 0) return <EmptyState msg="Add funds to see benchmark history." />;
+  if (loading) return <LoadingGrid />;
+
+  return (
+    <div className="space-y-4">
+      {funds.map((f) => {
+        const i = intel[f.code];
+        const beats = i?.benchmarkBeats;
+        if (!i || !beats) {
+          return (
+            <Card key={f.code}>
+              <CardContent className="py-6 text-sm text-muted-foreground">
+                No comparable data for {f.name}.
+              </CardContent>
+            </Card>
+          );
+        }
+        const cells: Array<{ label: string; diff: number | null }> = [
+          { label: "5Y vs benchmark", diff: beats.y5 },
+          { label: "10Y vs benchmark", diff: beats.y10 },
+          { label: "15Y vs benchmark", diff: beats.y15 },
+        ];
+        return (
+          <Card key={f.code}>
+            <CardHeader>
+              <CardTitle className="text-base">{f.name}</CardTitle>
+              <p className="text-xs text-muted-foreground">Benchmark: {i.benchmark?.name}</p>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {cells.map((c) => {
+                const status =
+                  c.diff == null
+                    ? "n/a"
+                    : c.diff >= 0
+                    ? "pass"
+                    : "fail";
+                return (
+                  <div
+                    key={c.label}
+                    className={`rounded-lg p-4 border ${
+                      status === "pass"
+                        ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50"
+                        : status === "fail"
+                        ? "bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/50"
+                        : "bg-muted border-border"
+                    }`}
+                  >
+                    <div className="text-xs text-muted-foreground">{c.label}</div>
+                    <div className="text-2xl font-bold mt-1">
+                      {status === "pass" ? "PASS" : status === "fail" ? "FAIL" : "—"}
+                    </div>
+                    <div className="text-sm mt-1">
+                      {c.diff == null ? "Insufficient history" : `Differential: ${fmtPct(c.diff)}`}
+                    </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// Generic "snapshot pending" tab — used for holdings, sectors, alerts
+// that need 2+ monthly factsheet snapshots before comparison.
+// ────────────────────────────────────────────────────────────────────
+const SnapshotPendingTab = ({
+  funds,
+  title,
+  description,
+  icon: Icon,
+}: {
+  funds: TrackedFund[];
+  title: string;
+  description: string;
+  icon: typeof PieIcon;
+}) => {
+  if (funds.length === 0) return <EmptyState msg="Add funds to enable this tracker." />;
+  return (
+    <div className="space-y-3">
+      <Card className="border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20">
+        <CardContent className="py-4 flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+          <div className="text-sm">
+            <p className="font-medium text-amber-900 dark:text-amber-200">First snapshot in progress</p>
+            <p className="text-amber-800/80 dark:text-amber-200/80 mt-1">
+              {description} A comparison view will appear after the next monthly factsheet sync.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+      {funds.map((f) => (
+        <Card key={f.code}>
+          <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+            <div className="p-2 rounded-lg bg-financial-accent/10 text-financial-accent">
+              <Icon className="h-4 w-4" />
+            </div>
+            <div className="flex-1">
+              <CardTitle className="text-sm">{f.name}</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">{title} — monitoring</p>
+            </div>
+            <Badge variant="outline" className="text-xs">Snapshot saved</Badge>
+          </CardHeader>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// Alert tabs — show current value + monitoring status
+// ────────────────────────────────────────────────────────────────────
+const AlertTab = ({
+  funds,
+  intel,
+  field,
+  title,
+  description,
+  icon: Icon,
+}: {
+  funds: TrackedFund[];
+  intel: Record<string, IntelResult | undefined>;
+  field: "fundManager" | "category" | "objective" | "name" | "allocation";
+  title: string;
+  description: string;
+  icon: typeof UserCog;
+}) => {
+  if (funds.length === 0) return <EmptyState msg="Add funds to enable alerts." />;
+  return (
+    <div className="space-y-3">
+      <Card className="bg-financial-muted">
+        <CardContent className="py-4 flex items-start gap-3">
+          <Icon className="h-5 w-5 text-financial-accent mt-0.5 shrink-0" />
+          <div className="text-sm">
+            <p className="font-medium text-foreground">{title}</p>
+            <p className="text-muted-foreground mt-1">{description}</p>
+          </div>
+        </CardContent>
+      </Card>
+      {funds.map((f) => {
+        const i = intel[f.code];
+        let current: string = "—";
+        if (i?.meta) {
+          if (field === "category") current = i.meta.schemeCategory || "—";
+          if (field === "name") current = i.meta.schemeName;
+          if (field === "fundManager") current = "Tracked from next factsheet";
+          if (field === "objective") current = i.meta.schemeType || "Tracked from next factsheet";
+          if (field === "allocation") current = i.meta.schemeCategory ? `${i.meta.schemeCategory} (typical mix)` : "—";
+        }
+        return (
+          <Card key={f.code}>
+            <CardContent className="py-4 flex items-center gap-4">
+              <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{f.name}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Current: {current}</div>
+              </div>
+              <Badge variant="outline" className="text-xs">No change</Badge>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// News tab
+// ────────────────────────────────────────────────────────────────────
+const NewsTab = ({ funds }: { funds: TrackedFund[] }) => {
+  const [news, setNews] = useState<Record<string, NewsItem[]>>({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (funds.length === 0) {
+      setNews({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("mf-news-by-fund", {
+          body: { funds: funds.map((f) => f.name), perFund: 5 },
+        });
+        if (cancelled) return;
+        if (error) {
+          toast.error("Failed to load news");
+          setNews({});
+        } else {
+          const map: Record<string, NewsItem[]> = {};
+          (data?.results || []).forEach((r: { fund: string; items: NewsItem[] }) => {
+            map[r.fund] = r.items;
+          });
+          setNews(map);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [funds]);
+
+  if (funds.length === 0) return <EmptyState msg="Add funds to see fund-specific news." />;
+  if (loading) return <LoadingGrid />;
+
+  return (
+    <div className="space-y-5">
+      {funds.map((f) => {
+        const items = news[f.name] || [];
+        return (
+          <Card key={f.code}>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Newspaper className="h-4 w-4 text-financial-accent" />
+                {f.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {items.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No recent news found.</p>
+              ) : (
+                <div className="space-y-3">
+                  {items.map((n) => (
+                    <a
+                      key={n.url}
+                      href={n.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block border border-border rounded-lg p-3 hover:border-financial-accent/40 hover:bg-financial-accent/5 transition-colors group"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium group-hover:text-financial-accent transition-colors">
+                            {n.title}
+                          </div>
+                          {n.excerpt && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.excerpt}</p>
+                          )}
+                          <div className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-2">
+                            <span>{n.source}</span>
+                            <span>•</span>
+                            <span>{new Date(n.publishedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
+                          </div>
+                        </div>
+                        <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-financial-accent shrink-0 mt-0.5" />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// Helpers
+// ────────────────────────────────────────────────────────────────────
+const EmptyState = ({ msg }: { msg: string }) => (
+  <Card>
+    <CardContent className="py-12 text-center text-muted-foreground">{msg}</CardContent>
+  </Card>
+);
+
+const LoadingGrid = () => (
+  <div className="space-y-3">
+    {[0, 1, 2].map((i) => (
+      <Skeleton key={i} className="h-32 w-full" />
+    ))}
+  </div>
+);
+
+// ────────────────────────────────────────────────────────────────────
+// Main page
+// ────────────────────────────────────────────────────────────────────
+const MutualFundTracker = () => {
+  const { funds, addFund, removeFund, updateSIP } = useTrackedFunds();
+  const [intel, setIntel] = useState<Record<string, IntelResult | undefined>>({});
+  const [loadingIntel, setLoadingIntel] = useState(false);
+
+  const codes = useMemo(() => funds.map((f) => f.code), [funds]);
+
+  useEffect(() => {
+    if (codes.length === 0) {
+      setIntel({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoadingIntel(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("mf-intel", {
+          body: { codes, includeVR: false },
+        });
+        if (cancelled) return;
+        if (error) {
+          toast.error("Failed to load fund intel");
+        } else {
+          const map: Record<string, IntelResult> = {};
+          (data?.results || []).forEach((r: IntelResult) => (map[r.code] = r));
+          setIntel(map);
+        }
+      } finally {
+        if (!cancelled) setLoadingIntel(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [codes.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <PageLayout>
+      <PageHeader />
+      <section className="py-10 sm:py-14 bg-background">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <Tabs defaultValue="portfolio" className="w-full">
+            <div className="overflow-x-auto mb-6">
+              <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 h-auto flex-wrap p-1 gap-1">
+                <TabsTrigger value="portfolio" className="text-xs sm:text-sm">Portfolio</TabsTrigger>
+                <TabsTrigger value="holdings" className="text-xs sm:text-sm">Holdings Δ</TabsTrigger>
+                <TabsTrigger value="sectors" className="text-xs sm:text-sm">Sector Δ</TabsTrigger>
+                <TabsTrigger value="performance" className="text-xs sm:text-sm">Performance</TabsTrigger>
+                <TabsTrigger value="benchmark" className="text-xs sm:text-sm">Benchmark</TabsTrigger>
+                <TabsTrigger value="manager" className="text-xs sm:text-sm">FM Alert</TabsTrigger>
+                <TabsTrigger value="category" className="text-xs sm:text-sm">Category</TabsTrigger>
+                <TabsTrigger value="objective" className="text-xs sm:text-sm">Objective</TabsTrigger>
+                <TabsTrigger value="name" className="text-xs sm:text-sm">Name</TabsTrigger>
+                <TabsTrigger value="allocation" className="text-xs sm:text-sm">Allocation</TabsTrigger>
+                <TabsTrigger value="news" className="text-xs sm:text-sm">News</TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="portfolio">
+              <PortfolioTab
+                funds={funds}
+                intel={intel}
+                removeFund={removeFund}
+                updateSIP={updateSIP}
+                addFund={addFund}
+              />
+            </TabsContent>
+
+            <TabsContent value="holdings">
+              <SnapshotPendingTab
+                funds={funds}
+                title="Holdings change tracker"
+                icon={CircleDot}
+                description="Once two consecutive monthly factsheets are stored, you'll see stocks newly bought, fully exited, and weight changes."
+              />
+            </TabsContent>
+
+            <TabsContent value="sectors">
+              <SnapshotPendingTab
+                funds={funds}
+                title="Sector weight tracker"
+                icon={PieIcon}
+                description="Month-on-month sector allocation diffs with ±2% flags will appear here after the next factsheet sync."
+              />
+            </TabsContent>
+
+            <TabsContent value="performance">
+              <PerformanceTab funds={funds} intel={intel} loading={loadingIntel} />
+            </TabsContent>
+
+            <TabsContent value="benchmark">
+              <BenchmarkTab funds={funds} intel={intel} loading={loadingIntel} />
+            </TabsContent>
+
+            <TabsContent value="manager">
+              <AlertTab
+                funds={funds}
+                intel={intel}
+                field="fundManager"
+                icon={UserCog}
+                title="Fund Manager Change Alerts"
+                description="You'll be notified the moment any AMC announces a fund manager change for funds in your tracker."
+              />
+            </TabsContent>
+
+            <TabsContent value="category">
+              <AlertTab
+                funds={funds}
+                intel={intel}
+                field="category"
+                icon={Tag}
+                title="SEBI Category Reclassification"
+                description="Flags when SEBI category changes (e.g., Mid Cap → Flexi Cap)."
+              />
+            </TabsContent>
+
+            <TabsContent value="objective">
+              <AlertTab
+                funds={funds}
+                intel={intel}
+                field="objective"
+                icon={FileText}
+                title="Investment Objective Amendments"
+                description="Triggers if the stated investment objective of any tracked fund is amended."
+              />
+            </TabsContent>
+
+            <TabsContent value="name">
+              <AlertTab
+                funds={funds}
+                intel={intel}
+                field="name"
+                icon={Edit3}
+                title="Fund Name Change Alert"
+                description="Picks up announced or executed scheme name changes."
+              />
+            </TabsContent>
+
+            <TabsContent value="allocation">
+              <AlertTab
+                funds={funds}
+                intel={intel}
+                field="allocation"
+                icon={Scale}
+                title="Asset Allocation Shift"
+                description="Flags meaningful changes in equity / debt / cash mix beyond a 5% threshold."
+              />
+            </TabsContent>
+
+            <TabsContent value="news">
+              <NewsTab funds={funds} />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
+    </PageLayout>
+  );
+};
+
+export default MutualFundTracker;
