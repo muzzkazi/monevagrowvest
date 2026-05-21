@@ -134,6 +134,14 @@ const Header = () => {
                         <span className="text-[10px] text-muted-foreground font-normal">Review your existing SIPs</span>
                       </div>
                     </Link>
+                    <Link to="/mutual-fund-tracker" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                      <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-600 group-hover/item:bg-rose-500/20 transition-colors dark:bg-rose-500/20 dark:text-rose-400">
+                      </div>
+                      <div className="flex flex-col">
+                        <span>MF Portfolio Tracker</span>
+                        <span className="text-[10px] text-muted-foreground font-normal">Watchdog for your funds</span>
+                      </div>
+                    </Link>
                     <div className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Money Management</div>
                     <Link to="/budget-tracker" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       Budget Tracker
@@ -251,6 +259,9 @@ const Header = () => {
                     </MobileNavLink>
                     <MobileNavLink to="/portfolio-review" onClick={closeMobile}>
                       AI Portfolio Review
+                    </MobileNavLink>
+                    <MobileNavLink to="/mutual-fund-tracker" onClick={closeMobile}>
+                      MF Portfolio Tracker
                     </MobileNavLink>
 
                     <MobileSectionLabel>Tools — Money Management</MobileSectionLabel>

@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.portfolio-review]
 verify_jwt = false
+
+[functions.mf-intel]
+verify_jwt = false
+
+[functions.mf-news-by-fund]
+verify_jwt = false
