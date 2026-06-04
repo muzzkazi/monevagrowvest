@@ -14,7 +14,7 @@ import {
   Sparkles, Plus, Trash2, Search, Loader2, AlertTriangle,
   CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp, Activity, ArrowRight,
 } from "lucide-react";
-import { searchAmfi } from "@/lib/amfiSearch";
+import { searchAmfi, prewarmAmfiSearch } from "@/lib/amfiSearch";
 import { inferFundHouse, inferSubCategory } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
