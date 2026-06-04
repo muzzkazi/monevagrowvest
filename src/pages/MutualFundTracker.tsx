@@ -663,24 +663,11 @@ const MutualFundTracker = () => {
               <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 h-auto flex-wrap p-1 gap-1">
                 <TabsTrigger value="portfolio" className="text-xs sm:text-sm">Portfolio</TabsTrigger>
                 <TabsTrigger value="insights" className="text-xs sm:text-sm">Insights</TabsTrigger>
-                <TabsTrigger value="holdings" className="text-xs sm:text-sm">Current Holdings</TabsTrigger>
-                <TabsTrigger value="updates" className="text-xs sm:text-sm">Fund Updates</TabsTrigger>
-                <TabsTrigger value="sectors" className="text-xs sm:text-sm">Sector Δ</TabsTrigger>
+                <TabsTrigger value="holdings" className="text-xs sm:text-sm">Holdings</TabsTrigger>
                 <TabsTrigger value="performance" className="text-xs sm:text-sm">Performance</TabsTrigger>
-                <TabsTrigger value="benchmark" className="text-xs sm:text-sm">Benchmark</TabsTrigger>
-                <TabsTrigger value="manager" className="text-xs sm:text-sm">FM Alert</TabsTrigger>
-                <TabsTrigger value="category" className="text-xs sm:text-sm">Category</TabsTrigger>
-                <TabsTrigger value="objective" className="text-xs sm:text-sm">Objective</TabsTrigger>
-                <TabsTrigger value="name" className="text-xs sm:text-sm">Name</TabsTrigger>
-                <TabsTrigger value="allocation" className="text-xs sm:text-sm">Allocation</TabsTrigger>
-                <TabsTrigger value="news" className="text-xs sm:text-sm">News</TabsTrigger>
+                <TabsTrigger value="updates" className="text-xs sm:text-sm">Updates & News</TabsTrigger>
               </TabsList>
             </div>
-
-            <TabsContent value="insights">
-              <InsightsDashboard funds={funds} intel={intel} />
-            </TabsContent>
-
 
             <TabsContent value="portfolio">
               <PortfolioTab
@@ -692,89 +679,20 @@ const MutualFundTracker = () => {
               />
             </TabsContent>
 
+            <TabsContent value="insights">
+              <InsightsDashboard funds={funds} intel={intel} />
+            </TabsContent>
+
             <TabsContent value="holdings">
               <CurrentHoldingsTab funds={funds} intel={intel} />
-            </TabsContent>
-
-            <TabsContent value="updates">
-              <FundUpdatesTab funds={funds} />
-            </TabsContent>
-
-
-            <TabsContent value="sectors">
-              <SnapshotPendingTab
-                funds={funds}
-                title="Sector weight tracker"
-                icon={PieIcon}
-                description="Month-on-month sector allocation diffs with ±2% flags will appear here after the next factsheet sync."
-              />
             </TabsContent>
 
             <TabsContent value="performance">
               <PerformanceTab funds={funds} intel={intel} loading={loadingIntel} />
             </TabsContent>
 
-            <TabsContent value="benchmark">
-              <BenchmarkTab funds={funds} intel={intel} loading={loadingIntel} />
-            </TabsContent>
-
-            <TabsContent value="manager">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="fundManager"
-                icon={UserCog}
-                title="Fund Manager Change Alerts"
-                description="You'll be notified the moment any AMC announces a fund manager change for funds in your tracker."
-              />
-            </TabsContent>
-
-            <TabsContent value="category">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="category"
-                icon={Tag}
-                title="SEBI Category Reclassification"
-                description="Flags when SEBI category changes (e.g., Mid Cap → Flexi Cap)."
-              />
-            </TabsContent>
-
-            <TabsContent value="objective">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="objective"
-                icon={FileText}
-                title="Investment Objective Amendments"
-                description="Triggers if the stated investment objective of any tracked fund is amended."
-              />
-            </TabsContent>
-
-            <TabsContent value="name">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="name"
-                icon={Edit3}
-                title="Fund Name Change Alert"
-                description="Picks up announced or executed scheme name changes."
-              />
-            </TabsContent>
-
-            <TabsContent value="allocation">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="allocation"
-                icon={Scale}
-                title="Asset Allocation Shift"
-                description="Flags meaningful changes in equity / debt / cash mix beyond a 5% threshold."
-              />
-            </TabsContent>
-
-            <TabsContent value="news">
-              <NewsTab funds={funds} />
+            <TabsContent value="updates">
+              <FundUpdatesTab funds={funds} />
             </TabsContent>
           </Tabs>
         </div>
