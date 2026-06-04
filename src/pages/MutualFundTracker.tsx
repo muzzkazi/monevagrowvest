@@ -910,13 +910,13 @@ const MutualFundTracker = () => {
             </TabsContent>
 
             <TabsContent value="holdings">
-              <SnapshotPendingTab
-                funds={funds}
-                title="Holdings change tracker"
-                icon={CircleDot}
-                description="Once two consecutive monthly factsheets are stored, you'll see stocks newly bought, fully exited, and weight changes."
-              />
+              <CurrentHoldingsTab funds={funds} intel={intel} />
             </TabsContent>
+
+            <TabsContent value="updates">
+              <FundUpdatesTab funds={funds} />
+            </TabsContent>
+
 
             <TabsContent value="sectors">
               <SnapshotPendingTab
