@@ -195,6 +195,12 @@ const PortfolioReviewPage = () => {
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState<ReviewResponse | null>(null);
 
+  // Warm the AMFI scheme list on the edge function so the first keystroke
+  // doesn't pay the cold-start cost of fetching ~30k schemes.
+  useEffect(() => { prewarmAmfiSearch(); }, []);
+
+
+
   const sendToTracker = () => {
     if (funds.length === 0) return;
     try {
