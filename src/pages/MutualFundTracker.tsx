@@ -10,7 +10,7 @@ import {
   Briefcase, Search, Plus, Trash2, Loader2, TrendingUp, TrendingDown,
   CircleDot, ExternalLink, CheckCircle2, Megaphone, History,
 } from "lucide-react";
-import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs } from "@/lib/amfiSearch";
+import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs, subscribeAmfiUpdates } from "@/lib/amfiSearch";
 import { FundSearchProgress } from "@/components/portfolio/FundSearchProgress";
 import { supabase } from "@/integrations/supabase/client";
 import { useTrackedFunds, type TrackedFund } from "@/hooks/useTrackedFunds";
