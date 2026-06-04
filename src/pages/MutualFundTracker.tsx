@@ -637,6 +637,11 @@ const MutualFundTracker = () => {
   const [intel, setIntel] = useState<Record<string, IntelResult | undefined>>({});
   const [loadingIntel, setLoadingIntel] = useState(false);
 
+  // Warm AMFI scheme list so the first search keystroke isn't a cold start.
+  useEffect(() => { prewarmAmfiSearch(); }, []);
+
+
+
   const codes = useMemo(() => funds.map((f) => f.code), [funds]);
 
   useEffect(() => {
