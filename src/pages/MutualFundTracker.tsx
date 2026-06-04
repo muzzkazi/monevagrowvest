@@ -10,7 +10,7 @@ import {
   Briefcase, Search, Plus, Trash2, Loader2, TrendingUp, TrendingDown,
   CircleDot, ExternalLink, CheckCircle2, Megaphone, History,
 } from "lucide-react";
-import { searchAmfi } from "@/lib/amfiSearch";
+import { searchAmfi, prewarmAmfiSearch } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
 import { useTrackedFunds, type TrackedFund } from "@/hooks/useTrackedFunds";
 import InsightsDashboard from "@/components/mf-tracker/InsightsDashboard";
@@ -104,7 +104,7 @@ const FundPicker = ({ onAdd }: { onAdd: (f: { code: string; name: string }) => v
         r.slice(0, 12).map((x) => ({ schemeCode: String(x.schemeCode), schemeName: x.schemeName }))
       );
       setLoading(false);
-    }, 250);
+    }, 180);
     return () => clearTimeout(t);
   }, [q]);
 
@@ -636,6 +636,11 @@ const MutualFundTracker = () => {
   const { funds, addFund, removeFund, updateSIP } = useTrackedFunds();
   const [intel, setIntel] = useState<Record<string, IntelResult | undefined>>({});
   const [loadingIntel, setLoadingIntel] = useState(false);
+
+  // Warm AMFI scheme list so the first search keystroke isn't a cold start.
+  useEffect(() => { prewarmAmfiSearch(); }, []);
+
+
 
   const codes = useMemo(() => funds.map((f) => f.code), [funds]);
 

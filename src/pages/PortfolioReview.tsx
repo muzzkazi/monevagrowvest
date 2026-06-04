@@ -14,7 +14,7 @@ import {
   Sparkles, Plus, Trash2, Search, Loader2, AlertTriangle,
   CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp, Activity, ArrowRight,
 } from "lucide-react";
-import { searchAmfi } from "@/lib/amfiSearch";
+import { searchAmfi, prewarmAmfiSearch } from "@/lib/amfiSearch";
 import { inferFundHouse, inferSubCategory } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -107,7 +107,7 @@ const FundSearchPicker = ({
       } finally {
         setLoading(false);
       }
-    }, 300);
+    }, 180);
     return () => { clearTimeout(handle); ctrl.abort(); };
   }, [query]);
 
@@ -194,6 +194,12 @@ const PortfolioReviewPage = () => {
   const [goal, setGoal] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState<ReviewResponse | null>(null);
+
+  // Warm the AMFI scheme list on the edge function so the first keystroke
+  // doesn't pay the cold-start cost of fetching ~30k schemes.
+  useEffect(() => { prewarmAmfiSearch(); }, []);
+
+
 
   const sendToTracker = () => {
     if (funds.length === 0) return;

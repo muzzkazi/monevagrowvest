@@ -127,10 +127,33 @@ type AmfiSearchHit = { schemeCode: number | string; schemeName: string };
 const SEARCH_CACHE = new Map<string, AmfiSearchHit[]>();
 const INFLIGHT = new Map<string, Promise<AmfiSearchHit[]>>();
 const MAX_CACHE_KEYS = 200;
+// Edge truncates at this many results — only narrow from a cached set if it
+// wasn't truncated, otherwise we'd return an incomplete list.
+const EDGE_RESULT_CAP = 80;
 
 const buildSearchUrl = (q: string) => {
   const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
   return `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`;
+};
+
+/**
+ * Look for a cached shorter query whose result set fully contains the answer
+ * for `q` (so we can filter client-side and skip the network entirely).
+ */
+const narrowFromCache = (q: string): AmfiSearchHit[] | null => {
+  const words = q.split(/\s+/).filter(Boolean);
+  // Try progressively shorter prefixes of the same query first (cheapest hit).
+  for (let len = q.length - 1; len >= 3; len--) {
+    const prefix = q.slice(0, len);
+    const cached = SEARCH_CACHE.get(prefix);
+    if (cached && cached.length < EDGE_RESULT_CAP) {
+      return cached.filter((s) => {
+        const name = String(s.schemeName || "").toLowerCase();
+        return words.every((w) => name.includes(w));
+      });
+    }
+  }
+  return null;
 };
 
 /** Cached AMFI search. Returns [] on errors. Re-uses in-flight requests. */
@@ -141,6 +164,13 @@ export const searchAmfi = async (
   const q = rawQuery.trim().toLowerCase();
   if (!q) return [];
   if (SEARCH_CACHE.has(q)) return SEARCH_CACHE.get(q)!;
+
+  // Try to answer locally from a previously-cached shorter query.
+  const narrowed = narrowFromCache(q);
+  if (narrowed) {
+    SEARCH_CACHE.set(q, narrowed);
+    return narrowed;
+  }
 
   const inflight = INFLIGHT.get(q);
   if (inflight) return inflight;
@@ -168,6 +198,15 @@ export const searchAmfi = async (
   INFLIGHT.set(q, promise);
   return promise;
 };
+
+/** Optional: warm the edge function & scheme list cache on idle. */
+export const prewarmAmfiSearch = () => {
+  if (SEARCH_CACHE.size > 0) return;
+  // A short common query forces the edge function to fetch + cache the
+  // ~30k-scheme AMFI list, so the first real keystroke responds quickly.
+  searchAmfi("equity").catch(() => { /* noop */ });
+};
+
 
 /** Run multiple cached searches in parallel and de-dupe by schemeCode. */
 export const searchAmfiMany = async (
