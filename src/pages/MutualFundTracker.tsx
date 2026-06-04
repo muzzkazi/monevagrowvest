@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PageLayout from "@/components/shared/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Briefcase, Search, Plus, Trash2, Loader2, TrendingUp, TrendingDown,
-  CircleDot, ExternalLink, CheckCircle2, Megaphone, History,
+  CircleDot, ExternalLink, CheckCircle2, Megaphone, History, BarChart2,
 } from "lucide-react";
+
 import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs, subscribeAmfiUpdates } from "@/lib/amfiSearch";
 import { FundSearchProgress } from "@/components/portfolio/FundSearchProgress";
 import { supabase } from "@/integrations/supabase/client";
