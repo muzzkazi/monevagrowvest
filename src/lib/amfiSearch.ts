@@ -186,59 +186,220 @@ hydrateFromLocalStorage();
 
 import { idbGet, idbSet } from "./idbKv";
 
-const IDB_KEY = "amfi.schemes.v1";
-const IDB_TTL_MS = 24 * 60 * 60 * 1000;
+// IDB schema version — bump to invalidate all cached payloads atomically.
+const IDB_VERSION = 2;
+const IDB_KEY = `amfi.schemes.v${IDB_VERSION}`;
+// Soft refresh interval — the list rarely changes, so we just probe a tiny
+// `action=version` endpoint and skip the full re-download when unchanged.
+const IDB_REFRESH_AFTER_MS = 60 * 60 * 1000;        // 1h → check version
+const IDB_HARD_REFRESH_AFTER_MS = 7 * 24 * 3600 * 1000; // 7d → force refetch
+
 type CompactScheme = [number | string, string]; // [code, name]
-type AllSchemesPayload = { ts: number; schemes: CompactScheme[] };
+type CachedPayload = {
+  schemaVersion: number;
+  version: string;        // server-supplied content hash
+  ts: number;             // last full-refresh timestamp
+  checkedAt: number;      // last version-probe timestamp
+  schemes: CompactScheme[];
+};
+type ChunkPayload = {
+  ts: number;
+  version: string;
+  total: number;
+  part: number;
+  of: number;
+  schemes: CompactScheme[];
+};
+type VersionPayload = { version: string; count: number; ts: number };
+
+const CHUNK_COUNT = 4;
 
 let allSchemes: AmfiSearchHit[] | null = null;
+let allSchemesVersion = "";
 let allSchemesPromise: Promise<AmfiSearchHit[] | null> | null = null;
+let isPartial = false;
+
+// ── Pub/sub so search UIs can re-render as chunks stream in ────────────────
+const subscribers = new Set<() => void>();
+const notifySubscribers = () => subscribers.forEach((cb) => { try { cb(); } catch { /* noop */ } });
+
+/** Subscribe to scheme-list updates (initial hydrate + each streamed chunk). */
+export const subscribeAmfiUpdates = (cb: () => void): (() => void) => {
+  subscribers.add(cb);
+  return () => subscribers.delete(cb);
+};
 
 const expandCompact = (rows: CompactScheme[]): AmfiSearchHit[] =>
   rows.map(([code, name]) => ({ schemeCode: code, schemeName: name }));
 
+// ── Network-condition helpers (Wi-Fi-aware, idle-aware) ────────────────────
+
+const onSlowOrMeteredNetwork = (): boolean => {
+  if (typeof navigator === "undefined") return false;
+  const conn = (navigator as any).connection;
+  if (!conn) return false;
+  if (conn.saveData) return true;
+  const t = String(conn.effectiveType || "");
+  return t === "slow-2g" || t === "2g";
+};
+
+const runWhenIdle = (fn: () => void) => {
+  if (typeof window === "undefined") return;
+  const ric = (window as any).requestIdleCallback as
+    | ((cb: () => void, opts?: { timeout: number }) => number)
+    | undefined;
+  if (ric) ric(fn, { timeout: 3000 });
+  else setTimeout(fn, 250);
+};
+
+// ── Edge endpoints ─────────────────────────────────────────────────────────
+
+const edgeUrl = (params: Record<string, string>) => {
+  const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
+  const qs = new URLSearchParams(params).toString();
+  return `${SUPABASE_URL}/functions/v1/mutual-funds?${qs}`;
+};
+
+const fetchServerVersion = async (): Promise<VersionPayload | null> => {
+  try {
+    const res = await fetch(edgeUrl({ action: "version" }));
+    if (!res.ok) return null;
+    return (await res.json()) as VersionPayload;
+  } catch { return null; }
+};
+
+const fetchChunk = async (part: number, of: number): Promise<ChunkPayload | null> => {
+  try {
+    const res = await fetch(edgeUrl({ action: "all", part: String(part), of: String(of) }));
+    if (!res.ok) return null;
+    return (await res.json()) as ChunkPayload;
+  } catch { return null; }
+};
+
+/**
+ * Stream the full list in N parallel chunks. As each chunk arrives, the
+ * in-memory list grows and subscribers are notified, so the picker can show
+ * partial results while the rest of the download is still in flight.
+ */
+const streamAllSchemes = async (
+  expectedVersion?: string,
+): Promise<AmfiSearchHit[] | null> => {
+  const merged = new Map<string, AmfiSearchHit>();
+  // Seed with existing data so a partial refresh doesn't visibly shrink results.
+  if (allSchemes) {
+    for (const s of allSchemes) merged.set(String(s.schemeCode), s);
+  }
+
+  let serverVersion = expectedVersion || "";
+
+  const tasks = Array.from({ length: CHUNK_COUNT }, (_, i) =>
+    fetchChunk(i, CHUNK_COUNT).then((chunk) => {
+      if (!chunk || !Array.isArray(chunk.schemes)) return;
+      if (!serverVersion) serverVersion = chunk.version;
+      // If a fresher version arrived mid-flight, drop stale chunks.
+      if (serverVersion && chunk.version !== serverVersion) return;
+      for (const [code, name] of chunk.schemes) {
+        merged.set(String(code), { schemeCode: code, schemeName: name });
+      }
+      // Publish progressive update so search UIs can re-run their query.
+      allSchemes = Array.from(merged.values());
+      isPartial = true;
+      notifySubscribers();
+    }),
+  );
+
+  await Promise.all(tasks);
+
+  if (merged.size < 1000) return null;
+
+  allSchemes = Array.from(merged.values());
+  allSchemesVersion = serverVersion;
+  isPartial = false;
+  notifySubscribers();
+
+  // Persist atomically once fully assembled.
+  const compact: CompactScheme[] = allSchemes.map((s) => [s.schemeCode, s.schemeName]);
+  const payload: CachedPayload = {
+    schemaVersion: IDB_VERSION,
+    version: serverVersion,
+    ts: Date.now(),
+    checkedAt: Date.now(),
+    schemes: compact,
+  };
+  void idbSet(IDB_KEY, payload);
+
+  return allSchemes;
+};
+
+/**
+ * Check the server's version hash. If unchanged, just bump `checkedAt` in the
+ * IDB cache — no re-download. If changed, stream the new list.
+ */
+const refreshIfStale = async (cached: CachedPayload): Promise<void> => {
+  const probe = await fetchServerVersion();
+  if (!probe) return;
+  if (probe.version && probe.version === cached.version) {
+    // Same content — just touch the freshness marker.
+    void idbSet(IDB_KEY, { ...cached, checkedAt: Date.now() });
+    allSchemesVersion = probe.version;
+    return;
+  }
+  await streamAllSchemes(probe.version);
+};
+
 const loadAllSchemes = async (): Promise<AmfiSearchHit[] | null> => {
-  if (allSchemes) return allSchemes;
+  if (allSchemes && !isPartial) return allSchemes;
   if (allSchemesPromise) return allSchemesPromise;
 
   allSchemesPromise = (async () => {
-    // 1) Try IndexedDB first
+    // 1) Try IDB first — instant hydrate from previous session.
     try {
-      const cached = await idbGet<AllSchemesPayload>(IDB_KEY);
-      if (cached && Array.isArray(cached.schemes) && cached.schemes.length > 1000) {
+      const cached = await idbGet<CachedPayload>(IDB_KEY);
+      if (
+        cached &&
+        cached.schemaVersion === IDB_VERSION &&
+        Array.isArray(cached.schemes) &&
+        cached.schemes.length > 1000
+      ) {
         allSchemes = expandCompact(cached.schemes);
-        // Refresh in the background if stale, but don't block UI
-        if (Date.now() - (cached.ts || 0) > IDB_TTL_MS) {
-          void fetchAllSchemesFromEdge().catch(() => undefined);
+        allSchemesVersion = cached.version || "";
+        isPartial = false;
+        notifySubscribers();
+
+        const now = Date.now();
+        const age = now - (cached.ts || 0);
+        const sinceCheck = now - (cached.checkedAt || 0);
+
+        if (age > IDB_HARD_REFRESH_AFTER_MS) {
+          // Cache is ancient — refetch in the background.
+          if (!onSlowOrMeteredNetwork()) {
+            runWhenIdle(() => { void streamAllSchemes().catch(() => undefined); });
+          }
+        } else if (sinceCheck > IDB_REFRESH_AFTER_MS) {
+          // Light version probe — cheap, no re-download if unchanged.
+          if (!onSlowOrMeteredNetwork()) {
+            runWhenIdle(() => { void refreshIfStale(cached).catch(() => undefined); });
+          }
         }
         return allSchemes;
       }
     } catch { /* ignore */ }
 
-    // 2) Otherwise fetch from edge
-    return fetchAllSchemesFromEdge();
+    // 2) No cache — defer to idle so we don't fight the initial page render.
+    //    On slow/metered links, skip the chunked prewarm and let `searchAmfi`
+    //    fall back to the per-query edge endpoint.
+    if (onSlowOrMeteredNetwork()) return null;
+    return new Promise<AmfiSearchHit[] | null>((resolve) => {
+      runWhenIdle(() => { void streamAllSchemes().then(resolve); });
+    });
   })();
 
   return allSchemesPromise;
 };
 
-const fetchAllSchemesFromEdge = async (): Promise<AmfiSearchHit[] | null> => {
-  try {
-    const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/mutual-funds?action=all`);
-    if (!res.ok) return null;
-    const json = (await res.json()) as AllSchemesPayload;
-    if (!json || !Array.isArray(json.schemes) || json.schemes.length < 1000) return null;
-    allSchemes = expandCompact(json.schemes);
-    void idbSet(IDB_KEY, { ts: Date.now(), schemes: json.schemes });
-    return allSchemes;
-  } catch {
-    return null;
-  }
-};
-
-/** Returns true when the full scheme list is loaded and search is fully local. */
-export const isAmfiFullListReady = (): boolean => allSchemes !== null;
+/** True if the full scheme list (or a partial of it) is in memory. */
+export const isAmfiFullListReady = (): boolean => allSchemes !== null && !isPartial;
+export const isAmfiPartialReady = (): boolean => allSchemes !== null;
 
 const localSearch = (q: string): AmfiSearchHit[] => {
   if (!allSchemes) return [];
@@ -261,10 +422,7 @@ const localSearch = (q: string): AmfiSearchHit[] => {
   return matches.slice(0, 80);
 };
 
-const buildSearchUrl = (q: string) => {
-  const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
-  return `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`;
-};
+const buildSearchUrl = (q: string) => edgeUrl({ action: "search", q });
 
 /**
  * Look for a cached shorter query whose result set fully contains the answer
@@ -290,7 +448,7 @@ const narrowFromCache = (q: string): AmfiSearchHit[] | null => {
 export const isAmfiQueryCached = (rawQuery: string): boolean => {
   const q = rawQuery.trim().toLowerCase();
   if (!q) return true;
-  if (allSchemes) return true; // full list loaded → all queries are instant
+  if (allSchemes) return true; // local list (full or partial) — instant
   if (SEARCH_CACHE.has(q)) return true;
   return narrowFromCache(q) !== null;
 };
@@ -310,7 +468,7 @@ export const searchAmfi = async (
   const q = rawQuery.trim().toLowerCase();
   if (!q) return [];
 
-  // Fastest path: full list already in memory → search locally, no network.
+  // Fastest path: local list (even partial) → search locally, no network.
   if (allSchemes) return localSearch(q);
 
   if (SEARCH_CACHE.has(q)) return SEARCH_CACHE.get(q)!;
@@ -323,14 +481,14 @@ export const searchAmfi = async (
     return narrowed;
   }
 
-  // If the full list is loading right now, wait briefly for it — much faster
-  // than the per-query edge function call once IDB is warm.
+  // If the full list is loading right now, wait briefly for the first chunk —
+  // much faster than the per-query edge endpoint once partial data lands.
   if (allSchemesPromise) {
     const loaded = await Promise.race([
       allSchemesPromise,
       new Promise<null>((resolve) => setTimeout(() => resolve(null), 400)),
     ]);
-    if (loaded) return localSearch(q);
+    if (loaded || allSchemes) return localSearch(q);
   }
 
   const inflight = INFLIGHT.get(q);
@@ -362,11 +520,12 @@ export const searchAmfi = async (
 };
 
 /**
- * Kick off the full AMFI scheme list download in the background. Once it
- * resolves, every subsequent search is fully local and instant.
+ * Kick off the full AMFI scheme list download. Runs during browser idle and
+ * skips the chunked prewarm on metered / slow connections (we still fall back
+ * to the per-query edge endpoint in that case).
  */
 export const prewarmAmfiSearch = () => {
-  if (allSchemes || allSchemesPromise) return;
+  if ((allSchemes && !isPartial) || allSchemesPromise) return;
   void loadAllSchemes();
 };
 

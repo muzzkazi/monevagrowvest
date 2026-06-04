@@ -10,7 +10,7 @@ import {
   Briefcase, Search, Plus, Trash2, Loader2, TrendingUp, TrendingDown,
   CircleDot, ExternalLink, CheckCircle2, Megaphone, History,
 } from "lucide-react";
-import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs } from "@/lib/amfiSearch";
+import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs, subscribeAmfiUpdates } from "@/lib/amfiSearch";
 import { FundSearchProgress } from "@/components/portfolio/FundSearchProgress";
 import { supabase } from "@/integrations/supabase/client";
 import { useTrackedFunds, type TrackedFund } from "@/hooks/useTrackedFunds";
@@ -93,6 +93,10 @@ const FundPicker = ({ onAdd }: { onAdd: (f: { code: string; name: string }) => v
   const [results, setResults] = useState<Array<{ schemeCode: string; schemeName: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [estimateMs, setEstimateMs] = useState(0);
+  // Bumped whenever the streamed scheme list grows, to re-run the search.
+  const [listTick, setListTick] = useState(0);
+
+  useEffect(() => subscribeAmfiUpdates(() => setListTick((t) => t + 1)), []);
 
   useEffect(() => {
     if (q.trim().length < 3) {
@@ -110,7 +114,7 @@ const FundPicker = ({ onAdd }: { onAdd: (f: { code: string; name: string }) => v
       setLoading(false);
     }, 180);
     return () => clearTimeout(t);
-  }, [q]);
+  }, [q, listTick]);
 
   return (
     <div className="space-y-3">

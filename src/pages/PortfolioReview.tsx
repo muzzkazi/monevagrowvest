@@ -14,7 +14,7 @@ import {
   Sparkles, Plus, Trash2, Search, Loader2, AlertTriangle,
   CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp, Activity, ArrowRight,
 } from "lucide-react";
-import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs } from "@/lib/amfiSearch";
+import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs, subscribeAmfiUpdates } from "@/lib/amfiSearch";
 import { FundSearchProgress } from "@/components/portfolio/FundSearchProgress";
 import { inferFundHouse, inferSubCategory } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
@@ -93,6 +93,10 @@ const FundSearchPicker = ({
   const [estimateMs, setEstimateMs] = useState(0);
   const [open, setOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  // Bumped whenever streamed scheme list grows, to re-run the search.
+  const [listTick, setListTick] = useState(0);
+
+  useEffect(() => subscribeAmfiUpdates(() => setListTick((t) => t + 1)), []);
 
   useEffect(() => {
     const q = query.trim();
@@ -112,7 +116,7 @@ const FundSearchPicker = ({
       }
     }, 180);
     return () => { clearTimeout(handle); ctrl.abort(); };
-  }, [query]);
+  }, [query, listTick]);
 
   return (
     <div className="relative">

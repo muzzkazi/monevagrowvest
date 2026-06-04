@@ -11,7 +11,23 @@ type SchemeListItem = { schemeCode: number | string; schemeName: string };
 
 let schemeListCache: SchemeListItem[] | null = null;
 let schemeListFetchedAt = 0;
+let schemeListVersion = '';
 const SCHEME_LIST_TTL_MS = 1000 * 60 * 30;
+
+// Cheap stable signature: count + djb2 of first/middle/last names.
+// Lets clients detect whether the AMFI list has actually changed before
+// re-downloading ~2MB of data.
+const computeVersion = (list: SchemeListItem[]): string => {
+  if (list.length === 0) return '0';
+  const sample = [list[0], list[Math.floor(list.length / 2)], list[list.length - 1]]
+    .map((s) => `${s.schemeCode}|${s.schemeName}`)
+    .join('::');
+  let h = 5381;
+  for (let i = 0; i < sample.length; i++) {
+    h = ((h << 5) + h) ^ sample.charCodeAt(i);
+  }
+  return `${list.length}-${(h >>> 0).toString(36)}`;
+};
 
 const getSchemeList = async () => {
   const now = Date.now();
@@ -23,6 +39,7 @@ const getSchemeList = async () => {
   const data = await response.json();
   schemeListCache = Array.isArray(data) ? data : [];
   schemeListFetchedAt = now;
+  schemeListVersion = computeVersion(schemeListCache);
   return schemeListCache;
 };
 
@@ -35,19 +52,54 @@ serve(async (req) => {
     const url = new URL(req.url);
     const action = url.searchParams.get('action') || 'search';
 
+    // Lightweight version probe — clients call this first to decide whether
+    // their cached scheme list is still fresh (avoids re-downloading ~2MB).
+    if (action === 'version') {
+      const schemes = await getSchemeList();
+      return new Response(
+        JSON.stringify({ version: schemeListVersion, count: schemes.length, ts: schemeListFetchedAt }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Cache-Control': 'public, max-age=300, s-maxage=300',
+          },
+        },
+      );
+    }
+
     // Return the full AMFI scheme list as compact [code, name] tuples so the
-    // client can cache it in IndexedDB and do all searches locally afterwards.
+    // client can cache it in IndexedDB and search 100% locally.
+    //
+    // Supports chunked download so the client can render partial results and
+    // recover from a flaky network: pass `of=N&part=I` (0-indexed).
     if (action === 'all') {
       const schemes = await getSchemeList();
-      const compact = schemes.map((s) => [s.schemeCode, s.schemeName]);
-      return new Response(JSON.stringify({ ts: Date.now(), schemes: compact }), {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-          // CDN + browser caching — the list barely changes day-to-day
-          'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+      const of = Math.max(1, Math.min(8, parseInt(url.searchParams.get('of') || '1', 10) || 1));
+      const part = Math.max(0, Math.min(of - 1, parseInt(url.searchParams.get('part') || '0', 10) || 0));
+      const chunkSize = Math.ceil(schemes.length / of);
+      const start = part * chunkSize;
+      const slice = schemes.slice(start, start + chunkSize);
+      const compact = slice.map((s) => [s.schemeCode, s.schemeName]);
+      return new Response(
+        JSON.stringify({
+          ts: schemeListFetchedAt,
+          version: schemeListVersion,
+          total: schemes.length,
+          part,
+          of,
+          schemes: compact,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            // CDN + browser caching — the list barely changes day-to-day
+            'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+            ETag: `W/"${schemeListVersion}-${part}-${of}"`,
+          },
         },
-      });
+      );
     }
 
     if (action === 'search') {
