@@ -653,9 +653,10 @@ const MutualFundTracker = () => {
       <PageHeader />
       <section className="py-10 sm:py-14 bg-background">
         <div className="container mx-auto px-4 max-w-7xl">
-          <Tabs defaultValue="portfolio" className="w-full">
+          <Tabs defaultValue="insights" className="w-full">
             <div className="overflow-x-auto mb-6">
               <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 h-auto flex-wrap p-1 gap-1">
+                <TabsTrigger value="insights" className="text-xs sm:text-sm">Insights</TabsTrigger>
                 <TabsTrigger value="portfolio" className="text-xs sm:text-sm">Portfolio</TabsTrigger>
                 <TabsTrigger value="holdings" className="text-xs sm:text-sm">Holdings Δ</TabsTrigger>
                 <TabsTrigger value="sectors" className="text-xs sm:text-sm">Sector Δ</TabsTrigger>
@@ -669,6 +670,11 @@ const MutualFundTracker = () => {
                 <TabsTrigger value="news" className="text-xs sm:text-sm">News</TabsTrigger>
               </TabsList>
             </div>
+
+            <TabsContent value="insights">
+              <InsightsDashboard funds={funds} intel={intel} />
+            </TabsContent>
+
 
             <TabsContent value="portfolio">
               <PortfolioTab
