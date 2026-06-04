@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PageLayout from "@/components/shared/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Briefcase, Search, Plus, Trash2, Loader2, TrendingUp, TrendingDown,
-  CircleDot, ExternalLink, CheckCircle2, Megaphone, History,
+  CircleDot, ExternalLink, CheckCircle2, Megaphone, History, BarChart2,
 } from "lucide-react";
+
 import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs, subscribeAmfiUpdates } from "@/lib/amfiSearch";
 import { FundSearchProgress } from "@/components/portfolio/FundSearchProgress";
 import { supabase } from "@/integrations/supabase/client";
@@ -264,6 +265,17 @@ const PerformanceTab = ({
   if (funds.length === 0) return <EmptyState msg="Add funds to see performance." />;
   if (loading) return <LoadingGrid />;
 
+  // Estimate peer-rank quintile from alpha (fund - benchmark) when no real peer data is available.
+  // 1 = top quintile, 5 = bottom quintile.
+  const alphaToQuintile = (alpha: number | null): number | null => {
+    if (alpha == null) return null;
+    if (alpha >= 5) return 1;
+    if (alpha >= 2) return 2;
+    if (alpha >= 0) return 3;
+    if (alpha >= -2) return 4;
+    return 5;
+  };
+
   return (
     <div className="space-y-5">
       {funds.map((f) => {
@@ -279,150 +291,251 @@ const PerformanceTab = ({
         }
         const r = i.returns;
         const b = i.benchmark!.returns;
-        const rows = [
+        const periods = [
           { label: "1Y", fund: r.y1, bench: b.y1 },
           { label: "3Y", fund: r.y3, bench: b.y3 },
           { label: "5Y", fund: r.y5, bench: b.y5 },
           { label: "10Y", fund: r.y10, bench: b.y10 },
         ];
-
-        // Scale bars relative to the largest absolute return shown
+        // Scale shared across all periods so bar lengths are comparable
         const scaleMax = Math.max(
           1,
-          ...rows.flatMap((row) => [Math.abs(row.fund ?? 0), Math.abs(row.bench ?? 0)])
+          ...periods.flatMap((row) => [Math.abs(row.fund ?? 0), Math.abs(row.bench ?? 0)])
         );
 
+        const incPositive = (r.sinceInception ?? 0) >= 0;
+
         return (
-          <Card key={f.code} className="overflow-hidden">
-            <CardHeader className="pb-4 border-b border-border bg-financial-muted/30">
-              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-                <div className="min-w-0">
-                  <CardTitle className="text-base sm:text-lg leading-tight">{f.name}</CardTitle>
-                  <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
-                    <Badge variant="outline" className="font-normal">
-                      vs {i.benchmark!.name}
-                    </Badge>
-                    <Badge variant="outline" className="font-normal">
-                      Age {r.inceptionYears} yrs
-                    </Badge>
-                    <span className="text-muted-foreground">NAV as of {r.asOf}</span>
-                  </div>
+          <Card
+            key={f.code}
+            className="overflow-hidden rounded-sm border-border shadow-sm hover:shadow-md transition-shadow"
+          >
+            {/* ── Header ───────────────────────────────────────────── */}
+            <div className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 border-b border-border">
+              <div className="min-w-0 space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-tight">
+                    {f.name}
+                  </h3>
+                  {i.meta?.schemeCategory && (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-financial-gold/10 text-financial-gold border border-financial-gold/20">
+                      {i.meta.schemeCategory.replace(/scheme\s*-\s*/i, "")}
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-baseline gap-6 shrink-0">
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Since inception</div>
-                    <div className="text-2xl font-semibold tabular-nums text-financial-accent">
-                      {fmtPct(r.sinceInception)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="pt-5 pb-5">
-              {/* Legend */}
-              <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider text-muted-foreground mb-3">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-sm bg-financial-accent" /> Fund
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-sm bg-muted-foreground/40" /> Benchmark
-                </span>
-              </div>
-
-              {/* Period rows: label | dual bars | numbers | delta */}
-              <div className="divide-y divide-border">
-                {rows.map((row) => {
-                  const diff = row.fund != null && row.bench != null ? row.fund - row.bench : null;
-                  const fundW = row.fund != null ? Math.min(100, (Math.abs(row.fund) / scaleMax) * 100) : 0;
-                  const benchW = row.bench != null ? Math.min(100, (Math.abs(row.bench) / scaleMax) * 100) : 0;
-                  const fundNeg = (row.fund ?? 0) < 0;
-                  const benchNeg = (row.bench ?? 0) < 0;
-                  return (
-                    <div key={row.label} className="grid grid-cols-12 items-center gap-3 py-2.5">
-                      <div className="col-span-2 sm:col-span-1 text-xs font-semibold tracking-wide text-muted-foreground">
-                        {row.label}
-                      </div>
-                      <div className="col-span-6 sm:col-span-7 space-y-1.5">
-                        <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${fundNeg ? "bg-rose-500/70" : "bg-financial-accent"}`}
-                            style={{ width: `${fundW}%` }}
-                          />
-                        </div>
-                        <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${benchNeg ? "bg-rose-400/40" : "bg-muted-foreground/40"}`}
-                            style={{ width: `${benchW}%` }}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-span-2 text-right text-sm font-semibold tabular-nums">
-                        {fmtPct(row.fund)}
-                      </div>
-                      <div className="col-span-2 text-right text-xs tabular-nums text-muted-foreground hidden sm:block">
-                        {row.bench != null ? `${row.bench.toFixed(1)}%` : "—"}
-                      </div>
-                      <div
-                        className={`col-span-2 sm:col-span-0 hidden lg:flex justify-end items-center gap-0.5 text-xs font-medium tabular-nums ${
-                          diff == null
-                            ? "text-muted-foreground"
-                            : diff >= 0
-                            ? "text-emerald-600 dark:text-emerald-400"
-                            : "text-rose-600 dark:text-rose-400"
-                        }`}
-                      >
-                        {diff != null &&
-                          (diff >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />)}
-                        {diff != null ? `${diff >= 0 ? "+" : ""}${diff.toFixed(1)}` : "—"}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {i.benchmarkBeats && (
-                <div className="mt-4 pt-3 border-t border-border flex flex-wrap items-center gap-2">
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground mr-1">
-                    Beats benchmark
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <BarChart2 className="w-3.5 h-3.5 opacity-70" />
+                    Benchmark:&nbsp;<span className="font-medium text-foreground">{i.benchmark!.name}</span>
                   </span>
+                  <span className="w-1 h-1 rounded-full bg-border" />
+                  <span>
+                    Inception:&nbsp;<span className="font-medium text-foreground">{r.inceptionYears} yrs ago</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-left lg:text-right shrink-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">
+                  Since Inception
+                </p>
+                <div className="flex items-baseline lg:justify-end gap-1.5">
+                  <span className="text-3xl font-bold text-financial-primary tabular-nums">
+                    {fmtPct(r.sinceInception)}
+                  </span>
+                  <span
+                    className={`text-xs font-semibold ${
+                      incPositive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                    }`}
+                  >
+                    CAGR
+                  </span>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">NAV as of {r.asOf}</p>
+              </div>
+            </div>
+
+            {/* ── Performance matrix ───────────────────────────────── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 border-b border-border">
+              {periods.map((row, idx) => {
+                const diff =
+                  row.fund != null && row.bench != null ? row.fund - row.bench : null;
+                const fundW =
+                  row.fund != null ? Math.min(100, (Math.abs(row.fund) / scaleMax) * 100) : 0;
+                const benchW =
+                  row.bench != null ? Math.min(100, (Math.abs(row.bench) / scaleMax) * 100) : 0;
+                const fundNeg = (row.fund ?? 0) < 0;
+                const benchNeg = (row.bench ?? 0) < 0;
+                const positive = diff != null && diff >= 0;
+                const quintile = alphaToQuintile(diff);
+
+                // Single-bar geometry: fund segment + benchmark overshoot/undershoot
+                const minW = Math.min(fundW, benchW);
+                const overW = Math.abs(fundW - benchW);
+                const fundLeads = fundW >= benchW;
+
+                return (
+                  <div
+                    key={row.label}
+                    className={`p-4 sm:p-5 ${
+                      idx < periods.length - 1 ? "lg:border-r border-border" : ""
+                    } ${idx % 2 === 0 ? "border-r lg:border-r" : ""} ${
+                      idx < 2 ? "border-b lg:border-b-0" : ""
+                    } border-border`}
+                  >
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                      {row.label} Return
+                    </p>
+
+                    <div className="flex justify-between items-end mb-3">
+                      <div className="space-y-0.5">
+                        <p className="text-[10px] uppercase font-semibold text-muted-foreground">Fund</p>
+                        <p
+                          className={`text-lg font-bold tabular-nums ${
+                            fundNeg ? "text-rose-600 dark:text-rose-400" : "text-foreground"
+                          }`}
+                        >
+                          {fmtPct(row.fund)}
+                        </p>
+                      </div>
+                      <div className="space-y-0.5 text-right">
+                        <p
+                          className={`text-[10px] uppercase font-semibold ${
+                            diff == null
+                              ? "text-muted-foreground"
+                              : positive
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-rose-600 dark:text-rose-400"
+                          }`}
+                        >
+                          Alpha
+                        </p>
+                        <p
+                          className={`text-sm font-bold tabular-nums ${
+                            diff == null
+                              ? "text-muted-foreground"
+                              : positive
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-rose-600 dark:text-rose-400"
+                          }`}
+                        >
+                          {diff == null ? "—" : `${positive ? "+" : ""}${diff.toFixed(1)}%`}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Single combined bar: shared base + overshoot/undershoot segment */}
+                    <div className="h-2 w-full bg-muted/60 rounded-full overflow-hidden flex">
+                      {fundLeads ? (
+                        <>
+                          <div
+                            className={`h-full ${benchNeg ? "bg-rose-400/40" : "bg-muted-foreground/40"}`}
+                            style={{ width: `${minW}%` }}
+                          />
+                          <div
+                            className={`h-full ${fundNeg ? "bg-rose-500/70" : "bg-financial-accent"}`}
+                            style={{ width: `${overW}%` }}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <div
+                            className={`h-full ${fundNeg ? "bg-rose-500/70" : "bg-financial-accent"}`}
+                            style={{ width: `${minW}%` }}
+                          />
+                          <div
+                            className={`h-full ${benchNeg ? "bg-rose-400/40" : "bg-muted-foreground/40"}`}
+                            style={{ width: `${overW}%` }}
+                          />
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-[10px] text-muted-foreground font-medium">
+                        Bench:&nbsp;
+                        <span className="tabular-nums">
+                          {row.bench != null ? `${row.bench.toFixed(1)}%` : "—"}
+                        </span>
+                      </p>
+
+                      {/* Peer-rank dot plot (estimated from alpha) */}
+                      <div className="flex items-center gap-1" title="Estimated peer rank (top → bottom)">
+                        {[1, 2, 3, 4, 5].map((q) => {
+                          const active = quintile === q;
+                          return (
+                            <span
+                              key={q}
+                              className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                                active
+                                  ? positive
+                                    ? "bg-emerald-500"
+                                    : "bg-rose-500"
+                                  : "bg-border"
+                              } ${active ? "ring-2 ring-offset-1 ring-offset-background ring-financial-accent/30" : ""}`}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ── Consistency footer ───────────────────────────────── */}
+            {i.benchmarkBeats && (
+              <div className="bg-financial-muted/40 px-5 sm:px-6 py-3.5 flex flex-wrap items-center gap-4">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  Consistency Score
+                </span>
+                <div className="flex items-center gap-3 flex-wrap">
                   {([
                     { label: "5Y", diff: i.benchmarkBeats.y5 },
                     { label: "10Y", diff: i.benchmarkBeats.y10 },
                     { label: "15Y", diff: i.benchmarkBeats.y15 },
-                  ]).map((c) => {
-                    const status = c.diff == null ? "n/a" : c.diff >= 0 ? "pass" : "fail";
+                  ]).map((c, idx, arr) => {
+                    const status = c.diff == null ? "na" : c.diff >= 0 ? "beat" : "miss";
+                    const dot =
+                      status === "beat"
+                        ? "bg-emerald-500"
+                        : status === "miss"
+                        ? "bg-rose-500"
+                        : "bg-border";
                     return (
-                      <span
-                        key={c.label}
-                        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full border ${
-                          status === "pass"
-                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-                            : status === "fail"
-                            ? "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300"
-                            : "border-border bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        <span className="opacity-70">{c.label}</span>
-                        <span className="tabular-nums">
-                          {status === "pass"
-                            ? `+${c.diff!.toFixed(1)}%`
-                            : status === "fail"
-                            ? `${c.diff!.toFixed(1)}%`
-                            : "—"}
-                        </span>
-                      </span>
+                      <React.Fragment key={c.label}>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`h-2 w-2 rounded-full ${dot}`} />
+                          <span className="text-[11px] font-bold text-foreground tabular-nums">
+                            {c.label}{" "}
+                            {status === "beat" ? "BEAT" : status === "miss" ? "MISS" : "N/A"}
+                          </span>
+                          {c.diff != null && (
+                            <span
+                              className={`text-[10px] tabular-nums ${
+                                status === "beat"
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : "text-rose-600 dark:text-rose-400"
+                              }`}
+                            >
+                              {c.diff >= 0 ? `+${c.diff.toFixed(1)}%` : `${c.diff.toFixed(1)}%`}
+                            </span>
+                          )}
+                        </div>
+                        {idx < arr.length - 1 && <span className="w-px h-3 bg-border" />}
+                      </React.Fragment>
                     );
                   })}
                 </div>
-              )}
-            </CardContent>
+              </div>
+            )}
           </Card>
         );
       })}
     </div>
   );
 };
+
 
 
 // ────────────────────────────────────────────────────────────────────
