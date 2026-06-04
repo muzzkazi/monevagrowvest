@@ -670,9 +670,14 @@ const MutualFundTracker = () => {
 
   return (
     <PageLayout>
+      <PortfolioModeOnboarding />
       <PageHeader />
       <section className="py-10 sm:py-14 bg-background">
         <div className="container mx-auto px-4 max-w-7xl">
+          <div className="mb-6">
+            <ReviewVsTrackerChecklist active="tracker" />
+          </div>
+
           <Tabs defaultValue="portfolio" className="w-full">
             <div className="overflow-x-auto mb-6">
               <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 h-auto flex-wrap p-1 gap-1">
