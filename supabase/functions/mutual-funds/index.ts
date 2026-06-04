@@ -61,7 +61,7 @@ serve(async (req) => {
           if (aDirect !== bDirect) return bDirect - aDirect;
           return aName.localeCompare(bName);
         })
-        .slice(0, 300);
+        .slice(0, 80);
 
       return new Response(JSON.stringify(ranked), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
