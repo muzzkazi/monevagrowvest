@@ -104,7 +104,7 @@ const FundPicker = ({ onAdd }: { onAdd: (f: { code: string; name: string }) => v
         r.slice(0, 12).map((x) => ({ schemeCode: String(x.schemeCode), schemeName: x.schemeName }))
       );
       setLoading(false);
-    }, 250);
+    }, 180);
     return () => clearTimeout(t);
   }, [q]);
 
