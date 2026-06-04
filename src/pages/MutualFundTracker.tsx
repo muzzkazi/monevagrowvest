@@ -8,9 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Briefcase, Search, Plus, Trash2, Loader2, TrendingUp, TrendingDown,
-  CircleDot, PieChart as PieIcon, Activity, Trophy, UserCog, Tag,
-  FileText, Edit3, Scale, Newspaper, ExternalLink, AlertTriangle, CheckCircle2,
-  Megaphone,
+  CircleDot, ExternalLink, CheckCircle2, Megaphone, History,
 } from "lucide-react";
 import { searchAmfi } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
