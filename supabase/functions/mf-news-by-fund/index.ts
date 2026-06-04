@@ -83,11 +83,19 @@ async function fetchGoogleNewsForFund(fundName: string, limit = 6) {
       };
     }).filter((x) => x.title && x.url);
 
-    // Newest first, regardless of feed ordering.
-    parsed.sort(
+    // Hard freshness cutoff so a fund with thin recent coverage doesn't
+    // surface multi-year-old headlines.
+    const MAX_AGE_DAYS = 120;
+    const cutoff = Date.now() - MAX_AGE_DAYS * 24 * 3600 * 1000;
+    const fresh = parsed.filter((x) => new Date(x.publishedAt).getTime() >= cutoff);
+
+    // If we filtered everything out (very obscure fund), fall back to whatever
+    // we got so the UI still shows something — but date-sorted, newest first.
+    const finalList = fresh.length > 0 ? fresh : parsed;
+    finalList.sort(
       (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
     );
-    return parsed.slice(0, limit);
+    return finalList.slice(0, limit);
   } catch (e) {
     console.error("news fetch failed", fundName, e);
     return [];
