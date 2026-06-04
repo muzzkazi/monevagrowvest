@@ -187,12 +187,39 @@ const AllocationBar = ({
 );
 
 const PortfolioReviewPage = () => {
+  const navigate = useNavigate();
   const [funds, setFunds] = useState<SelectedFund[]>([]);
   const [risk, setRisk] = useState<RiskProfile>("Moderate");
   const [horizon, setHorizon] = useState<string>("10");
   const [goal, setGoal] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState<ReviewResponse | null>(null);
+
+  const sendToTracker = () => {
+    if (funds.length === 0) return;
+    try {
+      const existingRaw = localStorage.getItem("moneva.trackedFunds.v1");
+      const existing: Array<{ code: string }> = existingRaw ? JSON.parse(existingRaw) : [];
+      const existingCodes = new Set(existing.map((e) => e.code));
+      const merged = [
+        ...existing,
+        ...funds
+          .filter((f) => !existingCodes.has(f.schemeCode))
+          .map((f) => ({
+            code: f.schemeCode,
+            name: f.schemeName,
+            monthlySIP: f.monthlySip || 0,
+            addedAt: new Date().toISOString(),
+          })),
+      ];
+      localStorage.setItem("moneva.trackedFunds.v1", JSON.stringify(merged));
+      toast.success(`${funds.length} fund${funds.length > 1 ? "s" : ""} sent to Portfolio Tracker`);
+      navigate("/mutual-fund-tracker");
+    } catch {
+      toast.error("Could not transfer funds. Please add them manually.");
+    }
+  };
+
 
   const totalSip = useMemo(() => funds.reduce((s, f) => s + (f.monthlySip || 0), 0), [funds]);
 
