@@ -6,17 +6,27 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const cleanText = (t: string) =>
+const decodeEntities = (t: string) =>
   t
-    .replace(/<!\[CDATA\[/g, "")
-    .replace(/\]\]>/g, "")
-    .replace(/<[^>]*>/g, "")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .trim();
+    .replace(/&nbsp;/g, " ")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(parseInt(n, 10)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)));
+
+const cleanText = (t: string) => {
+  let out = t.replace(/<!\[CDATA\[/g, "").replace(/\]\]>/g, "");
+  // Decode first so HTML-encoded <a href=…> tags inside Google News
+  // descriptions become real tags we can strip in the next step.
+  out = decodeEntities(out);
+  // Strip tags twice in case decoding revealed a second layer.
+  out = out.replace(/<[^>]*>/g, "").replace(/<[^>]*>/g, "");
+  // Collapse whitespace
+  return out.replace(/\s+/g, " ").trim();
+};
 
 async function fetchGoogleNewsForFund(fundName: string, limit = 6) {
   const q = encodeURIComponent(`"${fundName}" mutual fund`);
