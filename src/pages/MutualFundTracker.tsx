@@ -480,7 +480,8 @@ const classifyUpdate = (title: string, excerpt: string): { tag: string; tone: st
   if (/manager|appointed|resign|exit|tenure/.test(text)) return { tag: "Manager", tone: "bg-violet-100 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300" };
   if (/merger|merge|name change|wind[- ]?up/.test(text)) return { tag: "Scheme Change", tone: "bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300" };
   if (/strategy|mandate|amend|objective/.test(text)) return { tag: "Strategy", tone: "bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300" };
-  return { tag: "AMC Update", tone: "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300" };
+  if (UPDATE_KEYWORDS.test(text)) return { tag: "AMC Update", tone: "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300" };
+  return { tag: "News", tone: "bg-muted text-muted-foreground" };
 };
 
 const FundUpdatesTab = ({ funds }: { funds: TrackedFund[] }) => {
