@@ -340,6 +340,35 @@ const PerformanceTab = ({
                   );
                 })}
               </div>
+
+              {i.benchmarkBeats && (
+                <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2">
+                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground mr-1 self-center">
+                    Beats benchmark:
+                  </span>
+                  {([
+                    { label: "5Y", diff: i.benchmarkBeats.y5 },
+                    { label: "10Y", diff: i.benchmarkBeats.y10 },
+                    { label: "15Y", diff: i.benchmarkBeats.y15 },
+                  ]).map((c) => {
+                    const status = c.diff == null ? "n/a" : c.diff >= 0 ? "pass" : "fail";
+                    return (
+                      <span
+                        key={c.label}
+                        className={`text-[11px] font-semibold px-2 py-1 rounded ${
+                          status === "pass"
+                            ? "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
+                            : status === "fail"
+                            ? "bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {c.label}: {status === "pass" ? `PASS (+${c.diff!.toFixed(1)}%)` : status === "fail" ? `FAIL (${c.diff!.toFixed(1)}%)` : "—"}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         );
