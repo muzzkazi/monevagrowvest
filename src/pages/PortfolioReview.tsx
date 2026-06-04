@@ -302,22 +302,30 @@ const PortfolioReviewPage = () => {
 
   return (
     <PageLayout>
+      <PortfolioModeOnboarding />
       <div className="pt-28 pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Header */}
-          <div className="mb-8 flex items-start gap-4">
+          <div className="mb-4 flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-financial-accent to-financial-accent/70 flex items-center justify-center shrink-0">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
+              <Badge variant="secondary" className="mb-2 text-[10px]">ONE-TIME REVIEW</Badge>
               <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-1">
                 AI Portfolio Review
               </h1>
               <p className="text-muted-foreground">
-                Add your existing mutual fund SIPs and get AI-powered recommendations on what to keep, reduce, exit or switch.
+                A one-time diagnostic of your existing mutual funds. For continuous monitoring of NAV, performance, overlap and AMC updates, use{" "}
+                <a href="/mutual-fund-tracker" className="text-financial-accent font-medium hover:underline">Portfolio Tracker</a>.
               </p>
             </div>
           </div>
+
+          <div className="mb-8">
+            <ReviewVsTrackerChecklist active="review" />
+          </div>
+
 
           {/* Input Card */}
           <Card className="mb-6">
