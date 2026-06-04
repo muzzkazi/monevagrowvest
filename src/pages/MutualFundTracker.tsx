@@ -92,12 +92,15 @@ const FundPicker = ({ onAdd }: { onAdd: (f: { code: string; name: string }) => v
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Array<{ schemeCode: string; schemeName: string }>>([]);
   const [loading, setLoading] = useState(false);
+  const [estimateMs, setEstimateMs] = useState(0);
 
   useEffect(() => {
     if (q.trim().length < 3) {
       setResults([]);
+      setLoading(false);
       return;
     }
+    setEstimateMs(estimateAmfiSearchMs(q));
     const t = setTimeout(async () => {
       setLoading(true);
       const r = await searchAmfi(q);
@@ -120,11 +123,7 @@ const FundPicker = ({ onAdd }: { onAdd: (f: { code: string; name: string }) => v
           className="pl-9"
         />
       </div>
-      {loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Searching AMFI…
-        </div>
-      )}
+      {loading && <FundSearchProgress estimateMs={estimateMs} rows={4} />}
       {results.length > 0 && (
         <div className="border border-border rounded-lg max-h-72 overflow-auto divide-y divide-border bg-background">
           {results.map((r) => (
