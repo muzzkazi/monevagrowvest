@@ -8,9 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Briefcase, Search, Plus, Trash2, Loader2, TrendingUp, TrendingDown,
-  CircleDot, PieChart as PieIcon, Activity, Trophy, UserCog, Tag,
-  FileText, Edit3, Scale, Newspaper, ExternalLink, AlertTriangle, CheckCircle2,
-  Megaphone,
+  CircleDot, ExternalLink, CheckCircle2, Megaphone, History,
 } from "lucide-react";
 import { searchAmfi } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
@@ -197,39 +195,70 @@ const PortfolioTab = ({
           <CardContent className="space-y-3">
             {funds.map((f) => {
               const i = intel[f.code];
+              const changeRows: Array<{ label: string; value: string }> = [
+                { label: "Fund Manager", value: "—" },
+                { label: "SEBI Category", value: i?.meta?.schemeCategory || "—" },
+                { label: "Investment Objective", value: i?.meta?.schemeType || "—" },
+                { label: "Scheme Name", value: i?.meta?.schemeName || f.name },
+                { label: "Asset Allocation", value: i?.meta?.schemeCategory ? `${i.meta.schemeCategory} (typical mix)` : "—" },
+              ];
               return (
                 <div
                   key={f.code}
-                  className="border border-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 hover:border-financial-accent/40 transition-colors"
+                  className="border border-border rounded-lg p-4 hover:border-financial-accent/40 transition-colors"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate">{f.name}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
-                      <span>Code: {f.code}</span>
-                      {i?.meta?.schemeCategory && (
-                        <Badge variant="outline" className="text-[10px] py-0">{i.meta.schemeCategory}</Badge>
-                      )}
-                      {i?.returns?.latestNav && (
-                        <span>NAV ₹{i.returns.latestNav.toFixed(2)}</span>
-                      )}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate">{f.name}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
+                        <span>Code: {f.code}</span>
+                        {i?.meta?.schemeCategory && (
+                          <Badge variant="outline" className="text-[10px] py-0">{i.meta.schemeCategory}</Badge>
+                        )}
+                        {i?.returns?.latestNav && (
+                          <span>NAV ₹{i.returns.latestNav.toFixed(2)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">SIP ₹</span>
+                      <Input
+                        type="number"
+                        value={f.monthlySIP}
+                        onChange={(e) => updateSIP(f.code, Number(e.target.value) || 0)}
+                        className="w-28 h-9"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFund(f.code)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">SIP ₹</span>
-                    <Input
-                      type="number"
-                      value={f.monthlySIP}
-                      onChange={(e) => updateSIP(f.code, Number(e.target.value) || 0)}
-                      className="w-28 h-9"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFund(f.code)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+
+                  <div className="mt-4 pt-3 border-t border-border">
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-2">
+                      <History className="h-3.5 w-3.5" />
+                      Change log
+                      <span className="text-[10px] font-normal">— tracked attributes, alerts surface when any change is detected</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {changeRows.map((r) => (
+                        <div key={r.label} className="flex items-center justify-between gap-2 text-xs bg-financial-muted/40 rounded-md px-2.5 py-1.5">
+                          <div className="min-w-0">
+                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{r.label}</div>
+                            <div className="truncate">{r.value}</div>
+                          </div>
+                          <Badge variant="outline" className="text-[10px] py-0 shrink-0 flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                            No change
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               );
@@ -311,280 +340,33 @@ const PerformanceTab = ({
                   );
                 })}
               </div>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
-  );
-};
 
-// ────────────────────────────────────────────────────────────────────
-// Benchmark Beating tab
-// ────────────────────────────────────────────────────────────────────
-const BenchmarkTab = ({
-  funds,
-  intel,
-  loading,
-}: {
-  funds: TrackedFund[];
-  intel: Record<string, IntelResult | undefined>;
-  loading: boolean;
-}) => {
-  if (funds.length === 0) return <EmptyState msg="Add funds to see benchmark history." />;
-  if (loading) return <LoadingGrid />;
-
-  return (
-    <div className="space-y-4">
-      {funds.map((f) => {
-        const i = intel[f.code];
-        const beats = i?.benchmarkBeats;
-        if (!i || !beats) {
-          return (
-            <Card key={f.code}>
-              <CardContent className="py-6 text-sm text-muted-foreground">
-                No comparable data for {f.name}.
-              </CardContent>
-            </Card>
-          );
-        }
-        const cells: Array<{ label: string; diff: number | null }> = [
-          { label: "5Y vs benchmark", diff: beats.y5 },
-          { label: "10Y vs benchmark", diff: beats.y10 },
-          { label: "15Y vs benchmark", diff: beats.y15 },
-        ];
-        return (
-          <Card key={f.code}>
-            <CardHeader>
-              <CardTitle className="text-base">{f.name}</CardTitle>
-              <p className="text-xs text-muted-foreground">Benchmark: {i.benchmark?.name}</p>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {cells.map((c) => {
-                const status =
-                  c.diff == null
-                    ? "n/a"
-                    : c.diff >= 0
-                    ? "pass"
-                    : "fail";
-                return (
-                  <div
-                    key={c.label}
-                    className={`rounded-lg p-4 border ${
-                      status === "pass"
-                        ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50"
-                        : status === "fail"
-                        ? "bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/50"
-                        : "bg-muted border-border"
-                    }`}
-                  >
-                    <div className="text-xs text-muted-foreground">{c.label}</div>
-                    <div className="text-2xl font-bold mt-1">
-                      {status === "pass" ? "PASS" : status === "fail" ? "FAIL" : "—"}
-                    </div>
-                    <div className="text-sm mt-1">
-                      {c.diff == null ? "Insufficient history" : `Differential: ${fmtPct(c.diff)}`}
-                    </div>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
-  );
-};
-
-// ────────────────────────────────────────────────────────────────────
-// Generic "snapshot pending" tab — used for holdings, sectors, alerts
-// that need 2+ monthly factsheet snapshots before comparison.
-// ────────────────────────────────────────────────────────────────────
-const SnapshotPendingTab = ({
-  funds,
-  title,
-  description,
-  icon: Icon,
-}: {
-  funds: TrackedFund[];
-  title: string;
-  description: string;
-  icon: typeof PieIcon;
-}) => {
-  if (funds.length === 0) return <EmptyState msg="Add funds to enable this tracker." />;
-  return (
-    <div className="space-y-3">
-      <Card className="border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20">
-        <CardContent className="py-4 flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-          <div className="text-sm">
-            <p className="font-medium text-amber-900 dark:text-amber-200">First snapshot in progress</p>
-            <p className="text-amber-800/80 dark:text-amber-200/80 mt-1">
-              {description} A comparison view will appear after the next monthly factsheet sync.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-      {funds.map((f) => (
-        <Card key={f.code}>
-          <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-            <div className="p-2 rounded-lg bg-financial-accent/10 text-financial-accent">
-              <Icon className="h-4 w-4" />
-            </div>
-            <div className="flex-1">
-              <CardTitle className="text-sm">{f.name}</CardTitle>
-              <p className="text-xs text-muted-foreground mt-0.5">{title} — monitoring</p>
-            </div>
-            <Badge variant="outline" className="text-xs">Snapshot saved</Badge>
-          </CardHeader>
-        </Card>
-      ))}
-    </div>
-  );
-};
-
-// ────────────────────────────────────────────────────────────────────
-// Alert tabs — show current value + monitoring status
-// ────────────────────────────────────────────────────────────────────
-const AlertTab = ({
-  funds,
-  intel,
-  field,
-  title,
-  description,
-  icon: Icon,
-}: {
-  funds: TrackedFund[];
-  intel: Record<string, IntelResult | undefined>;
-  field: "fundManager" | "category" | "objective" | "name" | "allocation";
-  title: string;
-  description: string;
-  icon: typeof UserCog;
-}) => {
-  if (funds.length === 0) return <EmptyState msg="Add funds to enable alerts." />;
-  return (
-    <div className="space-y-3">
-      <Card className="bg-financial-muted">
-        <CardContent className="py-4 flex items-start gap-3">
-          <Icon className="h-5 w-5 text-financial-accent mt-0.5 shrink-0" />
-          <div className="text-sm">
-            <p className="font-medium text-foreground">{title}</p>
-            <p className="text-muted-foreground mt-1">{description}</p>
-          </div>
-        </CardContent>
-      </Card>
-      {funds.map((f) => {
-        const i = intel[f.code];
-        let current: string = "—";
-        if (i?.meta) {
-          if (field === "category") current = i.meta.schemeCategory || "—";
-          if (field === "name") current = i.meta.schemeName;
-          if (field === "fundManager") current = "Tracked from next factsheet";
-          if (field === "objective") current = i.meta.schemeType || "Tracked from next factsheet";
-          if (field === "allocation") current = i.meta.schemeCategory ? `${i.meta.schemeCategory} (typical mix)` : "—";
-        }
-        return (
-          <Card key={f.code}>
-            <CardContent className="py-4 flex items-center gap-4">
-              <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{f.name}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">Current: {current}</div>
-              </div>
-              <Badge variant="outline" className="text-xs">No change</Badge>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
-  );
-};
-
-// ────────────────────────────────────────────────────────────────────
-// News tab
-// ────────────────────────────────────────────────────────────────────
-const NewsTab = ({ funds }: { funds: TrackedFund[] }) => {
-  const [news, setNews] = useState<Record<string, NewsItem[]>>({});
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (funds.length === 0) {
-      setNews({});
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase.functions.invoke("mf-news-by-fund", {
-          body: { funds: funds.map((f) => f.name), perFund: 5 },
-        });
-        if (cancelled) return;
-        if (error) {
-          toast.error("Failed to load news");
-          setNews({});
-        } else {
-          const map: Record<string, NewsItem[]> = {};
-          (data?.results || []).forEach((r: { fund: string; items: NewsItem[] }) => {
-            map[r.fund] = r.items;
-          });
-          setNews(map);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [funds]);
-
-  if (funds.length === 0) return <EmptyState msg="Add funds to see fund-specific news." />;
-  if (loading) return <LoadingGrid />;
-
-  return (
-    <div className="space-y-5">
-      {funds.map((f) => {
-        const items = news[f.name] || [];
-        return (
-          <Card key={f.code}>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Newspaper className="h-4 w-4 text-financial-accent" />
-                {f.name}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {items.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No recent news found.</p>
-              ) : (
-                <div className="space-y-3">
-                  {items.map((n) => (
-                    <a
-                      key={n.url}
-                      href={n.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block border border-border rounded-lg p-3 hover:border-financial-accent/40 hover:bg-financial-accent/5 transition-colors group"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium group-hover:text-financial-accent transition-colors">
-                            {n.title}
-                          </div>
-                          {n.excerpt && (
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.excerpt}</p>
-                          )}
-                          <div className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-2">
-                            <span>{n.source}</span>
-                            <span>•</span>
-                            <span>{new Date(n.publishedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
-                          </div>
-                        </div>
-                        <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-financial-accent shrink-0 mt-0.5" />
-                      </div>
-                    </a>
-                  ))}
+              {i.benchmarkBeats && (
+                <div className="mt-4 pt-3 border-t border-border flex flex-wrap gap-2">
+                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground mr-1 self-center">
+                    Beats benchmark:
+                  </span>
+                  {([
+                    { label: "5Y", diff: i.benchmarkBeats.y5 },
+                    { label: "10Y", diff: i.benchmarkBeats.y10 },
+                    { label: "15Y", diff: i.benchmarkBeats.y15 },
+                  ]).map((c) => {
+                    const status = c.diff == null ? "n/a" : c.diff >= 0 ? "pass" : "fail";
+                    return (
+                      <span
+                        key={c.label}
+                        className={`text-[11px] font-semibold px-2 py-1 rounded ${
+                          status === "pass"
+                            ? "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
+                            : status === "fail"
+                            ? "bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {c.label}: {status === "pass" ? `PASS (+${c.diff!.toFixed(1)}%)` : status === "fail" ? `FAIL (${c.diff!.toFixed(1)}%)` : "—"}
+                      </span>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
@@ -698,7 +480,8 @@ const classifyUpdate = (title: string, excerpt: string): { tag: string; tone: st
   if (/manager|appointed|resign|exit|tenure/.test(text)) return { tag: "Manager", tone: "bg-violet-100 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300" };
   if (/merger|merge|name change|wind[- ]?up/.test(text)) return { tag: "Scheme Change", tone: "bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300" };
   if (/strategy|mandate|amend|objective/.test(text)) return { tag: "Strategy", tone: "bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300" };
-  return { tag: "AMC Update", tone: "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300" };
+  if (UPDATE_KEYWORDS.test(text)) return { tag: "AMC Update", tone: "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300" };
+  return { tag: "News", tone: "bg-muted text-muted-foreground" };
 };
 
 const FundUpdatesTab = ({ funds }: { funds: TrackedFund[] }) => {
@@ -746,15 +529,15 @@ const FundUpdatesTab = ({ funds }: { funds: TrackedFund[] }) => {
         <CardContent className="py-4 flex items-start gap-3">
           <Megaphone className="h-5 w-5 text-financial-accent mt-0.5 shrink-0" />
           <div className="text-sm">
-            <p className="font-medium text-foreground">What changed in your funds</p>
+            <p className="font-medium text-foreground">Updates & news for your funds</p>
             <p className="text-muted-foreground mt-1">
-              AMC announcements, SEBI actions, manager changes and strategy amendments — filtered from financial news sources.
+              One combined feed — AMC announcements, SEBI actions, manager moves, strategy amendments and general fund news. Each item is tagged so you can scan what matters.
             </p>
           </div>
         </CardContent>
       </Card>
       {funds.map((f) => {
-        const items = (news[f.name] || []).filter((n) => UPDATE_KEYWORDS.test(`${n.title} ${n.excerpt}`));
+        const items = news[f.name] || [];
         return (
           <Card key={f.code}>
             <CardHeader>
@@ -766,7 +549,7 @@ const FundUpdatesTab = ({ funds }: { funds: TrackedFund[] }) => {
             <CardContent>
               {items.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No AMC, regulatory or manager-related updates in the last cycle. We'll surface them as soon as something hits the news.
+                  No recent updates or news found for this fund.
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -880,24 +663,11 @@ const MutualFundTracker = () => {
               <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 h-auto flex-wrap p-1 gap-1">
                 <TabsTrigger value="portfolio" className="text-xs sm:text-sm">Portfolio</TabsTrigger>
                 <TabsTrigger value="insights" className="text-xs sm:text-sm">Insights</TabsTrigger>
-                <TabsTrigger value="holdings" className="text-xs sm:text-sm">Current Holdings</TabsTrigger>
-                <TabsTrigger value="updates" className="text-xs sm:text-sm">Fund Updates</TabsTrigger>
-                <TabsTrigger value="sectors" className="text-xs sm:text-sm">Sector Δ</TabsTrigger>
+                <TabsTrigger value="holdings" className="text-xs sm:text-sm">Holdings</TabsTrigger>
                 <TabsTrigger value="performance" className="text-xs sm:text-sm">Performance</TabsTrigger>
-                <TabsTrigger value="benchmark" className="text-xs sm:text-sm">Benchmark</TabsTrigger>
-                <TabsTrigger value="manager" className="text-xs sm:text-sm">FM Alert</TabsTrigger>
-                <TabsTrigger value="category" className="text-xs sm:text-sm">Category</TabsTrigger>
-                <TabsTrigger value="objective" className="text-xs sm:text-sm">Objective</TabsTrigger>
-                <TabsTrigger value="name" className="text-xs sm:text-sm">Name</TabsTrigger>
-                <TabsTrigger value="allocation" className="text-xs sm:text-sm">Allocation</TabsTrigger>
-                <TabsTrigger value="news" className="text-xs sm:text-sm">News</TabsTrigger>
+                <TabsTrigger value="updates" className="text-xs sm:text-sm">Updates & News</TabsTrigger>
               </TabsList>
             </div>
-
-            <TabsContent value="insights">
-              <InsightsDashboard funds={funds} intel={intel} />
-            </TabsContent>
-
 
             <TabsContent value="portfolio">
               <PortfolioTab
@@ -909,89 +679,20 @@ const MutualFundTracker = () => {
               />
             </TabsContent>
 
+            <TabsContent value="insights">
+              <InsightsDashboard funds={funds} intel={intel} />
+            </TabsContent>
+
             <TabsContent value="holdings">
               <CurrentHoldingsTab funds={funds} intel={intel} />
-            </TabsContent>
-
-            <TabsContent value="updates">
-              <FundUpdatesTab funds={funds} />
-            </TabsContent>
-
-
-            <TabsContent value="sectors">
-              <SnapshotPendingTab
-                funds={funds}
-                title="Sector weight tracker"
-                icon={PieIcon}
-                description="Month-on-month sector allocation diffs with ±2% flags will appear here after the next factsheet sync."
-              />
             </TabsContent>
 
             <TabsContent value="performance">
               <PerformanceTab funds={funds} intel={intel} loading={loadingIntel} />
             </TabsContent>
 
-            <TabsContent value="benchmark">
-              <BenchmarkTab funds={funds} intel={intel} loading={loadingIntel} />
-            </TabsContent>
-
-            <TabsContent value="manager">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="fundManager"
-                icon={UserCog}
-                title="Fund Manager Change Alerts"
-                description="You'll be notified the moment any AMC announces a fund manager change for funds in your tracker."
-              />
-            </TabsContent>
-
-            <TabsContent value="category">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="category"
-                icon={Tag}
-                title="SEBI Category Reclassification"
-                description="Flags when SEBI category changes (e.g., Mid Cap → Flexi Cap)."
-              />
-            </TabsContent>
-
-            <TabsContent value="objective">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="objective"
-                icon={FileText}
-                title="Investment Objective Amendments"
-                description="Triggers if the stated investment objective of any tracked fund is amended."
-              />
-            </TabsContent>
-
-            <TabsContent value="name">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="name"
-                icon={Edit3}
-                title="Fund Name Change Alert"
-                description="Picks up announced or executed scheme name changes."
-              />
-            </TabsContent>
-
-            <TabsContent value="allocation">
-              <AlertTab
-                funds={funds}
-                intel={intel}
-                field="allocation"
-                icon={Scale}
-                title="Asset Allocation Shift"
-                description="Flags meaningful changes in equity / debt / cash mix beyond a 5% threshold."
-              />
-            </TabsContent>
-
-            <TabsContent value="news">
-              <NewsTab funds={funds} />
+            <TabsContent value="updates">
+              <FundUpdatesTab funds={funds} />
             </TabsContent>
           </Tabs>
         </div>
