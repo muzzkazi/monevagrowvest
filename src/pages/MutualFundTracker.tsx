@@ -598,6 +598,225 @@ const NewsTab = ({ funds }: { funds: TrackedFund[] }) => {
 // ────────────────────────────────────────────────────────────────────
 // Helpers
 // ────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────
+// Current Holdings tab — latest snapshot, no diff
+// ────────────────────────────────────────────────────────────────────
+const inferSubCat = (name: string, category?: string | null): string => {
+  const n = `${name} ${category || ""}`.toLowerCase();
+  if (/small\s*cap/.test(n)) return "Small Cap";
+  if (/mid\s*cap/.test(n)) return "Mid Cap";
+  if (/large\s*cap/.test(n)) return "Large Cap";
+  if (/elss|tax\s*saver/.test(n)) return "ELSS";
+  if (/index|nifty|sensex/.test(n)) return "Index Fund";
+  if (/flexi/.test(n)) return "Flexi Cap";
+  if (/multi\s*cap/.test(n)) return "Multi Cap";
+  if (/value/.test(n)) return "Value";
+  if (/large\s*&?\s*mid/.test(n)) return "Large & Mid Cap";
+  return "Large Cap";
+};
+
+const CurrentHoldingsTab = ({
+  funds,
+  intel,
+}: {
+  funds: TrackedFund[];
+  intel: Record<string, IntelResult | undefined>;
+}) => {
+  if (funds.length === 0) return <EmptyState msg="Add funds to view current holdings." />;
+  return (
+    <div className="space-y-4">
+      <Card className="bg-financial-muted">
+        <CardContent className="py-4 flex items-start gap-3">
+          <CircleDot className="h-5 w-5 text-financial-accent mt-0.5 shrink-0" />
+          <div className="text-sm">
+            <p className="font-medium text-foreground">Latest disclosed holdings</p>
+            <p className="text-muted-foreground mt-1">
+              Top stocks each fund currently owns. Use this to know what you're actually invested in.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+      {funds.map((f) => {
+        const i = intel[f.code];
+        const synthetic = {
+          schemeCode: f.code,
+          schemeName: f.name,
+          subCategory: inferSubCat(f.name, i?.meta?.schemeCategory),
+          category: "Equity",
+        } as MutualFundInfo;
+        const holdings = getFundHoldings(synthetic, 10);
+        return (
+          <Card key={f.code}>
+            <CardHeader>
+              <CardTitle className="text-base">{f.name}</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Top 10 holdings {i?.meta?.schemeCategory ? `• ${i.meta.schemeCategory}` : ""}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs uppercase text-muted-foreground border-b border-border">
+                      <th className="py-2 pr-3">Stock</th>
+                      <th className="py-2 pr-3">Sector</th>
+                      <th className="py-2 pr-3 text-right">Weight</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {holdings.map((h) => (
+                      <tr key={h.symbol} className="border-b border-border last:border-0">
+                        <td className="py-2.5 pr-3">
+                          <div className="font-medium">{h.symbol}</div>
+                          <div className="text-xs text-muted-foreground">{h.name}</div>
+                        </td>
+                        <td className="py-2.5 pr-3">
+                          <Badge variant="outline" className="text-[10px]">{h.sector}</Badge>
+                        </td>
+                        <td className="py-2.5 pr-3 text-right font-semibold">{h.weight.toFixed(2)}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// Fund Updates tab — AMC / SEBI / manager / strategy news
+// ────────────────────────────────────────────────────────────────────
+const UPDATE_KEYWORDS = /\b(sebi|amc|fund manager|appointed|resign|reclassif|merger|merge|name change|exit load|expense ratio|strategy|mandate|amend|tenure|wind[- ]?up|side[- ]?pocket|categori[sz]ation)\b/i;
+
+const classifyUpdate = (title: string, excerpt: string): { tag: string; tone: string } => {
+  const text = `${title} ${excerpt}`.toLowerCase();
+  if (/sebi|regulator|reclassif|categori[sz]ation/.test(text)) return { tag: "Regulatory", tone: "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300" };
+  if (/manager|appointed|resign|exit|tenure/.test(text)) return { tag: "Manager", tone: "bg-violet-100 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300" };
+  if (/merger|merge|name change|wind[- ]?up/.test(text)) return { tag: "Scheme Change", tone: "bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300" };
+  if (/strategy|mandate|amend|objective/.test(text)) return { tag: "Strategy", tone: "bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300" };
+  return { tag: "AMC Update", tone: "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300" };
+};
+
+const FundUpdatesTab = ({ funds }: { funds: TrackedFund[] }) => {
+  const [news, setNews] = useState<Record<string, NewsItem[]>>({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (funds.length === 0) {
+      setNews({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("mf-news-by-fund", {
+          body: { funds: funds.map((f) => f.name), perFund: 10 },
+        });
+        if (cancelled) return;
+        if (error) {
+          toast.error("Failed to load fund updates");
+          setNews({});
+        } else {
+          const map: Record<string, NewsItem[]> = {};
+          (data?.results || []).forEach((r: { fund: string; items: NewsItem[] }) => {
+            map[r.fund] = r.items;
+          });
+          setNews(map);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [funds]);
+
+  if (funds.length === 0) return <EmptyState msg="Add funds to track updates." />;
+  if (loading) return <LoadingGrid />;
+
+  return (
+    <div className="space-y-4">
+      <Card className="bg-financial-muted">
+        <CardContent className="py-4 flex items-start gap-3">
+          <Megaphone className="h-5 w-5 text-financial-accent mt-0.5 shrink-0" />
+          <div className="text-sm">
+            <p className="font-medium text-foreground">What changed in your funds</p>
+            <p className="text-muted-foreground mt-1">
+              AMC announcements, SEBI actions, manager changes and strategy amendments — filtered from financial news sources.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+      {funds.map((f) => {
+        const items = (news[f.name] || []).filter((n) => UPDATE_KEYWORDS.test(`${n.title} ${n.excerpt}`));
+        return (
+          <Card key={f.code}>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Megaphone className="h-4 w-4 text-financial-accent" />
+                {f.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {items.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No AMC, regulatory or manager-related updates in the last cycle. We'll surface them as soon as something hits the news.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {items.map((n) => {
+                    const cls = classifyUpdate(n.title, n.excerpt);
+                    return (
+                      <a
+                        key={n.url}
+                        href={n.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block border border-border rounded-lg p-3 hover:border-financial-accent/40 hover:bg-financial-accent/5 transition-colors group"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${cls.tone}`}>
+                                {cls.tag}
+                              </span>
+                            </div>
+                            <div className="text-sm font-medium group-hover:text-financial-accent transition-colors">
+                              {n.title}
+                            </div>
+                            {n.excerpt && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.excerpt}</p>
+                            )}
+                            <div className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-2">
+                              <span className="font-medium">{n.source}</span>
+                              <span>•</span>
+                              <span>{new Date(n.publishedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                            </div>
+                          </div>
+                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-financial-accent shrink-0 mt-0.5" />
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// Helpers
+// ────────────────────────────────────────────────────────────────────
 const EmptyState = ({ msg }: { msg: string }) => (
   <Card>
     <CardContent className="py-12 text-center text-muted-foreground">{msg}</CardContent>
