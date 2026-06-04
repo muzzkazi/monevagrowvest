@@ -360,10 +360,17 @@ const PerformanceTab = ({
               {periods.map((row, idx) => {
                 const diff =
                   row.fund != null && row.bench != null ? row.fund - row.bench : null;
+                // Scale each period independently: the larger of fund/bench fills the track.
+                const rowMax = Math.max(
+                  Math.abs(row.fund ?? 0),
+                  Math.abs(row.bench ?? 0),
+                  1
+                );
                 const fundW =
-                  row.fund != null ? Math.min(100, (Math.abs(row.fund) / scaleMax) * 100) : 0;
+                  row.fund != null ? Math.min(100, (Math.abs(row.fund) / rowMax) * 100) : 0;
                 const benchW =
-                  row.bench != null ? Math.min(100, (Math.abs(row.bench) / scaleMax) * 100) : 0;
+                  row.bench != null ? Math.min(100, (Math.abs(row.bench) / rowMax) * 100) : 0;
+
                 const fundNeg = (row.fund ?? 0) < 0;
                 const benchNeg = (row.bench ?? 0) < 0;
                 const positive = diff != null && diff >= 0;
