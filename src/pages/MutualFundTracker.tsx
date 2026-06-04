@@ -529,15 +529,15 @@ const FundUpdatesTab = ({ funds }: { funds: TrackedFund[] }) => {
         <CardContent className="py-4 flex items-start gap-3">
           <Megaphone className="h-5 w-5 text-financial-accent mt-0.5 shrink-0" />
           <div className="text-sm">
-            <p className="font-medium text-foreground">What changed in your funds</p>
+            <p className="font-medium text-foreground">Updates & news for your funds</p>
             <p className="text-muted-foreground mt-1">
-              AMC announcements, SEBI actions, manager changes and strategy amendments — filtered from financial news sources.
+              One combined feed — AMC announcements, SEBI actions, manager moves, strategy amendments and general fund news. Each item is tagged so you can scan what matters.
             </p>
           </div>
         </CardContent>
       </Card>
       {funds.map((f) => {
-        const items = (news[f.name] || []).filter((n) => UPDATE_KEYWORDS.test(`${n.title} ${n.excerpt}`));
+        const items = news[f.name] || [];
         return (
           <Card key={f.code}>
             <CardHeader>
@@ -549,7 +549,7 @@ const FundUpdatesTab = ({ funds }: { funds: TrackedFund[] }) => {
             <CardContent>
               {items.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No AMC, regulatory or manager-related updates in the last cycle. We'll surface them as soon as something hits the news.
+                  No recent updates or news found for this fund.
                 </p>
               ) : (
                 <div className="space-y-3">
