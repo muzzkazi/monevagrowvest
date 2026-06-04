@@ -178,6 +178,89 @@ const scheduleLocalStorageFlush = () => {
 // Hydrate on module load (browser only) so the next visit starts instantly.
 hydrateFromLocalStorage();
 
+// ────────────────────────────────────────────────────────────────────────────
+// Full AMFI scheme list (downloaded once, cached in IndexedDB)
+// ────────────────────────────────────────────────────────────────────────────
+// Once the full list is loaded, every search is instant and 100% local — no
+// edge function call at all. ~2MB payload, cached for 24h.
+
+import { idbGet, idbSet } from "./idbKv";
+
+const IDB_KEY = "amfi.schemes.v1";
+const IDB_TTL_MS = 24 * 60 * 60 * 1000;
+type CompactScheme = [number | string, string]; // [code, name]
+type AllSchemesPayload = { ts: number; schemes: CompactScheme[] };
+
+let allSchemes: AmfiSearchHit[] | null = null;
+let allSchemesPromise: Promise<AmfiSearchHit[] | null> | null = null;
+
+const expandCompact = (rows: CompactScheme[]): AmfiSearchHit[] =>
+  rows.map(([code, name]) => ({ schemeCode: code, schemeName: name }));
+
+const loadAllSchemes = async (): Promise<AmfiSearchHit[] | null> => {
+  if (allSchemes) return allSchemes;
+  if (allSchemesPromise) return allSchemesPromise;
+
+  allSchemesPromise = (async () => {
+    // 1) Try IndexedDB first
+    try {
+      const cached = await idbGet<AllSchemesPayload>(IDB_KEY);
+      if (cached && Array.isArray(cached.schemes) && cached.schemes.length > 1000) {
+        allSchemes = expandCompact(cached.schemes);
+        // Refresh in the background if stale, but don't block UI
+        if (Date.now() - (cached.ts || 0) > IDB_TTL_MS) {
+          void fetchAllSchemesFromEdge().catch(() => undefined);
+        }
+        return allSchemes;
+      }
+    } catch { /* ignore */ }
+
+    // 2) Otherwise fetch from edge
+    return fetchAllSchemesFromEdge();
+  })();
+
+  return allSchemesPromise;
+};
+
+const fetchAllSchemesFromEdge = async (): Promise<AmfiSearchHit[] | null> => {
+  try {
+    const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/mutual-funds?action=all`);
+    if (!res.ok) return null;
+    const json = (await res.json()) as AllSchemesPayload;
+    if (!json || !Array.isArray(json.schemes) || json.schemes.length < 1000) return null;
+    allSchemes = expandCompact(json.schemes);
+    void idbSet(IDB_KEY, { ts: Date.now(), schemes: json.schemes });
+    return allSchemes;
+  } catch {
+    return null;
+  }
+};
+
+/** Returns true when the full scheme list is loaded and search is fully local. */
+export const isAmfiFullListReady = (): boolean => allSchemes !== null;
+
+const localSearch = (q: string): AmfiSearchHit[] => {
+  if (!allSchemes) return [];
+  const words = q.split(/\s+/).filter(Boolean);
+  const matches = allSchemes.filter((s) => {
+    const name = String(s.schemeName || "").toLowerCase();
+    return words.every((w) => name.includes(w));
+  });
+  matches.sort((a, b) => {
+    const aName = String(a.schemeName || "").toLowerCase();
+    const bName = String(b.schemeName || "").toLowerCase();
+    const aStarts = aName.startsWith(q) ? 1 : 0;
+    const bStarts = bName.startsWith(q) ? 1 : 0;
+    if (aStarts !== bStarts) return bStarts - aStarts;
+    const aDirect = aName.includes("direct") ? 1 : 0;
+    const bDirect = bName.includes("direct") ? 1 : 0;
+    if (aDirect !== bDirect) return bDirect - aDirect;
+    return aName.localeCompare(bName);
+  });
+  return matches.slice(0, 80);
+};
+
 const buildSearchUrl = (q: string) => {
   const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
   return `${SUPABASE_URL}/functions/v1/mutual-funds?action=search&q=${encodeURIComponent(q)}`;
@@ -207,6 +290,7 @@ const narrowFromCache = (q: string): AmfiSearchHit[] | null => {
 export const isAmfiQueryCached = (rawQuery: string): boolean => {
   const q = rawQuery.trim().toLowerCase();
   if (!q) return true;
+  if (allSchemes) return true; // full list loaded → all queries are instant
   if (SEARCH_CACHE.has(q)) return true;
   return narrowFromCache(q) !== null;
 };
@@ -225,6 +309,10 @@ export const searchAmfi = async (
 ): Promise<AmfiSearchHit[]> => {
   const q = rawQuery.trim().toLowerCase();
   if (!q) return [];
+
+  // Fastest path: full list already in memory → search locally, no network.
+  if (allSchemes) return localSearch(q);
+
   if (SEARCH_CACHE.has(q)) return SEARCH_CACHE.get(q)!;
 
   // Try to answer locally from a previously-cached shorter query.
@@ -233,6 +321,16 @@ export const searchAmfi = async (
     SEARCH_CACHE.set(q, narrowed);
     scheduleLocalStorageFlush();
     return narrowed;
+  }
+
+  // If the full list is loading right now, wait briefly for it — much faster
+  // than the per-query edge function call once IDB is warm.
+  if (allSchemesPromise) {
+    const loaded = await Promise.race([
+      allSchemesPromise,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 400)),
+    ]);
+    if (loaded) return localSearch(q);
   }
 
   const inflight = INFLIGHT.get(q);
@@ -263,12 +361,13 @@ export const searchAmfi = async (
   return promise;
 };
 
-/** Optional: warm the edge function & scheme list cache on idle. */
+/**
+ * Kick off the full AMFI scheme list download in the background. Once it
+ * resolves, every subsequent search is fully local and instant.
+ */
 export const prewarmAmfiSearch = () => {
-  if (SEARCH_CACHE.size > 0) return;
-  // A short common query forces the edge function to fetch + cache the
-  // ~30k-scheme AMFI list, so the first real keystroke responds quickly.
-  searchAmfi("equity").catch(() => { /* noop */ });
+  if (allSchemes || allSchemesPromise) return;
+  void loadAllSchemes();
 };
 
 
