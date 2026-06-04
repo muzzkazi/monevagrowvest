@@ -10,11 +10,14 @@ import {
   Briefcase, Search, Plus, Trash2, Loader2, TrendingUp, TrendingDown,
   CircleDot, PieChart as PieIcon, Activity, Trophy, UserCog, Tag,
   FileText, Edit3, Scale, Newspaper, ExternalLink, AlertTriangle, CheckCircle2,
+  Megaphone,
 } from "lucide-react";
 import { searchAmfi } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
 import { useTrackedFunds, type TrackedFund } from "@/hooks/useTrackedFunds";
 import InsightsDashboard from "@/components/mf-tracker/InsightsDashboard";
+import { getFundHoldings } from "@/lib/fundHoldings";
+import type { MutualFundInfo } from "@/data/mutualFundDatabase";
 import { toast } from "sonner";
 
 interface IntelResult {
