@@ -375,6 +375,31 @@ const InsightsDashboard = ({ funds, intel }: Props) => {
                 );
               })}
             </div>
+            {(() => {
+              const top = data.topSectors[0];
+              if (!top) return null;
+              const pct = (top.weight / data.totalSectorWeight) * 100;
+              const heavy = pct > 35;
+              return (
+                <div className="mt-4 rounded-lg border border-financial-accent/30 bg-financial-accent/5 p-3 flex gap-3">
+                  <Lightbulb className="h-4 w-4 text-financial-accent shrink-0 mt-0.5" />
+                  <div className="text-xs leading-relaxed">
+                    <div className="font-semibold text-foreground mb-0.5">What this means for me</div>
+                    {heavy ? (
+                      <p className="text-muted-foreground">
+                        {top.sector} alone is <span className="font-semibold text-foreground">{pct.toFixed(0)}%</span> of your equity exposure. A bad year for {top.sector.toLowerCase()} will hit your whole portfolio.{" "}
+                        <span className="text-foreground font-medium">Action: add 1 fund from a different style (e.g. a Flexi Cap or an Index Fund) to dilute this concentration.</span>
+                      </p>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Your sector mix looks reasonably spread (top sector {top.sector} is {pct.toFixed(0)}%).{" "}
+                        <span className="text-foreground font-medium">Action: no change needed — just review again after 6 months.</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
