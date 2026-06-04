@@ -90,15 +90,17 @@ const FundSearchPicker = ({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Array<{ schemeCode: string; schemeName: string }>>([]);
   const [loading, setLoading] = useState(false);
+  const [estimateMs, setEstimateMs] = useState(0);
   const [open, setOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const q = query.trim();
-    if (q.length < 3) { setResults([]); return; }
+    if (q.length < 3) { setResults([]); setLoading(false); return; }
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
+    setEstimateMs(estimateAmfiSearchMs(q));
     setLoading(true);
     const handle = setTimeout(async () => {
       try {
@@ -128,7 +130,12 @@ const FundSearchPicker = ({
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-foreground" />
         )}
       </div>
-      {open && results.length > 0 && (
+      {loading && (
+        <div className="absolute z-20 mt-1 w-full rounded-md border bg-popover p-3 shadow-lg">
+          <FundSearchProgress estimateMs={estimateMs} rows={4} />
+        </div>
+      )}
+      {!loading && open && results.length > 0 && (
         <div className="absolute z-20 mt-1 w-full max-h-72 overflow-y-auto rounded-md border bg-popover shadow-lg">
           {results.map(r => {
             const sub = inferSubCategory(r.schemeName);
