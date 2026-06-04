@@ -67,19 +67,20 @@ const PageHeader = () => (
         <div className="p-2.5 rounded-xl bg-financial-accent/10 text-financial-accent">
           <Briefcase className="h-6 w-6" />
         </div>
-        <Badge variant="secondary" className="text-xs">Portfolio Intelligence</Badge>
+        <Badge variant="secondary" className="text-xs">ONGOING TRACKING</Badge>
       </div>
       <h1 className="text-3xl sm:text-4xl font-bold mb-3 text-foreground">
         Mutual Fund Portfolio Tracker
       </h1>
       <p className="text-muted-foreground max-w-3xl">
-        Track holdings shifts, sector tilts, performance vs benchmark, fund-manager
-        changes and AMC news — all in one watchdog dashboard. Currently open to all;
-        will move behind sign-in soon. Your tracked funds live in this browser.
+        Set your funds once and keep an eye on NAV, performance, overlap, AMC/SEBI updates and news — continuously.
+        Want a one-time diagnostic with verdicts instead?{" "}
+        <a href="/portfolio-review" className="text-financial-accent font-medium hover:underline">Run a Portfolio Review →</a>
       </p>
     </div>
   </section>
 );
+
 
 // ────────────────────────────────────────────────────────────────────
 // Fund search / add box
