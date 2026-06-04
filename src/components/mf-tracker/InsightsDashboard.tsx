@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   TrendingUp, TrendingDown, AlertTriangle, Trophy, Layers, PieChart,
-  Target, Sparkles, Copy as CopyIcon, ShieldAlert,
+  Target, Sparkles, Copy as CopyIcon, ShieldAlert, Lightbulb,
 } from "lucide-react";
 import { getFundHoldings, calculateOverlap, type Holding } from "@/lib/fundHoldings";
 import type { MutualFundInfo } from "@/data/mutualFundDatabase";
@@ -375,6 +375,31 @@ const InsightsDashboard = ({ funds, intel }: Props) => {
                 );
               })}
             </div>
+            {(() => {
+              const top = data.topSectors[0];
+              if (!top) return null;
+              const pct = (top.weight / data.totalSectorWeight) * 100;
+              const heavy = pct > 35;
+              return (
+                <div className="mt-4 rounded-lg border border-financial-accent/30 bg-financial-accent/5 p-3 flex gap-3">
+                  <Lightbulb className="h-4 w-4 text-financial-accent shrink-0 mt-0.5" />
+                  <div className="text-xs leading-relaxed">
+                    <div className="font-semibold text-foreground mb-0.5">What this means for me</div>
+                    {heavy ? (
+                      <p className="text-muted-foreground">
+                        {top.sector} alone is <span className="font-semibold text-foreground">{pct.toFixed(0)}%</span> of your equity exposure. A bad year for {top.sector.toLowerCase()} will hit your whole portfolio.{" "}
+                        <span className="text-foreground font-medium">Action: add 1 fund from a different style (e.g. a Flexi Cap or an Index Fund) to dilute this concentration.</span>
+                      </p>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Your sector mix looks reasonably spread (top sector {top.sector} is {pct.toFixed(0)}%).{" "}
+                        <span className="text-foreground font-medium">Action: no change needed — just review again after 6 months.</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
@@ -456,6 +481,35 @@ const InsightsDashboard = ({ funds, intel }: Props) => {
                 );
               })}
             </div>
+            {(() => {
+              const worst = data.overlapPairs[0];
+              const high = worst && worst.pct >= 50;
+              const med = worst && worst.pct >= 30 && worst.pct < 50;
+              return (
+                <div className="mt-4 rounded-lg border border-financial-accent/30 bg-financial-accent/5 p-3 flex gap-3">
+                  <Lightbulb className="h-4 w-4 text-financial-accent shrink-0 mt-0.5" />
+                  <div className="text-xs leading-relaxed">
+                    <div className="font-semibold text-foreground mb-0.5">What this means for me</div>
+                    {high ? (
+                      <p className="text-muted-foreground">
+                        Two of your funds (<span className="font-medium text-foreground">{worst.a.split(" - ")[0]}</span> and <span className="font-medium text-foreground">{worst.b.split(" - ")[0]}</span>) own <span className="font-semibold text-foreground">{worst.pct.toFixed(0)}%</span> of the same stocks. You're effectively paying two expense ratios for one bet.{" "}
+                        <span className="text-foreground font-medium">Action: keep the one with the better 5Y benchmark differential, redirect the other SIP there.</span>
+                      </p>
+                    ) : med ? (
+                      <p className="text-muted-foreground">
+                        Some overlap exists (top pair at {worst.pct.toFixed(0)}%) but it's within an acceptable range.{" "}
+                        <span className="text-foreground font-medium">Action: no action now — re-check if it crosses 50%.</span>
+                      </p>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Your funds are genuinely diversified — overlap is low.{" "}
+                        <span className="text-foreground font-medium">Action: nothing to do here.</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
       )}
