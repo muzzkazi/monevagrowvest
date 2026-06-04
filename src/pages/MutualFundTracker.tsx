@@ -507,7 +507,19 @@ const FundUpdatesTab = ({ funds }: { funds: TrackedFund[] }) => {
         } else {
           const map: Record<string, NewsItem[]> = {};
           (data?.results || []).forEach((r: { fund: string; items: NewsItem[] }) => {
-            map[r.fund] = r.items;
+            const seen = new Set<string>();
+            const deduped = (r.items || []).filter((it) => {
+              const key = (it.url || "").split("?")[0] + "|" + (it.title || "").toLowerCase().replace(/\s+/g, " ").trim();
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            });
+            deduped.sort((a, b) => {
+              const ta = new Date(a.publishedAt).getTime() || 0;
+              const tb = new Date(b.publishedAt).getTime() || 0;
+              return tb - ta;
+            });
+            map[r.fund] = deduped;
           });
           setNews(map);
         }
