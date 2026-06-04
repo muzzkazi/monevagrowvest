@@ -35,6 +35,21 @@ serve(async (req) => {
     const url = new URL(req.url);
     const action = url.searchParams.get('action') || 'search';
 
+    // Return the full AMFI scheme list as compact [code, name] tuples so the
+    // client can cache it in IndexedDB and do all searches locally afterwards.
+    if (action === 'all') {
+      const schemes = await getSchemeList();
+      const compact = schemes.map((s) => [s.schemeCode, s.schemeName]);
+      return new Response(JSON.stringify({ ts: Date.now(), schemes: compact }), {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          // CDN + browser caching — the list barely changes day-to-day
+          'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        },
+      });
+    }
+
     if (action === 'search') {
       const query = (url.searchParams.get('q') || '').trim().toLowerCase();
       if (!query) {
