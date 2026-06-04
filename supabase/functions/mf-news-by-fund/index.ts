@@ -52,11 +52,11 @@ const normalizeFundName = (raw: string): string => {
 
 async function fetchGoogleNewsForFund(fundName: string, limit = 6) {
   const cleanName = normalizeFundName(fundName) || fundName;
-  // `when:60d` restricts Google News to the last 60 days so we don't surface
-  // year-old articles for funds with thin coverage.
-  const q = encodeURIComponent(`"${cleanName}" when:60d`);
-  // `&sort=date` (a.k.a. `&sortBy=date`) asks Google News RSS to order by
-  // publication date instead of relevance.
+  // Quoted phrase ensures we don't match partial words. `sort=date` asks
+  // Google News to return items in publication-date order. We additionally
+  // hard-filter anything older than `MAX_AGE_DAYS` below — `when:` operator
+  // is unreliable from server-side IPs.
+  const q = encodeURIComponent(`"${cleanName}"`);
   const url = `https://news.google.com/rss/search?q=${q}&hl=en-IN&gl=IN&ceid=IN:en&sort=date`;
   try {
     const r = await fetch(url, {
