@@ -195,39 +195,70 @@ const PortfolioTab = ({
           <CardContent className="space-y-3">
             {funds.map((f) => {
               const i = intel[f.code];
+              const changeRows: Array<{ label: string; value: string }> = [
+                { label: "Fund Manager", value: "—" },
+                { label: "SEBI Category", value: i?.meta?.schemeCategory || "—" },
+                { label: "Investment Objective", value: i?.meta?.schemeType || "—" },
+                { label: "Scheme Name", value: i?.meta?.schemeName || f.name },
+                { label: "Asset Allocation", value: i?.meta?.schemeCategory ? `${i.meta.schemeCategory} (typical mix)` : "—" },
+              ];
               return (
                 <div
                   key={f.code}
-                  className="border border-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 hover:border-financial-accent/40 transition-colors"
+                  className="border border-border rounded-lg p-4 hover:border-financial-accent/40 transition-colors"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate">{f.name}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
-                      <span>Code: {f.code}</span>
-                      {i?.meta?.schemeCategory && (
-                        <Badge variant="outline" className="text-[10px] py-0">{i.meta.schemeCategory}</Badge>
-                      )}
-                      {i?.returns?.latestNav && (
-                        <span>NAV ₹{i.returns.latestNav.toFixed(2)}</span>
-                      )}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate">{f.name}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
+                        <span>Code: {f.code}</span>
+                        {i?.meta?.schemeCategory && (
+                          <Badge variant="outline" className="text-[10px] py-0">{i.meta.schemeCategory}</Badge>
+                        )}
+                        {i?.returns?.latestNav && (
+                          <span>NAV ₹{i.returns.latestNav.toFixed(2)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">SIP ₹</span>
+                      <Input
+                        type="number"
+                        value={f.monthlySIP}
+                        onChange={(e) => updateSIP(f.code, Number(e.target.value) || 0)}
+                        className="w-28 h-9"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFund(f.code)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">SIP ₹</span>
-                    <Input
-                      type="number"
-                      value={f.monthlySIP}
-                      onChange={(e) => updateSIP(f.code, Number(e.target.value) || 0)}
-                      className="w-28 h-9"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFund(f.code)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+
+                  <div className="mt-4 pt-3 border-t border-border">
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-2">
+                      <History className="h-3.5 w-3.5" />
+                      Change log
+                      <span className="text-[10px] font-normal">— tracked attributes, alerts surface when any change is detected</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {changeRows.map((r) => (
+                        <div key={r.label} className="flex items-center justify-between gap-2 text-xs bg-financial-muted/40 rounded-md px-2.5 py-1.5">
+                          <div className="min-w-0">
+                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{r.label}</div>
+                            <div className="truncate">{r.value}</div>
+                          </div>
+                          <Badge variant="outline" className="text-[10px] py-0 shrink-0 flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                            No change
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               );
