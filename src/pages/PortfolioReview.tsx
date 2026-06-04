@@ -93,6 +93,10 @@ const FundSearchPicker = ({
   const [estimateMs, setEstimateMs] = useState(0);
   const [open, setOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  // Bumped whenever streamed scheme list grows, to re-run the search.
+  const [listTick, setListTick] = useState(0);
+
+  useEffect(() => subscribeAmfiUpdates(() => setListTick((t) => t + 1)), []);
 
   useEffect(() => {
     const q = query.trim();
@@ -112,7 +116,7 @@ const FundSearchPicker = ({
       }
     }, 180);
     return () => { clearTimeout(handle); ctrl.abort(); };
-  }, [query]);
+  }, [query, listTick]);
 
   return (
     <div className="relative">
