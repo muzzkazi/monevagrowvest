@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   TrendingUp, TrendingDown, AlertTriangle, Trophy, Layers, PieChart,
-  Target, Sparkles, Copy as CopyIcon, ShieldAlert,
+  Target, Sparkles, Copy as CopyIcon, ShieldAlert, Lightbulb,
 } from "lucide-react";
 import { getFundHoldings, calculateOverlap, type Holding } from "@/lib/fundHoldings";
 import type { MutualFundInfo } from "@/data/mutualFundDatabase";
