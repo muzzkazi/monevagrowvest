@@ -424,39 +424,31 @@ const PerformanceTab = ({
                       </div>
                     </div>
 
-                    {/* Single combined bar: shared base + overshoot/undershoot segment */}
-                    <div className="h-2 w-full bg-muted/60 rounded-full overflow-hidden flex">
-                      {fundLeads ? (
-                        <>
+                    {/* Two stacked bars: fund (accent / rose if negative) and benchmark (muted) */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-10 text-[9px] uppercase tracking-wider text-muted-foreground shrink-0">Fund</span>
+                        <div className="flex-1 h-1.5 rounded-full bg-muted/60 overflow-hidden">
                           <div
-                            className={`h-full ${benchNeg ? "bg-rose-400/40" : "bg-muted-foreground/40"}`}
-                            style={{ width: `${minW}%` }}
+                            className={`h-full rounded-full ${fundNeg ? "bg-rose-500/70" : "bg-financial-accent"}`}
+                            style={{ width: `${fundW}%` }}
                           />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-10 text-[9px] uppercase tracking-wider text-muted-foreground shrink-0">Bench</span>
+                        <div className="flex-1 h-1.5 rounded-full bg-muted/60 overflow-hidden">
                           <div
-                            className={`h-full ${fundNeg ? "bg-rose-500/70" : "bg-financial-accent"}`}
-                            style={{ width: `${overW}%` }}
+                            className={`h-full rounded-full ${benchNeg ? "bg-rose-400/50" : "bg-muted-foreground/40"}`}
+                            style={{ width: `${benchW}%` }}
                           />
-                        </>
-                      ) : (
-                        <>
-                          <div
-                            className={`h-full ${fundNeg ? "bg-rose-500/70" : "bg-financial-accent"}`}
-                            style={{ width: `${minW}%` }}
-                          />
-                          <div
-                            className={`h-full ${benchNeg ? "bg-rose-400/40" : "bg-muted-foreground/40"}`}
-                            style={{ width: `${overW}%` }}
-                          />
-                        </>
-                      )}
+                        </div>
+                        <span className="text-[10px] tabular-nums text-muted-foreground shrink-0 w-12 text-right">
+                          {row.bench != null ? `${row.bench.toFixed(1)}%` : "—"}
+                        </span>
+                      </div>
                     </div>
 
-                    <p className="text-[10px] text-muted-foreground font-medium mt-2">
-                      Bench:&nbsp;
-                      <span className="tabular-nums">
-                        {row.bench != null ? `${row.bench.toFixed(1)}%` : "—"}
-                      </span>
-                    </p>
 
                   </div>
                 );
