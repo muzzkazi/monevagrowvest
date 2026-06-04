@@ -451,33 +451,13 @@ const PerformanceTab = ({
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="text-[10px] text-muted-foreground font-medium">
-                        Bench:&nbsp;
-                        <span className="tabular-nums">
-                          {row.bench != null ? `${row.bench.toFixed(1)}%` : "—"}
-                        </span>
-                      </p>
+                    <p className="text-[10px] text-muted-foreground font-medium mt-2">
+                      Bench:&nbsp;
+                      <span className="tabular-nums">
+                        {row.bench != null ? `${row.bench.toFixed(1)}%` : "—"}
+                      </span>
+                    </p>
 
-                      {/* Peer-rank dot plot (estimated from alpha) */}
-                      <div className="flex items-center gap-1" title="Estimated peer rank (top → bottom)">
-                        {[1, 2, 3, 4, 5].map((q) => {
-                          const active = quintile === q;
-                          return (
-                            <span
-                              key={q}
-                              className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                                active
-                                  ? positive
-                                    ? "bg-emerald-500"
-                                    : "bg-rose-500"
-                                  : "bg-border"
-                              } ${active ? "ring-2 ring-offset-1 ring-offset-background ring-financial-accent/30" : ""}`}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
                   </div>
                 );
               })}
