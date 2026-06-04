@@ -202,13 +202,6 @@ const PortfolioTab = ({
           <CardContent className="space-y-3">
             {funds.map((f) => {
               const i = intel[f.code];
-              const changeRows: Array<{ label: string; value: string }> = [
-                { label: "Fund Manager", value: "—" },
-                { label: "SEBI Category", value: i?.meta?.schemeCategory || "—" },
-                { label: "Investment Objective", value: i?.meta?.schemeType || "—" },
-                { label: "Scheme Name", value: i?.meta?.schemeName || f.name },
-                { label: "Asset Allocation", value: i?.meta?.schemeCategory ? `${i.meta.schemeCategory} (typical mix)` : "—" },
-              ];
               return (
                 <div
                   key={f.code}
@@ -245,31 +238,10 @@ const PortfolioTab = ({
                       </Button>
                     </div>
                   </div>
-
-                  <div className="mt-4 pt-3 border-t border-border">
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-2">
-                      <History className="h-3.5 w-3.5" />
-                      Change log
-                      <span className="text-[10px] font-normal">— tracked attributes, alerts surface when any change is detected</span>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                      {changeRows.map((r) => (
-                        <div key={r.label} className="flex items-center justify-between gap-2 text-xs bg-financial-muted/40 rounded-md px-2.5 py-1.5">
-                          <div className="min-w-0">
-                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{r.label}</div>
-                            <div className="truncate">{r.value}</div>
-                          </div>
-                          <Badge variant="outline" className="text-[10px] py-0 shrink-0 flex items-center gap-1">
-                            <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                            No change
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               );
             })}
+
           </CardContent>
         </Card>
       )}
