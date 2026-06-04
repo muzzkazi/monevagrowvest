@@ -17,6 +17,8 @@ import InsightsDashboard from "@/components/mf-tracker/InsightsDashboard";
 import { getFundHoldings } from "@/lib/fundHoldings";
 import type { MutualFundInfo } from "@/data/mutualFundDatabase";
 import { toast } from "sonner";
+import PortfolioModeOnboarding from "@/components/portfolio/PortfolioModeOnboarding";
+import ReviewVsTrackerChecklist from "@/components/portfolio/ReviewVsTrackerChecklist";
 
 interface IntelResult {
   code: string;
