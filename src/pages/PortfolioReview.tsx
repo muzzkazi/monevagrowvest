@@ -107,7 +107,7 @@ const FundSearchPicker = ({
       } finally {
         setLoading(false);
       }
-    }, 300);
+    }, 180);
     return () => { clearTimeout(handle); ctrl.abort(); };
   }, [query]);
 
