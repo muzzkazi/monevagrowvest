@@ -119,7 +119,7 @@ export const CATEGORY_QUERIES: Record<string, string[]> = {
 };
 
 // ────────────────────────────────────────────────────────────────────────────
-// In-memory cache for AMFI search responses (keyed by query)
+// In-memory + localStorage cache for AMFI search responses (keyed by query)
 // ────────────────────────────────────────────────────────────────────────────
 
 type AmfiSearchHit = { schemeCode: number | string; schemeName: string };
@@ -130,6 +130,53 @@ const MAX_CACHE_KEYS = 200;
 // Edge truncates at this many results — only narrow from a cached set if it
 // wasn't truncated, otherwise we'd return an incomplete list.
 const EDGE_RESULT_CAP = 80;
+
+// ── Persistent cache (localStorage) ────────────────────────────────────────
+// Persisting prior query results means returning visitors get instant
+// (network-free) answers for queries they've already run.
+const LS_KEY = "moneva.amfiSearchCache.v1";
+const LS_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+let lsDirty = false;
+let lsFlushTimer: ReturnType<typeof setTimeout> | null = null;
+
+const hydrateFromLocalStorage = () => {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw) as { ts: number; entries: Array<[string, AmfiSearchHit[]]> };
+    if (!parsed || typeof parsed.ts !== "number") return;
+    if (Date.now() - parsed.ts > LS_TTL_MS) {
+      window.localStorage.removeItem(LS_KEY);
+      return;
+    }
+    for (const [k, v] of parsed.entries) {
+      if (typeof k === "string" && Array.isArray(v)) SEARCH_CACHE.set(k, v);
+    }
+  } catch {
+    /* corrupt cache — ignore */
+  }
+};
+
+const scheduleLocalStorageFlush = () => {
+  if (typeof window === "undefined") return;
+  lsDirty = true;
+  if (lsFlushTimer) return;
+  lsFlushTimer = setTimeout(() => {
+    lsFlushTimer = null;
+    if (!lsDirty) return;
+    lsDirty = false;
+    try {
+      const entries = Array.from(SEARCH_CACHE.entries());
+      window.localStorage.setItem(LS_KEY, JSON.stringify({ ts: Date.now(), entries }));
+    } catch {
+      /* quota exceeded — drop silently */
+    }
+  }, 800);
+};
+
+// Hydrate on module load (browser only) so the next visit starts instantly.
+hydrateFromLocalStorage();
 
 const buildSearchUrl = (q: string) => {
   const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
@@ -156,6 +203,21 @@ const narrowFromCache = (q: string): AmfiSearchHit[] | null => {
   return null;
 };
 
+/** True if `searchAmfi(q)` will resolve synchronously from cache. */
+export const isAmfiQueryCached = (rawQuery: string): boolean => {
+  const q = rawQuery.trim().toLowerCase();
+  if (!q) return true;
+  if (SEARCH_CACHE.has(q)) return true;
+  return narrowFromCache(q) !== null;
+};
+
+/** Coarse estimate of expected wait in ms for UI hint text. */
+export const estimateAmfiSearchMs = (rawQuery: string): number => {
+  if (isAmfiQueryCached(rawQuery)) return 0;
+  // Empty in-memory cache → likely cold edge function (~30k scheme fetch).
+  return SEARCH_CACHE.size === 0 ? 2500 : 800;
+};
+
 /** Cached AMFI search. Returns [] on errors. Re-uses in-flight requests. */
 export const searchAmfi = async (
   rawQuery: string,
@@ -169,6 +231,7 @@ export const searchAmfi = async (
   const narrowed = narrowFromCache(q);
   if (narrowed) {
     SEARCH_CACHE.set(q, narrowed);
+    scheduleLocalStorageFlush();
     return narrowed;
   }
 
@@ -187,6 +250,7 @@ export const searchAmfi = async (
         if (firstKey) SEARCH_CACHE.delete(firstKey);
       }
       SEARCH_CACHE.set(q, arr);
+      scheduleLocalStorageFlush();
       return arr;
     } catch {
       return [];
