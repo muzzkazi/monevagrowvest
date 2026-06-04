@@ -589,6 +589,27 @@ const PortfolioReviewPage = () => {
                   })}
                 </div>
               </div>
+
+              {/* Cross-link to Tracker */}
+              <Card className="border-financial-accent/30 bg-financial-accent/5">
+                <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="p-3 rounded-lg bg-financial-accent/15 text-financial-accent shrink-0">
+                    <Activity className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-foreground">Want to monitor these funds going forward?</div>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Send them to your Portfolio Tracker to keep an eye on NAV, performance vs benchmark, overlap, AMC/SEBI updates and news — automatically.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={sendToTracker}
+                    className="bg-financial-accent hover:bg-financial-accent/90 text-white gap-2 shrink-0"
+                  >
+                    Track these funds <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>
