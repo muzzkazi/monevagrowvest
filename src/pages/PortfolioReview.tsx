@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageLayout from "@/components/shared/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,12 +12,15 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, Plus, Trash2, Search, Loader2, AlertTriangle,
-  CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp,
+  CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp, Activity, ArrowRight,
 } from "lucide-react";
 import { searchAmfi } from "@/lib/amfiSearch";
 import { inferFundHouse, inferSubCategory } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import PortfolioModeOnboarding from "@/components/portfolio/PortfolioModeOnboarding";
+import ReviewVsTrackerChecklist from "@/components/portfolio/ReviewVsTrackerChecklist";
+
 
 type RiskProfile = "Conservative" | "Moderate" | "Aggressive";
 
@@ -183,12 +187,39 @@ const AllocationBar = ({
 );
 
 const PortfolioReviewPage = () => {
+  const navigate = useNavigate();
   const [funds, setFunds] = useState<SelectedFund[]>([]);
   const [risk, setRisk] = useState<RiskProfile>("Moderate");
   const [horizon, setHorizon] = useState<string>("10");
   const [goal, setGoal] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState<ReviewResponse | null>(null);
+
+  const sendToTracker = () => {
+    if (funds.length === 0) return;
+    try {
+      const existingRaw = localStorage.getItem("moneva.trackedFunds.v1");
+      const existing: Array<{ code: string }> = existingRaw ? JSON.parse(existingRaw) : [];
+      const existingCodes = new Set(existing.map((e) => e.code));
+      const merged = [
+        ...existing,
+        ...funds
+          .filter((f) => !existingCodes.has(f.schemeCode))
+          .map((f) => ({
+            code: f.schemeCode,
+            name: f.schemeName,
+            monthlySIP: f.monthlySip || 0,
+            addedAt: new Date().toISOString(),
+          })),
+      ];
+      localStorage.setItem("moneva.trackedFunds.v1", JSON.stringify(merged));
+      toast.success(`${funds.length} fund${funds.length > 1 ? "s" : ""} sent to Portfolio Tracker`);
+      navigate("/mutual-fund-tracker");
+    } catch {
+      toast.error("Could not transfer funds. Please add them manually.");
+    }
+  };
+
 
   const totalSip = useMemo(() => funds.reduce((s, f) => s + (f.monthlySip || 0), 0), [funds]);
 
@@ -271,22 +302,30 @@ const PortfolioReviewPage = () => {
 
   return (
     <PageLayout>
+      <PortfolioModeOnboarding />
       <div className="pt-28 pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Header */}
-          <div className="mb-8 flex items-start gap-4">
+          <div className="mb-4 flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-financial-accent to-financial-accent/70 flex items-center justify-center shrink-0">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
+              <Badge variant="secondary" className="mb-2 text-[10px]">ONE-TIME REVIEW</Badge>
               <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-1">
                 AI Portfolio Review
               </h1>
               <p className="text-muted-foreground">
-                Add your existing mutual fund SIPs and get AI-powered recommendations on what to keep, reduce, exit or switch.
+                A one-time diagnostic of your existing mutual funds. For continuous monitoring of NAV, performance, overlap and AMC updates, use{" "}
+                <a href="/mutual-fund-tracker" className="text-financial-accent font-medium hover:underline">Portfolio Tracker</a>.
               </p>
             </div>
           </div>
+
+          <div className="mb-8">
+            <ReviewVsTrackerChecklist active="review" />
+          </div>
+
 
           {/* Input Card */}
           <Card className="mb-6">
@@ -550,6 +589,27 @@ const PortfolioReviewPage = () => {
                   })}
                 </div>
               </div>
+
+              {/* Cross-link to Tracker */}
+              <Card className="border-financial-accent/30 bg-financial-accent/5">
+                <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="p-3 rounded-lg bg-financial-accent/15 text-financial-accent shrink-0">
+                    <Activity className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-foreground">Want to monitor these funds going forward?</div>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Send them to your Portfolio Tracker to keep an eye on NAV, performance vs benchmark, overlap, AMC/SEBI updates and news — automatically.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={sendToTracker}
+                    className="bg-financial-accent hover:bg-financial-accent/90 text-white gap-2 shrink-0"
+                  >
+                    Track these funds <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>
