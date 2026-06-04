@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageLayout from "@/components/shared/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,12 +12,15 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, Plus, Trash2, Search, Loader2, AlertTriangle,
-  CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp,
+  CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp, Activity, ArrowRight,
 } from "lucide-react";
 import { searchAmfi } from "@/lib/amfiSearch";
 import { inferFundHouse, inferSubCategory } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import PortfolioModeOnboarding from "@/components/portfolio/PortfolioModeOnboarding";
+import ReviewVsTrackerChecklist from "@/components/portfolio/ReviewVsTrackerChecklist";
+
 
 type RiskProfile = "Conservative" | "Moderate" | "Aggressive";
 
