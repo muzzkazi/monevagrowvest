@@ -14,6 +14,7 @@ import {
 import { searchAmfi } from "@/lib/amfiSearch";
 import { supabase } from "@/integrations/supabase/client";
 import { useTrackedFunds, type TrackedFund } from "@/hooks/useTrackedFunds";
+import InsightsDashboard from "@/components/mf-tracker/InsightsDashboard";
 import { toast } from "sonner";
 
 interface IntelResult {
