@@ -557,13 +557,13 @@ const PortfolioReviewPage = () => {
                         {ticks.map((v, i) => (
                           <g key={i}>
                             <line x1={PL} x2={W - PR} y1={yFor(v)} y2={yFor(v)} className="stroke-border" strokeDasharray="2 3" />
-                            <text x={PL - 6} y={yFor(v) + 3} textAnchor="end" className="fill-muted-foreground" fontSize="10">
+                            <text x={PL - 8} y={yFor(v) + 4} textAnchor="end" className="fill-muted-foreground" fontSize="12">
                               {v.toFixed(1)}×
                             </text>
                           </g>
                         ))}
                         {data.filter(d => d.t % xTickStep === 0 || d.t === yrs).map((d) => (
-                          <text key={d.t} x={xFor(d.t)} y={H - 8} textAnchor="middle" className="fill-muted-foreground" fontSize="10">
+                          <text key={d.t} x={xFor(d.t)} y={H - 10} textAnchor="middle" className="fill-muted-foreground" fontSize="12">
                             {d.t}y
                           </text>
                         ))}
