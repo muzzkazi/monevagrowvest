@@ -604,26 +604,27 @@ const PortfolioReviewPage = () => {
                       {/* HTML tooltip */}
                       {hoverYear !== null && (() => {
                         const h = data[hoverYear];
-                        const leftPct = (xFor(hoverYear) / W) * 100;
-                        const flip = leftPct > 65;
+                        // Clamp tooltip horizontally so it never overflows the container
+                        const leftPct = Math.max(4, Math.min(96, (xFor(hoverYear) / W) * 100));
+                        const flip = leftPct > 55;
                         return (
                           <div
-                            className="pointer-events-none absolute top-2 z-10 rounded-md border bg-background/95 backdrop-blur px-2.5 py-2 shadow-md text-[11px] min-w-[170px]"
+                            className="pointer-events-none absolute top-1 sm:top-2 z-10 rounded-md border bg-background/95 backdrop-blur px-2 sm:px-2.5 py-1.5 sm:py-2 shadow-md text-[10px] sm:text-[11px] w-[150px] sm:w-[180px] max-w-[70vw]"
                             style={{
                               left: `${leftPct}%`,
-                              transform: flip ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
+                              transform: flip ? "translateX(calc(-100% - 6px))" : "translateX(6px)",
                             }}
                           >
                             <div className="font-semibold mb-1">Year {hoverYear}</div>
-                            <div className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-0.5">
-                              <span className="text-emerald-500">P95 · Upside</span><span className="text-right tabular-nums">{fmt(h.up)}</span>
+                            <div className="grid grid-cols-[auto,1fr] gap-x-2 gap-y-0.5">
+                              <span className="text-emerald-500">P95 · Up</span><span className="text-right tabular-nums">{fmt(h.up)}</span>
                               <span className="text-muted-foreground">P75</span><span className="text-right tabular-nums">{fmt(h.p75)}</span>
                               <span className="text-financial-accent font-medium">P50 · Base</span><span className="text-right tabular-nums font-medium">{fmt(h.base)}</span>
                               <span className="text-muted-foreground">P25</span><span className="text-right tabular-nums">{fmt(h.p25)}</span>
-                              <span className="text-rose-500">P5 · Downside</span><span className="text-right tabular-nums">{fmt(h.dn)}</span>
+                              <span className="text-rose-500">P5 · Down</span><span className="text-right tabular-nums">{fmt(h.dn)}</span>
                               {showBench && (
                                 <>
-                                  <span className="text-muted-foreground border-t pt-0.5 mt-0.5 col-span-1">Bench (P50)</span>
+                                  <span className="text-muted-foreground border-t pt-0.5 mt-0.5">Bench</span>
                                   <span className="text-right tabular-nums border-t pt-0.5 mt-0.5">{fmt(h.bench)}</span>
                                 </>
                               )}
