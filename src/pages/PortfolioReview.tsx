@@ -359,18 +359,23 @@ const PortfolioReviewPage = () => {
                 <div>
                   <Label htmlFor="risk">Risk profile</Label>
                   <Select value={risk} onValueChange={(v) => setRisk(v as RiskProfile)}>
-                    <SelectTrigger id="risk" className="mt-1.5">
+                    <SelectTrigger
+                      id="risk"
+                      className="mt-1.5 h-auto min-h-10 items-start py-2 text-left [&>span]:!line-clamp-2 [&>span]:whitespace-normal [&>span]:text-left [&>span]:leading-tight"
+                    >
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md">
                       {([
                         { v: "Conservative", tag: "Low risk · 6–8% p.a." },
                         { v: "Moderate",     tag: "Balanced risk · 9–11% p.a." },
                         { v: "Aggressive",   tag: "High risk · 12–15% p.a." },
                       ] as const).map((o) => (
-                        <SelectItem key={o.v} value={o.v}>
-                          <span className="font-medium">{o.v}</span>
-                          <span className="ml-2 text-[10px] text-muted-foreground">{o.tag}</span>
+                        <SelectItem key={o.v} value={o.v} className="py-2 pr-3">
+                          <span className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2 min-w-0">
+                            <span className="font-medium truncate">{o.v}</span>
+                            <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight break-words">{o.tag}</span>
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
