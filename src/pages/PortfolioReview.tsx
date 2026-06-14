@@ -528,11 +528,11 @@ const PortfolioReviewPage = () => {
                         </label>
                       </div>
                     </div>
-                    <div className="relative w-full overflow-x-auto">
+                    <div className="relative w-full">
                       <svg
                         viewBox={`0 0 ${W} ${H}`}
-                        className="w-full h-[240px]"
-                        preserveAspectRatio="none"
+                        className="w-full h-auto block aspect-[16/7] sm:aspect-[16/6] touch-none"
+                        preserveAspectRatio="xMidYMid meet"
                         onMouseLeave={() => setHoverYear(null)}
                         onMouseMove={(e) => {
                           const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
@@ -540,6 +540,19 @@ const PortfolioReviewPage = () => {
                           const t = Math.round(((px - PL) / innerW) * yrs);
                           setHoverYear(Math.max(0, Math.min(yrs, t)));
                         }}
+                        onTouchStart={(e) => {
+                          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+                          const px = ((e.touches[0].clientX - rect.left) / rect.width) * W;
+                          const t = Math.round(((px - PL) / innerW) * yrs);
+                          setHoverYear(Math.max(0, Math.min(yrs, t)));
+                        }}
+                        onTouchMove={(e) => {
+                          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+                          const px = ((e.touches[0].clientX - rect.left) / rect.width) * W;
+                          const t = Math.round(((px - PL) / innerW) * yrs);
+                          setHoverYear(Math.max(0, Math.min(yrs, t)));
+                        }}
+                        onTouchEnd={() => setHoverYear(null)}
                       >
                         {ticks.map((v, i) => (
                           <g key={i}>
