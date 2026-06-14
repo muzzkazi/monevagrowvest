@@ -447,6 +447,96 @@ const PortfolioReviewPage = () => {
                 </div>
               </div>
 
+              {/* Scenario projection chart */}
+              {(() => {
+                const params = {
+                  Conservative: { lo: 0.06, base: 0.07, hi: 0.08, vol: 0.05 },
+                  Moderate:     { lo: 0.09, base: 0.10, hi: 0.11, vol: 0.12 },
+                  Aggressive:   { lo: 0.12, base: 0.135, hi: 0.15, vol: 0.20 },
+                }[risk];
+                const yrs = Math.max(1, Math.min(50, Number(horizon) || 1));
+                // Year-by-year wealth multiples on ₹1 invested
+                const data = Array.from({ length: yrs + 1 }, (_, t) => {
+                  const base = Math.pow(1 + params.base, t);
+                  const up   = Math.pow(1 + params.hi,   t);
+                  // Downside softens with sqrt(time) – mean reversion
+                  const dnRate = params.lo - params.vol * (1 / Math.sqrt(Math.max(t, 1)));
+                  const dn   = Math.pow(1 + Math.max(dnRate, -0.05), t);
+                  return { t, up, base, dn };
+                });
+                const maxY = Math.max(...data.map(d => d.up)) * 1.05;
+                const minY = Math.min(0.85, ...data.map(d => d.dn));
+                const W = 720, H = 220, PL = 44, PR = 14, PT = 14, PB = 28;
+                const innerW = W - PL - PR, innerH = H - PT - PB;
+                const xFor = (t: number) => PL + (t / yrs) * innerW;
+                const yFor = (v: number) => PT + innerH - ((v - minY) / (maxY - minY)) * innerH;
+                const pathFor = (key: "up" | "base" | "dn") =>
+                  data.map((d, i) => `${i === 0 ? "M" : "L"} ${xFor(d.t).toFixed(1)} ${yFor(d[key]).toFixed(1)}`).join(" ");
+                const areaPath =
+                  data.map((d, i) => `${i === 0 ? "M" : "L"} ${xFor(d.t).toFixed(1)} ${yFor(d.up).toFixed(1)}`).join(" ") +
+                  " " +
+                  [...data].reverse().map((d) => `L ${xFor(d.t).toFixed(1)} ${yFor(d.dn).toFixed(1)}`).join(" ") +
+                  " Z";
+                const yTicks = 4;
+                const ticks = Array.from({ length: yTicks + 1 }, (_, i) => minY + (i / yTicks) * (maxY - minY));
+                const xTickStep = Math.max(1, Math.ceil(yrs / 8));
+                const final = data[data.length - 1];
+                return (
+                  <div className="rounded-lg border bg-financial-muted/30 p-4 space-y-3">
+                    <div className="flex flex-wrap items-end justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold">Scenario projection · {risk} · {yrs} yr{yrs > 1 ? "s" : ""}</p>
+                        <p className="text-[11px] text-muted-foreground">Wealth multiple on ₹1 invested, year by year</p>
+                      </div>
+                      <div className="flex gap-3 text-[11px]">
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-500" />Upside</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-2.5 h-2.5 rounded-sm bg-financial-accent" />Base</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-2.5 h-2.5 rounded-sm bg-rose-500" />Downside</span>
+                      </div>
+                    </div>
+                    <div className="w-full overflow-x-auto">
+                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[220px]" preserveAspectRatio="none">
+                        {ticks.map((v, i) => (
+                          <g key={i}>
+                            <line x1={PL} x2={W - PR} y1={yFor(v)} y2={yFor(v)} className="stroke-border" strokeDasharray="2 3" />
+                            <text x={PL - 6} y={yFor(v) + 3} textAnchor="end" className="fill-muted-foreground" fontSize="10">
+                              {v.toFixed(1)}×
+                            </text>
+                          </g>
+                        ))}
+                        {data.filter(d => d.t % xTickStep === 0 || d.t === yrs).map((d) => (
+                          <text key={d.t} x={xFor(d.t)} y={H - 8} textAnchor="middle" className="fill-muted-foreground" fontSize="10">
+                            {d.t}y
+                          </text>
+                        ))}
+                        <path d={areaPath} className="fill-financial-accent/15" />
+                        <path d={pathFor("dn")}   fill="none" className="stroke-rose-500"        strokeWidth={1.75} />
+                        <path d={pathFor("base")} fill="none" className="stroke-financial-accent" strokeWidth={2} />
+                        <path d={pathFor("up")}   fill="none" className="stroke-emerald-500"      strokeWidth={1.75} />
+                        {(["up","base","dn"] as const).map((k) => (
+                          <circle key={k} cx={xFor(yrs)} cy={yFor(final[k])} r={3}
+                            className={k === "up" ? "fill-emerald-500" : k === "base" ? "fill-financial-accent" : "fill-rose-500"} />
+                        ))}
+                      </svg>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="rounded-md border bg-background/60 px-2 py-1.5">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Downside</p>
+                        <p className="text-sm font-semibold text-rose-500">{final.dn.toFixed(2)}×</p>
+                      </div>
+                      <div className="rounded-md border bg-background/60 px-2 py-1.5">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Base</p>
+                        <p className="text-sm font-semibold text-financial-accent">{final.base.toFixed(2)}×</p>
+                      </div>
+                      <div className="rounded-md border bg-background/60 px-2 py-1.5">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Upside</p>
+                        <p className="text-sm font-semibold text-emerald-500">{final.up.toFixed(2)}×</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Add fund */}
               <div>
                 <Label>Add a fund</Label>
