@@ -483,7 +483,7 @@ const PortfolioReviewPage = () => {
                   : Math.min(0.85, ...data.map(d => d.dn));
                 const maxY = allMax * 1.05;
                 const minY = allMin;
-                const W = 720, H = 240, PL = 44, PR = 14, PT = 14, PB = 28;
+                const W = 720, H = 260, PL = 48, PR = 18, PT = 16, PB = 32;
                 const innerW = W - PL - PR, innerH = H - PT - PB;
                 const xFor = (t: number) => PL + (t / yrs) * innerW;
                 const yFor = (v: number) => PT + innerH - ((v - minY) / (maxY - minY)) * innerH;
@@ -496,7 +496,8 @@ const PortfolioReviewPage = () => {
                   " Z";
                 const yTicks = 4;
                 const ticks = Array.from({ length: yTicks + 1 }, (_, i) => minY + (i / yTicks) * (maxY - minY));
-                const xTickStep = Math.max(1, Math.ceil(yrs / 8));
+                // Fewer x ticks so labels never collide on mobile
+                const xTickStep = Math.max(1, Math.ceil(yrs / 6));
                 const final = data[data.length - 1];
                 // Table rows — show key milestones to keep it tidy
                 const tableSteps = (() => {
