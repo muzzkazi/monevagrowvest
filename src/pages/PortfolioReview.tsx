@@ -208,6 +208,7 @@ const PortfolioReviewPage = () => {
   const [review, setReview] = useState<ReviewResponse | null>(null);
   const [showBench, setShowBench] = useState(false);
   const [showTable, setShowTable] = useState(true);
+  const [hoverYear, setHoverYear] = useState<number | null>(null);
 
   // Warm the AMFI scheme list on the edge function so the first keystroke
   // doesn't pay the cold-start cost of fetching ~30k schemes.
