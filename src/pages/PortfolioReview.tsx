@@ -398,35 +398,55 @@ const PortfolioReviewPage = () => {
                   </Select>
                   {(() => {
                     const params = {
-                      Conservative: { lo: 0.06, hi: 0.08, vol: 0.05, worst1y: -0.08 },
-                      Moderate:     { lo: 0.09, hi: 0.11, vol: 0.12, worst1y: -0.20 },
-                      Aggressive:   { lo: 0.12, hi: 0.15, vol: 0.20, worst1y: -0.38 },
+                      Conservative: { lo: 0.06, hi: 0.08, vol: 0.05, worst1y: -0.08, recoverYrs: 1 },
+                      Moderate:     { lo: 0.09, hi: 0.11, vol: 0.12, worst1y: -0.20, recoverYrs: 2 },
+                      Aggressive:   { lo: 0.12, hi: 0.15, vol: 0.20, worst1y: -0.38, recoverYrs: 4 },
                     }[risk];
                     const yrs = Math.max(1, Math.min(50, Number(horizon) || 1));
-                    const mid = (params.lo + params.hi) / 2;
-                    const mult = (r: number) => Math.pow(1 + r, yrs);
-                    const loMult = mult(params.lo).toFixed(yrs >= 10 ? 1 : 2);
-                    const hiMult = mult(params.hi).toFixed(yrs >= 10 ? 1 : 2);
-                    // Worst-case cumulative: 1y drawdown softened by sqrt(time) recovery
-                    const recovery = Math.min(1, Math.sqrt(yrs) / 4); // ~full recovery by ~16y
-                    const worstCum = params.worst1y * (1 - recovery);
-                    // Probability of negative cumulative return shrinks with horizon
-                    const pctLossProb = Math.max(1, Math.round(35 * Math.exp(-yrs / (risk === "Aggressive" ? 7 : risk === "Moderate" ? 5 : 3))));
+                    const PRINCIPAL = 1_00_000; // ₹1 lakh illustrative
+                    const fmtINR = (n: number) =>
+                      n >= 1_00_00_000 ? `₹${(n / 1_00_00_000).toFixed(2)} Cr`
+                      : n >= 1_00_000   ? `₹${(n / 1_00_000).toFixed(1)} L`
+                      : `₹${Math.round(n).toLocaleString("en-IN")}`;
+                    const median = PRINCIPAL * Math.pow(1 + (params.lo + params.hi) / 2, yrs);
+                    const upVal  = PRINCIPAL * Math.pow(1 + params.hi, yrs);
+                    const loVal  = PRINCIPAL * Math.pow(1 + params.lo, yrs);
+                    // Probability of ending below capital — lognormal tail, shrinks with √time
+                    const pctLossProb = Math.max(
+                      risk === "Conservative" ? 1 : 2,
+                      Math.round(40 * Math.exp(-yrs / (risk === "Aggressive" ? 8 : risk === "Moderate" ? 5 : 3)))
+                    );
                     const horizonFit =
-                      risk === "Aggressive" ? (yrs >= 10 ? "Great fit" : yrs >= 5 ? "Acceptable" : "Too short — consider Moderate") :
-                      risk === "Moderate"   ? (yrs >= 5  ? "Great fit" : yrs >= 3 ? "Acceptable" : "Too short — consider Conservative") :
-                                              (yrs <= 5  ? "Great fit" : "Underutilised — could take more risk");
+                      risk === "Aggressive" ? (yrs >= 10 ? "Great fit" : yrs >= 5 ? "Tight — be ready for swings" : "Too short for this risk") :
+                      risk === "Moderate"   ? (yrs >= 5  ? "Great fit" : yrs >= 3 ? "Acceptable" : "Consider Conservative") :
+                                              (yrs <= 5  ? "Great fit" : "Likely under-earning vs Moderate");
                     return (
-                      <div className="mt-2 rounded-md border bg-financial-muted/40 px-2.5 py-2 space-y-1.5">
+                      <div className="mt-2 rounded-md border bg-financial-muted/40 px-2.5 py-2 space-y-2">
                         <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                          <span>Over {yrs} yr{yrs > 1 ? "s" : ""}</span>
-                          <span>{horizonFit}</span>
+                          <span>Over {yrs} yr{yrs > 1 ? "s" : ""} · on ₹1 L invested</span>
+                          <span className={horizonFit.startsWith("Great") ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}>
+                            {horizonFit}
+                          </span>
                         </div>
-                        <p className="text-[11px] leading-snug text-emerald-600 dark:text-emerald-400">
-                          <span className="font-semibold">Upside:</span> ₹1 → ₹{loMult}–₹{hiMult} ({(params.lo*100).toFixed(0)}–{(params.hi*100).toFixed(0)}% CAGR)
+                        <div className="grid grid-cols-3 gap-1 text-center">
+                          <div className="rounded bg-rose-500/10 px-1 py-1">
+                            <p className="text-[9px] uppercase tracking-wide text-rose-600 dark:text-rose-400">Bear</p>
+                            <p className="text-[11px] font-semibold tabular-nums">{fmtINR(PRINCIPAL * (1 + params.worst1y))}</p>
+                          </div>
+                          <div className="rounded bg-financial-accent/10 px-1 py-1">
+                            <p className="text-[9px] uppercase tracking-wide text-financial-accent">Median</p>
+                            <p className="text-[11px] font-semibold tabular-nums">{fmtINR(median)}</p>
+                          </div>
+                          <div className="rounded bg-emerald-500/10 px-1 py-1">
+                            <p className="text-[9px] uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Bull</p>
+                            <p className="text-[11px] font-semibold tabular-nums">{fmtINR(upVal)}</p>
+                          </div>
+                        </div>
+                        <p className="text-[10.5px] leading-snug text-emerald-600 dark:text-emerald-400">
+                          <span className="font-semibold">Upside:</span> {fmtINR(loVal)}–{fmtINR(upVal)} at {(params.lo*100).toFixed(0)}–{(params.hi*100).toFixed(0)}% CAGR
                         </p>
-                        <p className="text-[11px] leading-snug text-rose-600 dark:text-rose-400">
-                          <span className="font-semibold">Downside:</span> worst-case ~{(worstCum*100).toFixed(0)}% drawdown · ~{pctLossProb}% chance of ending below capital
+                        <p className="text-[10.5px] leading-snug text-rose-600 dark:text-rose-400">
+                          <span className="font-semibold">Downside:</span> a bad year can drop ~{Math.abs(params.worst1y*100).toFixed(0)}% · typical recovery ~{params.recoverYrs} yr{params.recoverYrs > 1 ? "s" : ""} · ~{pctLossProb}% chance of ending below ₹1 L
                         </p>
                       </div>
                     );
