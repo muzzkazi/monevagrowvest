@@ -483,7 +483,7 @@ const PortfolioReviewPage = () => {
                   : Math.min(0.85, ...data.map(d => d.dn));
                 const maxY = allMax * 1.05;
                 const minY = allMin;
-                const W = 720, H = 240, PL = 44, PR = 14, PT = 14, PB = 28;
+                const W = 720, H = 260, PL = 48, PR = 18, PT = 16, PB = 32;
                 const innerW = W - PL - PR, innerH = H - PT - PB;
                 const xFor = (t: number) => PL + (t / yrs) * innerW;
                 const yFor = (v: number) => PT + innerH - ((v - minY) / (maxY - minY)) * innerH;
@@ -496,7 +496,8 @@ const PortfolioReviewPage = () => {
                   " Z";
                 const yTicks = 4;
                 const ticks = Array.from({ length: yTicks + 1 }, (_, i) => minY + (i / yTicks) * (maxY - minY));
-                const xTickStep = Math.max(1, Math.ceil(yrs / 8));
+                // Fewer x ticks so labels never collide on mobile
+                const xTickStep = Math.max(1, Math.ceil(yrs / 6));
                 const final = data[data.length - 1];
                 // Table rows — show key milestones to keep it tidy
                 const tableSteps = (() => {
@@ -527,11 +528,11 @@ const PortfolioReviewPage = () => {
                         </label>
                       </div>
                     </div>
-                    <div className="relative w-full overflow-x-auto">
+                    <div className="relative w-full">
                       <svg
                         viewBox={`0 0 ${W} ${H}`}
-                        className="w-full h-[240px]"
-                        preserveAspectRatio="none"
+                        className="w-full h-auto block aspect-[16/7] sm:aspect-[16/6] touch-none"
+                        preserveAspectRatio="xMidYMid meet"
                         onMouseLeave={() => setHoverYear(null)}
                         onMouseMove={(e) => {
                           const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
@@ -539,17 +540,30 @@ const PortfolioReviewPage = () => {
                           const t = Math.round(((px - PL) / innerW) * yrs);
                           setHoverYear(Math.max(0, Math.min(yrs, t)));
                         }}
+                        onTouchStart={(e) => {
+                          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+                          const px = ((e.touches[0].clientX - rect.left) / rect.width) * W;
+                          const t = Math.round(((px - PL) / innerW) * yrs);
+                          setHoverYear(Math.max(0, Math.min(yrs, t)));
+                        }}
+                        onTouchMove={(e) => {
+                          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+                          const px = ((e.touches[0].clientX - rect.left) / rect.width) * W;
+                          const t = Math.round(((px - PL) / innerW) * yrs);
+                          setHoverYear(Math.max(0, Math.min(yrs, t)));
+                        }}
+                        onTouchEnd={() => setHoverYear(null)}
                       >
                         {ticks.map((v, i) => (
                           <g key={i}>
                             <line x1={PL} x2={W - PR} y1={yFor(v)} y2={yFor(v)} className="stroke-border" strokeDasharray="2 3" />
-                            <text x={PL - 6} y={yFor(v) + 3} textAnchor="end" className="fill-muted-foreground" fontSize="10">
+                            <text x={PL - 8} y={yFor(v) + 4} textAnchor="end" className="fill-muted-foreground" fontSize="12">
                               {v.toFixed(1)}×
                             </text>
                           </g>
                         ))}
                         {data.filter(d => d.t % xTickStep === 0 || d.t === yrs).map((d) => (
-                          <text key={d.t} x={xFor(d.t)} y={H - 8} textAnchor="middle" className="fill-muted-foreground" fontSize="10">
+                          <text key={d.t} x={xFor(d.t)} y={H - 10} textAnchor="middle" className="fill-muted-foreground" fontSize="12">
                             {d.t}y
                           </text>
                         ))}
@@ -590,26 +604,27 @@ const PortfolioReviewPage = () => {
                       {/* HTML tooltip */}
                       {hoverYear !== null && (() => {
                         const h = data[hoverYear];
-                        const leftPct = (xFor(hoverYear) / W) * 100;
-                        const flip = leftPct > 65;
+                        // Clamp tooltip horizontally so it never overflows the container
+                        const leftPct = Math.max(4, Math.min(96, (xFor(hoverYear) / W) * 100));
+                        const flip = leftPct > 55;
                         return (
                           <div
-                            className="pointer-events-none absolute top-2 z-10 rounded-md border bg-background/95 backdrop-blur px-2.5 py-2 shadow-md text-[11px] min-w-[170px]"
+                            className="pointer-events-none absolute top-1 sm:top-2 z-10 rounded-md border bg-background/95 backdrop-blur px-2 sm:px-2.5 py-1.5 sm:py-2 shadow-md text-[10px] sm:text-[11px] w-[150px] sm:w-[180px] max-w-[70vw]"
                             style={{
                               left: `${leftPct}%`,
-                              transform: flip ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
+                              transform: flip ? "translateX(calc(-100% - 6px))" : "translateX(6px)",
                             }}
                           >
                             <div className="font-semibold mb-1">Year {hoverYear}</div>
-                            <div className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-0.5">
-                              <span className="text-emerald-500">P95 · Upside</span><span className="text-right tabular-nums">{fmt(h.up)}</span>
+                            <div className="grid grid-cols-[auto,1fr] gap-x-2 gap-y-0.5">
+                              <span className="text-emerald-500">P95 · Up</span><span className="text-right tabular-nums">{fmt(h.up)}</span>
                               <span className="text-muted-foreground">P75</span><span className="text-right tabular-nums">{fmt(h.p75)}</span>
                               <span className="text-financial-accent font-medium">P50 · Base</span><span className="text-right tabular-nums font-medium">{fmt(h.base)}</span>
                               <span className="text-muted-foreground">P25</span><span className="text-right tabular-nums">{fmt(h.p25)}</span>
-                              <span className="text-rose-500">P5 · Downside</span><span className="text-right tabular-nums">{fmt(h.dn)}</span>
+                              <span className="text-rose-500">P5 · Down</span><span className="text-right tabular-nums">{fmt(h.dn)}</span>
                               {showBench && (
                                 <>
-                                  <span className="text-muted-foreground border-t pt-0.5 mt-0.5 col-span-1">Bench (P50)</span>
+                                  <span className="text-muted-foreground border-t pt-0.5 mt-0.5">Bench</span>
                                   <span className="text-right tabular-nums border-t pt-0.5 mt-0.5">{fmt(h.bench)}</span>
                                 </>
                               )}
