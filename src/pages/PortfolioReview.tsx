@@ -359,12 +359,66 @@ const PortfolioReviewPage = () => {
                     <SelectTrigger id="risk" className="mt-1.5">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Conservative">Conservative</SelectItem>
-                      <SelectItem value="Moderate">Moderate</SelectItem>
-                      <SelectItem value="Aggressive">Aggressive</SelectItem>
+                    <SelectContent className="max-w-[min(92vw,28rem)]">
+                      {([
+                        {
+                          v: "Conservative",
+                          tag: "Low risk · 6–8% p.a.",
+                          up: "Capital protection, low drawdowns, steady income.",
+                          down: "Returns may trail inflation; limited long-term growth.",
+                        },
+                        {
+                          v: "Moderate",
+                          tag: "Balanced risk · 9–11% p.a.",
+                          up: "Healthy growth with cushioned volatility.",
+                          down: "Can still see 10–15% drawdowns in bad years.",
+                        },
+                        {
+                          v: "Aggressive",
+                          tag: "High risk · 12–15% p.a.",
+                          up: "Maximum compounding for long horizons (10+ yrs).",
+                          down: "Sharp 25–40% drawdowns possible; needs patience.",
+                        },
+                      ] as const).map((o) => (
+                        <SelectItem key={o.v} value={o.v} className="py-2.5">
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{o.v}</span>
+                              <span className="text-[10px] text-muted-foreground">{o.tag}</span>
+                            </div>
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400">▲ {o.up}</span>
+                            <span className="text-xs text-rose-600 dark:text-rose-400">▼ {o.down}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                  {(() => {
+                    const info = {
+                      Conservative: {
+                        up: "Capital protection, low drawdowns, steady income.",
+                        down: "Returns may trail inflation; limited long-term growth.",
+                      },
+                      Moderate: {
+                        up: "Healthy growth with cushioned volatility.",
+                        down: "Can still see 10–15% drawdowns in bad years.",
+                      },
+                      Aggressive: {
+                        up: "Maximum compounding for long horizons (10+ yrs).",
+                        down: "Sharp 25–40% drawdowns possible; needs patience.",
+                      },
+                    }[risk];
+                    return (
+                      <div className="mt-2 rounded-md border bg-financial-muted/40 px-2.5 py-2 space-y-1">
+                        <p className="text-[11px] leading-snug text-emerald-600 dark:text-emerald-400">
+                          <span className="font-semibold">Upside:</span> {info.up}
+                        </p>
+                        <p className="text-[11px] leading-snug text-rose-600 dark:text-rose-400">
+                          <span className="font-semibold">Downside:</span> {info.down}
+                        </p>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div>
                   <Label htmlFor="horizon">Investment horizon (years)</Label>
