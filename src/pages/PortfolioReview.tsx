@@ -206,6 +206,8 @@ const PortfolioReviewPage = () => {
   const [goal, setGoal] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState<ReviewResponse | null>(null);
+  const [showBench, setShowBench] = useState(false);
+  const [showTable, setShowTable] = useState(true);
 
   // Warm the AMFI scheme list on the edge function so the first keystroke
   // doesn't pay the cold-start cost of fetching ~30k schemes.
@@ -450,52 +452,82 @@ const PortfolioReviewPage = () => {
               {/* Scenario projection chart */}
               {(() => {
                 const params = {
-                  Conservative: { lo: 0.06, base: 0.07, hi: 0.08, vol: 0.05 },
-                  Moderate:     { lo: 0.09, base: 0.10, hi: 0.11, vol: 0.12 },
-                  Aggressive:   { lo: 0.12, base: 0.135, hi: 0.15, vol: 0.20 },
+                  Conservative: { base: 0.07,  vol: 0.05, benchBase: 0.065, benchName: "CRISIL Composite Bond" },
+                  Moderate:     { base: 0.10,  vol: 0.12, benchBase: 0.085, benchName: "Nifty 50 Hybrid" },
+                  Aggressive:   { base: 0.135, vol: 0.20, benchBase: 0.115, benchName: "Nifty 500 TRI" },
                 }[risk];
                 const yrs = Math.max(1, Math.min(50, Number(horizon) || 1));
-                // Year-by-year wealth multiples on ₹1 invested
-                const data = Array.from({ length: yrs + 1 }, (_, t) => {
-                  const base = Math.pow(1 + params.base, t);
-                  const up   = Math.pow(1 + params.hi,   t);
-                  // Downside softens with sqrt(time) – mean reversion
-                  const dnRate = params.lo - params.vol * (1 / Math.sqrt(Math.max(t, 1)));
-                  const dn   = Math.pow(1 + Math.max(dnRate, -0.05), t);
-                  return { t, up, base, dn };
-                });
-                const maxY = Math.max(...data.map(d => d.up)) * 1.05;
-                const minY = Math.min(0.85, ...data.map(d => d.dn));
-                const W = 720, H = 220, PL = 44, PR = 14, PT = 14, PB = 28;
+                // Lognormal percentiles per year
+                const Z = { p05: -1.645, p25: -0.674, p50: 0, p75: 0.674, p95: 1.645 };
+                const mu = Math.log(1 + params.base) - (params.vol * params.vol) / 2;
+                const muB = Math.log(1 + params.benchBase) - (params.vol * params.vol) / 2;
+                const pct = (t: number, z: number, m = mu) =>
+                  Math.exp(m * t + params.vol * Math.sqrt(Math.max(t, 0)) * z);
+                const data = Array.from({ length: yrs + 1 }, (_, t) => ({
+                  t,
+                  dn:   pct(t, Z.p05),
+                  p25:  pct(t, Z.p25),
+                  base: pct(t, Z.p50),
+                  p75:  pct(t, Z.p75),
+                  up:   pct(t, Z.p95),
+                  bench:    pct(t, Z.p50, muB),
+                  benchDn:  pct(t, Z.p05, muB),
+                  benchUp:  pct(t, Z.p95, muB),
+                }));
+                const allMax = showBench
+                  ? Math.max(...data.map(d => Math.max(d.up, d.benchUp)))
+                  : Math.max(...data.map(d => d.up));
+                const allMin = showBench
+                  ? Math.min(0.85, ...data.map(d => Math.min(d.dn, d.benchDn)))
+                  : Math.min(0.85, ...data.map(d => d.dn));
+                const maxY = allMax * 1.05;
+                const minY = allMin;
+                const W = 720, H = 240, PL = 44, PR = 14, PT = 14, PB = 28;
                 const innerW = W - PL - PR, innerH = H - PT - PB;
                 const xFor = (t: number) => PL + (t / yrs) * innerW;
                 const yFor = (v: number) => PT + innerH - ((v - minY) / (maxY - minY)) * innerH;
-                const pathFor = (key: "up" | "base" | "dn") =>
-                  data.map((d, i) => `${i === 0 ? "M" : "L"} ${xFor(d.t).toFixed(1)} ${yFor(d[key]).toFixed(1)}`).join(" ");
-                const areaPath =
-                  data.map((d, i) => `${i === 0 ? "M" : "L"} ${xFor(d.t).toFixed(1)} ${yFor(d.up).toFixed(1)}`).join(" ") +
+                const lineFor = (key: keyof typeof data[0]) =>
+                  data.map((d, i) => `${i === 0 ? "M" : "L"} ${xFor(d.t).toFixed(1)} ${yFor(d[key] as number).toFixed(1)}`).join(" ");
+                const bandPath = (hiK: keyof typeof data[0], loK: keyof typeof data[0]) =>
+                  data.map((d, i) => `${i === 0 ? "M" : "L"} ${xFor(d.t).toFixed(1)} ${yFor(d[hiK] as number).toFixed(1)}`).join(" ") +
                   " " +
-                  [...data].reverse().map((d) => `L ${xFor(d.t).toFixed(1)} ${yFor(d.dn).toFixed(1)}`).join(" ") +
+                  [...data].reverse().map((d) => `L ${xFor(d.t).toFixed(1)} ${yFor(d[loK] as number).toFixed(1)}`).join(" ") +
                   " Z";
                 const yTicks = 4;
                 const ticks = Array.from({ length: yTicks + 1 }, (_, i) => minY + (i / yTicks) * (maxY - minY));
                 const xTickStep = Math.max(1, Math.ceil(yrs / 8));
                 const final = data[data.length - 1];
+                // Table rows — show key milestones to keep it tidy
+                const tableSteps = (() => {
+                  const milestones = new Set<number>([1, yrs]);
+                  [3, 5, 7, 10, 15, 20, 25, 30].forEach(y => { if (y < yrs) milestones.add(y); });
+                  return [...milestones].sort((a, b) => a - b);
+                })();
+                const fmt = (v: number) => v.toFixed(2) + "×";
                 return (
                   <div className="rounded-lg border bg-financial-muted/30 p-4 space-y-3">
                     <div className="flex flex-wrap items-end justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold">Scenario projection · {risk} · {yrs} yr{yrs > 1 ? "s" : ""}</p>
-                        <p className="text-[11px] text-muted-foreground">Wealth multiple on ₹1 invested, year by year</p>
+                        <p className="text-[11px] text-muted-foreground">Wealth multiple on ₹1 invested · shaded bands = likelihood ranges</p>
                       </div>
-                      <div className="flex gap-3 text-[11px]">
-                        <span className="flex items-center gap-1.5"><span className="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-500" />Upside</span>
-                        <span className="flex items-center gap-1.5"><span className="inline-block w-2.5 h-2.5 rounded-sm bg-financial-accent" />Base</span>
-                        <span className="flex items-center gap-1.5"><span className="inline-block w-2.5 h-2.5 rounded-sm bg-rose-500" />Downside</span>
+                      <div className="flex flex-wrap items-center gap-3 text-[11px]">
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/15 border border-financial-accent/30" />5–95% range</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/35 border border-financial-accent/50" />25–75% range</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-0.5 bg-financial-accent" />Base (P50)</span>
+                        <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={showBench}
+                            onChange={(e) => setShowBench(e.target.checked)}
+                            className="h-3 w-3 accent-foreground"
+                          />
+                          Overlay {params.benchName}
+                        </label>
                       </div>
                     </div>
                     <div className="w-full overflow-x-auto">
-                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[220px]" preserveAspectRatio="none">
+                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[240px]" preserveAspectRatio="none">
                         {ticks.map((v, i) => (
                           <g key={i}>
                             <line x1={PL} x2={W - PR} y1={yFor(v)} y2={yFor(v)} className="stroke-border" strokeDasharray="2 3" />
@@ -509,29 +541,85 @@ const PortfolioReviewPage = () => {
                             {d.t}y
                           </text>
                         ))}
-                        <path d={areaPath} className="fill-financial-accent/15" />
-                        <path d={pathFor("dn")}   fill="none" className="stroke-rose-500"        strokeWidth={1.75} />
-                        <path d={pathFor("base")} fill="none" className="stroke-financial-accent" strokeWidth={2} />
-                        <path d={pathFor("up")}   fill="none" className="stroke-emerald-500"      strokeWidth={1.75} />
+                        {/* Probability bands */}
+                        <path d={bandPath("up", "dn")}   className="fill-financial-accent/15" />
+                        <path d={bandPath("p75", "p25")} className="fill-financial-accent/30" />
+                        <path d={lineFor("dn")}   fill="none" className="stroke-rose-500"        strokeWidth={1.25} strokeDasharray="3 3" />
+                        <path d={lineFor("up")}   fill="none" className="stroke-emerald-500"     strokeWidth={1.25} strokeDasharray="3 3" />
+                        <path d={lineFor("base")} fill="none" className="stroke-financial-accent" strokeWidth={2} />
+                        {showBench && (
+                          <>
+                            <path d={bandPath("benchUp", "benchDn")} className="fill-muted-foreground/10" />
+                            <path d={lineFor("bench")} fill="none" className="stroke-muted-foreground" strokeWidth={1.75} strokeDasharray="5 3" />
+                            <circle cx={xFor(yrs)} cy={yFor(final.bench)} r={3} className="fill-muted-foreground" />
+                          </>
+                        )}
                         {(["up","base","dn"] as const).map((k) => (
                           <circle key={k} cx={xFor(yrs)} cy={yFor(final[k])} r={3}
                             className={k === "up" ? "fill-emerald-500" : k === "base" ? "fill-financial-accent" : "fill-rose-500"} />
                         ))}
                       </svg>
                     </div>
+                    {/* Summary tiles with probability labels */}
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div className="rounded-md border bg-background/60 px-2 py-1.5">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Downside</p>
-                        <p className="text-sm font-semibold text-rose-500">{final.dn.toFixed(2)}×</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Downside · ~5% chance worse</p>
+                        <p className="text-sm font-semibold text-rose-500">{fmt(final.dn)}</p>
                       </div>
                       <div className="rounded-md border bg-background/60 px-2 py-1.5">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Base</p>
-                        <p className="text-sm font-semibold text-financial-accent">{final.base.toFixed(2)}×</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Base · 50/50</p>
+                        <p className="text-sm font-semibold text-financial-accent">{fmt(final.base)}</p>
                       </div>
                       <div className="rounded-md border bg-background/60 px-2 py-1.5">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Upside</p>
-                        <p className="text-sm font-semibold text-emerald-500">{final.up.toFixed(2)}×</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Upside · ~5% chance better</p>
+                        <p className="text-sm font-semibold text-emerald-500">{fmt(final.up)}</p>
                       </div>
+                    </div>
+                    {/* Year-by-year table */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[11px] font-medium text-muted-foreground">Year-by-year breakdown</p>
+                        <button
+                          type="button"
+                          onClick={() => setShowTable(v => !v)}
+                          className="text-[11px] text-financial-accent hover:underline"
+                        >
+                          {showTable ? "Hide" : "Show"}
+                        </button>
+                      </div>
+                      {showTable && (
+                        <div className="overflow-x-auto rounded-md border bg-background/60">
+                          <table className="w-full text-[11px]">
+                            <thead className="bg-financial-muted/50 text-muted-foreground">
+                              <tr>
+                                <th className="text-left px-2 py-1.5 font-medium">Year</th>
+                                <th className="text-right px-2 py-1.5 font-medium text-rose-500">Downside (P5)</th>
+                                <th className="text-right px-2 py-1.5 font-medium">P25</th>
+                                <th className="text-right px-2 py-1.5 font-medium text-financial-accent">Base (P50)</th>
+                                <th className="text-right px-2 py-1.5 font-medium">P75</th>
+                                <th className="text-right px-2 py-1.5 font-medium text-emerald-500">Upside (P95)</th>
+                                {showBench && <th className="text-right px-2 py-1.5 font-medium text-muted-foreground">Bench</th>}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {tableSteps.map(y => {
+                                const r = data[y];
+                                return (
+                                  <tr key={y} className="border-t">
+                                    <td className="px-2 py-1.5">{y}y</td>
+                                    <td className="px-2 py-1.5 text-right text-rose-500">{fmt(r.dn)}</td>
+                                    <td className="px-2 py-1.5 text-right">{fmt(r.p25)}</td>
+                                    <td className="px-2 py-1.5 text-right text-financial-accent font-medium">{fmt(r.base)}</td>
+                                    <td className="px-2 py-1.5 text-right">{fmt(r.p75)}</td>
+                                    <td className="px-2 py-1.5 text-right text-emerald-500">{fmt(r.up)}</td>
+                                    {showBench && <td className="px-2 py-1.5 text-right text-muted-foreground">{fmt(r.bench)}</td>}
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
