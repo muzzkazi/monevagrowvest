@@ -394,27 +394,36 @@ const PortfolioReviewPage = () => {
                     </SelectContent>
                   </Select>
                   {(() => {
-                    const info = {
-                      Conservative: {
-                        up: "Capital protection, low drawdowns, steady income.",
-                        down: "Returns may trail inflation; limited long-term growth.",
-                      },
-                      Moderate: {
-                        up: "Healthy growth with cushioned volatility.",
-                        down: "Can still see 10–15% drawdowns in bad years.",
-                      },
-                      Aggressive: {
-                        up: "Maximum compounding for long horizons (10+ yrs).",
-                        down: "Sharp 25–40% drawdowns possible; needs patience.",
-                      },
+                    const params = {
+                      Conservative: { lo: 0.06, hi: 0.08, vol: 0.05, worst1y: -0.08 },
+                      Moderate:     { lo: 0.09, hi: 0.11, vol: 0.12, worst1y: -0.20 },
+                      Aggressive:   { lo: 0.12, hi: 0.15, vol: 0.20, worst1y: -0.38 },
                     }[risk];
+                    const yrs = Math.max(1, Math.min(50, Number(horizon) || 1));
+                    const mid = (params.lo + params.hi) / 2;
+                    const mult = (r: number) => Math.pow(1 + r, yrs);
+                    const loMult = mult(params.lo).toFixed(yrs >= 10 ? 1 : 2);
+                    const hiMult = mult(params.hi).toFixed(yrs >= 10 ? 1 : 2);
+                    // Worst-case cumulative: 1y drawdown softened by sqrt(time) recovery
+                    const recovery = Math.min(1, Math.sqrt(yrs) / 4); // ~full recovery by ~16y
+                    const worstCum = params.worst1y * (1 - recovery);
+                    // Probability of negative cumulative return shrinks with horizon
+                    const pctLossProb = Math.max(1, Math.round(35 * Math.exp(-yrs / (risk === "Aggressive" ? 7 : risk === "Moderate" ? 5 : 3))));
+                    const horizonFit =
+                      risk === "Aggressive" ? (yrs >= 10 ? "Great fit" : yrs >= 5 ? "Acceptable" : "Too short — consider Moderate") :
+                      risk === "Moderate"   ? (yrs >= 5  ? "Great fit" : yrs >= 3 ? "Acceptable" : "Too short — consider Conservative") :
+                                              (yrs <= 5  ? "Great fit" : "Underutilised — could take more risk");
                     return (
-                      <div className="mt-2 rounded-md border bg-financial-muted/40 px-2.5 py-2 space-y-1">
+                      <div className="mt-2 rounded-md border bg-financial-muted/40 px-2.5 py-2 space-y-1.5">
+                        <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                          <span>Over {yrs} yr{yrs > 1 ? "s" : ""}</span>
+                          <span>{horizonFit}</span>
+                        </div>
                         <p className="text-[11px] leading-snug text-emerald-600 dark:text-emerald-400">
-                          <span className="font-semibold">Upside:</span> {info.up}
+                          <span className="font-semibold">Upside:</span> ₹1 → ₹{loMult}–₹{hiMult} ({(params.lo*100).toFixed(0)}–{(params.hi*100).toFixed(0)}% CAGR)
                         </p>
                         <p className="text-[11px] leading-snug text-rose-600 dark:text-rose-400">
-                          <span className="font-semibold">Downside:</span> {info.down}
+                          <span className="font-semibold">Downside:</span> worst-case ~{(worstCum*100).toFixed(0)}% drawdown · ~{pctLossProb}% chance of ending below capital
                         </p>
                       </div>
                     );
