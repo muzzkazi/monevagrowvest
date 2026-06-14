@@ -527,8 +527,19 @@ const PortfolioReviewPage = () => {
                         </label>
                       </div>
                     </div>
-                    <div className="w-full overflow-x-auto">
-                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[240px]" preserveAspectRatio="none">
+                    <div className="relative w-full overflow-x-auto">
+                      <svg
+                        viewBox={`0 0 ${W} ${H}`}
+                        className="w-full h-[240px]"
+                        preserveAspectRatio="none"
+                        onMouseLeave={() => setHoverYear(null)}
+                        onMouseMove={(e) => {
+                          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+                          const px = ((e.clientX - rect.left) / rect.width) * W;
+                          const t = Math.round(((px - PL) / innerW) * yrs);
+                          setHoverYear(Math.max(0, Math.min(yrs, t)));
+                        }}
+                      >
                         {ticks.map((v, i) => (
                           <g key={i}>
                             <line x1={PL} x2={W - PR} y1={yFor(v)} y2={yFor(v)} className="stroke-border" strokeDasharray="2 3" />
@@ -559,7 +570,70 @@ const PortfolioReviewPage = () => {
                           <circle key={k} cx={xFor(yrs)} cy={yFor(final[k])} r={3}
                             className={k === "up" ? "fill-emerald-500" : k === "base" ? "fill-financial-accent" : "fill-rose-500"} />
                         ))}
+                        {/* Hover crosshair + dots */}
+                        {hoverYear !== null && (() => {
+                          const h = data[hoverYear];
+                          const cx = xFor(hoverYear);
+                          return (
+                            <g pointerEvents="none">
+                              <line x1={cx} x2={cx} y1={PT} y2={H - PB} className="stroke-foreground/40" strokeDasharray="2 2" />
+                              <circle cx={cx} cy={yFor(h.up)}   r={3} className="fill-emerald-500" />
+                              <circle cx={cx} cy={yFor(h.p75)}  r={2} className="fill-financial-accent/70" />
+                              <circle cx={cx} cy={yFor(h.base)} r={3.5} className="fill-financial-accent stroke-background" strokeWidth={1} />
+                              <circle cx={cx} cy={yFor(h.p25)}  r={2} className="fill-financial-accent/70" />
+                              <circle cx={cx} cy={yFor(h.dn)}   r={3} className="fill-rose-500" />
+                              {showBench && <circle cx={cx} cy={yFor(h.bench)} r={3} className="fill-muted-foreground" />}
+                            </g>
+                          );
+                        })()}
                       </svg>
+                      {/* HTML tooltip */}
+                      {hoverYear !== null && (() => {
+                        const h = data[hoverYear];
+                        const leftPct = (xFor(hoverYear) / W) * 100;
+                        const flip = leftPct > 65;
+                        return (
+                          <div
+                            className="pointer-events-none absolute top-2 z-10 rounded-md border bg-background/95 backdrop-blur px-2.5 py-2 shadow-md text-[11px] min-w-[170px]"
+                            style={{
+                              left: `${leftPct}%`,
+                              transform: flip ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
+                            }}
+                          >
+                            <div className="font-semibold mb-1">Year {hoverYear}</div>
+                            <div className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-0.5">
+                              <span className="text-emerald-500">P95 · Upside</span><span className="text-right tabular-nums">{fmt(h.up)}</span>
+                              <span className="text-muted-foreground">P75</span><span className="text-right tabular-nums">{fmt(h.p75)}</span>
+                              <span className="text-financial-accent font-medium">P50 · Base</span><span className="text-right tabular-nums font-medium">{fmt(h.base)}</span>
+                              <span className="text-muted-foreground">P25</span><span className="text-right tabular-nums">{fmt(h.p25)}</span>
+                              <span className="text-rose-500">P5 · Downside</span><span className="text-right tabular-nums">{fmt(h.dn)}</span>
+                              {showBench && (
+                                <>
+                                  <span className="text-muted-foreground border-t pt-0.5 mt-0.5 col-span-1">Bench (P50)</span>
+                                  <span className="text-right tabular-nums border-t pt-0.5 mt-0.5">{fmt(h.bench)}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                    {/* Legend & explanation */}
+                    <div className="rounded-md border bg-background/60 px-3 py-2 text-[11px] leading-snug space-y-1.5">
+                      <p className="font-medium text-foreground">How to read this chart</p>
+                      <ul className="space-y-1 text-muted-foreground">
+                        <li><span className="text-emerald-500 font-medium">P95 (Upside)</span> — only ~5% of outcomes do better than this line.</li>
+                        <li><span className="font-medium">P75–P25 band</span> — the middle 50% of outcomes (darker shade).</li>
+                        <li><span className="text-financial-accent font-medium">P50 (Base)</span> — the median: half of paths land above, half below.</li>
+                        <li><span className="text-rose-500 font-medium">P5 (Downside)</span> — only ~5% of outcomes do worse than this line.</li>
+                        <li>
+                          <span className="text-muted-foreground font-medium">Benchmark ({params.benchName})</span> — the P50 path of the category index assuming {(params.benchBase * 100).toFixed(1)}% CAGR
+                          and similar volatility ({(params.vol * 100).toFixed(0)}%). The gap to your Base line is the alpha your fund mix needs to deliver.
+                        </li>
+                      </ul>
+                      <p className="text-[10px] text-muted-foreground/80 pt-1 border-t">
+                        Model: lognormal returns with {(params.base * 100).toFixed(1)}% expected CAGR, {(params.vol * 100).toFixed(0)}% annual volatility. Percentiles widen with √time. Illustrative only — not a guarantee.
+                      </p>
                     </div>
                     {/* Summary tiles with probability labels */}
                     <div className="grid grid-cols-3 gap-2 text-center">
