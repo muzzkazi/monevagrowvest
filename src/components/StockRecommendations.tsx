@@ -271,7 +271,7 @@ const StockRecommendations = () => {
                     <div className="flex items-center gap-2 text-sm">
                       <Building2 className="w-4 h-4 text-financial-accent" />
                       <span className="font-medium">{rec.broker}</span>
-                      <span className="text-muted-foreground">• {rec.date}</span>
+                      <span className="text-muted-foreground">• {formatRelativeDate(rec.date)}</span>
                     </div>
                     <a 
                       href={rec.sourceUrl} 
