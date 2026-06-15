@@ -97,13 +97,10 @@ const TICKER_TO_SECTOR: Record<string, string> = {
 };
 
 
-// RSS feeds that publish brokerage recommendations
 // RSS feeds that publish brokerage recommendations.
+// NOTE: Google News RSS removed — it returns redirector URLs that browsers
+// refuse to open (ERR_BLOCKED_BY_RESPONSE) and the endpoint frequently 503s.
 const RECO_FEEDS = [
-  {
-    url: 'https://news.google.com/rss/search?q=%22target+of+Rs%22+%28Buy+OR+Sell+OR+Hold+OR+Accumulate+OR+Reduce+OR+Neutral%29+site%3Amoneycontrol.com&hl=en-IN&gl=IN&ceid=IN:en',
-    source: 'Moneycontrol via Google News',
-  },
   {
     url: 'https://economictimes.indiatimes.com/markets/stocks/recos/rssfeeds/2146843.cms',
     source: 'Economic Times',
@@ -113,6 +110,26 @@ const RECO_FEEDS = [
     source: 'Economic Times',
   },
 ];
+
+// Decode a Google News redirector URL (news.google.com/rss/articles/<base64>)
+// into the original publisher URL embedded in its protobuf payload.
+// Returns the input unchanged if it isn't a Google News link or decoding fails.
+function resolveGoogleNewsUrl(url: string): string {
+  try {
+    const m = url.match(/news\.google\.com\/(?:rss\/)?articles\/([^?#/]+)/i);
+    if (!m) return url;
+    const b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+    const bytes = Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+    const text = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+    const urlMatch = text.match(/https?:\/\/[^\s\x00-\x1f"']+/);
+    if (urlMatch) return urlMatch[0].replace(/[)\].,;]+$/, '');
+    return url;
+  } catch {
+    return url;
+  }
+}
+
 
 // Minimal stock-name -> NSE ticker map for live-price linkage.
 // Unmapped names still render; they just won't show a live price.
