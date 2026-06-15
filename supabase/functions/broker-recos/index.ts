@@ -50,11 +50,33 @@ interface BrokerReco {
   ticker: string;
   recommendation: "Buy" | "Hold" | "Sell" | "Accumulate" | "Reduce" | "Neutral";
   targetPrice: number;
+  entryPrice?: number;
+  stopLoss?: number;
   broker: string;
   date: string;
   rationale: string;
   sourceUrl: string;
   sector?: string;
+}
+
+function extractRsAmount(text: string, pattern: RegExp): number | undefined {
+  const m = text.match(pattern);
+  if (!m) return undefined;
+  const n = parseFloat(m[1].replace(/,/g, ''));
+  return isFinite(n) && n > 0 ? n : undefined;
+}
+
+function extractEntryAndSL(haystack: string): { entryPrice?: number; stopLoss?: number } {
+  const text = haystack.replace(/\s+/g, ' ');
+  const stopLoss = extractRsAmount(
+    text,
+    /(?:stop[\s-]?loss|stoploss|\bSL\b)\s*(?:of|at|:)?\s*Rs\.?\s*([\d,]+(?:\.\d+)?)/i,
+  );
+  const entryPrice =
+    extractRsAmount(text, /\bCMP\s*(?:of|:)?\s*Rs\.?\s*([\d,]+(?:\.\d+)?)/i) ??
+    extractRsAmount(text, /\bcurrent market price\s*(?:of)?\s*Rs\.?\s*([\d,]+(?:\.\d+)?)/i) ??
+    extractRsAmount(text, /\b(?:entry|buy)\s*(?:price|around|at|near)?\s*(?:of)?\s*Rs\.?\s*([\d,]+(?:\.\d+)?)/i);
+  return { entryPrice, stopLoss };
 }
 
 const TICKER_TO_SECTOR: Record<string, string> = {
