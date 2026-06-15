@@ -328,14 +328,18 @@ serve(async (req) => {
     try {
       const body = await req.json();
       if (body?.limit && typeof body.limit === 'number') {
-        limit = Math.max(1, Math.min(Math.floor(body.limit), 30));
+        limit = Math.max(1, Math.min(Math.floor(body.limit), 200));
       }
     } catch {
       // GET / no body
     }
 
-    const results = await Promise.all(RECO_FEEDS.map(fetchFeed));
-    const all = results.flat();
+    const [rssResults, fcResults] = await Promise.all([
+      Promise.all(RECO_FEEDS.map(fetchFeed)).then((r) => r.flat()),
+      fetchMoneycontrolViaFirecrawl(),
+    ]);
+    const all = [...rssResults, ...fcResults];
+
 
     // Dedupe by stock+broker, keep newest
     const seen = new Map<string, BrokerReco>();
