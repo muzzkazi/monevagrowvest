@@ -26,6 +26,8 @@ import BudgetTrackerPage from "./pages/BudgetTracker";
 import StockScreenerPage from "./pages/StockScreener";
 import TaxPlanning from "./pages/TaxPlanning";
 import Auth from "./pages/Auth";
+import BrokerageCalls from "./pages/BrokerageCalls";
+
 
 const queryClient = new QueryClient();
 
