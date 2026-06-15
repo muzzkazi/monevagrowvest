@@ -135,8 +135,10 @@ function guessTicker(stockName: string): string {
 // "Sell Tata Steel; target of Rs. 120 - Motilal Oswal"
 // "Accumulate Voltas; target of Rs 1450: Emkay Global"
 function parseRecoTitle(title: string, link: string, description: string, pubDate: string, source: string): BrokerReco | null {
+  // Strip trailing " - Source.com" (added by Google News aggregation)
+  const cleaned = title.replace(/\s+-\s+[^-]+\.(com|in|net|org)\s*$/i, '').trim();
   const re = /^\s*(Buy|Sell|Hold|Accumulate|Reduce|Neutral)\s+(.+?)[;,]\s*target\s+(?:of\s+)?Rs\.?\s*([\d,]+(?:\.\d+)?)\s*[:\-–]\s*(.+?)\s*$/i;
-  const m = title.match(re);
+  const m = cleaned.match(re);
   if (!m) return null;
 
   const action = (m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase()) as BrokerReco['recommendation'];
