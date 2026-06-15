@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, Plus, Trash2, Search, Loader2, AlertTriangle,
   CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp, Activity, ArrowRight,
+  Info, ChevronDown,
 } from "lucide-react";
 import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs, subscribeAmfiUpdates } from "@/lib/amfiSearch";
 import { FundSearchProgress } from "@/components/portfolio/FundSearchProgress";
@@ -207,7 +208,7 @@ const PortfolioReviewPage = () => {
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState<ReviewResponse | null>(null);
   const [showBench, setShowBench] = useState(false);
-  const [showTable, setShowTable] = useState(true);
+  const [showTable, setShowTable] = useState(false);
   const [hoverYear, setHoverYear] = useState<number | null>(null);
 
   // Warm the AMFI scheme list on the edge function so the first keystroke
@@ -426,12 +427,10 @@ const PortfolioReviewPage = () => {
                             <p className="text-[11px] font-semibold tabular-nums">{fmtINR(upVal)}</p>
                           </div>
                         </div>
-                        <p className="text-[10.5px] leading-snug text-emerald-600 dark:text-emerald-400">
-                          <span className="font-semibold">Upside:</span> {fmtINR(loVal)}–{fmtINR(upVal)} at {(params.lo*100).toFixed(0)}–{(params.hi*100).toFixed(0)}% CAGR
+                        <p className="text-[10px] leading-snug text-muted-foreground">
+                          Range {fmtINR(loVal)}–{fmtINR(upVal)} at {(params.lo*100).toFixed(0)}–{(params.hi*100).toFixed(0)}% CAGR · ~{pctLossProb}% chance of ending below ₹1 L · bad-year drop ~{Math.abs(params.worst1y*100).toFixed(0)}%
                         </p>
-                        <p className="text-[10.5px] leading-snug text-rose-600 dark:text-rose-400">
-                          <span className="font-semibold">Downside:</span> a bad year can drop ~{Math.abs(params.worst1y*100).toFixed(0)}% · typical recovery ~{params.recoverYrs} yr{params.recoverYrs > 1 ? "s" : ""} · ~{pctLossProb}% chance of ending below ₹1 L
-                        </p>
+
                       </div>
                     );
                   })()}
@@ -637,23 +636,30 @@ const PortfolioReviewPage = () => {
                         );
                       })()}
                     </div>
-                    {/* Legend & explanation */}
-                    <div className="rounded-md border bg-background/60 px-3 py-2 text-[11px] leading-snug space-y-1.5">
-                      <p className="font-medium text-foreground">How to read this chart</p>
-                      <ul className="space-y-1 text-muted-foreground">
-                        <li><span className="text-emerald-500 font-medium">P95 (Upside)</span> — only ~5% of outcomes do better than this line.</li>
-                        <li><span className="font-medium">P75–P25 band</span> — the middle 50% of outcomes (darker shade).</li>
-                        <li><span className="text-financial-accent font-medium">P50 (Base)</span> — the median: half of paths land above, half below.</li>
-                        <li><span className="text-rose-500 font-medium">P5 (Downside)</span> — only ~5% of outcomes do worse than this line.</li>
-                        <li>
-                          <span className="text-muted-foreground font-medium">Benchmark ({params.benchName})</span> — the P50 path of the category index assuming {(params.benchBase * 100).toFixed(1)}% CAGR
-                          and similar volatility ({(params.vol * 100).toFixed(0)}%). The gap to your Base line is the alpha your fund mix needs to deliver.
-                        </li>
-                      </ul>
-                      <p className="text-[10px] text-muted-foreground/80 pt-1 border-t">
-                        Model: lognormal returns with {(params.base * 100).toFixed(1)}% expected CAGR, {(params.vol * 100).toFixed(0)}% annual volatility. Percentiles widen with √time. Illustrative only — not a guarantee.
-                      </p>
-                    </div>
+                    {/* Legend & explanation — collapsed by default */}
+                    <details className="group rounded-md border bg-background/60 text-[11px] leading-snug">
+                      <summary className="flex items-center gap-1.5 px-3 py-1.5 cursor-pointer list-none select-none text-muted-foreground hover:text-foreground">
+                        <Info className="h-3.5 w-3.5" />
+                        <span className="font-medium">Legend &amp; how to read this chart</span>
+                        <ChevronDown className="h-3.5 w-3.5 ml-auto transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="px-3 pb-2 pt-1 space-y-1.5 border-t">
+                        <ul className="space-y-1 text-muted-foreground">
+                          <li><span className="text-emerald-500 font-medium">P95 (Upside)</span> — only ~5% of outcomes do better than this line.</li>
+                          <li><span className="font-medium">P75–P25 band</span> — the middle 50% of outcomes (darker shade).</li>
+                          <li><span className="text-financial-accent font-medium">P50 (Base)</span> — the median: half of paths land above, half below.</li>
+                          <li><span className="text-rose-500 font-medium">P5 (Downside)</span> — only ~5% of outcomes do worse than this line.</li>
+                          <li>
+                            <span className="text-muted-foreground font-medium">Benchmark ({params.benchName})</span> — the P50 path of the category index assuming {(params.benchBase * 100).toFixed(1)}% CAGR
+                            and similar volatility ({(params.vol * 100).toFixed(0)}%). The gap to your Base line is the alpha your fund mix needs to deliver.
+                          </li>
+                        </ul>
+                        <p className="text-[10px] text-muted-foreground/80 pt-1 border-t">
+                          Model: lognormal returns with {(params.base * 100).toFixed(1)}% expected CAGR, {(params.vol * 100).toFixed(0)}% annual volatility. Percentiles widen with √time. Illustrative only — not a guarantee.
+                        </p>
+                      </div>
+                    </details>
+
                     {/* Summary tiles with probability labels */}
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div className="rounded-md border bg-background/60 px-2 py-1.5">
