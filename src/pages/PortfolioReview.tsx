@@ -667,12 +667,12 @@ const PortfolioReviewPage = () => {
                       </summary>
                       <div className="px-3 pb-2 pt-1 space-y-1.5 border-t">
                         <ul className="space-y-1 text-muted-foreground">
-                          <li><span className="text-emerald-500 font-medium">P95 (Upside)</span> — only ~5% of outcomes do better than this line.</li>
-                          <li><span className="font-medium">P75–P25 band</span> — the middle 50% of outcomes (darker shade).</li>
-                          <li><span className="text-financial-accent font-medium">P50 (Base)</span> — the median: half of paths land above, half below.</li>
-                          <li><span className="text-rose-500 font-medium">P5 (Downside)</span> — only ~5% of outcomes do worse than this line.</li>
+                          <li><span className="text-emerald-500 font-medium"><PTip p="P95">P95</PTip> (Upside)</span> — only ~5% of outcomes do better than this line.</li>
+                          <li><span className="font-medium"><PTip p="P75">P75</PTip>–<PTip p="P25">P25</PTip> band</span> — the middle 50% of outcomes (darker shade).</li>
+                          <li><span className="text-financial-accent font-medium"><PTip p="P50">P50</PTip> (Base)</span> — the median: half of paths land above, half below.</li>
+                          <li><span className="text-rose-500 font-medium"><PTip p="P5">P5</PTip> (Downside)</span> — only ~5% of outcomes do worse than this line.</li>
                           <li>
-                            <span className="text-muted-foreground font-medium">Benchmark ({params.benchName})</span> — the P50 path of the category index assuming {(params.benchBase * 100).toFixed(1)}% CAGR
+                            <span className="text-muted-foreground font-medium">Benchmark ({params.benchName})</span> — the <PTip p="P50">P50</PTip> path of the category index assuming {(params.benchBase * 100).toFixed(1)}% CAGR
                             and similar volatility ({(params.vol * 100).toFixed(0)}%). The gap to your Base line is the alpha your fund mix needs to deliver.
                           </li>
                         </ul>
