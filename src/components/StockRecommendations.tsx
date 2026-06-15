@@ -32,74 +32,20 @@ interface StockRecommendation {
 }
 
 const StockRecommendations = () => {
-  // Stock recommendations based on actual brokerage reports
-  const recommendations: StockRecommendation[] = [
-    {
-      stock: "HDFC Bank",
-      ticker: "HDFCBANK",
-      targetPrice: 2350,
-      recommendation: "Buy",
-      broker: "ICICI Securities",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/buy-hdfc-bank-target-of-rs-2350-icici-securities-13312866.html",
-      rationale: "Strong loan growth momentum and improving asset quality"
-    },
-    {
-      stock: "State Bank of India",
-      ticker: "SBIN",
-      targetPrice: 1030,
-      recommendation: "Buy",
-      broker: "Motilal Oswal",
-      date: "Jan 2025",
-      sourceUrl: "https://www.ndtvprofit.com/research-reports/top-stock-pick-for-2025-buy-sbi-for-an-upside-of-27-says-motilal-oswal-heres-why",
-      rationale: "Better positioned to navigate systemic pressures with robust asset quality"
-    },
-    {
-      stock: "Hindalco Industries",
-      ticker: "HINDALCO",
-      targetPrice: 900,
-      recommendation: "Buy",
-      broker: "Emkay Global",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/stocks/buy-hindalco-target-of-rs-900-emkay-global-financial-13573816.html",
-      rationale: "Strong aluminum demand and favorable commodity cycle"
-    },
-    {
-      stock: "HDFC AMC",
-      ticker: "HDFCAMC",
-      targetPrice: 5200,
-      recommendation: "Buy",
-      broker: "Motilal Oswal",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/stocks/buy-hdfc-amc-target-of-rs-5200-motilal-oswal-12911351.html",
-      rationale: "Market leader benefiting from growing mutual fund industry"
-    },
-    {
-      stock: "Voltas",
-      ticker: "VOLTAS",
-      targetPrice: 1450,
-      recommendation: "Buy",
-      broker: "Emkay Global",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/stocks/buy-voltas-target-of-rs-1450-emkay-global-financial-13138520.html",
-      rationale: "Strong summer demand and market share gains in AC segment"
-    },
-    {
-      stock: "3M India",
-      ticker: "3MINDIA",
-      targetPrice: 35610,
-      recommendation: "Buy",
-      broker: "ICICI Securities",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/stocks/buy-3m-india-target-of-rs-35-610-icici-securities-13531553.html",
-      rationale: "Diversified industrial play with consistent growth trajectory"
-    }
-  ];
+  const { recos: recommendations, isLoading: recosLoading, error: recosError, lastUpdated: recosUpdatedAt, refresh: refreshRecos } = useBrokerRecos(9);
 
-  const symbols = useMemo(() => recommendations.map(r => r.ticker), []);
-  const { prices, isLoading, error, lastUpdated, refreshPrices } = useStockPrices(symbols);
+  const symbols = recommendations.map(r => r.ticker).filter(Boolean);
+  const { prices, isLoading: pricesLoading, refreshPrices } = useStockPrices(symbols);
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
+
+  const isLoading = recosLoading || pricesLoading;
+  const lastUpdated = recosUpdatedAt;
+
+  const handleRefresh = async () => {
+    await refreshRecos();
+    refreshPrices();
+  };
 
   const getRecommendationColor = (rec: string) => {
     switch (rec) {
