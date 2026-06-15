@@ -284,14 +284,33 @@ serve(async (req) => {
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
-    const recos = sorted.slice(0, limit);
+    let recos = sorted.slice(0, limit);
+    let source: 'rss' | 'cache' = 'rss';
+    let fetchedAt = new Date().toISOString();
+    let cacheAge: number | null = null;
+
+    if (recos.length > 0) {
+      // Fresh data: persist it for future fallback
+      await saveCachedRecos(recos);
+    } else {
+      // No fresh items — fall back to last cached batch
+      const cached = await loadCachedRecos();
+      if (cached && cached.recos.length > 0) {
+        recos = cached.recos.slice(0, limit);
+        source = 'cache';
+        fetchedAt = cached.fetched_at;
+        cacheAge = Math.max(0, Date.now() - new Date(cached.fetched_at).getTime());
+        console.log(`Serving ${recos.length} cached recos from ${cached.fetched_at}`);
+      }
+    }
 
     return new Response(
       JSON.stringify({
         recos,
         count: recos.length,
-        fetchedAt: new Date().toISOString(),
-        source: 'rss',
+        fetchedAt,
+        source,
+        cacheAgeMs: cacheAge,
       }),
       {
         headers: {
