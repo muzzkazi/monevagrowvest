@@ -539,9 +539,9 @@ const PortfolioReviewPage = () => {
                         <p className="text-[11px] text-muted-foreground">Wealth multiple on ₹1 invested · shaded bands = likelihood ranges</p>
                       </div>
                       <div className="flex flex-wrap items-center gap-3 text-[11px]">
-                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/15 border border-financial-accent/30" />5–95% range</span>
-                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/35 border border-financial-accent/50" />25–75% range</span>
-                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-0.5 bg-financial-accent" />Base (P50)</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/15 border border-financial-accent/30" /><PTip p="P5">5</PTip>–<PTip p="P95">95</PTip>% range</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/35 border border-financial-accent/50" /><PTip p="P25">25</PTip>–<PTip p="P75">75</PTip>% range</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-0.5 bg-financial-accent" />Base (<PTip p="P50">P50</PTip>)</span>
                         <label className="flex items-center gap-1.5 cursor-pointer select-none">
                           <input
                             type="checkbox"
