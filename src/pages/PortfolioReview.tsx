@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, Plus, Trash2, Search, Loader2, AlertTriangle,
   CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp, Activity, ArrowRight,
+  Info, ChevronDown,
 } from "lucide-react";
 import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs, subscribeAmfiUpdates } from "@/lib/amfiSearch";
 import { FundSearchProgress } from "@/components/portfolio/FundSearchProgress";
