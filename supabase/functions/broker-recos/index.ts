@@ -226,17 +226,20 @@ function parseRecoTitle(title: string, link: string, description: string, pubDat
   const firstSentence = looksLikeTitleEcho ? '' : (desc.split(/(?<=[.!?])\s+/)[0] || desc);
   const rationale = firstSentence.length > 160 ? firstSentence.slice(0, 157) + '...' : firstSentence;
 
+  const ticker = guessTicker(stock);
   return {
     stock,
-    ticker: guessTicker(stock),
+    ticker,
     recommendation: action,
     targetPrice: target,
     broker,
     date: pubDate,
     rationale: rationale || `${broker} recommends ${action} on ${stock}`,
     sourceUrl: link,
+    sector: ticker ? TICKER_TO_SECTOR[ticker] : undefined,
   };
 }
+
 
 async function fetchFeed(feed: { url: string; source: string }): Promise<BrokerReco[]> {
   try {
