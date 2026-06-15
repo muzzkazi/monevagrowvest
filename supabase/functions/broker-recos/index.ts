@@ -111,14 +111,17 @@ const RECO_FEEDS = [
   },
 ];
 
-// Decode a Google News redirector URL (news.google.com/rss/articles/<base64>)
-// into the original publisher URL embedded in its protobuf payload.
-// Returns the input unchanged if it isn't a Google News link or decoding fails.
-function resolveGoogleNewsUrl(url: string): string {
+function getGoogleNewsArticleId(url: string): string | null {
+  return url.match(/news\.google\.com\/(?:rss\/)?articles\/([^?#/]+)/i)?.[1] ?? null;
+}
+
+// Decode older Google News redirector URLs where the source URL is embedded
+// directly in the base64 payload. Newer AU_yqL IDs require a server lookup.
+function resolveGoogleNewsUrlOffline(url: string): string {
   try {
-    const m = url.match(/news\.google\.com\/(?:rss\/)?articles\/([^?#/]+)/i);
-    if (!m) return url;
-    const b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+    const id = getGoogleNewsArticleId(url);
+    if (!id) return url;
+    const b64 = id.replace(/-/g, '+').replace(/_/g, '/');
     const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
     const bytes = Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
     const text = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
@@ -126,6 +129,52 @@ function resolveGoogleNewsUrl(url: string): string {
     if (urlMatch) return urlMatch[0].replace(/[)\].,;]+$/, '');
     return url;
   } catch {
+    return url;
+  }
+}
+
+async function resolveGoogleNewsUrl(url: string): Promise<string> {
+  const id = getGoogleNewsArticleId(url);
+  if (!id) return url;
+
+  const offline = resolveGoogleNewsUrlOffline(url);
+  if (!getGoogleNewsArticleId(offline)) return offline;
+
+  try {
+    const articleRes = await fetch(`https://news.google.com/articles/${id}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'en-IN,en;q=0.9' },
+    });
+    const html = await articleRes.text();
+    const signature = html.match(/data-n-a-sg="([^"]+)"/)?.[1];
+    const timestamp = html.match(/data-n-a-ts="([^"]+)"/)?.[1];
+    if (!articleRes.ok || !signature || !timestamp) return url;
+
+    const payload = [[[
+      'Fbv4je',
+      JSON.stringify([
+        'garturlreq',
+        [['X', 'X', ['X', 'X'], null, null, 1, 1, 'US:en', null, 1, null, null, null, null, null, 0, 1], 'X', 'X', 1, [1, 1, 1], 1, 1, null, 0, 0, null, 0],
+        id,
+        timestamp,
+        signature,
+      ]),
+      null,
+      'generic',
+    ]]];
+    const decodeRes = await fetch('https://news.google.com/_/DotsSplashUi/data/batchexecute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'User-Agent': 'Mozilla/5.0' },
+      body: `f.req=${encodeURIComponent(JSON.stringify(payload))}`,
+    });
+    const text = await decodeRes.text();
+    const jsonLine = text.split('\n').find((line) => line.trim().startsWith('[['));
+    if (!decodeRes.ok || !jsonLine) return url;
+    const decoded = JSON.parse(jsonLine);
+    const nested = decoded?.[0]?.[2] ? JSON.parse(decoded[0][2]) : null;
+    const directUrl = typeof nested?.[1] === 'string' ? nested[1] : null;
+    return directUrl?.startsWith('http') ? directUrl : url;
+  } catch (e) {
+    console.error('Google News URL decode failed:', e);
     return url;
   }
 }
