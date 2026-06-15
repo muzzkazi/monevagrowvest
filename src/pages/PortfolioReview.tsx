@@ -636,23 +636,30 @@ const PortfolioReviewPage = () => {
                         );
                       })()}
                     </div>
-                    {/* Legend & explanation */}
-                    <div className="rounded-md border bg-background/60 px-3 py-2 text-[11px] leading-snug space-y-1.5">
-                      <p className="font-medium text-foreground">How to read this chart</p>
-                      <ul className="space-y-1 text-muted-foreground">
-                        <li><span className="text-emerald-500 font-medium">P95 (Upside)</span> — only ~5% of outcomes do better than this line.</li>
-                        <li><span className="font-medium">P75–P25 band</span> — the middle 50% of outcomes (darker shade).</li>
-                        <li><span className="text-financial-accent font-medium">P50 (Base)</span> — the median: half of paths land above, half below.</li>
-                        <li><span className="text-rose-500 font-medium">P5 (Downside)</span> — only ~5% of outcomes do worse than this line.</li>
-                        <li>
-                          <span className="text-muted-foreground font-medium">Benchmark ({params.benchName})</span> — the P50 path of the category index assuming {(params.benchBase * 100).toFixed(1)}% CAGR
-                          and similar volatility ({(params.vol * 100).toFixed(0)}%). The gap to your Base line is the alpha your fund mix needs to deliver.
-                        </li>
-                      </ul>
-                      <p className="text-[10px] text-muted-foreground/80 pt-1 border-t">
-                        Model: lognormal returns with {(params.base * 100).toFixed(1)}% expected CAGR, {(params.vol * 100).toFixed(0)}% annual volatility. Percentiles widen with √time. Illustrative only — not a guarantee.
-                      </p>
-                    </div>
+                    {/* Legend & explanation — collapsed by default */}
+                    <details className="group rounded-md border bg-background/60 text-[11px] leading-snug">
+                      <summary className="flex items-center gap-1.5 px-3 py-1.5 cursor-pointer list-none select-none text-muted-foreground hover:text-foreground">
+                        <Info className="h-3.5 w-3.5" />
+                        <span className="font-medium">Legend &amp; how to read this chart</span>
+                        <ChevronDown className="h-3.5 w-3.5 ml-auto transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="px-3 pb-2 pt-1 space-y-1.5 border-t">
+                        <ul className="space-y-1 text-muted-foreground">
+                          <li><span className="text-emerald-500 font-medium">P95 (Upside)</span> — only ~5% of outcomes do better than this line.</li>
+                          <li><span className="font-medium">P75–P25 band</span> — the middle 50% of outcomes (darker shade).</li>
+                          <li><span className="text-financial-accent font-medium">P50 (Base)</span> — the median: half of paths land above, half below.</li>
+                          <li><span className="text-rose-500 font-medium">P5 (Downside)</span> — only ~5% of outcomes do worse than this line.</li>
+                          <li>
+                            <span className="text-muted-foreground font-medium">Benchmark ({params.benchName})</span> — the P50 path of the category index assuming {(params.benchBase * 100).toFixed(1)}% CAGR
+                            and similar volatility ({(params.vol * 100).toFixed(0)}%). The gap to your Base line is the alpha your fund mix needs to deliver.
+                          </li>
+                        </ul>
+                        <p className="text-[10px] text-muted-foreground/80 pt-1 border-t">
+                          Model: lognormal returns with {(params.base * 100).toFixed(1)}% expected CAGR, {(params.vol * 100).toFixed(0)}% annual volatility. Percentiles widen with √time. Illustrative only — not a guarantee.
+                        </p>
+                      </div>
+                    </details>
+
                     {/* Summary tiles with probability labels */}
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div className="rounded-md border bg-background/60 px-2 py-1.5">
