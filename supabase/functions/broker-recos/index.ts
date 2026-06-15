@@ -159,9 +159,12 @@ function parseRecoTitle(title: string, link: string, description: string, pubDat
 
   if (!stock || !broker || !isFinite(target) || target <= 0) return null;
 
-  // Build a short rationale from description (first sentence, max ~140 chars)
+  // Build a short rationale from the description. Google News descriptions are
+  // just an anchor-wrapped duplicate of the title + source name, so drop them
+  // and fall back to a generated sentence in that case.
   const desc = cleanText(description);
-  const firstSentence = desc.split(/(?<=[.!?])\s+/)[0] || desc;
+  const looksLikeTitleEcho = !desc || desc.toLowerCase().includes(stock.toLowerCase());
+  const firstSentence = looksLikeTitleEcho ? '' : (desc.split(/(?<=[.!?])\s+/)[0] || desc);
   const rationale = firstSentence.length > 160 ? firstSentence.slice(0, 157) + '...' : firstSentence;
 
   return {
