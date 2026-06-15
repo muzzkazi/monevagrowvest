@@ -1,12 +1,11 @@
-import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Minus, 
-  ExternalLink, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ExternalLink,
   RefreshCw,
   Target,
   Building2,
@@ -14,21 +13,29 @@ import {
   ArrowDownRight,
   Wifi,
   WifiOff,
-  Clock
+  Clock,
+  AlertCircle,
 } from "lucide-react";
 import { useStockPrices } from "@/hooks/useStockPrices";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useBrokerRecos } from "@/hooks/useBrokerRecos";
 
-interface StockRecommendation {
-  stock: string;
-  ticker: string;
-  targetPrice: number;
-  recommendation: "Buy" | "Hold" | "Sell";
-  broker: string;
-  date: string;
-  sourceUrl: string;
-  rationale: string;
+function formatRelativeDate(iso: string): string {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    const diffMs = Date.now() - d.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  } catch {
+    return "";
+  }
 }
 
 const StockRecommendations = () => {
