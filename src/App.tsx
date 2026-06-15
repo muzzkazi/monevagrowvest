@@ -76,6 +76,8 @@ const AnimatedRoutes = () => {
           <Route path="/stock-screener" element={<StockScreenerPage />} />
           <Route path="/tax-planning" element={<TaxPlanning />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/brokerage-calls" element={<BrokerageCalls />} />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
