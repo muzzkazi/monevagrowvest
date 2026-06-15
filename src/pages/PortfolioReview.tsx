@@ -427,12 +427,10 @@ const PortfolioReviewPage = () => {
                             <p className="text-[11px] font-semibold tabular-nums">{fmtINR(upVal)}</p>
                           </div>
                         </div>
-                        <p className="text-[10.5px] leading-snug text-emerald-600 dark:text-emerald-400">
-                          <span className="font-semibold">Upside:</span> {fmtINR(loVal)}–{fmtINR(upVal)} at {(params.lo*100).toFixed(0)}–{(params.hi*100).toFixed(0)}% CAGR
+                        <p className="text-[10px] leading-snug text-muted-foreground">
+                          Range {fmtINR(loVal)}–{fmtINR(upVal)} at {(params.lo*100).toFixed(0)}–{(params.hi*100).toFixed(0)}% CAGR · ~{pctLossProb}% chance of ending below ₹1 L · bad-year drop ~{Math.abs(params.worst1y*100).toFixed(0)}%
                         </p>
-                        <p className="text-[10.5px] leading-snug text-rose-600 dark:text-rose-400">
-                          <span className="font-semibold">Downside:</span> a bad year can drop ~{Math.abs(params.worst1y*100).toFixed(0)}% · typical recovery ~{params.recoverYrs} yr{params.recoverYrs > 1 ? "s" : ""} · ~{pctLossProb}% chance of ending below ₹1 L
-                        </p>
+
                       </div>
                     );
                   })()}
