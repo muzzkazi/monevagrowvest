@@ -291,23 +291,24 @@ const StockRecommendations = () => {
 
         <div className="mt-6 text-center">
           <Card className="inline-block bg-gradient-gold border-0 shadow-card p-6">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap justify-center">
               <div className="w-12 h-12 bg-financial-accent/20 rounded-full flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 text-financial-accent" />
               </div>
               <div className="text-left">
-                <h3 className="font-bold text-financial-primary">Want Personalized Recommendations?</h3>
-                <p className="text-sm text-financial-secondary">Get expert advice tailored to your risk profile and goals</p>
+                <h3 className="font-bold text-financial-primary">See every brokerage call in one place</h3>
+                <p className="text-sm text-financial-secondary">Filter by broker, call type, sector and date — table or card view.</p>
               </div>
-              <Button 
-                className="bg-financial-accent hover:bg-financial-accent/90 text-white ml-4"
-                onClick={() => window.location.href = '/contact'}
+              <Button
+                className="bg-financial-accent hover:bg-financial-accent/90 text-white"
+                onClick={() => window.location.href = '/brokerage-calls'}
               >
-                Consult Now
+                View All Calls
               </Button>
             </div>
           </Card>
         </div>
+
       </div>
     </section>
   );
