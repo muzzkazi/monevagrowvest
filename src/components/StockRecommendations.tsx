@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useStockPrices } from "@/hooks/useStockPrices";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useBrokerRecos } from "@/hooks/useBrokerRecos";
 
 interface StockRecommendation {
   stock: string;
