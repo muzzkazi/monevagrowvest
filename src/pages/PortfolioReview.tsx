@@ -10,6 +10,28 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+// Tiny helper: wraps a percentile label with a hover/tap tooltip explaining it.
+const PCT_HELP: Record<string, string> = {
+  P5: "5th percentile — only ~5 out of 100 simulated outcomes finish worse than this. The 'bad case'.",
+  P25: "25th percentile — 1 in 4 outcomes finish below this. Bottom edge of the 'likely' range.",
+  P50: "50th percentile (median) — half of outcomes land above, half below. The 'most likely' middle.",
+  P75: "75th percentile — 3 in 4 outcomes finish below this. Top edge of the 'likely' range.",
+  P95: "95th percentile — only ~5 out of 100 simulated outcomes finish better than this. The 'best case'.",
+};
+const PTip = ({ p, children, className }: { p: keyof typeof PCT_HELP; children: React.ReactNode; className?: string }) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <span tabIndex={0} className={`underline decoration-dotted decoration-1 underline-offset-2 cursor-help outline-none ${className ?? ""}`}>
+        {children}
+      </span>
+    </TooltipTrigger>
+    <TooltipContent side="top" className="max-w-[240px] text-[11px] leading-snug">
+      {PCT_HELP[p]}
+    </TooltipContent>
+  </Tooltip>
+);
 import {
   Sparkles, Plus, Trash2, Search, Loader2, AlertTriangle,
   CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp, Activity, ArrowRight,
@@ -517,9 +539,9 @@ const PortfolioReviewPage = () => {
                         <p className="text-[11px] text-muted-foreground">Wealth multiple on ₹1 invested · shaded bands = likelihood ranges</p>
                       </div>
                       <div className="flex flex-wrap items-center gap-3 text-[11px]">
-                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/15 border border-financial-accent/30" />5–95% range</span>
-                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/35 border border-financial-accent/50" />25–75% range</span>
-                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-0.5 bg-financial-accent" />Base (P50)</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/15 border border-financial-accent/30" /><PTip p="P5">5</PTip>–<PTip p="P95">95</PTip>% range</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded-sm bg-financial-accent/35 border border-financial-accent/50" /><PTip p="P25">25</PTip>–<PTip p="P75">75</PTip>% range</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-0.5 bg-financial-accent" />Base (<PTip p="P50">P50</PTip>)</span>
                         <label className="flex items-center gap-1.5 cursor-pointer select-none">
                           <input
                             type="checkbox"
@@ -645,12 +667,12 @@ const PortfolioReviewPage = () => {
                       </summary>
                       <div className="px-3 pb-2 pt-1 space-y-1.5 border-t">
                         <ul className="space-y-1 text-muted-foreground">
-                          <li><span className="text-emerald-500 font-medium">P95 (Upside)</span> — only ~5% of outcomes do better than this line.</li>
-                          <li><span className="font-medium">P75–P25 band</span> — the middle 50% of outcomes (darker shade).</li>
-                          <li><span className="text-financial-accent font-medium">P50 (Base)</span> — the median: half of paths land above, half below.</li>
-                          <li><span className="text-rose-500 font-medium">P5 (Downside)</span> — only ~5% of outcomes do worse than this line.</li>
+                          <li><span className="text-emerald-500 font-medium"><PTip p="P95">P95</PTip> (Upside)</span> — only ~5% of outcomes do better than this line.</li>
+                          <li><span className="font-medium"><PTip p="P75">P75</PTip>–<PTip p="P25">P25</PTip> band</span> — the middle 50% of outcomes (darker shade).</li>
+                          <li><span className="text-financial-accent font-medium"><PTip p="P50">P50</PTip> (Base)</span> — the median: half of paths land above, half below.</li>
+                          <li><span className="text-rose-500 font-medium"><PTip p="P5">P5</PTip> (Downside)</span> — only ~5% of outcomes do worse than this line.</li>
                           <li>
-                            <span className="text-muted-foreground font-medium">Benchmark ({params.benchName})</span> — the P50 path of the category index assuming {(params.benchBase * 100).toFixed(1)}% CAGR
+                            <span className="text-muted-foreground font-medium">Benchmark ({params.benchName})</span> — the <PTip p="P50">P50</PTip> path of the category index assuming {(params.benchBase * 100).toFixed(1)}% CAGR
                             and similar volatility ({(params.vol * 100).toFixed(0)}%). The gap to your Base line is the alpha your fund mix needs to deliver.
                           </li>
                         </ul>
@@ -704,9 +726,9 @@ const PortfolioReviewPage = () => {
                                   {showBench && <th rowSpan={2} className="text-right px-2 py-1.5 font-medium text-muted-foreground align-bottom border-l">Bench</th>}
                                 </tr>
                                 <tr>
-                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px] border-l">Low<div className="opacity-60">P25</div></th>
-                                  <th className="text-right px-2 pb-1.5 font-medium text-financial-accent">Most likely<div className="text-[10px] font-normal opacity-70">median</div></th>
-                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px]">High<div className="opacity-60">P75</div></th>
+                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px] border-l">Low<div className="opacity-60"><PTip p="P25">P25</PTip></div></th>
+                                  <th className="text-right px-2 pb-1.5 font-medium text-financial-accent">Most likely<div className="text-[10px] font-normal opacity-70"><PTip p="P50">median</PTip></div></th>
+                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px]">High<div className="opacity-60"><PTip p="P75">P75</PTip></div></th>
                                 </tr>
                               </thead>
                               <tbody>
