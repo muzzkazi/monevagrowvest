@@ -1,4 +1,44 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const CACHE_ID = "latest";
+
+function getServiceClient() {
+  const url = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false } });
+}
+
+async function loadCachedRecos(): Promise<{ recos: BrokerReco[]; fetched_at: string } | null> {
+  const supabase = getServiceClient();
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from("broker_recos_cache")
+      .select("recos, fetched_at")
+      .eq("id", CACHE_ID)
+      .maybeSingle();
+    if (error || !data) return null;
+    return { recos: (data.recos as BrokerReco[]) || [], fetched_at: data.fetched_at as string };
+  } catch (e) {
+    console.error("loadCachedRecos failed:", e);
+    return null;
+  }
+}
+
+async function saveCachedRecos(recos: BrokerReco[]): Promise<void> {
+  const supabase = getServiceClient();
+  if (!supabase) return;
+  try {
+    const { error } = await supabase
+      .from("broker_recos_cache")
+      .upsert({ id: CACHE_ID, recos, fetched_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+    if (error) console.error("saveCachedRecos error:", error);
+  } catch (e) {
+    console.error("saveCachedRecos failed:", e);
+  }
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -244,14 +284,33 @@ serve(async (req) => {
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
-    const recos = sorted.slice(0, limit);
+    let recos = sorted.slice(0, limit);
+    let source: 'rss' | 'cache' = 'rss';
+    let fetchedAt = new Date().toISOString();
+    let cacheAge: number | null = null;
+
+    if (recos.length > 0) {
+      // Fresh data: persist it for future fallback
+      await saveCachedRecos(recos);
+    } else {
+      // No fresh items — fall back to last cached batch
+      const cached = await loadCachedRecos();
+      if (cached && cached.recos.length > 0) {
+        recos = cached.recos.slice(0, limit);
+        source = 'cache';
+        fetchedAt = cached.fetched_at;
+        cacheAge = Math.max(0, Date.now() - new Date(cached.fetched_at).getTime());
+        console.log(`Serving ${recos.length} cached recos from ${cached.fetched_at}`);
+      }
+    }
 
     return new Response(
       JSON.stringify({
         recos,
         count: recos.length,
-        fetchedAt: new Date().toISOString(),
-        source: 'rss',
+        fetchedAt,
+        source,
+        cacheAgeMs: cacheAge,
       }),
       {
         headers: {

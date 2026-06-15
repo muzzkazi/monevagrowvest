@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      broker_recos_cache: {
+        Row: {
+          fetched_at: string
+          id: string
+          recos: Json
+          updated_at: string
+        }
+        Insert: {
+          fetched_at?: string
+          id: string
+          recos: Json
+          updated_at?: string
+        }
+        Update: {
+          fetched_at?: string
+          id?: string
+          recos?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

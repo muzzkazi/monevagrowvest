@@ -40,7 +40,7 @@ function formatRelativeDate(iso: string): string {
 }
 
 const StockRecommendations = () => {
-  const { recos: recommendations, isLoading: recosLoading, error: recosError, lastUpdated: recosUpdatedAt, refresh: refreshRecos } = useBrokerRecos(9);
+  const { recos: recommendations, isLoading: recosLoading, error: recosError, lastUpdated: recosUpdatedAt, source: recosSource, fetchedAt: recosFetchedAt, refresh: refreshRecos } = useBrokerRecos(9);
 
   const symbols = useMemo(() => recommendations.map(r => r.ticker).filter(Boolean), [recommendations]);
   const { prices, isLoading: pricesLoading, refreshPrices } = useStockPrices(symbols);
@@ -168,6 +168,16 @@ const StockRecommendations = () => {
         {!recosError && !recosLoading && recommendations.length === 0 && (
           <div className="max-w-xl mx-auto bg-muted/50 border border-border rounded-lg p-6 text-center text-sm text-muted-foreground">
             No fresh brokerage calls right now. Auto-refreshing every 5 minutes.
+          </div>
+        )}
+
+        {recosSource === "cache" && recommendations.length > 0 && (
+          <div className="max-w-2xl mx-auto bg-yellow-500/10 border border-yellow-500/30 text-yellow-700 dark:text-yellow-400 rounded-lg px-4 py-2 text-xs flex items-center gap-2 mb-6">
+            <Clock className="w-3.5 h-3.5 shrink-0" />
+            <span>
+              Live feed unavailable — showing last cached picks
+              {recosFetchedAt ? ` from ${formatRelativeDate(recosFetchedAt.toISOString())}` : ""}.
+            </span>
           </div>
         )}
 
