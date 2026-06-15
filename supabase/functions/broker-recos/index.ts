@@ -251,6 +251,73 @@ async function fetchFeed(feed: { url: string; source: string }): Promise<BrokerR
   }
 }
 
+// Scrape Moneycontrol's broker-recommendations tag page through Firecrawl.
+// This bypasses Google News' 503s and Moneycontrol's own bot blocks.
+const MONEYCONTROL_RECO_PAGES = [
+  'https://www.moneycontrol.com/news/tags/recommendations.html',
+  'https://www.moneycontrol.com/news/tags/broker-research.html',
+];
+
+async function fetchMoneycontrolViaFirecrawl(): Promise<BrokerReco[]> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) {
+    console.log('FIRECRAWL_API_KEY not set, skipping Firecrawl');
+    return [];
+  }
+  const out: BrokerReco[] = [];
+  for (const pageUrl of MONEYCONTROL_RECO_PAGES) {
+    try {
+      const res = await fetch('https://api.firecrawl.dev/v2/scrape', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: pageUrl,
+          formats: ['markdown', 'links'],
+          onlyMainContent: true,
+        }),
+      });
+      if (!res.ok) {
+        console.error(`Firecrawl ${pageUrl} failed: ${res.status} ${await res.text().catch(() => '')}`);
+        continue;
+      }
+      const json = await res.json();
+      const markdown: string = json?.data?.markdown || json?.markdown || '';
+      const links: string[] = json?.data?.links || json?.links || [];
+      // Build link map: anchor text -> href, by scanning markdown links [text](href)
+      const linkPairs: Array<{ text: string; href: string }> = [];
+      const linkRe = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+      let m: RegExpExecArray | null;
+      while ((m = linkRe.exec(markdown)) !== null) {
+        linkPairs.push({ text: m[1].trim(), href: m[2].trim() });
+      }
+      const now = new Date().toISOString();
+      for (const { text, href } of linkPairs) {
+        if (!/moneycontrol\.com/i.test(href)) continue;
+        const reco = parseRecoTitle(text, href, '', now, 'Moneycontrol');
+        if (reco) out.push(reco);
+      }
+      // Also try plain link list (some pages render titles as anchor-only)
+      for (const href of links) {
+        if (typeof href !== 'string') continue;
+        // Title is usually in the URL slug: /news/business/markets/buy-hdfc-bank-...
+        const slugMatch = href.match(/\/([^/]+?)-\d+\.html$/);
+        if (!slugMatch) continue;
+        const slugTitle = slugMatch[1].replace(/-/g, ' ');
+        const reco = parseRecoTitle(slugTitle, href, '', now, 'Moneycontrol');
+        if (reco) out.push(reco);
+      }
+    } catch (e) {
+      console.error(`Firecrawl error ${pageUrl}:`, e);
+    }
+  }
+  console.log(`Firecrawl returned ${out.length} Moneycontrol recos`);
+  return out;
+}
+
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
