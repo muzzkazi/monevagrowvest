@@ -109,12 +109,17 @@ function cleanText(text: string): string {
   return text
     .replace(/<!\[CDATA\[/g, '')
     .replace(/\]\]>/g, '')
-    .replace(/<[^>]*>/g, '')
+    // Decode entities FIRST so encoded tags (&lt;a&gt;) become real tags
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#?\w+;/g, ' ')
+    // THEN strip all HTML tags (handles Google News' anchor-wrapped descriptions)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
