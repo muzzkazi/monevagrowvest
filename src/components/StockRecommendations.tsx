@@ -221,25 +221,27 @@ const StockRecommendations = () => {
                 </CardHeader>
                 
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-muted/50 rounded-lg p-3 relative">
-                      <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                        {livePrice && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />}
-                        Live Price
-                      </p>
-                      {isLoading && !livePrice ? (
-                        <div className="h-7 bg-muted animate-pulse rounded" />
-                      ) : livePrice ? (
-                        <div>
-                          <p className="text-lg font-bold font-mono">{formatCurrency(currentPrice)}</p>
-                          <p className={`text-xs font-mono ${priceChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {priceChange >= 0 ? '+' : ''}{formatCurrency(priceChange)}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">Loading...</p>
-                      )}
-                    </div>
+                  <div className={rec.ticker ? "grid grid-cols-2 gap-4" : "grid grid-cols-1 gap-4"}>
+                    {rec.ticker && (
+                      <div className="bg-muted/50 rounded-lg p-3 relative">
+                        <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                          {livePrice && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />}
+                          Live Price
+                        </p>
+                        {isLoading && !livePrice ? (
+                          <div className="h-7 bg-muted animate-pulse rounded" />
+                        ) : livePrice ? (
+                          <div>
+                            <p className="text-lg font-bold font-mono">{formatCurrency(currentPrice)}</p>
+                            <p className={`text-xs font-mono ${priceChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {priceChange >= 0 ? '+' : ''}{formatCurrency(priceChange)}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Loading...</p>
+                        )}
+                      </div>
+                    )}
                     <div className="bg-financial-accent/10 rounded-lg p-3">
                       <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                         <Target className="w-3 h-3" />
