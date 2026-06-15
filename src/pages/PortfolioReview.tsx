@@ -208,7 +208,7 @@ const PortfolioReviewPage = () => {
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState<ReviewResponse | null>(null);
   const [showBench, setShowBench] = useState(false);
-  const [showTable, setShowTable] = useState(true);
+  const [showTable, setShowTable] = useState(false);
   const [hoverYear, setHoverYear] = useState<number | null>(null);
 
   // Warm the AMFI scheme list on the edge function so the first keystroke
