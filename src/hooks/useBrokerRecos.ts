@@ -17,6 +17,8 @@ interface UseBrokerRecosResult {
   isLoading: boolean;
   error: string | null;
   lastUpdated: Date | null;
+  source: "rss" | "cache" | null;
+  fetchedAt: Date | null;
   refresh: () => Promise<void>;
 }
 
