@@ -29,6 +29,8 @@ export const useBrokerRecos = (limit = 9): UseBrokerRecosResult => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [source, setSource] = useState<"rss" | "cache" | null>(null);
+  const [fetchedAt, setFetchedAt] = useState<Date | null>(null);
 
   const fetchRecos = useCallback(async () => {
     setIsLoading(true);
@@ -41,6 +43,8 @@ export const useBrokerRecos = (limit = 9): UseBrokerRecosResult => {
       const list: BrokerReco[] = Array.isArray(data?.recos) ? data.recos : [];
       setRecos(list);
       setLastUpdated(new Date());
+      setSource((data?.source as "rss" | "cache") ?? null);
+      setFetchedAt(data?.fetchedAt ? new Date(data.fetchedAt) : null);
     } catch (e: any) {
       console.error("broker-recos fetch failed:", e);
       setError(e?.message || "Failed to load recommendations");
@@ -55,5 +59,5 @@ export const useBrokerRecos = (limit = 9): UseBrokerRecosResult => {
     return () => clearInterval(id);
   }, [fetchRecos]);
 
-  return { recos, isLoading, error, lastUpdated, refresh: fetchRecos };
+  return { recos, isLoading, error, lastUpdated, source, fetchedAt, refresh: fetchRecos };
 };
