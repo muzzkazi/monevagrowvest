@@ -688,38 +688,52 @@ const PortfolioReviewPage = () => {
                         </button>
                       </div>
                       {showTable && (
-                        <div className="overflow-x-auto rounded-md border bg-background/60">
-                          <table className="w-full text-[11px]">
-                            <thead className="bg-financial-muted/50 text-muted-foreground">
-                              <tr>
-                                <th className="text-left px-2 py-1.5 font-medium">Year</th>
-                                <th className="text-right px-2 py-1.5 font-medium text-rose-500">Downside (P5)</th>
-                                <th className="text-right px-2 py-1.5 font-medium">P25</th>
-                                <th className="text-right px-2 py-1.5 font-medium text-financial-accent">Base (P50)</th>
-                                <th className="text-right px-2 py-1.5 font-medium">P75</th>
-                                <th className="text-right px-2 py-1.5 font-medium text-emerald-500">Upside (P95)</th>
-                                {showBench && <th className="text-right px-2 py-1.5 font-medium text-muted-foreground">Bench</th>}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {tableSteps.map(y => {
-                                const r = data[y];
-                                return (
-                                  <tr key={y} className="border-t">
-                                    <td className="px-2 py-1.5">{y}y</td>
-                                    <td className="px-2 py-1.5 text-right text-rose-500">{fmt(r.dn)}</td>
-                                    <td className="px-2 py-1.5 text-right">{fmt(r.p25)}</td>
-                                    <td className="px-2 py-1.5 text-right text-financial-accent font-medium">{fmt(r.base)}</td>
-                                    <td className="px-2 py-1.5 text-right">{fmt(r.p75)}</td>
-                                    <td className="px-2 py-1.5 text-right text-emerald-500">{fmt(r.up)}</td>
-                                    {showBench && <td className="px-2 py-1.5 text-right text-muted-foreground">{fmt(r.bench)}</td>}
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
+                        <>
+                          <div className="overflow-x-auto rounded-md border bg-background/60">
+                            <table className="w-full text-[11px]">
+                              <thead className="bg-financial-muted/50 text-muted-foreground">
+                                <tr>
+                                  <th rowSpan={2} className="text-left px-2 py-1.5 font-medium align-bottom">Year</th>
+                                  <th rowSpan={2} className="text-right px-2 py-1.5 font-medium text-rose-500 align-bottom">
+                                    Bad case<div className="text-[9px] font-normal opacity-70">worst 5%</div>
+                                  </th>
+                                  <th colSpan={3} className="text-center px-2 pt-1.5 pb-0 font-medium border-l">Likely range (middle 50%)</th>
+                                  <th rowSpan={2} className="text-right px-2 py-1.5 font-medium text-emerald-500 align-bottom border-l">
+                                    Best case<div className="text-[9px] font-normal opacity-70">top 5%</div>
+                                  </th>
+                                  {showBench && <th rowSpan={2} className="text-right px-2 py-1.5 font-medium text-muted-foreground align-bottom border-l">Bench</th>}
+                                </tr>
+                                <tr>
+                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px] border-l">Low<div className="opacity-60">P25</div></th>
+                                  <th className="text-right px-2 pb-1.5 font-medium text-financial-accent">Most likely<div className="text-[10px] font-normal opacity-70">median</div></th>
+                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px]">High<div className="opacity-60">P75</div></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {tableSteps.map(y => {
+                                  const r = data[y];
+                                  return (
+                                    <tr key={y} className="border-t">
+                                      <td className="px-2 py-1.5">{y}y</td>
+                                      <td className="px-2 py-1.5 text-right text-rose-500">{fmt(r.dn)}</td>
+                                      <td className="px-2 py-1.5 text-right border-l">{fmt(r.p25)}</td>
+                                      <td className="px-2 py-1.5 text-right text-financial-accent font-medium">{fmt(r.base)}</td>
+                                      <td className="px-2 py-1.5 text-right">{fmt(r.p75)}</td>
+                                      <td className="px-2 py-1.5 text-right text-emerald-500 border-l">{fmt(r.up)}</td>
+                                      {showBench && <td className="px-2 py-1.5 text-right text-muted-foreground border-l">{fmt(r.bench)}</td>}
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground leading-snug px-1">
+                            Numbers are multiples of money invested (e.g. <span className="font-medium">2.0×</span> on ₹1 L = ₹2 L).
+                            Out of 100 simulations: <span className="text-rose-500">~5 end below Bad case</span> · <span>50 land inside the Likely range</span> · <span className="text-emerald-500">~5 finish above Best case</span>.
+                          </p>
+                        </>
                       )}
+
                     </div>
                   </div>
                 );
