@@ -41,7 +41,7 @@ function formatRelativeDate(iso: string): string {
 const StockRecommendations = () => {
   const { recos: recommendations, isLoading: recosLoading, error: recosError, lastUpdated: recosUpdatedAt, refresh: refreshRecos } = useBrokerRecos(9);
 
-  const symbols = recommendations.map(r => r.ticker).filter(Boolean);
+  const symbols = useMemo(() => recommendations.map(r => r.ticker).filter(Boolean), [recommendations]);
   const { prices, isLoading: pricesLoading, refreshPrices } = useStockPrices(symbols);
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
