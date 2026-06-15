@@ -726,9 +726,9 @@ const PortfolioReviewPage = () => {
                                   {showBench && <th rowSpan={2} className="text-right px-2 py-1.5 font-medium text-muted-foreground align-bottom border-l">Bench</th>}
                                 </tr>
                                 <tr>
-                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px] border-l">Low<div className="opacity-60">P25</div></th>
-                                  <th className="text-right px-2 pb-1.5 font-medium text-financial-accent">Most likely<div className="text-[10px] font-normal opacity-70">median</div></th>
-                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px]">High<div className="opacity-60">P75</div></th>
+                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px] border-l">Low<div className="opacity-60"><PTip p="P25">P25</PTip></div></th>
+                                  <th className="text-right px-2 pb-1.5 font-medium text-financial-accent">Most likely<div className="text-[10px] font-normal opacity-70"><PTip p="P50">median</PTip></div></th>
+                                  <th className="text-right px-2 pb-1.5 font-normal text-[10px]">High<div className="opacity-60"><PTip p="P75">P75</PTip></div></th>
                                 </tr>
                               </thead>
                               <tbody>
