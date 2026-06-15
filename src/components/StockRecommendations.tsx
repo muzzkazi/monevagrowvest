@@ -124,7 +124,7 @@ const StockRecommendations = () => {
             </Button>
           </div>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Curated buy/hold/sell recommendations from India's top brokerage firms
+            Latest buy/sell calls from India's top brokerage firms — auto-refreshed from live RSS feeds every 5 minutes
           </p>
           
           {/* Live status indicator */}
