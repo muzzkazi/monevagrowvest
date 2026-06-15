@@ -491,7 +491,7 @@ function parseRecoTitle(title: string, link: string, description: string, pubDat
     broker,
     date: pubDate,
     rationale: rationale || `${broker} recommends ${action} on ${stock}`,
-    sourceUrl: link,
+    sourceUrl: resolveGoogleNewsUrl(link),
     sector: ticker ? TICKER_TO_SECTOR[ticker] : undefined,
   };
 }
