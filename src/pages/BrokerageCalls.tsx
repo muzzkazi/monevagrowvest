@@ -320,8 +320,14 @@ const BrokerageCalls = () => {
                             {r.recommendation}
                           </Badge>
                         </TableCell>
+                        <TableCell className="text-right font-mono text-sm">
+                          {r.entryPrice ? inr(r.entryPrice) : <span className="text-muted-foreground">—</span>}
+                        </TableCell>
                         <TableCell className="text-right font-mono font-semibold text-financial-accent">
                           {inr(r.targetPrice)}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-sm">
+                          {r.stopLoss ? <span className="text-red-600">{inr(r.stopLoss)}</span> : <span className="text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell className="text-right font-mono text-sm">
                           {live ? inr(live) : <span className="text-muted-foreground">—</span>}
