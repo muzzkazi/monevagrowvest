@@ -720,6 +720,9 @@ serve(async (req) => {
           const sector = r.sector || (ticker ? TICKER_TO_SECTOR[ticker] : undefined);
           return { ...r, sourceUrl, ticker, sector };
         }));
+        if (recos.some((r, i) => r.sourceUrl !== cached.recos[i]?.sourceUrl || r.ticker !== cached.recos[i]?.ticker || r.sector !== cached.recos[i]?.sector)) {
+          await updateCachedRecos(recos);
+        }
         source = 'cache';
         fetchedAt = cached.fetched_at;
         cacheAge = Math.max(0, Date.now() - new Date(cached.fetched_at).getTime());
