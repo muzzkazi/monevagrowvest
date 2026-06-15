@@ -10,7 +10,9 @@ export interface BrokerReco {
   date: string;
   rationale: string;
   sourceUrl: string;
+  sector?: string;
 }
+
 
 interface UseBrokerRecosResult {
   recos: BrokerReco[];

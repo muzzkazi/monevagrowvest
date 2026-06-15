@@ -54,7 +54,26 @@ interface BrokerReco {
   date: string;
   rationale: string;
   sourceUrl: string;
+  sector?: string;
 }
+
+const TICKER_TO_SECTOR: Record<string, string> = {
+  HDFCBANK: 'Banking', ICICIBANK: 'Banking', AXISBANK: 'Banking', KOTAKBANK: 'Banking',
+  SBIN: 'Banking', BANKBARODA: 'Banking', PNB: 'Banking',
+  BAJFINANCE: 'NBFC', BAJAJFINSV: 'NBFC', HDFCAMC: 'NBFC', HDFCLIFE: 'Insurance', SBILIFE: 'Insurance',
+  TCS: 'IT', INFY: 'IT', WIPRO: 'IT', HCLTECH: 'IT', TECHM: 'IT', LTIM: 'IT',
+  RELIANCE: 'Energy', ONGC: 'Energy', COALINDIA: 'Energy', NTPC: 'Power', POWERGRID: 'Power',
+  TATAMOTORS: 'Auto', MARUTI: 'Auto', 'M&M': 'Auto', 'BAJAJ-AUTO': 'Auto', HEROMOTOCO: 'Auto', EICHERMOT: 'Auto',
+  SUNPHARMA: 'Pharma', CIPLA: 'Pharma', DRREDDY: 'Pharma', DIVISLAB: 'Pharma',
+  ITC: 'FMCG', HINDUNILVR: 'FMCG', NESTLEIND: 'FMCG', BRITANNIA: 'FMCG',
+  ASIANPAINT: 'Paints', ULTRACEMCO: 'Cement', GRASIM: 'Cement',
+  JSWSTEEL: 'Metals', TATASTEEL: 'Metals', HINDALCO: 'Metals',
+  LT: 'Infra', ADANIENT: 'Conglomerate', ADANIPORTS: 'Infra',
+  BHARTIARTL: 'Telecom', TITAN: 'Consumer', VOLTAS: 'Consumer', HAVELLS: 'Consumer',
+  PIDILITIND: 'Chemicals', DLF: 'Realty', GODREJPROP: 'Realty',
+  ZOMATO: 'Internet', PAYTM: 'Internet', NYKAA: 'Internet', IRCTC: 'Travel', INDIGO: 'Aviation',
+};
+
 
 // RSS feeds that publish brokerage recommendations
 // RSS feeds that publish brokerage recommendations.
@@ -207,17 +226,20 @@ function parseRecoTitle(title: string, link: string, description: string, pubDat
   const firstSentence = looksLikeTitleEcho ? '' : (desc.split(/(?<=[.!?])\s+/)[0] || desc);
   const rationale = firstSentence.length > 160 ? firstSentence.slice(0, 157) + '...' : firstSentence;
 
+  const ticker = guessTicker(stock);
   return {
     stock,
-    ticker: guessTicker(stock),
+    ticker,
     recommendation: action,
     targetPrice: target,
     broker,
     date: pubDate,
     rationale: rationale || `${broker} recommends ${action} on ${stock}`,
     sourceUrl: link,
+    sector: ticker ? TICKER_TO_SECTOR[ticker] : undefined,
   };
 }
+
 
 async function fetchFeed(feed: { url: string; source: string }): Promise<BrokerReco[]> {
   try {
@@ -251,6 +273,73 @@ async function fetchFeed(feed: { url: string; source: string }): Promise<BrokerR
   }
 }
 
+// Scrape Moneycontrol's broker-recommendations tag page through Firecrawl.
+// This bypasses Google News' 503s and Moneycontrol's own bot blocks.
+const MONEYCONTROL_RECO_PAGES = [
+  'https://www.moneycontrol.com/news/tags/recommendations.html',
+  'https://www.moneycontrol.com/news/tags/broker-research.html',
+];
+
+async function fetchMoneycontrolViaFirecrawl(): Promise<BrokerReco[]> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) {
+    console.log('FIRECRAWL_API_KEY not set, skipping Firecrawl');
+    return [];
+  }
+  const out: BrokerReco[] = [];
+  for (const pageUrl of MONEYCONTROL_RECO_PAGES) {
+    try {
+      const res = await fetch('https://api.firecrawl.dev/v2/scrape', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: pageUrl,
+          formats: ['markdown', 'links'],
+          onlyMainContent: true,
+        }),
+      });
+      if (!res.ok) {
+        console.error(`Firecrawl ${pageUrl} failed: ${res.status} ${await res.text().catch(() => '')}`);
+        continue;
+      }
+      const json = await res.json();
+      const markdown: string = json?.data?.markdown || json?.markdown || '';
+      const links: string[] = json?.data?.links || json?.links || [];
+      // Build link map: anchor text -> href, by scanning markdown links [text](href)
+      const linkPairs: Array<{ text: string; href: string }> = [];
+      const linkRe = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+      let m: RegExpExecArray | null;
+      while ((m = linkRe.exec(markdown)) !== null) {
+        linkPairs.push({ text: m[1].trim(), href: m[2].trim() });
+      }
+      const now = new Date().toISOString();
+      for (const { text, href } of linkPairs) {
+        if (!/moneycontrol\.com/i.test(href)) continue;
+        const reco = parseRecoTitle(text, href, '', now, 'Moneycontrol');
+        if (reco) out.push(reco);
+      }
+      // Also try plain link list (some pages render titles as anchor-only)
+      for (const href of links) {
+        if (typeof href !== 'string') continue;
+        // Title is usually in the URL slug: /news/business/markets/buy-hdfc-bank-...
+        const slugMatch = href.match(/\/([^/]+?)-\d+\.html$/);
+        if (!slugMatch) continue;
+        const slugTitle = slugMatch[1].replace(/-/g, ' ');
+        const reco = parseRecoTitle(slugTitle, href, '', now, 'Moneycontrol');
+        if (reco) out.push(reco);
+      }
+    } catch (e) {
+      console.error(`Firecrawl error ${pageUrl}:`, e);
+    }
+  }
+  console.log(`Firecrawl returned ${out.length} Moneycontrol recos`);
+  return out;
+}
+
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -261,14 +350,18 @@ serve(async (req) => {
     try {
       const body = await req.json();
       if (body?.limit && typeof body.limit === 'number') {
-        limit = Math.max(1, Math.min(Math.floor(body.limit), 30));
+        limit = Math.max(1, Math.min(Math.floor(body.limit), 200));
       }
     } catch {
       // GET / no body
     }
 
-    const results = await Promise.all(RECO_FEEDS.map(fetchFeed));
-    const all = results.flat();
+    const [rssResults, fcResults] = await Promise.all([
+      Promise.all(RECO_FEEDS.map(fetchFeed)).then((r) => r.flat()),
+      fetchMoneycontrolViaFirecrawl(),
+    ]);
+    const all = [...rssResults, ...fcResults];
+
 
     // Dedupe by stock+broker, keep newest
     const seen = new Map<string, BrokerReco>();
