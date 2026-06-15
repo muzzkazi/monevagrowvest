@@ -115,7 +115,7 @@ const StockRecommendations = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={refreshPrices}
+              onClick={handleRefresh}
               disabled={isLoading}
               className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"
             >
