@@ -10,6 +10,28 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+// Tiny helper: wraps a percentile label with a hover/tap tooltip explaining it.
+const PCT_HELP: Record<string, string> = {
+  P5: "5th percentile — only ~5 out of 100 simulated outcomes finish worse than this. The 'bad case'.",
+  P25: "25th percentile — 1 in 4 outcomes finish below this. Bottom edge of the 'likely' range.",
+  P50: "50th percentile (median) — half of outcomes land above, half below. The 'most likely' middle.",
+  P75: "75th percentile — 3 in 4 outcomes finish below this. Top edge of the 'likely' range.",
+  P95: "95th percentile — only ~5 out of 100 simulated outcomes finish better than this. The 'best case'.",
+};
+const PTip = ({ p, children, className }: { p: keyof typeof PCT_HELP; children: React.ReactNode; className?: string }) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <span tabIndex={0} className={`underline decoration-dotted decoration-1 underline-offset-2 cursor-help outline-none ${className ?? ""}`}>
+        {children}
+      </span>
+    </TooltipTrigger>
+    <TooltipContent side="top" className="max-w-[240px] text-[11px] leading-snug">
+      {PCT_HELP[p]}
+    </TooltipContent>
+  </Tooltip>
+);
 import {
   Sparkles, Plus, Trash2, Search, Loader2, AlertTriangle,
   CheckCircle2, ArrowRightLeft, MinusCircle, XCircle, TrendingUp, Activity, ArrowRight,
