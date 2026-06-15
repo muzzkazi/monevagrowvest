@@ -249,11 +249,14 @@ function parseRecoTitle(title: string, link: string, description: string, pubDat
   const rationale = firstSentence.length > 160 ? firstSentence.slice(0, 157) + '...' : firstSentence;
 
   const ticker = guessTicker(stock);
+  const { entryPrice, stopLoss } = extractEntryAndSL(`${cleaned} ${desc}`);
   return {
     stock,
     ticker,
     recommendation: action,
     targetPrice: target,
+    entryPrice,
+    stopLoss,
     broker,
     date: pubDate,
     rationale: rationale || `${broker} recommends ${action} on ${stock}`,
