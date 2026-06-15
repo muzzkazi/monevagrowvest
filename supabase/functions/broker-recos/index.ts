@@ -54,7 +54,26 @@ interface BrokerReco {
   date: string;
   rationale: string;
   sourceUrl: string;
+  sector?: string;
 }
+
+const TICKER_TO_SECTOR: Record<string, string> = {
+  HDFCBANK: 'Banking', ICICIBANK: 'Banking', AXISBANK: 'Banking', KOTAKBANK: 'Banking',
+  SBIN: 'Banking', BANKBARODA: 'Banking', PNB: 'Banking',
+  BAJFINANCE: 'NBFC', BAJAJFINSV: 'NBFC', HDFCAMC: 'NBFC', HDFCLIFE: 'Insurance', SBILIFE: 'Insurance',
+  TCS: 'IT', INFY: 'IT', WIPRO: 'IT', HCLTECH: 'IT', TECHM: 'IT', LTIM: 'IT',
+  RELIANCE: 'Energy', ONGC: 'Energy', COALINDIA: 'Energy', NTPC: 'Power', POWERGRID: 'Power',
+  TATAMOTORS: 'Auto', MARUTI: 'Auto', 'M&M': 'Auto', 'BAJAJ-AUTO': 'Auto', HEROMOTOCO: 'Auto', EICHERMOT: 'Auto',
+  SUNPHARMA: 'Pharma', CIPLA: 'Pharma', DRREDDY: 'Pharma', DIVISLAB: 'Pharma',
+  ITC: 'FMCG', HINDUNILVR: 'FMCG', NESTLEIND: 'FMCG', BRITANNIA: 'FMCG',
+  ASIANPAINT: 'Paints', ULTRACEMCO: 'Cement', GRASIM: 'Cement',
+  JSWSTEEL: 'Metals', TATASTEEL: 'Metals', HINDALCO: 'Metals',
+  LT: 'Infra', ADANIENT: 'Conglomerate', ADANIPORTS: 'Infra',
+  BHARTIARTL: 'Telecom', TITAN: 'Consumer', VOLTAS: 'Consumer', HAVELLS: 'Consumer',
+  PIDILITIND: 'Chemicals', DLF: 'Realty', GODREJPROP: 'Realty',
+  ZOMATO: 'Internet', PAYTM: 'Internet', NYKAA: 'Internet', IRCTC: 'Travel', INDIGO: 'Aviation',
+};
+
 
 // RSS feeds that publish brokerage recommendations
 // RSS feeds that publish brokerage recommendations.
