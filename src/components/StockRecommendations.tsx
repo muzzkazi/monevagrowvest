@@ -155,9 +155,33 @@ const StockRecommendations = () => {
           </p>
         </div>
 
+        {recosError && recommendations.length === 0 && (
+          <div className="max-w-xl mx-auto bg-destructive/10 border border-destructive/30 text-destructive rounded-lg p-4 flex items-center gap-3 mb-6">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium">Couldn't load recommendations</p>
+              <p className="text-xs opacity-80">{recosError} — try refreshing in a moment.</p>
+            </div>
+          </div>
+        )}
+
+        {!recosError && !recosLoading && recommendations.length === 0 && (
+          <div className="max-w-xl mx-auto bg-muted/50 border border-border rounded-lg p-6 text-center text-sm text-muted-foreground">
+            No fresh brokerage calls right now. Auto-refreshing every 5 minutes.
+          </div>
+        )}
+
+        {recosLoading && recommendations.length === 0 && (
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-64 rounded-lg bg-muted/40 animate-pulse" />
+            ))}
+          </div>
+        )}
+
         <div ref={gridRef} className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">
           {recommendations.map((rec, index) => {
-            const livePrice = prices[rec.ticker];
+            const livePrice = rec.ticker ? prices[rec.ticker] : undefined;
             const currentPrice = livePrice?.price || 0;
             const priceChange = livePrice?.change || 0;
             const changePercent = livePrice?.changePercent || 0;
