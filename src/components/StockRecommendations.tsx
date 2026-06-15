@@ -172,9 +172,9 @@ const StockRecommendations = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-lg font-bold">{rec.stock}</CardTitle>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm text-muted-foreground font-mono">{rec.ticker}</p>
+                      <CardTitle className="text-lg font-bold line-clamp-2">{rec.stock}</CardTitle>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {rec.ticker && <p className="text-sm text-muted-foreground font-mono">{rec.ticker}</p>}
                         {livePrice && (
                           <Badge 
                             variant="outline" 
