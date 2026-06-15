@@ -40,7 +40,7 @@ function formatRelativeDate(iso: string): string {
 }
 
 const StockRecommendations = () => {
-  const { recos: recommendations, isLoading: recosLoading, error: recosError, lastUpdated: recosUpdatedAt, refresh: refreshRecos } = useBrokerRecos(9);
+  const { recos: recommendations, isLoading: recosLoading, error: recosError, lastUpdated: recosUpdatedAt, source: recosSource, fetchedAt: recosFetchedAt, refresh: refreshRecos } = useBrokerRecos(9);
 
   const symbols = useMemo(() => recommendations.map(r => r.ticker).filter(Boolean), [recommendations]);
   const { prices, isLoading: pricesLoading, refreshPrices } = useStockPrices(symbols);
