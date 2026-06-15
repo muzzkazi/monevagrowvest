@@ -58,10 +58,13 @@ const StockRecommendations = () => {
   const getRecommendationColor = (rec: string) => {
     switch (rec) {
       case "Buy":
+      case "Accumulate":
         return "bg-green-500/10 text-green-600 border-green-500/30";
       case "Hold":
+      case "Neutral":
         return "bg-yellow-500/10 text-yellow-600 border-yellow-500/30";
       case "Sell":
+      case "Reduce":
         return "bg-red-500/10 text-red-600 border-red-500/30";
       default:
         return "bg-muted text-muted-foreground";
@@ -71,10 +74,13 @@ const StockRecommendations = () => {
   const getRecommendationIcon = (rec: string) => {
     switch (rec) {
       case "Buy":
+      case "Accumulate":
         return <TrendingUp className="w-4 h-4" />;
       case "Hold":
+      case "Neutral":
         return <Minus className="w-4 h-4" />;
       case "Sell":
+      case "Reduce":
         return <TrendingDown className="w-4 h-4" />;
       default:
         return null;
