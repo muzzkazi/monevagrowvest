@@ -162,16 +162,20 @@ const BrokerageCalls = () => {
     setSearch(""); setBrokerF("all"); setCallF("all"); setSectorF("all"); setDateF("all");
   };
 
+  useEffect(() => {
+    document.title = "Brokerage Calls — All Buy/Sell Stock Picks from Top Brokers";
+    const meta = document.querySelector('meta[name="description"]') || (() => {
+      const m = document.createElement("meta"); m.setAttribute("name", "description"); document.head.appendChild(m); return m;
+    })();
+    meta.setAttribute(
+      "content",
+      "Consolidated view of the latest brokerage stock recommendations from India's top firms. Filter by broker, call type, sector and date; sort by target price or upside."
+    );
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Brokerage Calls — All Buy/Sell Stock Picks from Top Brokers</title>
-        <meta
-          name="description"
-          content="Consolidated view of the latest brokerage stock recommendations from India's top firms. Filter by broker, call type, sector and date; sort by target price or upside."
-        />
-        <link rel="canonical" href="/brokerage-calls" />
-      </Helmet>
+
 
       <Header />
 
