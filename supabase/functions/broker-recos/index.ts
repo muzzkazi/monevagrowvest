@@ -17,9 +17,14 @@ interface BrokerReco {
 }
 
 // RSS feeds that publish brokerage recommendations
+// RSS feeds that publish brokerage recommendations.
+// Google News RSS aggregates Moneycontrol's broker-call headlines, which use a
+// strict "<Action> <Stock>; target of Rs <N>: <Broker>" pattern we can parse.
 const RECO_FEEDS = [
-  { url: 'https://www.moneycontrol.com/rss/brokerrecos.xml', source: 'Moneycontrol' },
-  { url: 'https://www.moneycontrol.com/rss/results.xml', source: 'Moneycontrol' },
+  {
+    url: 'https://news.google.com/rss/search?q=%22target+of+Rs%22+%28Buy+OR+Sell+OR+Hold+OR+Accumulate+OR+Reduce+OR+Neutral%29+site%3Amoneycontrol.com&hl=en-IN&gl=IN&ceid=IN:en',
+    source: 'Moneycontrol via Google News',
+  },
 ];
 
 // Minimal stock-name -> NSE ticker map for live-price linkage.
