@@ -686,7 +686,7 @@ serve(async (req) => {
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
-    let recos = sorted.slice(0, limit);
+    let recos = await hydrateSourceUrls(sorted.slice(0, limit));
     let source: 'rss' | 'cache' = 'rss';
     let fetchedAt = new Date().toISOString();
     let cacheAge: number | null = null;
@@ -700,12 +700,12 @@ serve(async (req) => {
       if (cached && cached.recos.length > 0) {
         // Reprocess cached items so old rows benefit from the latest URL
         // decoder + ticker map without needing to clear the cache.
-        recos = cached.recos.slice(0, limit).map((r) => {
-          const sourceUrl = resolveGoogleNewsUrl(r.sourceUrl || '');
+        recos = await Promise.all(cached.recos.slice(0, limit).map(async (r) => {
+          const sourceUrl = await resolveGoogleNewsUrl(r.sourceUrl || '');
           const ticker = r.ticker || guessTicker(r.stock || '');
           const sector = r.sector || (ticker ? TICKER_TO_SECTOR[ticker] : undefined);
           return { ...r, sourceUrl, ticker, sector };
-        });
+        }));
         source = 'cache';
         fetchedAt = cached.fetched_at;
         cacheAge = Math.max(0, Date.now() - new Date(cached.fetched_at).getTime());
