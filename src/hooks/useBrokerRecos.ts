@@ -6,6 +6,8 @@ export interface BrokerReco {
   ticker: string;
   recommendation: "Buy" | "Hold" | "Sell" | "Accumulate" | "Reduce" | "Neutral";
   targetPrice: number;
+  entryPrice?: number;
+  stopLoss?: number;
   broker: string;
   date: string;
   rationale: string;
