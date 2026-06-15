@@ -294,9 +294,7 @@ const BrokerageCalls = () => {
                   <TableRow>
                     <SortHeader k="stock" label="Stock" />
                     <SortHeader k="recommendation" label="Call" />
-                    <TableHead className="text-right">Entry</TableHead>
                     <SortHeader k="target" label="Target" className="text-right" />
-                    <TableHead className="text-right">SL</TableHead>
                     <TableHead className="text-right">CMP</TableHead>
                     <SortHeader k="upside" label="Upside" className="text-right" />
                     <SortHeader k="broker" label="Broker" />
