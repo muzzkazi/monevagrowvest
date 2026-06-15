@@ -404,22 +404,6 @@ const BrokerageCalls = () => {
                         )}
                       </div>
                     </div>
-                    {(r.entryPrice || r.stopLoss) && (
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="bg-muted/40 rounded p-2">
-                          <div className="text-xs text-muted-foreground">Entry</div>
-                          <div className="font-mono font-semibold">
-                            {r.entryPrice ? inr(r.entryPrice) : <span className="text-muted-foreground">—</span>}
-                          </div>
-                        </div>
-                        <div className="bg-red-500/5 rounded p-2">
-                          <div className="text-xs text-muted-foreground">Stop Loss</div>
-                          <div className="font-mono font-semibold text-red-600">
-                            {r.stopLoss ? inr(r.stopLoss) : <span className="text-muted-foreground">—</span>}
-                          </div>
-                        </div>
-                      </div>
-                    )}
                     <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
                       <span className="inline-flex items-center gap-1 truncate">
                         <Building2 className="w-3 h-3 shrink-0" />
