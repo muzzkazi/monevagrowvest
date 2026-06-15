@@ -645,7 +645,14 @@ serve(async (req) => {
       // No fresh items — fall back to last cached batch
       const cached = await loadCachedRecos();
       if (cached && cached.recos.length > 0) {
-        recos = cached.recos.slice(0, limit);
+        // Reprocess cached items so old rows benefit from the latest URL
+        // decoder + ticker map without needing to clear the cache.
+        recos = cached.recos.slice(0, limit).map((r) => {
+          const sourceUrl = resolveGoogleNewsUrl(r.sourceUrl || '');
+          const ticker = r.ticker || guessTicker(r.stock || '');
+          const sector = r.sector || (ticker ? TICKER_TO_SECTOR[ticker] : undefined);
+          return { ...r, sourceUrl, ticker, sector };
+        });
         source = 'cache';
         fetchedAt = cached.fetched_at;
         cacheAge = Math.max(0, Date.now() - new Date(cached.fetched_at).getTime());
