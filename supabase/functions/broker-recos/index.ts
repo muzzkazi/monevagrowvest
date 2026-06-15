@@ -540,9 +540,13 @@ function parseRecoTitle(title: string, link: string, description: string, pubDat
     broker,
     date: pubDate,
     rationale: rationale || `${broker} recommends ${action} on ${stock}`,
-    sourceUrl: resolveGoogleNewsUrl(link),
+    sourceUrl: resolveGoogleNewsUrlOffline(link),
     sector: ticker ? TICKER_TO_SECTOR[ticker] : undefined,
   };
+}
+
+async function hydrateSourceUrls(recos: BrokerReco[]): Promise<BrokerReco[]> {
+  return Promise.all(recos.map(async (r) => ({ ...r, sourceUrl: await resolveGoogleNewsUrl(r.sourceUrl || '') })));
 }
 
 
