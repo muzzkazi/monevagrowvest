@@ -40,6 +40,20 @@ async function saveCachedRecos(recos: BrokerReco[]): Promise<void> {
   }
 }
 
+async function updateCachedRecos(recos: BrokerReco[]): Promise<void> {
+  const supabase = getServiceClient();
+  if (!supabase) return;
+  try {
+    const { error } = await supabase
+      .from("broker_recos_cache")
+      .update({ recos, updated_at: new Date().toISOString() })
+      .eq("id", CACHE_ID);
+    if (error) console.error("updateCachedRecos error:", error);
+  } catch (e) {
+    console.error("updateCachedRecos failed:", e);
+  }
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
