@@ -171,6 +171,16 @@ const StockRecommendations = () => {
           </div>
         )}
 
+        {recosSource === "cache" && recommendations.length > 0 && (
+          <div className="max-w-2xl mx-auto bg-yellow-500/10 border border-yellow-500/30 text-yellow-700 dark:text-yellow-400 rounded-lg px-4 py-2 text-xs flex items-center gap-2 mb-6">
+            <Clock className="w-3.5 h-3.5 shrink-0" />
+            <span>
+              Live feed unavailable — showing last cached picks
+              {recosFetchedAt ? ` from ${formatRelativeDate(recosFetchedAt.toISOString())}` : ""}.
+            </span>
+          </div>
+        )}
+
         {recosLoading && recommendations.length === 0 && (
           <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">
             {Array.from({ length: 6 }).map((_, i) => (
