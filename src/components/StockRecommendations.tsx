@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Minus, 
-  ExternalLink, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ExternalLink,
   RefreshCw,
   Target,
   Building2,
@@ -14,99 +14,57 @@ import {
   ArrowDownRight,
   Wifi,
   WifiOff,
-  Clock
+  Clock,
+  AlertCircle,
 } from "lucide-react";
 import { useStockPrices } from "@/hooks/useStockPrices";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useBrokerRecos } from "@/hooks/useBrokerRecos";
 
-interface StockRecommendation {
-  stock: string;
-  ticker: string;
-  targetPrice: number;
-  recommendation: "Buy" | "Hold" | "Sell";
-  broker: string;
-  date: string;
-  sourceUrl: string;
-  rationale: string;
+function formatRelativeDate(iso: string): string {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    const diffMs = Date.now() - d.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  } catch {
+    return "";
+  }
 }
 
 const StockRecommendations = () => {
-  // Stock recommendations based on actual brokerage reports
-  const recommendations: StockRecommendation[] = [
-    {
-      stock: "HDFC Bank",
-      ticker: "HDFCBANK",
-      targetPrice: 2350,
-      recommendation: "Buy",
-      broker: "ICICI Securities",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/buy-hdfc-bank-target-of-rs-2350-icici-securities-13312866.html",
-      rationale: "Strong loan growth momentum and improving asset quality"
-    },
-    {
-      stock: "State Bank of India",
-      ticker: "SBIN",
-      targetPrice: 1030,
-      recommendation: "Buy",
-      broker: "Motilal Oswal",
-      date: "Jan 2025",
-      sourceUrl: "https://www.ndtvprofit.com/research-reports/top-stock-pick-for-2025-buy-sbi-for-an-upside-of-27-says-motilal-oswal-heres-why",
-      rationale: "Better positioned to navigate systemic pressures with robust asset quality"
-    },
-    {
-      stock: "Hindalco Industries",
-      ticker: "HINDALCO",
-      targetPrice: 900,
-      recommendation: "Buy",
-      broker: "Emkay Global",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/stocks/buy-hindalco-target-of-rs-900-emkay-global-financial-13573816.html",
-      rationale: "Strong aluminum demand and favorable commodity cycle"
-    },
-    {
-      stock: "HDFC AMC",
-      ticker: "HDFCAMC",
-      targetPrice: 5200,
-      recommendation: "Buy",
-      broker: "Motilal Oswal",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/stocks/buy-hdfc-amc-target-of-rs-5200-motilal-oswal-12911351.html",
-      rationale: "Market leader benefiting from growing mutual fund industry"
-    },
-    {
-      stock: "Voltas",
-      ticker: "VOLTAS",
-      targetPrice: 1450,
-      recommendation: "Buy",
-      broker: "Emkay Global",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/stocks/buy-voltas-target-of-rs-1450-emkay-global-financial-13138520.html",
-      rationale: "Strong summer demand and market share gains in AC segment"
-    },
-    {
-      stock: "3M India",
-      ticker: "3MINDIA",
-      targetPrice: 35610,
-      recommendation: "Buy",
-      broker: "ICICI Securities",
-      date: "Jan 2025",
-      sourceUrl: "https://www.moneycontrol.com/news/business/stocks/buy-3m-india-target-of-rs-35-610-icici-securities-13531553.html",
-      rationale: "Diversified industrial play with consistent growth trajectory"
-    }
-  ];
+  const { recos: recommendations, isLoading: recosLoading, error: recosError, lastUpdated: recosUpdatedAt, refresh: refreshRecos } = useBrokerRecos(9);
 
-  const symbols = useMemo(() => recommendations.map(r => r.ticker), []);
-  const { prices, isLoading, error, lastUpdated, refreshPrices } = useStockPrices(symbols);
+  const symbols = useMemo(() => recommendations.map(r => r.ticker).filter(Boolean), [recommendations]);
+  const { prices, isLoading: pricesLoading, refreshPrices } = useStockPrices(symbols);
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
+
+  const isLoading = recosLoading || pricesLoading;
+  const lastUpdated = recosUpdatedAt;
+
+  const handleRefresh = async () => {
+    await refreshRecos();
+    refreshPrices();
+  };
 
   const getRecommendationColor = (rec: string) => {
     switch (rec) {
       case "Buy":
+      case "Accumulate":
         return "bg-green-500/10 text-green-600 border-green-500/30";
       case "Hold":
+      case "Neutral":
         return "bg-yellow-500/10 text-yellow-600 border-yellow-500/30";
       case "Sell":
+      case "Reduce":
         return "bg-red-500/10 text-red-600 border-red-500/30";
       default:
         return "bg-muted text-muted-foreground";
@@ -116,10 +74,13 @@ const StockRecommendations = () => {
   const getRecommendationIcon = (rec: string) => {
     switch (rec) {
       case "Buy":
+      case "Accumulate":
         return <TrendingUp className="w-4 h-4" />;
       case "Hold":
+      case "Neutral":
         return <Minus className="w-4 h-4" />;
       case "Sell":
+      case "Reduce":
         return <TrendingDown className="w-4 h-4" />;
       default:
         return null;
@@ -154,7 +115,7 @@ const StockRecommendations = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={refreshPrices}
+              onClick={handleRefresh}
               disabled={isLoading}
               className="border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white"
             >
@@ -163,7 +124,7 @@ const StockRecommendations = () => {
             </Button>
           </div>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Curated buy/hold/sell recommendations from India's top brokerage firms
+            Latest buy/sell calls from India's top brokerage firms — auto-refreshed from live RSS feeds every 5 minutes
           </p>
           
           {/* Live status indicator */}
@@ -194,9 +155,33 @@ const StockRecommendations = () => {
           </p>
         </div>
 
+        {recosError && recommendations.length === 0 && (
+          <div className="max-w-xl mx-auto bg-destructive/10 border border-destructive/30 text-destructive rounded-lg p-4 flex items-center gap-3 mb-6">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium">Couldn't load recommendations</p>
+              <p className="text-xs opacity-80">{recosError} — try refreshing in a moment.</p>
+            </div>
+          </div>
+        )}
+
+        {!recosError && !recosLoading && recommendations.length === 0 && (
+          <div className="max-w-xl mx-auto bg-muted/50 border border-border rounded-lg p-6 text-center text-sm text-muted-foreground">
+            No fresh brokerage calls right now. Auto-refreshing every 5 minutes.
+          </div>
+        )}
+
+        {recosLoading && recommendations.length === 0 && (
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-64 rounded-lg bg-muted/40 animate-pulse" />
+            ))}
+          </div>
+        )}
+
         <div ref={gridRef} className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">
           {recommendations.map((rec, index) => {
-            const livePrice = prices[rec.ticker];
+            const livePrice = rec.ticker ? prices[rec.ticker] : undefined;
             const currentPrice = livePrice?.price || 0;
             const priceChange = livePrice?.change || 0;
             const changePercent = livePrice?.changePercent || 0;
@@ -211,9 +196,9 @@ const StockRecommendations = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-lg font-bold">{rec.stock}</CardTitle>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm text-muted-foreground font-mono">{rec.ticker}</p>
+                      <CardTitle className="text-lg font-bold line-clamp-2">{rec.stock}</CardTitle>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {rec.ticker && <p className="text-sm text-muted-foreground font-mono">{rec.ticker}</p>}
                         {livePrice && (
                           <Badge 
                             variant="outline" 
@@ -236,25 +221,27 @@ const StockRecommendations = () => {
                 </CardHeader>
                 
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-muted/50 rounded-lg p-3 relative">
-                      <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                        {livePrice && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />}
-                        Live Price
-                      </p>
-                      {isLoading && !livePrice ? (
-                        <div className="h-7 bg-muted animate-pulse rounded" />
-                      ) : livePrice ? (
-                        <div>
-                          <p className="text-lg font-bold font-mono">{formatCurrency(currentPrice)}</p>
-                          <p className={`text-xs font-mono ${priceChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {priceChange >= 0 ? '+' : ''}{formatCurrency(priceChange)}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">Loading...</p>
-                      )}
-                    </div>
+                  <div className={rec.ticker ? "grid grid-cols-2 gap-4" : "grid grid-cols-1 gap-4"}>
+                    {rec.ticker && (
+                      <div className="bg-muted/50 rounded-lg p-3 relative">
+                        <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                          {livePrice && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />}
+                          Live Price
+                        </p>
+                        {isLoading && !livePrice ? (
+                          <div className="h-7 bg-muted animate-pulse rounded" />
+                        ) : livePrice ? (
+                          <div>
+                            <p className="text-lg font-bold font-mono">{formatCurrency(currentPrice)}</p>
+                            <p className={`text-xs font-mono ${priceChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {priceChange >= 0 ? '+' : ''}{formatCurrency(priceChange)}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Loading...</p>
+                        )}
+                      </div>
+                    )}
                     <div className="bg-financial-accent/10 rounded-lg p-3">
                       <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                         <Target className="w-3 h-3" />
@@ -284,7 +271,7 @@ const StockRecommendations = () => {
                     <div className="flex items-center gap-2 text-sm">
                       <Building2 className="w-4 h-4 text-financial-accent" />
                       <span className="font-medium">{rec.broker}</span>
-                      <span className="text-muted-foreground">• {rec.date}</span>
+                      <span className="text-muted-foreground">• {formatRelativeDate(rec.date)}</span>
                     </div>
                     <a 
                       href={rec.sourceUrl} 
