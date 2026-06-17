@@ -90,6 +90,8 @@ const FeaturedInsights = () => {
                 <img
                   src={insight.image}
                   alt={insight.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-48 object-cover"
                 />
                 {insight.trending && (

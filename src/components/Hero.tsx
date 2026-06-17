@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/premium-financial-hero.jpg";
 import heroAdvisor from "@/assets/hero-advisor.jpg";
-import heroVideo from "@/assets/hero-video.mp4";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
-import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 const containerVariants = {
@@ -74,8 +72,6 @@ const Hero = () => {
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 800 });
   
   const { smoothScrollY } = useBackgroundParallax(0.3);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoLoaded, setVideoLoaded] = useState(false);
 
   // Helper to get smooth scroll parallax transforms
   const getScrollParallaxStyle = (multiplier: number) => ({
@@ -83,38 +79,20 @@ const Hero = () => {
     willChange: 'transform',
   });
 
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {
-        // Autoplay might be blocked, that's okay
-      });
-    }
-  }, []);
-
   return (
     <section id="home" className="relative overflow-hidden">
-      {/* Video Background with Parallax */}
-      <div 
+      {/* Static hero background with parallax */}
+      <div
         className="absolute inset-0 parallax-layer"
         style={getScrollParallaxStyle(0.1)}
       >
-        <video
-          ref={videoRef}
-          className={`absolute inset-0 w-full h-full object-cover scale-110 transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={heroImage}
-          onLoadedData={() => setVideoLoaded(true)}
-        >
-          <source src={heroVideo} type="video/mp4" />
-        </video>
-        
-        {/* Fallback image while video loads */}
-        <div 
-          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`}
-          style={{ backgroundImage: `url(${heroImage})` }}
+        <img
+          src={heroImage}
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover scale-110"
         />
       </div>
 

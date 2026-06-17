@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,27 +8,27 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, Transition } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import Calculators from "./pages/Calculators";
-import Contact from "./pages/Contact";
-import Blog from "./pages/Blog";
-import NotFound from "./pages/NotFound";
-import AIPlanning from "./pages/AIPlanning";
-import DebtManagement from "./pages/DebtManagement";
-import MutualFundComparison from "./pages/MutualFundComparison";
-import PortfolioOverlap from "./pages/PortfolioOverlap";
-import PortfolioReview from "./pages/PortfolioReview";
-import MutualFundTracker from "./pages/MutualFundTracker";
-import GoalBasedPlanning from "./pages/GoalBasedPlanning";
-import SIPBasedPlanning from "./pages/SIPBasedPlanning";
-import FinancialEducationPage from "./pages/FinancialEducation";
-import BudgetTrackerPage from "./pages/BudgetTracker";
-import StockScreenerPage from "./pages/StockScreener";
-import TaxPlanning from "./pages/TaxPlanning";
-import Auth from "./pages/Auth";
-import BrokerageCalls from "./pages/BrokerageCalls";
 
+const About = lazy(() => import("./pages/About"));
+const Services = lazy(() => import("./pages/Services"));
+const Calculators = lazy(() => import("./pages/Calculators"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Blog = lazy(() => import("./pages/Blog"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AIPlanning = lazy(() => import("./pages/AIPlanning"));
+const DebtManagement = lazy(() => import("./pages/DebtManagement"));
+const MutualFundComparison = lazy(() => import("./pages/MutualFundComparison"));
+const PortfolioOverlap = lazy(() => import("./pages/PortfolioOverlap"));
+const PortfolioReview = lazy(() => import("./pages/PortfolioReview"));
+const MutualFundTracker = lazy(() => import("./pages/MutualFundTracker"));
+const GoalBasedPlanning = lazy(() => import("./pages/GoalBasedPlanning"));
+const SIPBasedPlanning = lazy(() => import("./pages/SIPBasedPlanning"));
+const FinancialEducationPage = lazy(() => import("./pages/FinancialEducation"));
+const BudgetTrackerPage = lazy(() => import("./pages/BudgetTracker"));
+const StockScreenerPage = lazy(() => import("./pages/StockScreener"));
+const TaxPlanning = lazy(() => import("./pages/TaxPlanning"));
+const Auth = lazy(() => import("./pages/Auth"));
+const BrokerageCalls = lazy(() => import("./pages/BrokerageCalls"));
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,12 @@ const pageTransition: Transition = {
   duration: 0.4,
 };
 
+const RouteFallback = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="h-8 w-8 rounded-full border-2 border-financial-accent border-t-transparent animate-spin" />
+  </div>
+);
+
 const AnimatedRoutes = () => {
   const location = useLocation();
 
@@ -56,31 +63,33 @@ const AnimatedRoutes = () => {
         variants={pageVariants}
         transition={pageTransition}
       >
-        <Routes location={location}>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/calculators" element={<Calculators />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/ai-planning" element={<AIPlanning />} />
-          <Route path="/debt-management" element={<DebtManagement />} />
-          <Route path="/mutual-fund-comparison" element={<MutualFundComparison />} />
-          <Route path="/portfolio-overlap" element={<PortfolioOverlap />} />
-          <Route path="/portfolio-review" element={<PortfolioReview />} />
-          <Route path="/mutual-fund-tracker" element={<MutualFundTracker />} />
-          <Route path="/goal-based-planning" element={<GoalBasedPlanning />} />
-          <Route path="/sip-based-planning" element={<SIPBasedPlanning />} />
-          <Route path="/financial-education" element={<FinancialEducationPage />} />
-          <Route path="/budget-tracker" element={<BudgetTrackerPage />} />
-          <Route path="/stock-screener" element={<StockScreenerPage />} />
-          <Route path="/tax-planning" element={<TaxPlanning />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/brokerage-calls" element={<BrokerageCalls />} />
+        <Suspense fallback={<RouteFallback />}>
+          <Routes location={location}>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/calculators" element={<Calculators />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/ai-planning" element={<AIPlanning />} />
+            <Route path="/debt-management" element={<DebtManagement />} />
+            <Route path="/mutual-fund-comparison" element={<MutualFundComparison />} />
+            <Route path="/portfolio-overlap" element={<PortfolioOverlap />} />
+            <Route path="/portfolio-review" element={<PortfolioReview />} />
+            <Route path="/mutual-fund-tracker" element={<MutualFundTracker />} />
+            <Route path="/goal-based-planning" element={<GoalBasedPlanning />} />
+            <Route path="/sip-based-planning" element={<SIPBasedPlanning />} />
+            <Route path="/financial-education" element={<FinancialEducationPage />} />
+            <Route path="/budget-tracker" element={<BudgetTrackerPage />} />
+            <Route path="/stock-screener" element={<StockScreenerPage />} />
+            <Route path="/tax-planning" element={<TaxPlanning />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/brokerage-calls" element={<BrokerageCalls />} />
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </motion.div>
     </AnimatePresence>
   );
