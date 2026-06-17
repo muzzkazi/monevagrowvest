@@ -87,6 +87,8 @@ const Partners = () => {
                   <img
                     src={partner.logo}
                     alt={`${partner.name} logo`}
+                    loading="lazy"
+                    decoding="async"
                     className="h-16 w-auto mx-auto object-contain group-hover:scale-110 transition-transform duration-300"
                     onError={(e) => {
                       const target = e.currentTarget as HTMLImageElement;
@@ -165,6 +167,8 @@ const Partners = () => {
                       <img
                         src={partner.logo}
                         alt={`${partner.name} logo`}
+                        loading="lazy"
+                        decoding="async"
                         className="h-12 w-auto object-contain mb-3 group-hover:scale-110 transition-transform duration-300"
                         onError={(e) => {
                           // Fallback to text if logo doesn't load
