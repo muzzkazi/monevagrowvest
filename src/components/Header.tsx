@@ -96,23 +96,23 @@ const Header = () => {
                 <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
                   <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[240px] py-2 overflow-hidden">
                     <div className="px-5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Calculators</div>
-                    <Link to="/calculators?tab=sip" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/calculators?tab=sip" onClick={() => trackNavClick('SIP Calculator', '/calculators?tab=sip', 'calculator')} className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       SIP Calculator
                     </Link>
-                    <Link to="/calculators?tab=emi" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/calculators?tab=emi" onClick={() => trackNavClick('EMI Calculator', '/calculators?tab=emi', 'calculator')} className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       EMI Calculator
                     </Link>
-                    <Link to="/calculators?tab=tax" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/calculators?tab=tax" onClick={() => trackNavClick('Tax Calculator', '/calculators?tab=tax', 'calculator')} className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       Tax Calculator
                     </Link>
-                    <Link to="/calculators?tab=retirement" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/calculators?tab=retirement" onClick={() => trackNavClick('Retirement Planner', '/calculators?tab=retirement', 'calculator')} className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       Retirement Planner
                     </Link>
                     <div className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Money Management</div>
-                    <Link to="/budget-tracker" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/budget-tracker" onClick={() => trackNavClick('Budget Tracker', '/budget-tracker', 'money_management')} className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       Budget Tracker
                     </Link>
-                    <Link to="/debt-management" className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
+                    <Link to="/debt-management" onClick={() => trackNavClick('Debt Management', '/debt-management', 'money_management')} className="flex items-center gap-3 px-5 py-2 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors">
                       Debt Management
                     </Link>
                   </div>
@@ -128,19 +128,19 @@ const Header = () => {
                 </span>
                 <div className="absolute top-full left-0 pt-4 z-50 transition-all duration-300 ease-out opacity-0 translate-y-2 scale-95 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:visible group-hover:pointer-events-auto">
                   <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl shadow-black/15 min-w-[280px] py-2 overflow-hidden">
-                    <Link to="/stock-screener" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                    <Link to="/stock-screener" onClick={() => trackNavClick('Stock Screener', '/stock-screener', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 group-hover/item:bg-blue-500/20 transition-colors dark:bg-blue-500/20 dark:text-blue-400">
                         <LineChart className="h-4 w-4" />
                       </div>
                       Stock Screener
                     </Link>
-                    <Link to="/mutual-fund-comparison" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                    <Link to="/mutual-fund-comparison" onClick={() => trackNavClick('Mutual Fund Screener', '/mutual-fund-comparison', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover/item:bg-emerald-500/20 transition-colors dark:bg-emerald-500/20 dark:text-emerald-400">
                         <PieChart className="h-4 w-4" />
                       </div>
                       Mutual Fund Screener
                     </Link>
-                    <Link to="/portfolio-overlap" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                    <Link to="/portfolio-overlap" onClick={() => trackNavClick('Portfolio Overlap', '/portfolio-overlap', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 group-hover/item:bg-amber-500/20 transition-colors dark:bg-amber-500/20 dark:text-amber-400">
                         <Layers className="h-4 w-4" />
                       </div>
@@ -149,7 +149,7 @@ const Header = () => {
                         <span className="text-[10px] text-muted-foreground font-normal">Check fund duplication</span>
                       </div>
                     </Link>
-                    <Link to="/portfolio-review" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                    <Link to="/portfolio-review" onClick={() => trackNavClick('AI Portfolio Review', '/portfolio-review', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-600 group-hover/item:bg-purple-500/20 transition-colors dark:bg-purple-500/20 dark:text-purple-400">
                         <Sparkles className="h-4 w-4" />
                       </div>
@@ -158,7 +158,7 @@ const Header = () => {
                         <span className="text-[10px] text-muted-foreground font-normal">Review your existing SIPs</span>
                       </div>
                     </Link>
-                    <Link to="/mutual-fund-tracker" className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                    <Link to="/mutual-fund-tracker" onClick={() => trackNavClick('MF Portfolio Tracker', '/mutual-fund-tracker', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-600 group-hover/item:bg-rose-500/20 transition-colors dark:bg-rose-500/20 dark:text-rose-400">
                         <Eye className="h-4 w-4" />
                       </div>
@@ -169,6 +169,7 @@ const Header = () => {
                     </Link>
                   </div>
                 </div>
+
               </div>
 
 
