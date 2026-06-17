@@ -11,14 +11,18 @@ const navLinkClass = (isActive: boolean) =>
     isActive ? 'text-financial-accent after:w-full' : 'text-foreground hover:text-financial-accent'
   }`;
 
-const MobileNavLink = ({ to, children, onClick }: { to: string; children: React.ReactNode; onClick: () => void }) => {
+const MobileNavLink = ({ to, children, onClick, track }: { to: string; children: React.ReactNode; onClick: () => void; track?: { label: string; category: import("@/lib/trackNavClick").NavClickCategory } }) => {
   const location = useLocation();
   const isActive = location.pathname === to || location.pathname.startsWith(to + '?');
+  const handleClick = () => {
+    if (track) trackNavClick(track.label, to, track.category, 'mobile_menu');
+    onClick();
+  };
   return (
     <SheetClose asChild>
       <Link
         to={to}
-        onClick={onClick}
+        onClick={handleClick}
         className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
           isActive
             ? 'text-financial-accent bg-financial-accent/10'
