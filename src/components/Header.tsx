@@ -258,41 +258,41 @@ const Header = () => {
                     <MobileNavLink to="/" onClick={closeMobile}>Home</MobileNavLink>
 
                     <MobileSectionLabel>Calculators</MobileSectionLabel>
-                    <MobileNavLink to="/calculators?tab=sip" onClick={closeMobile}>
+                    <MobileNavLink to="/calculators?tab=sip" onClick={closeMobile} track={{ label: 'SIP Calculator', category: 'calculator' }}>
                       SIP Calculator
                     </MobileNavLink>
-                    <MobileNavLink to="/calculators?tab=emi" onClick={closeMobile}>
+                    <MobileNavLink to="/calculators?tab=emi" onClick={closeMobile} track={{ label: 'EMI Calculator', category: 'calculator' }}>
                       EMI Calculator
                     </MobileNavLink>
-                    <MobileNavLink to="/calculators?tab=tax" onClick={closeMobile}>
+                    <MobileNavLink to="/calculators?tab=tax" onClick={closeMobile} track={{ label: 'Tax Calculator', category: 'calculator' }}>
                       Tax Calculator
                     </MobileNavLink>
-                    <MobileNavLink to="/calculators?tab=retirement" onClick={closeMobile}>
+                    <MobileNavLink to="/calculators?tab=retirement" onClick={closeMobile} track={{ label: 'Retirement Planner', category: 'calculator' }}>
                       Retirement Planner
                     </MobileNavLink>
 
                     <MobileSectionLabel>Money Management</MobileSectionLabel>
-                    <MobileNavLink to="/budget-tracker" onClick={closeMobile}>
+                    <MobileNavLink to="/budget-tracker" onClick={closeMobile} track={{ label: 'Budget Tracker', category: 'money_management' }}>
                       Budget Tracker
                     </MobileNavLink>
-                    <MobileNavLink to="/debt-management" onClick={closeMobile}>
+                    <MobileNavLink to="/debt-management" onClick={closeMobile} track={{ label: 'Debt Management', category: 'money_management' }}>
                       Debt Management
                     </MobileNavLink>
 
                     <MobileSectionLabel>Screeners</MobileSectionLabel>
-                    <MobileNavLink to="/stock-screener" onClick={closeMobile}>
+                    <MobileNavLink to="/stock-screener" onClick={closeMobile} track={{ label: 'Stock Screener', category: 'screener' }}>
                       Stock Screener
                     </MobileNavLink>
-                    <MobileNavLink to="/mutual-fund-comparison" onClick={closeMobile}>
+                    <MobileNavLink to="/mutual-fund-comparison" onClick={closeMobile} track={{ label: 'Mutual Fund Screener', category: 'screener' }}>
                       Mutual Fund Screener
                     </MobileNavLink>
-                    <MobileNavLink to="/portfolio-overlap" onClick={closeMobile}>
+                    <MobileNavLink to="/portfolio-overlap" onClick={closeMobile} track={{ label: 'Portfolio Overlap', category: 'screener' }}>
                       Portfolio Overlap
                     </MobileNavLink>
-                    <MobileNavLink to="/portfolio-review" onClick={closeMobile}>
+                    <MobileNavLink to="/portfolio-review" onClick={closeMobile} track={{ label: 'AI Portfolio Review', category: 'screener' }}>
                       AI Portfolio Review
                     </MobileNavLink>
-                    <MobileNavLink to="/mutual-fund-tracker" onClick={closeMobile}>
+                    <MobileNavLink to="/mutual-fund-tracker" onClick={closeMobile} track={{ label: 'MF Portfolio Tracker', category: 'screener' }}>
                       MF Portfolio Tracker
                     </MobileNavLink>
 
