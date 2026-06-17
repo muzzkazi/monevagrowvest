@@ -4,6 +4,7 @@ import { Phone, Menu, LineChart, PieChart, Layers, Sparkles, Eye } from "lucide-
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from "@/components/ui/sheet";
+import { trackNavClick } from "@/lib/trackNavClick";
 
 const navLinkClass = (isActive: boolean) =>
   `text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-financial-accent after:transition-all after:duration-300 hover:after:w-full ${
