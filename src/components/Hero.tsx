@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/premium-financial-hero.jpg";
+import heroVideo from "@/assets/hero-video.mp4";
 import heroAdvisor from "@/assets/hero-advisor.jpg";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
@@ -81,17 +82,20 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative overflow-hidden">
-      {/* Static hero background with parallax */}
+      {/* Hero background video with image poster fallback */}
       <div
         className="absolute inset-0 parallax-layer"
         style={getScrollParallaxStyle(0.1)}
       >
-        <img
-          src={heroImage}
-          alt=""
+        <video
+          src={heroVideo}
+          poster={heroImage}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
           aria-hidden="true"
-          fetchPriority="high"
-          decoding="async"
           className="absolute inset-0 w-full h-full object-cover scale-110"
         />
       </div>
