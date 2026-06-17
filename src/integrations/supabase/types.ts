@@ -35,6 +35,42 @@ export type Database = {
         }
         Relationships: []
       }
+      nav_click_events: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          item_label: string
+          route: string
+          session_id: string | null
+          source: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          item_label: string
+          route: string
+          session_id?: string | null
+          source?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          item_label?: string
+          route?: string
+          session_id?: string | null
+          source?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
