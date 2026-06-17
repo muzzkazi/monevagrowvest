@@ -251,7 +251,7 @@ const Header = () => {
                   <div className="py-2">
                     <MobileNavLink to="/" onClick={closeMobile}>Home</MobileNavLink>
 
-                    <MobileSectionLabel>Tools — Calculators</MobileSectionLabel>
+                    <MobileSectionLabel>Calculators</MobileSectionLabel>
                     <MobileNavLink to="/calculators?tab=sip" onClick={closeMobile}>
                       SIP Calculator
                     </MobileNavLink>
@@ -265,7 +265,15 @@ const Header = () => {
                       Retirement Planner
                     </MobileNavLink>
 
-                    <MobileSectionLabel>Tools — Screeners</MobileSectionLabel>
+                    <MobileSectionLabel>Money Management</MobileSectionLabel>
+                    <MobileNavLink to="/budget-tracker" onClick={closeMobile}>
+                      Budget Tracker
+                    </MobileNavLink>
+                    <MobileNavLink to="/debt-management" onClick={closeMobile}>
+                      Debt Management
+                    </MobileNavLink>
+
+                    <MobileSectionLabel>Screeners</MobileSectionLabel>
                     <MobileNavLink to="/stock-screener" onClick={closeMobile}>
                       Stock Screener
                     </MobileNavLink>
@@ -282,13 +290,6 @@ const Header = () => {
                       MF Portfolio Tracker
                     </MobileNavLink>
 
-                    <MobileSectionLabel>Tools — Money Management</MobileSectionLabel>
-                    <MobileNavLink to="/budget-tracker" onClick={closeMobile}>
-                      Budget Tracker
-                    </MobileNavLink>
-                    <MobileNavLink to="/debt-management" onClick={closeMobile}>
-                      Debt Management
-                    </MobileNavLink>
 
                     <MobileSectionLabel>AI Planning</MobileSectionLabel>
                     <MobileNavLink to="/ai-planning" onClick={closeMobile}>
