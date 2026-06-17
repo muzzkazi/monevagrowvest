@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/premium-financial-hero.jpg";
+import heroVideo from "@/assets/hero-video.mp4";
 import heroAdvisor from "@/assets/hero-advisor.jpg";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
