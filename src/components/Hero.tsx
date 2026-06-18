@@ -113,18 +113,34 @@ const Hero = () => {
         className="absolute inset-0 parallax-layer"
         style={getScrollParallaxStyle(0.1)}
       >
-        <video
-          src={heroVideo}
-          poster={heroImage}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
+        {/* Static poster image — always rendered, prevents layout shift and shows if video fails */}
+        <img
+          src={heroImage}
+          alt=""
           aria-hidden="true"
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover scale-110"
         />
+        {!videoFailed && (
+          <video
+            ref={videoRef}
+            src={heroVideo}
+            poster={heroImage}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            onCanPlay={() => setVideoReady(true)}
+            onError={() => setVideoFailed(true)}
+            onStalled={() => setVideoFailed(true)}
+            className={`absolute inset-0 w-full h-full object-cover scale-110 transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
+          />
+        )}
       </div>
+
 
       {/* Multi-layer gradient overlays for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background/90" />
