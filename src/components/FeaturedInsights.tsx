@@ -16,7 +16,7 @@ const FeaturedInsights = () => {
   const { ref: cardsRef, isVisible: cardsVisible } = useScrollAnimation({ threshold: 0.1 });
 
   return (
-    <section className="py-16 sm:py-24 bg-background">
+    <section className="py-16 sm:py-24 bg-financial-muted">
       <div className="container mx-auto px-4">
         <div 
           ref={headerRef}

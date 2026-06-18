@@ -196,7 +196,7 @@ const SecondaryBand = () => {
   }));
 
   return (
-    <div className="bg-gradient-to-r from-slate-900 via-blue-950/80 to-slate-900 backdrop-blur-md text-white py-1.5 w-full z-20 overflow-hidden flex flex-col justify-center relative border-y border-blue-500/20 shadow-lg shadow-blue-950/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/20 hover:border-blue-400/30">
+    <div className="bg-gradient-to-r from-slate-900 via-blue-950/80 to-slate-900 backdrop-blur-md text-white py-2 w-full z-20 overflow-hidden flex flex-col justify-center gap-y-2 relative border-y border-blue-500/20 shadow-lg shadow-blue-950/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/20 hover:border-blue-400/30">
       {/* Update status indicator */}
       <div className="absolute top-1 right-2 flex items-center gap-1.5 z-10">
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -209,7 +209,7 @@ const SecondaryBand = () => {
       </div>
 
       {/* First line - Indices */}
-      <div className="relative mb-1 overflow-hidden">
+      <div className="relative overflow-hidden">
         <div className="inline-flex w-max animate-scroll-indices will-change-transform hover:[animation-play-state:paused]">
           {[...indices, ...indices].map((item, index) => {
             const isPositive = !item.change.startsWith('-');
