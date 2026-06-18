@@ -181,11 +181,11 @@ const Hero = () => {
           >
             <div className="space-y-4 sm:space-y-5">
               <motion.h1 
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold leading-tight"
+                className="text-[28px] sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold leading-tight text-balance"
                 variants={itemVariants}
               >
                 Take control of your{" "}
-                <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">
+                <span className="text-financial-accent">
                   financial destiny
                 </span>
               </motion.h1>
