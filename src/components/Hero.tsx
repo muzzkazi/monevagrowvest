@@ -5,6 +5,7 @@ import heroAdvisor from "@/assets/hero-advisor.jpg";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
 import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
