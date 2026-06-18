@@ -5,6 +5,7 @@ import heroAdvisor from "@/assets/hero-advisor.jpg";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
 import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -73,6 +74,31 @@ const Hero = () => {
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 800 });
   
   const { smoothScrollY } = useBackgroundParallax(0.3);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    // Respect reduced motion / data saver
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const saveData = (navigator as any)?.connection?.saveData;
+    if (reducedMotion || saveData) {
+      setVideoFailed(true);
+      return;
+    }
+    const playPromise = v.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => setVideoFailed(true));
+    }
+    // Safety net: if video never becomes ready, fall back
+    const timeout = window.setTimeout(() => {
+      if (!videoReady) setVideoFailed(true);
+    }, 5000);
+    return () => window.clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Helper to get smooth scroll parallax transforms
   const getScrollParallaxStyle = (multiplier: number) => ({
@@ -87,18 +113,34 @@ const Hero = () => {
         className="absolute inset-0 parallax-layer"
         style={getScrollParallaxStyle(0.1)}
       >
-        <video
-          src={heroVideo}
-          poster={heroImage}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
+        {/* Static poster image — always rendered, prevents layout shift and shows if video fails */}
+        <img
+          src={heroImage}
+          alt=""
           aria-hidden="true"
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover scale-110"
         />
+        {!videoFailed && (
+          <video
+            ref={videoRef}
+            src={heroVideo}
+            poster={heroImage}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            onCanPlay={() => setVideoReady(true)}
+            onError={() => setVideoFailed(true)}
+            onStalled={() => setVideoFailed(true)}
+            className={`absolute inset-0 w-full h-full object-cover scale-110 transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
+          />
+        )}
       </div>
+
 
       {/* Multi-layer gradient overlays for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background/90" />
