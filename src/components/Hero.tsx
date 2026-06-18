@@ -82,23 +82,10 @@ const Hero = () => {
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    // Respect reduced motion / data saver
-    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    const saveData = (navigator as any)?.connection?.saveData;
-    if (reducedMotion || saveData) {
-      setVideoFailed(true);
-      return;
-    }
     const playPromise = v.play();
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => setVideoFailed(true));
     }
-    // Safety net: if video never becomes ready, fall back
-    const timeout = window.setTimeout(() => {
-      if (!videoReady) setVideoFailed(true);
-    }, 5000);
-    return () => window.clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Helper to get smooth scroll parallax transforms
@@ -132,11 +119,10 @@ const Hero = () => {
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="auto"
             aria-hidden="true"
             onCanPlay={() => setVideoReady(true)}
             onError={() => setVideoFailed(true)}
-            onStalled={() => setVideoFailed(true)}
             className={`absolute inset-0 w-full h-full object-cover scale-110 transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
           />
         )}
