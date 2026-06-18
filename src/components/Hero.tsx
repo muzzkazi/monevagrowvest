@@ -119,11 +119,10 @@ const Hero = () => {
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="auto"
             aria-hidden="true"
             onCanPlay={() => setVideoReady(true)}
             onError={() => setVideoFailed(true)}
-            onStalled={() => setVideoFailed(true)}
             className={`absolute inset-0 w-full h-full object-cover scale-110 transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
           />
         )}
