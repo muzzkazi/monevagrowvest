@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/premium-financial-hero.jpg";
 import heroVideo from "@/assets/hero-video.mp4";
-import heroAdvisor from "@/assets/hero-advisor.jpg";
+import heroAdvisorAsset from "@/assets/hero-advisor.webp.asset.json";
+const heroAdvisor = heroAdvisorAsset.url;
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
 import { motion } from "framer-motion";
@@ -118,7 +119,7 @@ const Hero = () => {
           src={heroImage}
           alt=""
           aria-hidden="true"
-          fetchPriority="high"
+          {...({ fetchpriority: "high" } as any)}
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover scale-110"
         />
@@ -173,7 +174,7 @@ const Hero = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left content */}
           <motion.div 
-            className="space-y-6 sm:space-y-8 flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1"
+            className="space-y-6 sm:space-y-8 flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1 min-h-[320px] sm:min-h-[360px] lg:min-h-[420px]"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
