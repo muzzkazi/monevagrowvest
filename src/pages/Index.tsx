@@ -58,7 +58,7 @@ const Index = () => {
           <DeferredMount minHeight={560}>
             <ParallaxSection speed={-0.05} className="relative z-10">
               <AnimatedSection animation="fade-in" delay={0.05}>
-                <StockRecommendations />
+                <StockRecommendations limit={6} />
               </AnimatedSection>
             </ParallaxSection>
           </DeferredMount>
