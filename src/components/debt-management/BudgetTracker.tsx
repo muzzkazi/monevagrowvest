@@ -604,4 +604,99 @@ const BudgetTracker = () => {
   );
 };
 
+      {/* Edit transaction dialog */}
+      <Dialog open={!!editingTxn} onOpenChange={(open) => !open && setEditingTxn(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit transaction</DialogTitle>
+            <DialogDescription>Update the date, category, amount or name.</DialogDescription>
+          </DialogHeader>
+          {editingTxn && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-name">Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editingTxn.name}
+                  maxLength={100}
+                  onChange={(e) => setEditingTxn({ ...editingTxn, name: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-type">Type</Label>
+                  <Select
+                    value={editingTxn.type}
+                    onValueChange={(v: "income" | "expense") =>
+                      setEditingTxn({ ...editingTxn, type: v, category: "" })
+                    }
+                  >
+                    <SelectTrigger id="edit-type"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="income">Income</SelectItem>
+                      <SelectItem value="expense">Expense</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="edit-amount">Amount</Label>
+                  <Input
+                    id="edit-amount"
+                    type="number"
+                    min={0}
+                    value={editingTxn.amount || ""}
+                    onChange={(e) =>
+                      setEditingTxn({ ...editingTxn, amount: parseFloat(e.target.value) || 0 })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-category">Category</Label>
+                  <Select
+                    value={editingTxn.category}
+                    onValueChange={(v) => setEditingTxn({ ...editingTxn, category: v })}
+                  >
+                    <SelectTrigger id="edit-category"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      {categories[editingTxn.type].map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn("w-full justify-start text-left font-normal", !editingTxn.date && "text-muted-foreground")}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {editingTxn.date ? format(new Date(editingTxn.date), "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={new Date(editingTxn.date)}
+                        onSelect={(d) => d && setEditingTxn({ ...editingTxn, date: d.toISOString() })}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingTxn(null)}>Cancel</Button>
+            <Button onClick={saveEditedTxn}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 export default BudgetTracker;
