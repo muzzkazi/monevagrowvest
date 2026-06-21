@@ -227,6 +227,17 @@ const BudgetTracker = () => {
   const removeTransaction = (id: string) => {
     setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
+  const saveEditedTxn = () => {
+    if (!editingTxn) return;
+    const amt = Number(editingTxn.amount);
+    if (!editingTxn.name.trim() || !editingTxn.category || !amt || amt <= 0) {
+      toast({ title: "Invalid input", description: "Name, category and a positive amount are required.", variant: "destructive" });
+      return;
+    }
+    setTransactions((prev) => prev.map((t) => (t.id === editingTxn.id ? { ...editingTxn, name: editingTxn.name.trim(), amount: amt } : t)));
+    setEditingTxn(null);
+    toast({ title: "Transaction updated" });
+  };
 
   const loadSample = () => {
     setBudgetItems(sampleBudgets());
