@@ -138,6 +138,7 @@ const BudgetTracker = () => {
     category: "",
     type: "expense" as "income" | "expense",
   });
+  const [editingTxn, setEditingTxn] = useState<Transaction | null>(null);
 
   useEffect(() => {
     localStorage.setItem(LS_BUDGETS, JSON.stringify(budgetItems));
