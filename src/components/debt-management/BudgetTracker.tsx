@@ -572,7 +572,10 @@ const BudgetTracker = () => {
                     <div className={`font-semibold mr-3 ${t.type === "income" ? "text-green-600" : "text-red-600"}`}>
                       {t.type === "income" ? "+" : "-"}{formatCurrency(t.amount)}
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => removeTransaction(t.id)} className="text-red-600 hover:text-red-700">
+                    <Button variant="ghost" size="sm" onClick={() => setEditingTxn(t)} aria-label="Edit transaction">
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => removeTransaction(t.id)} className="text-red-600 hover:text-red-700" aria-label="Delete transaction">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
