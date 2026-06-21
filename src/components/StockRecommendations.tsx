@@ -124,7 +124,7 @@ const StockRecommendations = ({ limit = 6 }: { limit?: number } = {}) => {
             </Button>
           </div>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Latest buy/sell calls from India's top brokerage firms — auto-refreshed from live RSS feeds every 5 minutes
+            Latest buy/sell calls from India's top brokerage firms, sourced live from RSS feeds
           </p>
           
           {/* Live status indicator */}
