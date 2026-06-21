@@ -600,9 +600,6 @@ const BudgetTracker = () => {
           </CardContent>
         </Card>
       )}
-    </div>
-  );
-};
 
       {/* Edit transaction dialog */}
       <Dialog open={!!editingTxn} onOpenChange={(open) => !open && setEditingTxn(null)}>
@@ -698,5 +695,9 @@ const BudgetTracker = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+};
+
 
 export default BudgetTracker;
