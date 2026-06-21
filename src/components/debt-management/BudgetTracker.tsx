@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { formatCurrency } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
   Plus,
@@ -17,6 +21,8 @@ import {
   Target,
   Sparkles,
   RotateCcw,
+  Pencil,
+  CalendarIcon,
 } from "lucide-react";
 import {
   PieChart,
@@ -132,6 +138,7 @@ const BudgetTracker = () => {
     category: "",
     type: "expense" as "income" | "expense",
   });
+  const [editingTxn, setEditingTxn] = useState<Transaction | null>(null);
 
   useEffect(() => {
     localStorage.setItem(LS_BUDGETS, JSON.stringify(budgetItems));
@@ -219,6 +226,17 @@ const BudgetTracker = () => {
   };
   const removeTransaction = (id: string) => {
     setTransactions((prev) => prev.filter((t) => t.id !== id));
+  };
+  const saveEditedTxn = () => {
+    if (!editingTxn) return;
+    const amt = Number(editingTxn.amount);
+    if (!editingTxn.name.trim() || !editingTxn.category || !amt || amt <= 0) {
+      toast({ title: "Invalid input", description: "Name, category and a positive amount are required.", variant: "destructive" });
+      return;
+    }
+    setTransactions((prev) => prev.map((t) => (t.id === editingTxn.id ? { ...editingTxn, name: editingTxn.name.trim(), amount: amt } : t)));
+    setEditingTxn(null);
+    toast({ title: "Transaction updated" });
   };
 
   const loadSample = () => {
@@ -554,7 +572,10 @@ const BudgetTracker = () => {
                     <div className={`font-semibold mr-3 ${t.type === "income" ? "text-green-600" : "text-red-600"}`}>
                       {t.type === "income" ? "+" : "-"}{formatCurrency(t.amount)}
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => removeTransaction(t.id)} className="text-red-600 hover:text-red-700">
+                    <Button variant="ghost" size="sm" onClick={() => setEditingTxn(t)} aria-label="Edit transaction">
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => removeTransaction(t.id)} className="text-red-600 hover:text-red-700" aria-label="Delete transaction">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -579,8 +600,104 @@ const BudgetTracker = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Edit transaction dialog */}
+      <Dialog open={!!editingTxn} onOpenChange={(open) => !open && setEditingTxn(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit transaction</DialogTitle>
+            <DialogDescription>Update the date, category, amount or name.</DialogDescription>
+          </DialogHeader>
+          {editingTxn && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-name">Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editingTxn.name}
+                  maxLength={100}
+                  onChange={(e) => setEditingTxn({ ...editingTxn, name: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-type">Type</Label>
+                  <Select
+                    value={editingTxn.type}
+                    onValueChange={(v: "income" | "expense") =>
+                      setEditingTxn({ ...editingTxn, type: v, category: "" })
+                    }
+                  >
+                    <SelectTrigger id="edit-type"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="income">Income</SelectItem>
+                      <SelectItem value="expense">Expense</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="edit-amount">Amount</Label>
+                  <Input
+                    id="edit-amount"
+                    type="number"
+                    min={0}
+                    value={editingTxn.amount || ""}
+                    onChange={(e) =>
+                      setEditingTxn({ ...editingTxn, amount: parseFloat(e.target.value) || 0 })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-category">Category</Label>
+                  <Select
+                    value={editingTxn.category}
+                    onValueChange={(v) => setEditingTxn({ ...editingTxn, category: v })}
+                  >
+                    <SelectTrigger id="edit-category"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      {categories[editingTxn.type].map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn("w-full justify-start text-left font-normal", !editingTxn.date && "text-muted-foreground")}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {editingTxn.date ? format(new Date(editingTxn.date), "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={new Date(editingTxn.date)}
+                        onSelect={(d) => d && setEditingTxn({ ...editingTxn, date: d.toISOString() })}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingTxn(null)}>Cancel</Button>
+            <Button onClick={saveEditedTxn}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+
 
 export default BudgetTracker;
