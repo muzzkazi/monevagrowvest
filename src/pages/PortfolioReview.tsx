@@ -221,9 +221,37 @@ const AllocationBar = ({
   </div>
 );
 
+const REVIEW_FUNDS_KEY = "moneva.reviewFunds.v1";
+const TRACKER_FUNDS_KEY = "moneva.trackedFunds.v1";
+
 const PortfolioReviewPage = () => {
   const navigate = useNavigate();
-  const [funds, setFunds] = useState<SelectedFund[]>([]);
+  const [funds, setFunds] = useState<SelectedFund[]>(() => {
+    // Load saved review funds, then merge in any tracker funds not yet present.
+    try {
+      const own: SelectedFund[] = JSON.parse(localStorage.getItem(REVIEW_FUNDS_KEY) || "[]");
+      const codes = new Set(own.map((f) => f.schemeCode));
+      const tracked: Array<{ code: string; name: string; monthlySIP?: number }> = JSON.parse(
+        localStorage.getItem(TRACKER_FUNDS_KEY) || "[]"
+      );
+      const fromTracker = tracked
+        .filter((t) => !codes.has(t.code))
+        .map((t) => {
+          const sub = inferSubCategory(t.name);
+          return {
+            schemeCode: t.code,
+            schemeName: t.name,
+            subCategory: sub,
+            category: categoryOf(sub),
+            fundHouse: inferFundHouse(t.name),
+            monthlySip: t.monthlySIP || 5000,
+          } as SelectedFund;
+        });
+      return [...own, ...fromTracker];
+    } catch {
+      return [];
+    }
+  });
   const [risk, setRisk] = useState<RiskProfile>("Moderate");
   const [horizon, setHorizon] = useState<string>("10");
   const [goal, setGoal] = useState<string>("");
@@ -236,6 +264,11 @@ const PortfolioReviewPage = () => {
   // Warm the AMFI scheme list on the edge function so the first keystroke
   // doesn't pay the cold-start cost of fetching ~30k schemes.
   useEffect(() => { prewarmAmfiSearch(); }, []);
+
+  // Persist review funds so they survive reload and can sync into Tracker.
+  useEffect(() => {
+    try { localStorage.setItem(REVIEW_FUNDS_KEY, JSON.stringify(funds)); } catch { /* ignore */ }
+  }, [funds]);
 
 
 
