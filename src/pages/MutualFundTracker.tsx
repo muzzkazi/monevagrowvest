@@ -777,6 +777,24 @@ const MutualFundTracker = () => {
   // Warm AMFI scheme list so the first search keystroke isn't a cold start.
   useEffect(() => { prewarmAmfiSearch(); }, []);
 
+  // Auto-import any funds added on the Portfolio Review page so users don't
+  // have to re-add them here. Runs once on mount.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("moneva.reviewFunds.v1");
+      if (!raw) return;
+      const reviewFunds: Array<{ schemeCode: string; schemeName: string; monthlySip?: number }> =
+        JSON.parse(raw);
+      const existing = new Set(funds.map((f) => f.code));
+      reviewFunds.forEach((rf) => {
+        if (rf?.schemeCode && !existing.has(rf.schemeCode)) {
+          addFund({ code: rf.schemeCode, name: rf.schemeName, monthlySIP: rf.monthlySip || 5000 });
+        }
+      });
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
 
   const codes = useMemo(() => funds.map((f) => f.code), [funds]);
