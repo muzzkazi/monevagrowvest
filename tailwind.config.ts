@@ -171,8 +171,8 @@ export default {
 			},
 			fontFamily: {
 				'sans': ['"Work Sans"', 'ui-sans-serif', 'system-ui'],
-				'serif': ['Fraunces', 'ui-serif', 'Georgia'],
-				'display': ['Fraunces', 'ui-serif', 'Georgia']
+				'serif': ['"DM Serif Display"', 'ui-serif', 'Georgia'],
+				'display': ['"DM Serif Display"', 'ui-serif', 'Georgia']
 			}
 		}
 	},
