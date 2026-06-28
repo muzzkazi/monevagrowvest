@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/dm-serif-display": "^5.2.8",
     "@fontsource/fraunces": "^5.2.9",
     "@fontsource/instrument-serif": "^5.2.8",
     "@fontsource/work-sans": "^5.2.8",
