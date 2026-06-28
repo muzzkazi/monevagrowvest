@@ -9,133 +9,122 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 249 24% 98%;
-    --foreground: 222 47% 11%;
+    /* Emerald Prestige — warm cream canvas */
+    --background: 44 30% 97%;
+    --foreground: 158 50% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 158 50% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 158 50% 8%;
 
-    --primary: 222 47% 11%;
-    --primary-foreground: 48 96% 89%;
+    --primary: 158 78% 17%;
+    --primary-foreground: 44 50% 96%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 44 25% 93%;
+    --secondary-foreground: 158 50% 12%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 44 20% 94%;
+    --muted-foreground: 158 12% 38%;
 
-    --accent: 45 93% 58%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 43 56% 54%;
+    --accent-foreground: 158 50% 8%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 44 50% 96%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 222 47% 11%;
+    --border: 44 18% 88%;
+    --input: 44 18% 88%;
+    --ring: 158 78% 17%;
 
-    /* Chart colors */
-    --chart-1: 346.8 77.2% 49.8%;
-    --chart-2: 142.1 76.2% 36.3%;
-    --chart-3: 221 83% 53%;
-    --chart-4: 262 83% 58%;
-    --chart-5: 24 95% 53%;
+    /* Chart colors — emerald/gold story */
+    --chart-1: 158 78% 22%;
+    --chart-2: 43 56% 54%;
+    --chart-3: 168 60% 35%;
+    --chart-4: 28 70% 50%;
+    --chart-5: 200 45% 40%;
 
-    /* Premium financial color palette */
-    --financial-primary: 222 47% 11%;
-    --financial-secondary: 210 20% 25%;
-    --financial-dark: 222 47% 6%;
-    --financial-gold: 45 93% 58%;
-    --financial-gold-light: 48 96% 89%;
-    --financial-accent: 213 84% 58%;
-    --financial-muted: 210 14% 89%;
+    /* Premium financial palette — emerald + gold */
+    --financial-primary: 158 78% 17%;
+    --financial-secondary: 158 35% 28%;
+    --financial-dark: 158 60% 8%;
+    --financial-gold: 43 56% 54%;
+    --financial-gold-light: 43 70% 86%;
+    --financial-accent: 158 65% 30%;
+    --financial-muted: 44 22% 92%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(210 20% 25%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45 93% 58%) 0%, hsl(48 96% 89%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11% / 0.05) 0%, hsl(213 84% 58% / 0.05) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 14% 97%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(158 78% 17%) 0%, hsl(158 60% 12%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(43 56% 54%) 0%, hsl(43 70% 78%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(158 78% 17% / 0.06) 0%, hsl(43 56% 54% / 0.08) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(44 30% 97%) 100%);
 
     /* Shadows */
-    --shadow-financial: 0 4px 20px hsl(222 47% 11% / 0.08);
-    --shadow-gold: 0 4px 20px hsl(45 93% 58% / 0.15);
-    --shadow-card: 0 1px 3px hsl(222 47% 11% / 0.05);
+    --shadow-financial: 0 8px 28px hsl(158 78% 17% / 0.10);
+    --shadow-gold: 0 8px 28px hsl(43 56% 54% / 0.22);
+    --shadow-card: 0 1px 3px hsl(158 50% 8% / 0.06);
 
-    /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 44 30% 97%;
+    --sidebar-foreground: 158 30% 20%;
+    --sidebar-primary: 158 78% 17%;
+    --sidebar-primary-foreground: 44 50% 96%;
+    --sidebar-accent: 44 22% 92%;
+    --sidebar-accent-foreground: 158 78% 17%;
+    --sidebar-border: 44 18% 88%;
+    --sidebar-ring: 43 56% 54%;
   }
 
   .dark {
-    --background: 222 47% 4%;
-    --foreground: 210 40% 98%;
+    --background: 158 50% 5%;
+    --foreground: 44 40% 94%;
 
-    --card: 222 47% 6%;
-    --card-foreground: 210 40% 98%;
+    --card: 158 45% 8%;
+    --card-foreground: 44 40% 94%;
 
-    --popover: 222 47% 6%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 158 45% 8%;
+    --popover-foreground: 44 40% 94%;
 
-    --primary: 48 96% 89%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 43 70% 64%;
+    --primary-foreground: 158 60% 8%;
 
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 158 30% 14%;
+    --secondary-foreground: 44 40% 94%;
 
-    --muted: 217 33% 18%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 158 25% 13%;
+    --muted-foreground: 44 15% 68%;
 
-    --accent: 45 93% 58%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 43 70% 60%;
+    --accent-foreground: 158 60% 8%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 44 40% 94%;
 
-    --border: 217 33% 18%;
-    --input: 217 33% 18%;
-    --ring: 212 27% 84%;
+    --border: 158 25% 16%;
+    --input: 158 25% 16%;
+    --ring: 43 70% 60%;
 
-    /* Chart colors */
-    --chart-1: 346.8 77.2% 49.8%;
-    --chart-2: 142.1 70% 45%;
-    --chart-3: 217 91% 60%;
-    --chart-4: 262 83% 68%;
-    --chart-5: 24 95% 58%;
+    --chart-1: 158 60% 50%;
+    --chart-2: 43 70% 64%;
+    --chart-3: 168 55% 50%;
+    --chart-4: 28 70% 60%;
+    --chart-5: 200 50% 55%;
 
-    /* Dark mode financial colors */
-    --financial-primary: 48 96% 89%;
-    --financial-secondary: 210 40% 90%;
-    --financial-dark: 222 47% 3%;
-    --financial-gold: 45 93% 58%;
-    --financial-gold-light: 48 96% 89%;
-    --financial-accent: 213 84% 68%;
-    --financial-muted: 217 33% 18%;
+    --financial-primary: 43 70% 78%;
+    --financial-secondary: 44 30% 88%;
+    --financial-dark: 158 60% 4%;
+    --financial-gold: 43 70% 64%;
+    --financial-gold-light: 43 75% 86%;
+    --financial-accent: 158 55% 55%;
+    --financial-muted: 158 25% 13%;
 
-    /* Dark gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(222 47% 6%) 0%, hsl(217 33% 18%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45 93% 58%) 0%, hsl(48 96% 89%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 4% / 0.8) 0%, hsl(213 84% 68% / 0.1) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(222 47% 6%) 0%, hsl(217 33% 18%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(158 50% 5%) 0%, hsl(158 35% 12%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(43 70% 64%) 0%, hsl(43 75% 82%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(158 50% 5% / 0.85) 0%, hsl(43 70% 60% / 0.12) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(158 45% 8%) 0%, hsl(158 30% 12%) 100%);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
