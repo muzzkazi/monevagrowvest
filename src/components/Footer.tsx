@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Linkedin, Instagram } from "lucide-react";
+import logoAsset from "@/assets/moneva-logo-final.png.asset.json";
 
 const Footer = () => {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
@@ -13,7 +14,7 @@ const Footer = () => {
           <div className={`space-y-2 transition-all duration-500 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <div className="flex items-center space-x-2">
               <img 
-                src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png" 
+                src={logoAsset.url} 
                 alt="Moneva Logo" 
                 className="h-10 w-auto transition-transform duration-300 hover:scale-105"
                 style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }}
