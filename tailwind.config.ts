@@ -170,9 +170,9 @@ export default {
 				'smooth': 'var(--transition-smooth)'
 			},
 			fontFamily: {
-				'sans': ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui'],
-				'serif': ['Syne', 'ui-sans-serif', 'system-ui'],
-				'display': ['Syne', 'ui-sans-serif', 'system-ui']
+				'sans': ['Manrope', 'ui-sans-serif', 'system-ui'],
+				'serif': ['Sora', 'ui-sans-serif', 'system-ui'],
+				'display': ['Sora', 'ui-sans-serif', 'system-ui']
 			}
 		}
 	},
