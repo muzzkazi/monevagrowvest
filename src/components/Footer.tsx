@@ -13,7 +13,7 @@ const Footer = () => {
           <div className={`space-y-2 transition-all duration-500 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <div className="flex items-center space-x-2">
               <img 
-                src={logoAsset.url} 
+                src="/moneva-logo-final.png" 
                 alt="Moneva Logo" 
                 className="h-10 w-auto transition-transform duration-300 hover:scale-105"
                 style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }}
