@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@fontsource/instrument-serif": "^5.2.8",
+    "@fontsource/plus-jakarta-sans": "^5.2.8",
+    "@fontsource/syne": "^5.2.7",
     "@fontsource/work-sans": "^5.2.8",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
