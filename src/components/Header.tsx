@@ -248,7 +248,7 @@ const Header = () => {
                   <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                   <div className="p-4 border-b border-border">
                     <img
-                      src={logoAsset.url}
+                      src="/moneva-logo-final.png"
                       alt="Moneva Logo"
                       className="h-8 w-auto"
                     />
