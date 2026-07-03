@@ -170,9 +170,9 @@ export default {
 				'smooth': 'var(--transition-smooth)'
 			},
 			fontFamily: {
-				'sans': ['"Work Sans"', 'ui-sans-serif', 'system-ui'],
-				'serif': ['"Instrument Serif"', 'ui-serif', 'Georgia'],
-				'display': ['"Instrument Serif"', 'ui-serif', 'Georgia']
+				'sans': ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui'],
+				'serif': ['Syne', 'ui-sans-serif', 'system-ui'],
+				'display': ['Syne', 'ui-sans-serif', 'system-ui']
 			}
 		}
 	},
