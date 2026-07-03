@@ -5,12 +5,6 @@
     "": {
       "name": "vite_react_shadcn_ts",
       "dependencies": {
-        "@fontsource/instrument-serif": "^5.2.8",
-        "@fontsource/manrope": "^5.2.8",
-        "@fontsource/plus-jakarta-sans": "^5.2.8",
-        "@fontsource/sora": "^5.2.8",
-        "@fontsource/syne": "^5.2.7",
-        "@fontsource/work-sans": "^5.2.8",
         "@hookform/resolvers": "^3.9.0",
         "@radix-ui/react-accordion": "^1.2.0",
         "@radix-ui/react-alert-dialog": "^1.1.1",
@@ -173,18 +167,6 @@
     "@floating-ui/react-dom": ["@floating-ui/react-dom@2.1.2", "", { "dependencies": { "@floating-ui/dom": "^1.0.0" }, "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-06okr5cgPzMNBy+Ycse2A6udMi4bqwW/zgBF/rwjcNqWkyr82Mcg8b0vjX8OJpZFy/FKjJmw6wV7t44kK6kW7A=="],
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.8", "", {}, "sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig=="],
-
-    "@fontsource/instrument-serif": ["@fontsource/instrument-serif@5.2.8", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/instrument-serif/-/instrument-serif-5.2.8.tgz", {}, "sha512-s+bkz+syj2rO00Rmq9g0P+PwuLig33DR1xDR8pTWmovH1pUjwnncrFk++q9mmOex8fUQ7oW80gPpPDaw7V1MMw=="],
-
-    "@fontsource/manrope": ["@fontsource/manrope@5.2.8", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/manrope/-/manrope-5.2.8.tgz", {}, "sha512-gJHJmcuUk7qWcNCfcAri/DJQtXtBYqi9yKratr4jXhSo0I3xUtNNKI+igQIcw5c+m95g0vounk8ZnX/kb8o0TA=="],
-
-    "@fontsource/plus-jakarta-sans": ["@fontsource/plus-jakarta-sans@5.2.8", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/plus-jakarta-sans/-/plus-jakarta-sans-5.2.8.tgz", {}, "sha512-P5qE49fqdeD+7DXH1KBxmMPlB17LTz1zvBhFH0tFzfnYTKVJVyb0pR6plh0ZGXxcB+Oayb54FZZw3V42/DawTw=="],
-
-    "@fontsource/sora": ["@fontsource/sora@5.2.8", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/sora/-/sora-5.2.8.tgz", {}, "sha512-1G6iTXUx8rcCKzi3mjaTQ1DE8PQz0OmW3Qnku+64S+bqRr1o/gGeiw8fxIQhhBU9ZP8ZofIqai7o00DNOPnlDw=="],
-
-    "@fontsource/syne": ["@fontsource/syne@5.2.7", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/syne/-/syne-5.2.7.tgz", {}, "sha512-OgWgLPSbieiSfdFXgMs0l/rspIFzVoDZxw8wKj15n39epRqO5+Uv36c0MXNDcw2GuK/TIBgpC9G8VAgs+bVm7A=="],
-
-    "@fontsource/work-sans": ["@fontsource/work-sans@5.2.8", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/work-sans/-/work-sans-5.2.8.tgz", {}, "sha512-6LaHjVVgts+rnrcqvEkP2+iUB/jw1oDSYsGO0+TltAhnWki9Hnf/UGpgMQh2jcm0GEH8VqCPnq4PpmHLFzxXtQ=="],
 
     "@hookform/resolvers": ["@hookform/resolvers@3.9.0", "", { "peerDependencies": { "react-hook-form": "^7.0.0" } }, "sha512-bU0Gr4EepJ/EQsH/IwEzYLsT/PEj5C0ynLQ4m+GSHS+xKH4TfSelhluTgOaoc4kA5s7eCsQbM4wvZLzELmWzUg=="],
 

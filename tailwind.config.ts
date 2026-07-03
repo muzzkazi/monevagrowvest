@@ -170,9 +170,9 @@ export default {
 				'smooth': 'var(--transition-smooth)'
 			},
 			fontFamily: {
-				'sans': ['Manrope', 'ui-sans-serif', 'system-ui'],
-				'serif': ['Sora', 'ui-sans-serif', 'system-ui'],
-				'display': ['Sora', 'ui-sans-serif', 'system-ui']
+				'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+				'serif': ['Playfair Display', 'ui-serif', 'Georgia'],
+				'display': ['Playfair Display', 'ui-serif', 'Georgia']
 			}
 		}
 	},
