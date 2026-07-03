@@ -170,9 +170,9 @@ export default {
 				'smooth': 'var(--transition-smooth)'
 			},
 			fontFamily: {
-				'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
-				'serif': ['Playfair Display', 'ui-serif', 'Georgia'],
-				'display': ['Playfair Display', 'ui-serif', 'Georgia']
+				'sans': ['"Work Sans"', 'ui-sans-serif', 'system-ui'],
+				'serif': ['"Instrument Serif"', 'ui-serif', 'Georgia'],
+				'display': ['"Instrument Serif"', 'ui-serif', 'Georgia']
 			}
 		}
 	},
