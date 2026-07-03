@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Linkedin, Instagram } from "lucide-react";
-import logoAsset from "@/assets/moneva-logo-final.png.asset.json";
 
 const Footer = () => {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
