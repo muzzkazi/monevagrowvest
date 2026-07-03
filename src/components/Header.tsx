@@ -80,7 +80,7 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center flex-shrink-0">
               <img
-                src={logoAsset.url}
+                src="/moneva-logo-final.png"
                 alt="Moneva Logo"
                 className="h-10 w-auto drop-shadow-md cursor-pointer transition-transform duration-200 hover:scale-110"
               />
