@@ -80,7 +80,7 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center flex-shrink-0">
               <img
-                src="/moneva-logo-final.png"
+                src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png"
                 alt="Moneva Logo"
                 className="h-10 w-auto drop-shadow-md cursor-pointer transition-transform duration-200 hover:scale-110"
               />
@@ -248,7 +248,7 @@ const Header = () => {
                   <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                   <div className="p-4 border-b border-border">
                     <img
-                      src="/moneva-logo-final.png"
+                      src="/lovable-uploads/ed65aa4c-20d0-4af6-9c5c-9dc7c42a42d6.png"
                       alt="Moneva Logo"
                       className="h-8 w-auto"
                     />
