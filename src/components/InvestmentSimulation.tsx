@@ -125,6 +125,13 @@ const InvestmentSimulation = () => {
       .map((e, i) => ({ ...e, year: i + 1 }));
   }, [startCalendarYear]);
 
+  const yDomain = useMemo(() => {
+    const values = history.flatMap(p => [p.conservative, p.moderate, p.aggressive]);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    if (min === max) return [min, min + 1000];
+    return [min, max + 1000];
+  }, [history]);
 
   const getStrategyMultiplier = (strategy: keyof Portfolio, baseReturn: number): number => {
     switch (strategy) {
