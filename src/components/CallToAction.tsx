@@ -7,7 +7,7 @@ const CallToAction = () => {
 
   return (
     <section className="py-14 sm:py-20 bg-gradient-primary relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-financial-primary/90 to-financial-secondary/90"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-financial-primary/90 to-financial-secondary/90 dark:from-financial-dark/95 dark:to-financial-muted/95"></div>
       <FloatingParticles count={15} />
       <div ref={ref} className="container mx-auto px-4 relative z-10">
         <div className={`text-center space-y-4 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
