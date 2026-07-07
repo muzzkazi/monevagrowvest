@@ -126,5 +126,18 @@ export const blogPosts: BlogPost[] = [
   },
 ];
 
+export const calculateReadTime = (content: string[]): string => {
+  const words = content.join(" ").trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.ceil(words / 200));
+  return `${minutes} min read`;
+};
+
+// Override stored readTime with a value computed from the actual content
+// so it stays accurate as articles are edited.
+blogPosts.forEach((post) => {
+  post.readTime = calculateReadTime(post.content);
+});
+
 export const getPostBySlug = (slug: string) =>
   blogPosts.find((p) => p.slug === slug);
+
