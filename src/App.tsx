@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, Transition } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
+import RouteLoadingSkeleton from "./components/shared/RouteLoadingSkeleton";
 
 const About = lazy(() => import("./pages/About"));
 const Services = lazy(() => import("./pages/Services"));
@@ -33,22 +34,16 @@ const BrokerageCalls = lazy(() => import("./pages/BrokerageCalls"));
 const queryClient = new QueryClient();
 
 const pageVariants = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 8 },
   in: { opacity: 1, y: 0 },
-  out: { opacity: 0, y: -20 },
+  out: { opacity: 0, y: -4 },
 };
 
 const pageTransition: Transition = {
   type: "tween",
-  ease: "anticipate",
-  duration: 0.4,
+  ease: "easeOut",
+  duration: 0.25,
 };
-
-const RouteFallback = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="h-8 w-8 rounded-full border-2 border-financial-accent border-t-transparent animate-spin" />
-  </div>
-);
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -63,7 +58,7 @@ const AnimatedRoutes = () => {
         variants={pageVariants}
         transition={pageTransition}
       >
-        <Suspense fallback={<RouteFallback />}>
+        <Suspense fallback={<RouteLoadingSkeleton />}>
           <Routes location={location}>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
