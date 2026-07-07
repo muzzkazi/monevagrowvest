@@ -731,7 +731,10 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         </div>
       </div>
 
-      {/* Results Table */}
+      {/* Results Table — show layout-shaped skeleton while live NAVs load and no rows are ready yet */}
+      {isLoadingLive && filteredFunds.length === 0 ? (
+        <MFScreenerTableSkeleton rows={8} />
+      ) : (
       <Card>
         <Table>
           <TableHeader>
