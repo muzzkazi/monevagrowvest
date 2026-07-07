@@ -225,10 +225,18 @@ async function fetchRSSFeed(feedConfig: typeof RSS_FEEDS[0]): Promise<MarketInsi
     const itemMatches = xml.match(/<item>([\s\S]*?)<\/item>/g) || [];
     
     const articles: MarketInsight[] = [];
-    for (const itemXml of itemMatches.slice(0, 5)) {
+    const maxAgeMs = 30 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    for (const itemXml of itemMatches.slice(0, 10)) {
       const article = parseRSSItem(itemXml, feedConfig.source, feedConfig.category);
       if (article) {
+        const ageMs = now - new Date(article.publishedAt).getTime();
+        if (ageMs > maxAgeMs) {
+          console.log(`Skipping stale article from ${feedConfig.source}: ${article.title} (${article.publishedAt})`);
+          continue;
+        }
         articles.push(article);
+        if (articles.length >= 5) break;
       }
     }
 
