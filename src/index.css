@@ -146,6 +146,36 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
+  /* Force dark theme tokens for the global header so it stays dark navy in both light and dark modes. */
+  .dark-nav {
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 6%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 48 96% 89%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 18%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 18%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 38 92% 55%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
+    --ring: 212 27% 84%;
+    --financial-primary: 48 96% 89%;
+    --financial-secondary: 210 40% 90%;
+    --financial-dark: 222 47% 3%;
+    --financial-gold: 38 92% 55%;
+    --financial-gold-light: 40 92% 65%;
+    --financial-accent: 213 84% 62%;
+    --financial-muted: 217 33% 18%;
+  }
+
   @keyframes scroll {
     0% {
       transform: translateX(100%);
