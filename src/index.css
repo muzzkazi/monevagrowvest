@@ -366,3 +366,11 @@ All colors MUST be HSL.
     scroll-behavior: smooth;
   }
 }
+
+/* Subtle fade for tab panel switches (Calculators, AI Planning wizards, etc.).
+   Radix TabsContent sets [data-state=active] on the visible panel. */
+@layer utilities {
+  [role="tabpanel"][data-state="active"] {
+    animation: fade-in 0.22s ease-out both;
+  }
+}
