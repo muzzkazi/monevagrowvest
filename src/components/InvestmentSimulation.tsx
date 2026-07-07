@@ -562,7 +562,7 @@ const InvestmentSimulation = () => {
                           <span className="font-medium capitalize">{strategy}</span>
                           {index === 0 && <Badge className="bg-financial-gold text-financial-primary">Winner</Badge>}
                         </div>
-                        <div className={`text-xl font-bold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
+                        <div className="text-xl font-bold text-foreground">
                           {formatCurrency(value)}
                         </div>
                         <div className={`text-sm ${isPositive ? 'text-accent' : 'text-destructive'}`}>
