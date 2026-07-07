@@ -114,6 +114,13 @@ const Services = () => {
                           <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </Button>
                       </Link>
+                    ) : service.title === "Portfolio Advisory" ? (
+                      <Link to="/contact#contact">
+                        <Button variant="outline" className="btn-enhance w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                          {service.cta}
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
                     ) : (
                       <Button variant="outline" className="btn-enhance w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
                         {service.cta}
