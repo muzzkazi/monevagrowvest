@@ -505,7 +505,7 @@ const InvestmentSimulation = () => {
               <CardContent className="text-center">
                 <div className="space-y-3">
                   <div>
-                    <div className={`text-2xl font-bold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
+                    <div className="text-2xl font-bold text-foreground">
                       {formatCurrency(value)}
                     </div>
                     <div className="text-sm text-muted-foreground">Current Value</div>
