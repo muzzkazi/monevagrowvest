@@ -100,6 +100,26 @@ export const useCountUp = ({
     hasCompleted.current = true;
   }, [isVisible, isInView, end]);
 
+  // Fallback: ensure the final value is shown even if the element is only
+  // briefly visible (e.g., user scrolls past quickly) or never triggers.
+  useEffect(() => {
+    const fallback = setTimeout(() => {
+      if (hasCompleted.current) return;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      setCount(end);
+      hasCompleted.current = true;
+    }, delay + duration + 100);
+
+    return () => clearTimeout(fallback);
+  }, [delay, duration, end]);
+
   const displayValue = `${prefix}${Math.round(count)}${suffix}`;
 
   return { value: displayValue, ref };
