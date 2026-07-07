@@ -66,7 +66,7 @@ const FinancialEducation = () => {
                 <CardDescription className="text-base">
                   Rewind up to 25 years of Indian market history and watch Conservative, Moderate,
                   and Aggressive strategies react to every crash, rally, and reform — year by year,
-                  with real return data. Compare tenures to see which window delivered the highest returns.
+                  with real return data.
                 </CardDescription>
               </CardHeader>
               <CardContent>
