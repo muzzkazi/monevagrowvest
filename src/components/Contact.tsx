@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { MapPin, Phone, Mail, Clock, MessageCircle, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ContactFormModal from "./ContactFormModal";
@@ -78,6 +79,19 @@ const Contact = () => {
   return (
     <section id="contact" className="py-20 bg-background">
       <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <Badge className="mb-4 bg-financial-accent/10 text-financial-accent border-financial-accent/20 hover:bg-financial-accent/20">
+            <MessageCircle className="w-3 h-3 mr-1.5" />
+            Get In Touch
+          </Badge>
+          <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">
+            We're Here to Help
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+            We typically respond within 24 hours.
+          </p>
+        </div>
+
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
             Get In <span className="text-shimmer">Touch</span>
