@@ -41,15 +41,16 @@ const STATS = [
 interface StatsBlockProps {
   variant?: "compact" | "cards";
   className?: string;
+  duration?: number;
 }
 
-export function StatsBlock({ variant = "cards", className = "" }: StatsBlockProps) {
+export function StatsBlock({ variant = "cards", className = "", duration = 800 }: StatsBlockProps) {
   const counters = STATS.map((stat, index) =>
     useCountUp({
       end: stat.end,
       prefix: stat.prefix || "",
       suffix: stat.suffix || "",
-      duration: 800,
+      duration,
       delay: index * 100,
     })
   );
