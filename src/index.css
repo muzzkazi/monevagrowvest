@@ -208,11 +208,11 @@ All colors MUST be HSL.
   }
 
   .animate-scroll-indices {
-    animation: scroll-indices 20s linear infinite;
+    animation: scroll-indices 30s linear infinite;
   }
 
   .animate-scroll-stocks {
-    animation: scroll-stocks 120s linear infinite;
+    animation: scroll-stocks 180s linear infinite;
   }
 
   .animate-scroll-stocks-slow {
