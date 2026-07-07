@@ -33,54 +33,62 @@ const Blog = () => {
           {/* Article grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {blogPosts.map((post) => (
-              <Card
+              <Link
                 key={post.id}
-                className="group flex flex-col border-border/60 bg-card shadow-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                to={`/blog/${post.slug}`}
+                className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-financial-accent rounded-lg"
               >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium text-financial-accent bg-financial-accent/10 px-2.5 py-1 rounded-full">
-                      {post.category}
-                    </span>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <Clock className="w-3 h-3 mr-1" />
-                      {post.readTime}
-                    </div>
-                  </div>
-                  <CardTitle className="font-display text-xl leading-snug group-hover:text-financial-accent transition-colors">
-                    {post.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col flex-1">
-                  <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-                    {post.excerpt}
-                  </p>
-                  <div className="mt-auto space-y-3">
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center">
-                        <User className="w-3.5 h-3.5 mr-1" />
-                        {post.author}
+                <Card
+                  className="group h-full flex flex-col border-border/60 bg-card shadow-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-medium text-financial-accent bg-financial-accent/10 px-2.5 py-1 rounded-full">
+                        {post.category}
                       </span>
-                      <span className="inline-flex items-center">
-                        <CalendarDays className="w-3.5 h-3.5 mr-1" />
-                        {new Date(post.date).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {post.readTime}
+                      </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-between text-financial-accent hover:text-financial-accent hover:bg-financial-accent/10"
-                    >
-                      Read article
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                    <CardTitle className="font-display text-xl leading-snug group-hover:text-financial-accent transition-colors">
+                      {post.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col flex-1">
+                    <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                    <div className="mt-auto space-y-3">
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center">
+                          <User className="w-3.5 h-3.5 mr-1" />
+                          {post.author}
+                        </span>
+                        <span className="inline-flex items-center">
+                          <CalendarDays className="w-3.5 h-3.5 mr-1" />
+                          {new Date(post.date).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </div>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-between text-financial-accent hover:text-financial-accent hover:bg-financial-accent/10 pointer-events-none"
+                      >
+                        <span>
+                          Read article
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </span>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
 
