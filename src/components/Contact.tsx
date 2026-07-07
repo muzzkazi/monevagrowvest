@@ -88,7 +88,7 @@ const Contact = () => {
             We're Here to Help
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Reach out for personalized advice — we typically respond within 24 hours.
+            We typically respond within 24 hours.
           </p>
         </div>
 
