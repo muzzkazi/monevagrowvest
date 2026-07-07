@@ -184,24 +184,30 @@ const TaxPlanningWizard = () => {
     navigate(`/sip-based-planning?${params.toString()}`);
   };
 
-  const progress = ((step + 1) / TOTAL_STEPS) * 100;
+  // Match the "Planning Progress" bar used by Goal-Based and SIP-Based Planning
+  const displayStep = Math.min(step, TOTAL_STEPS - 2);
+  const displayProgress = step >= TOTAL_STEPS - 1
+    ? 100
+    : Math.round((displayStep / (TOTAL_STEPS - 2)) * 100);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      {/* Progress */}
-      {step > 0 && step < TOTAL_STEPS - 1 && (
-        <div className="mb-6">
-          <div className="flex justify-between text-xs text-muted-foreground mb-2">
-            <span>
-              Step {step} of {TOTAL_STEPS - 2}
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" /> ~2 min total
-            </span>
-          </div>
-          <Progress value={progress} className="h-1.5" />
+      {/* Planning Progress — always visible, matches shared planning shell */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium">Planning Progress</span>
+          <span className="text-sm text-muted-foreground">
+            {step >= TOTAL_STEPS - 1
+              ? "Complete"
+              : step === 0
+              ? "Get started"
+              : `Step ${displayStep} of ${TOTAL_STEPS - 2}`}
+            {" · "}
+            {displayProgress}%
+          </span>
         </div>
-      )}
+        <Progress value={displayProgress} className="h-2" />
+      </div>
 
       <Card className="glass-card shadow-financial overflow-hidden">
         <CardContent className="p-6 sm:p-10 min-h-[420px]">
