@@ -29,13 +29,22 @@ const BlogPost = () => {
           </Link>
 
           <header className="mb-10">
-            <Badge
-              variant="outline"
-              className="mb-5 inline-flex items-center gap-1.5 border-financial-accent/40 bg-financial-accent/10 text-financial-accent px-3 py-1"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              {post.category}
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2 mb-5">
+              <Badge
+                variant="outline"
+                className="inline-flex items-center gap-1.5 border-financial-accent/40 bg-financial-accent/10 text-financial-accent px-3 py-1"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                {post.category}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="inline-flex items-center gap-1.5 border-border bg-background text-muted-foreground px-3 py-1"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                {post.readTime}
+              </Badge>
+            </div>
             <h1 className="font-display text-3xl sm:text-5xl font-bold mb-6 leading-tight">
               {post.title}
             </h1>
