@@ -55,26 +55,9 @@ const Header = () => {
   const closeMobile = () => setMobileOpen(false);
 
   return (
-    <>
-      {/* Top contact bar */}
-      <div className="bg-financial-accent text-white py-2 text-center text-sm">
-        <div className="container mx-auto px-4 flex items-center justify-center gap-4">
-          <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4" />
-            <a href="tel:+918087855185" className="hover:underline font-medium">
-              +91 80878 55185
-            </a>
-          </div>
-          <span className="hidden sm:inline">|</span>
-          <span className="hidden sm:inline">Call us for expert financial advice</span>
-        </div>
-      </div>
-
-      <header className={`sticky top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled
-          ? 'backdrop-blur-2xl bg-background/85 border-b border-financial-accent/20 shadow-2xl shadow-financial-accent/5'
-          : 'glass-nav'
-      }`}>
+    <header className={`sticky top-0 left-0 right-0 z-50 dark-nav text-foreground bg-gradient-to-r from-slate-900 via-blue-950/80 to-slate-900 border-b border-blue-500/20 shadow-lg shadow-blue-950/50 transition-all duration-500 ${
+      isScrolled ? 'shadow-2xl shadow-blue-950/70' : ''
+    }`}>
         <div className="container mx-auto max-w-screen-2xl px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between flex-nowrap">
             {/* Logo */}
@@ -248,7 +231,7 @@ const Header = () => {
                     <span className="sr-only">Open menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[300px] bg-background border-border p-0 overflow-y-auto">
+                <SheetContent side="right" className="w-[300px] dark-nav bg-background border-border p-0 overflow-y-auto">
                   <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                   <div className="p-4 border-b border-border">
                     <img
@@ -341,7 +324,6 @@ const Header = () => {
           </div>
         </div>
       </header>
-    </>
   );
 };
 
