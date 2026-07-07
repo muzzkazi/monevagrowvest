@@ -61,7 +61,7 @@ const Footer = () => {
               <li><Link to="/services" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Investment Planning</Link></li>
               <li><Link to="/services" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Retirement Planning</Link></li>
               <li><Link to="/services" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Tax Planning</Link></li>
-              <li><Link to="/services" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Portfolio Management</Link></li>
+              <li><Link to="/contact#contact" className="hover:text-financial-gold transition-all duration-300 hover:translate-x-1 inline-block">Portfolio Advisory</Link></li>
             </ul>
           </div>
           

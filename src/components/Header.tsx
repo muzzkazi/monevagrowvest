@@ -150,25 +150,25 @@ const Header = () => {
                       </div>
                       <div className="flex flex-col">
                         <span>Portfolio Overlap</span>
-                        <span className="text-[10px] text-muted-foreground font-normal">Check fund duplication</span>
+                        <span className="text-[10px] text-muted-foreground font-normal">Compare funds for duplication</span>
                       </div>
                     </Link>
-                    <Link to="/portfolio-review" onClick={() => trackNavClick('AI Portfolio Review', '/portfolio-review', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                    <Link to="/portfolio-review" onClick={() => trackNavClick('Portfolio Review (One-Time)', '/portfolio-review', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-600 group-hover/item:bg-purple-500/20 transition-colors dark:bg-purple-500/20 dark:text-purple-400">
                         <Sparkles className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
-                        <span>AI Portfolio Review</span>
-                        <span className="text-[10px] text-muted-foreground font-normal">Review your existing SIPs</span>
+                        <span>Portfolio Review (One-Time)</span>
+                        <span className="text-[10px] text-muted-foreground font-normal">Get an AI verdict on your funds</span>
                       </div>
                     </Link>
-                    <Link to="/mutual-fund-tracker" onClick={() => trackNavClick('MF Portfolio Tracker', '/mutual-fund-tracker', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
+                    <Link to="/mutual-fund-tracker" onClick={() => trackNavClick('Portfolio Tracker (Ongoing)', '/mutual-fund-tracker', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
                       <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-600 group-hover/item:bg-rose-500/20 transition-colors dark:bg-rose-500/20 dark:text-rose-400">
                         <Eye className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
-                        <span>MF Portfolio Tracker</span>
-                        <span className="text-[10px] text-muted-foreground font-normal">Watchdog for your funds</span>
+                        <span>Portfolio Tracker (Ongoing)</span>
+                        <span className="text-[10px] text-muted-foreground font-normal">Track NAV, performance & news over time</span>
                       </div>
                     </Link>
                   </div>
@@ -289,11 +289,11 @@ const Header = () => {
                     <MobileNavLink to="/portfolio-overlap" onClick={closeMobile} track={{ label: 'Portfolio Overlap', category: 'screener' }}>
                       Portfolio Overlap
                     </MobileNavLink>
-                    <MobileNavLink to="/portfolio-review" onClick={closeMobile} track={{ label: 'AI Portfolio Review', category: 'screener' }}>
-                      AI Portfolio Review
+                    <MobileNavLink to="/portfolio-review" onClick={closeMobile} track={{ label: 'Portfolio Review (One-Time)', category: 'screener' }}>
+                      Portfolio Review (One-Time)
                     </MobileNavLink>
-                    <MobileNavLink to="/mutual-fund-tracker" onClick={closeMobile} track={{ label: 'MF Portfolio Tracker', category: 'screener' }}>
-                      MF Portfolio Tracker
+                    <MobileNavLink to="/mutual-fund-tracker" onClick={closeMobile} track={{ label: 'Portfolio Tracker (Ongoing)', category: 'screener' }}>
+                      Portfolio Tracker (Ongoing)
                     </MobileNavLink>
 
 

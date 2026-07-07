@@ -147,7 +147,7 @@ const Contact = () => {
                           <SelectItem value="retirement-planning">Retirement Planning</SelectItem>
                           <SelectItem value="tax-planning">Tax Planning</SelectItem>
                           <SelectItem value="insurance-planning">Insurance Planning</SelectItem>
-                          <SelectItem value="portfolio-management">Portfolio Management</SelectItem>
+                          <SelectItem value="portfolio-advisory">Portfolio Advisory</SelectItem>
                           <SelectItem value="financial-consultation">General Financial Consultation</SelectItem>
                         </SelectContent>
                       </Select>

@@ -32,7 +32,7 @@ const ReviewVsTrackerChecklist = ({ active }: { active: "review" | "tracker" }) 
       >
         <div className="flex items-center gap-2 mb-3">
           <RefreshCw className="h-4 w-4 text-financial-accent" />
-          <span className="font-semibold text-sm text-foreground">Portfolio Review — provide each time</span>
+          <span className="font-semibold text-sm text-foreground">Portfolio Review (One-Time) — provide each time</span>
           {active === "review" && (
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-financial-accent text-white">YOU ARE HERE</span>
           )}
@@ -64,7 +64,7 @@ const ReviewVsTrackerChecklist = ({ active }: { active: "review" | "tracker" }) 
       >
         <div className="flex items-center gap-2 mb-3">
           <Activity className="h-4 w-4 text-financial-accent" />
-          <span className="font-semibold text-sm text-foreground">Portfolio Tracker — set once</span>
+          <span className="font-semibold text-sm text-foreground">Portfolio Tracker (Ongoing) — set once</span>
           {active === "tracker" && (
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-financial-accent text-white">YOU ARE HERE</span>
           )}

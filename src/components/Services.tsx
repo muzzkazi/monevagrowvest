@@ -38,10 +38,10 @@ const Services = () => {
     },
     {
       icon: PieChart,
-      title: "Portfolio Management",
-      description: "Diversified portfolio strategies tailored to your risk tolerance and financial objectives, with regular monitoring and rebalancing.",
+      title: "Portfolio Advisory",
+      description: "Human-delivered portfolio guidance tailored to your risk tolerance and financial objectives, with regular monitoring and rebalancing by a dedicated advisor.",
       features: ["Asset allocation", "Risk management", "Performance monitoring", "Regular rebalancing"],
-      cta: "View Portfolio Options"
+      cta: "Talk to an Advisor"
     },
     {
       icon: Target,
@@ -109,6 +109,13 @@ const Services = () => {
                       </Link>
                     ) : service.title === "Research Based Investment" || service.title === "Goal-Based Planning" ? (
                       <Link to="/ai-planning">
+                        <Button variant="outline" className="btn-enhance w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
+                          {service.cta}
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                    ) : service.title === "Portfolio Advisory" ? (
+                      <Link to="/contact#contact">
                         <Button variant="outline" className="btn-enhance w-full group border-financial-accent text-financial-accent hover:bg-financial-accent hover:text-white">
                           {service.cta}
                           <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
