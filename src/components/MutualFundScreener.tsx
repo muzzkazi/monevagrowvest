@@ -18,6 +18,7 @@ import {
   mutualFunds as staticFunds, fundCategories, fundSubCategories, fundHouses, 
   mfPresetScreeners, MutualFundInfo 
 } from "@/data/mutualFundDatabase";
+import { MFScreenerTableSkeleton } from "@/components/shared/DataSkeletons";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import MutualFundDetailModal from "@/components/mutual-fund-detail/MutualFundDetailModal";
@@ -730,7 +731,10 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
         </div>
       </div>
 
-      {/* Results Table */}
+      {/* Results Table — show layout-shaped skeleton while live NAVs load and no rows are ready yet */}
+      {isLoadingLive && filteredFunds.length === 0 ? (
+        <MFScreenerTableSkeleton rows={8} />
+      ) : (
       <Card>
         <Table>
           <TableHeader>
@@ -884,6 +888,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           </TableBody>
         </Table>
       </Card>
+      )}
 
       <MutualFundDetailModal
         fund={selectedFund}

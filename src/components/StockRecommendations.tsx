@@ -20,6 +20,7 @@ import {
 import { useStockPrices } from "@/hooks/useStockPrices";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useBrokerRecos } from "@/hooks/useBrokerRecos";
+import { BrokerRecoGridSkeleton } from "@/components/shared/DataSkeletons";
 
 function formatRelativeDate(iso: string): string {
   try {
@@ -173,11 +174,7 @@ const StockRecommendations = ({ limit = 6 }: { limit?: number } = {}) => {
 
 
         {recosLoading && recommendations.length === 0 && (
-          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-64 rounded-lg bg-muted/40 animate-pulse" />
-            ))}
-          </div>
+          <BrokerRecoGridSkeleton count={limit && limit < 6 ? limit : 6} />
         )}
 
         <div ref={gridRef} className="grid lg:grid-cols-3 md:grid-cols-2 gap-5">

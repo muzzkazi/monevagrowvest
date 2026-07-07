@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useBrokerRecos, BrokerReco } from "@/hooks/useBrokerRecos";
+import { BrokerCallsTableSkeleton, BrokerCallsCardSkeleton } from "@/components/shared/DataSkeletons";
 import { useStockPrices } from "@/hooks/useStockPrices";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -277,11 +278,7 @@ const BrokerageCalls = () => {
         )}
 
         {isLoading && recos.length === 0 ? (
-          <div className="grid gap-3">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-14 rounded-md bg-muted/40 animate-pulse" />
-            ))}
-          </div>
+          view === "table" ? <BrokerCallsTableSkeleton rows={10} /> : <BrokerCallsCardSkeleton count={8} />
         ) : sorted.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             No calls match the current filters.
