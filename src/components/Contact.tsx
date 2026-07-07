@@ -87,8 +87,8 @@ const Contact = () => {
           <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">
             We're Here to Help
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Reach out for personalized financial advice — our team typically responds within 24 hours.
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+            Reach out for personalized advice — we typically respond within 24 hours.
           </p>
         </div>
 
