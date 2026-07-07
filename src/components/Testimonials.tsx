@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
-import { useCountUp } from "@/hooks/useCountUp";
+
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const ClientAvatar = ({ initials }: { initials: string }) => (
@@ -12,10 +12,6 @@ const ClientAvatar = ({ initials }: { initials: string }) => (
 const Testimonials = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
-  const { ref: statsRef, isVisible: statsVisible } = useScrollAnimation({ threshold: 0.3 });
-  const clientsCount = useCountUp({ end: 500, suffix: "+", duration: 2000 });
-  const aumCount = useCountUp({ end: 12, prefix: "₹", suffix: "Cr+", duration: 2500 });
-  const returnsCount = useCountUp({ end: 12, suffix: "%", duration: 2200 });
   const testimonials = [
     {
       name: "R.K.",
@@ -105,27 +101,6 @@ const Testimonials = () => {
           ))}
         </div>
 
-        <div 
-          ref={statsRef}
-          className={`text-center mt-6 transition-all duration-700 ease-out ${
-            statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto">
-            <div>
-              <p ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">{clientsCount.value}</p>
-              <p className="text-sm text-muted-foreground">Happy Clients</p>
-            </div>
-            <div>
-              <p ref={aumCount.ref} className="text-3xl font-bold text-financial-accent">{aumCount.value}</p>
-              <p className="text-sm text-muted-foreground">Assets Managed</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-financial-accent">12%</p>
-              <p className="text-sm text-muted-foreground">Avg Returns</p>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
