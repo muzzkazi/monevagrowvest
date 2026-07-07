@@ -38,10 +38,10 @@ const Services = () => {
     },
     {
       icon: PieChart,
-      title: "Portfolio Management",
-      description: "Diversified portfolio strategies tailored to your risk tolerance and financial objectives, with regular monitoring and rebalancing.",
+      title: "Portfolio Advisory",
+      description: "Human-delivered portfolio guidance tailored to your risk tolerance and financial objectives, with regular monitoring and rebalancing by a dedicated advisor.",
       features: ["Asset allocation", "Risk management", "Performance monitoring", "Regular rebalancing"],
-      cta: "View Portfolio Options"
+      cta: "Talk to an Advisor"
     },
     {
       icon: Target,
