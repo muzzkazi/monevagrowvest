@@ -69,10 +69,10 @@ const statItemVariants = {
 };
 
 const Hero = () => {
-  const researchCount = useCountUp({ end: 100, suffix: '%', duration: 2000, delay: 1000 });
-  const clientsCount = useCountUp({ end: 500, suffix: '+', duration: 2500, delay: 1200 });
-  const aumCount = useCountUp({ end: 12, prefix: '₹', suffix: 'Cr+', duration: 3000, delay: 1400 });
-  const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 2200, delay: 800 });
+  const researchCount = useCountUp({ end: 100, suffix: '%', duration: 800, delay: 100 });
+  const clientsCount = useCountUp({ end: 500, suffix: '+', duration: 800, delay: 200 });
+  const aumCount = useCountUp({ end: 12, prefix: '₹', suffix: 'Cr+', duration: 800, delay: 300 });
+  const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 800, delay: 400 });
   
   const { smoothScrollY } = useBackgroundParallax(0.3);
   const videoRef = useRef<HTMLVideoElement>(null);

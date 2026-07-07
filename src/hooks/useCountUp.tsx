@@ -11,7 +11,7 @@ interface UseCountUpProps {
 
 export const useCountUp = ({ 
   end, 
-  duration = 2000, 
+  duration = 900, 
   start = 0, 
   prefix = '', 
   suffix = '',
@@ -19,52 +19,112 @@ export const useCountUp = ({
 }: UseCountUpProps) => {
   const [count, setCount] = useState(start);
   const [isVisible, setIsVisible] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const hasStarted = useRef(false);
+  const hasCompleted = useRef(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
+        setIsInView(entry.isIntersecting);
+        if (entry.isIntersecting && !hasStarted.current) {
+          hasStarted.current = true;
           setIsVisible(true);
         }
       },
       { threshold: 0.3 }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
+    observer.observe(element);
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
+      observer.disconnect();
     };
-  }, [isVisible]);
+  }, []);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || hasCompleted.current) return;
 
-    const timer = setTimeout(() => {
-      const increment = end / (duration / 16);
-      const timer = setInterval(() => {
-        setCount(prevCount => {
-          const nextCount = prevCount + increment;
-          if (nextCount >= end) {
-            clearInterval(timer);
-            return end;
-          }
-          return nextCount;
-        });
+    timeoutRef.current = setTimeout(() => {
+      if (hasCompleted.current) return;
+
+      const steps = Math.max(1, Math.floor(duration / 16));
+      const increment = (end - start) / steps;
+      let step = 0;
+
+      intervalRef.current = setInterval(() => {
+        if (hasCompleted.current) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          return;
+        }
+        step += 1;
+        if (step >= steps) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          setCount(end);
+          hasCompleted.current = true;
+        } else {
+          setCount(Math.round(start + increment * step));
+        }
       }, 16);
-
-      return () => clearInterval(timer);
     }, delay);
 
-    return () => clearTimeout(timer);
-  }, [isVisible, end, duration, delay]);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isVisible, end, start, duration, delay]);
 
-  const displayValue = `${prefix}${Math.floor(count)}${suffix}`;
+  useEffect(() => {
+    if (!isVisible || isInView || hasCompleted.current) return;
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    setCount(end);
+    hasCompleted.current = true;
+  }, [isVisible, isInView, end]);
+
+  // Fallback: ensure the final value is shown even if the element is only
+  // briefly visible (e.g., user scrolls past quickly) or never triggers.
+  useEffect(() => {
+    const fallback = setTimeout(() => {
+      if (hasCompleted.current) return;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      setCount(end);
+      hasCompleted.current = true;
+    }, delay + duration + 100);
+
+    return () => clearTimeout(fallback);
+  }, [delay, duration, end]);
+
+  const displayValue = `${prefix}${Math.round(count)}${suffix}`;
 
   return { value: displayValue, ref };
 };
