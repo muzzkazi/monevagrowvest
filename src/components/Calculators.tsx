@@ -492,6 +492,16 @@ const Calculators = () => {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center"
               >
+                <div className="w-full max-w-3xl mx-auto mb-6 rounded-lg border border-financial-accent/30 bg-financial-accent/5 px-4 py-3 flex items-start gap-2 text-sm">
+                  <Sparkles className="h-4 w-4 text-financial-accent mt-0.5 shrink-0" />
+                  <p className="text-muted-foreground">
+                    Want a full picture including HRA, capital gains, and SIP tax-saving suggestions?{" "}
+                    <Link to="/tax-planning?start=1" className="text-financial-accent font-medium hover:underline">
+                      Try our guided Tax Planning wizard instead
+                    </Link>
+                    .
+                  </p>
+                </div>
                 <div className={`grid gap-8 w-full max-w-6xl mx-auto ${taxResult ? 'lg:grid-cols-2' : 'lg:grid-cols-1 max-w-xl'}`}>
                   <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl h-full">
@@ -670,7 +680,7 @@ const Calculators = () => {
                         </CardContent>
                       </Card>
 
-                      <Link to="/tax-planning" className="block group">
+                      <Link to="/tax-planning?start=1" className="block group">
                         <Card className="bg-gradient-to-br from-financial-accent/10 to-financial-accent/5 border-financial-accent/30 hover:border-financial-accent/60 transition-all">
                           <CardContent className="p-4 flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-financial-accent/15 flex items-center justify-center shrink-0">
