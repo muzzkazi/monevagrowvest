@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,10 @@ const stepTitles = [
 
 const TaxPlanningWizard = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
+  const [searchParams] = useSearchParams();
+  const startParam = parseInt(searchParams.get("start") || "0", 10);
+  const initialStep = Number.isFinite(startParam) && startParam >= 1 && startParam <= 9 ? startParam : 0;
+  const [step, setStep] = useState(initialStep);
   const [stepStartTime, setStepStartTime] = useState(Date.now());
   const [hasHomeLoan, setHasHomeLoan] = useState<boolean | null>(null);
   const [hasNPS, setHasNPS] = useState<boolean | null>(null);
