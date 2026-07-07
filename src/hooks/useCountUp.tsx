@@ -81,6 +81,10 @@ export const useCountUp = ({
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [isVisible, end, start, duration, delay]);
 
