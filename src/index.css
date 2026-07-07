@@ -27,7 +27,7 @@ All colors MUST be HSL.
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 45 93% 58%;
+    --accent: 35 91% 38%;
     --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84% 60%;
@@ -44,24 +44,24 @@ All colors MUST be HSL.
     --chart-4: 262 83% 58%;
     --chart-5: 24 95% 53%;
 
-    /* Premium financial color palette */
+    /* Premium financial color palette — locked brand accents */
     --financial-primary: 222 47% 11%;
     --financial-secondary: 210 20% 25%;
     --financial-dark: 222 47% 6%;
-    --financial-gold: 45 93% 58%;
-    --financial-gold-light: 48 96% 89%;
-    --financial-accent: 213 84% 58%;
+    --financial-gold: 35 91% 38%;        /* deep amber, AA on white */
+    --financial-gold-light: 38 92% 48%;  /* lighter amber for gradients only */
+    --financial-accent: 213 84% 45%;     /* locked brand blue, AA on white */
     --financial-muted: 210 14% 89%;
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(210 20% 25%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45 93% 58%) 0%, hsl(48 96% 89%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11% / 0.05) 0%, hsl(213 84% 58% / 0.05) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(35 91% 38%) 0%, hsl(38 92% 48%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11% / 0.05) 0%, hsl(213 84% 45% / 0.05) 100%);
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 14% 97%) 100%);
 
     /* Shadows */
     --shadow-financial: 0 4px 20px hsl(222 47% 11% / 0.08);
-    --shadow-gold: 0 4px 20px hsl(45 93% 58% / 0.15);
+    --shadow-gold: 0 4px 20px hsl(35 91% 38% / 0.18);
     --shadow-card: 0 1px 3px hsl(222 47% 11% / 0.05);
 
     /* Transitions */
@@ -105,7 +105,7 @@ All colors MUST be HSL.
     --muted: 217 33% 18%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 45 93% 58%;
+    --accent: 38 92% 55%;
     --accent-foreground: 222 47% 11%;
 
     --destructive: 0 63% 31%;
@@ -122,19 +122,19 @@ All colors MUST be HSL.
     --chart-4: 262 83% 68%;
     --chart-5: 24 95% 58%;
 
-    /* Dark mode financial colors */
+    /* Dark mode financial colors — same locked hues, tuned for dark bg */
     --financial-primary: 48 96% 89%;
     --financial-secondary: 210 40% 90%;
     --financial-dark: 222 47% 3%;
-    --financial-gold: 45 93% 58%;
-    --financial-gold-light: 48 96% 89%;
-    --financial-accent: 213 84% 68%;
+    --financial-gold: 38 92% 55%;         /* deep amber, readable on dark */
+    --financial-gold-light: 40 92% 65%;
+    --financial-accent: 213 84% 62%;      /* locked blue, readable on dark */
     --financial-muted: 217 33% 18%;
 
     /* Dark gradients */
     --gradient-primary: linear-gradient(135deg, hsl(222 47% 6%) 0%, hsl(217 33% 18%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45 93% 58%) 0%, hsl(48 96% 89%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 4% / 0.8) 0%, hsl(213 84% 68% / 0.1) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(38 92% 55%) 0%, hsl(40 92% 65%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(222 47% 4% / 0.8) 0%, hsl(213 84% 62% / 0.1) 100%);
     --gradient-card: linear-gradient(135deg, hsl(222 47% 6%) 0%, hsl(217 33% 18%) 100%);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
