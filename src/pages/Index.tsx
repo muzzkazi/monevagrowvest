@@ -14,8 +14,7 @@ import { AnimatedSection, ParallaxSection } from "@/hooks/useScrollAnimation";
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const SuccessStories = lazy(() => import("@/components/SuccessStories"));
 const Partners = lazy(() => import("@/components/Partners"));
-const StockRecommendations = lazy(() => import("@/components/StockRecommendations"));
-const FeaturedInsights = lazy(() => import("@/components/FeaturedInsights"));
+const MarketInsightsTeaser = lazy(() => import("@/components/MarketInsightsTeaser"));
 const CallToAction = lazy(() => import("@/components/CallToAction"));
 
 const SectionFallback = () => (
@@ -55,21 +54,15 @@ const Index = () => {
             </ParallaxSection>
           </DeferredMount>
 
-          <DeferredMount minHeight={560}>
-            <ParallaxSection speed={-0.05} className="relative z-10">
+          <DeferredMount minHeight={480}>
+            <ParallaxSection speed={-0.04} className="relative z-10">
               <AnimatedSection animation="fade-in" delay={0.05}>
-                <StockRecommendations limit={6} />
+                <MarketInsightsTeaser />
               </AnimatedSection>
             </ParallaxSection>
           </DeferredMount>
 
-          <DeferredMount minHeight={560}>
-            <ParallaxSection speed={0.03} className="relative z-10">
-              <AnimatedSection animation="slide-left" delay={0.05}>
-                <FeaturedInsights />
-              </AnimatedSection>
-            </ParallaxSection>
-          </DeferredMount>
+
 
           <DeferredMount minHeight={320}>
             <ParallaxSection speed={-0.02} className="relative z-10">
