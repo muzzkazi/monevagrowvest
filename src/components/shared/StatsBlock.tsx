@@ -1,7 +1,6 @@
 import { useCountUp } from "@/hooks/useCountUp";
 import { Card, CardContent } from "@/components/ui/card";
 import { Award, Shield, TrendingUp, Users2 } from "lucide-react";
-import { motion } from "framer-motion";
 
 const STATS = [
   {
@@ -59,13 +58,7 @@ export function StatsBlock({ variant = "cards", className = "" }: StatsBlockProp
     return (
       <div className={`grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 ${className}`}>
         {STATS.map((stat, index) => (
-          <motion.div
-            key={stat.id}
-            className="text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
-          >
+          <div key={stat.id} className="text-center">
             <div
               ref={counters[index].ref}
               className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-financial-accent"
@@ -75,7 +68,7 @@ export function StatsBlock({ variant = "cards", className = "" }: StatsBlockProp
             <div className="text-xs sm:text-sm md:text-base text-muted-foreground">
               {stat.label}
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     );
