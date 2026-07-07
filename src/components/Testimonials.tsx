@@ -12,10 +12,6 @@ const ClientAvatar = ({ initials }: { initials: string }) => (
 const Testimonials = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.2 });
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ threshold: 0.1 });
-  const { ref: statsRef, isVisible: statsVisible } = useScrollAnimation({ threshold: 0.3 });
-  const clientsCount = useCountUp({ end: 500, suffix: "+", duration: 2000 });
-  const aumCount = useCountUp({ end: 12, prefix: "₹", suffix: "Cr+", duration: 2500 });
-  const returnsCount = useCountUp({ end: 12, suffix: "%", duration: 2200 });
   const testimonials = [
     {
       name: "R.K.",
