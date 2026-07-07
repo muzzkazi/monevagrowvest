@@ -31,6 +31,7 @@ const StockScreenerPage = lazy(() => import("./pages/StockScreener"));
 const TaxPlanning = lazy(() => import("./pages/TaxPlanning"));
 const Auth = lazy(() => import("./pages/Auth"));
 const BrokerageCalls = lazy(() => import("./pages/BrokerageCalls"));
+const MarketInsights = lazy(() => import("./pages/MarketInsights"));
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const AnimatedRoutes = () => {
           <Route path="/tax-planning" element={<TaxPlanning />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/brokerage-calls" element={<BrokerageCalls />} />
+          <Route path="/market-insights" element={<MarketInsights />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
