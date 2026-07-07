@@ -418,7 +418,7 @@ const InvestmentSimulation = () => {
                   stroke="hsl(217 91% 60%)"
                   strokeWidth={2}
                   dot={history.length > 1 ? { r: 3 } : false}
-                  activeDot={{ r: 5 }}
+                  activeDot={history.length > 1 ? { r: 5 } : false}
                   isAnimationActive={false}
                 />
                 <Line
@@ -428,7 +428,7 @@ const InvestmentSimulation = () => {
                   stroke="hsl(var(--financial-accent))"
                   strokeWidth={2.5}
                   dot={history.length > 1 ? { r: 3 } : false}
-                  activeDot={{ r: 5 }}
+                  activeDot={history.length > 1 ? { r: 5 } : false}
                   isAnimationActive={false}
                 />
                 <Line
@@ -438,7 +438,7 @@ const InvestmentSimulation = () => {
                   stroke="hsl(0 84% 60%)"
                   strokeWidth={2}
                   dot={history.length > 1 ? { r: 3 } : false}
-                  activeDot={{ r: 5 }}
+                  activeDot={history.length > 1 ? { r: 5 } : false}
                   isAnimationActive={false}
                 />
                 {history
