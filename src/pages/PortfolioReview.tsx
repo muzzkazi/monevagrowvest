@@ -394,7 +394,7 @@ const PortfolioReviewPage = () => {
               </h1>
               <p className="text-muted-foreground">
                 A one-time diagnostic of your existing mutual funds. For continuous monitoring of NAV, performance, overlap and AMC updates, use{" "}
-                <a href="/mutual-fund-tracker" className="text-financial-accent font-medium hover:underline">Portfolio Tracker</a>.
+                <a href="/mutual-fund-tracker" className="text-financial-accent font-medium hover:underline">Portfolio Tracker (Ongoing)</a>.
               </p>
             </div>
           </div>
