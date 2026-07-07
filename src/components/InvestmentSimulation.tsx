@@ -402,7 +402,7 @@ const InvestmentSimulation = () => {
                     if (k >= 100) return `₹${(k / 100).toFixed(1)}L`;
                     return Number.isInteger(k) ? `₹${k.toFixed(0)}k` : `₹${k.toFixed(1)}k`;
                   }}
-                  domain={['dataMin', 'dataMax + 1000']}
+                  domain={yDomain}
                   tickCount={6}
                 />
                 <Tooltip
