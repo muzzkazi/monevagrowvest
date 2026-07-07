@@ -108,6 +108,17 @@ const TaxPlanningWizard = () => {
     track("page_start");
   }, []);
 
+  // Keep the wizard in sync with ?start=N so a refresh or browser back to a
+  // deep-link URL lands the user on the right step. Only re-jumps when the URL
+  // actually asks for a different step, so we never clobber in-progress state.
+  useEffect(() => {
+    const raw = parseInt(searchParams.get("start") || "0", 10);
+    if (Number.isFinite(raw) && raw >= 1 && raw <= 9 && raw !== step) {
+      setStep(raw);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   useEffect(() => {
     track("step_view", { step, title: stepTitles[step] });
     setStepStartTime(Date.now());
@@ -184,30 +195,45 @@ const TaxPlanningWizard = () => {
     navigate(`/sip-based-planning?${params.toString()}`);
   };
 
-  // Match the "Planning Progress" bar used by Goal-Based and SIP-Based Planning
-  const displayStep = Math.min(step, TOTAL_STEPS - 2);
-  const displayProgress = step >= TOTAL_STEPS - 1
-    ? 100
-    : Math.round((displayStep / (TOTAL_STEPS - 2)) * 100);
+  // Consistent progress across every step including Welcome (0) and Result (10).
+  // Step 0 = 0%, each data step advances 10%, Result = 100%.
+  const DATA_STEPS = TOTAL_STEPS - 2; // 9
+  const displayProgress =
+    step >= TOTAL_STEPS - 1
+      ? 100
+      : Math.round((step / (TOTAL_STEPS - 1)) * 100);
+  const progressLabel =
+    step >= TOTAL_STEPS - 1
+      ? "Complete"
+      : step === 0
+      ? `Welcome · Step 0 of ${DATA_STEPS}`
+      : `Step ${step} of ${DATA_STEPS}`;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      {/* Planning Progress — always visible, matches shared planning shell */}
+      {/* Planning Progress — always visible on every step, matches shared planning shell */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium">Planning Progress</span>
           <span className="text-sm text-muted-foreground">
-            {step >= TOTAL_STEPS - 1
-              ? "Complete"
-              : step === 0
-              ? "Get started"
-              : `Step ${displayStep} of ${TOTAL_STEPS - 2}`}
-            {" · "}
-            {displayProgress}%
+            {progressLabel} · {displayProgress}%
           </span>
         </div>
         <Progress value={displayProgress} className="h-2" />
       </div>
+
+      {/* Cross-tool link — quick jump back to the lightweight Tax Calculator */}
+      <div className="mb-3 flex justify-end">
+        <button
+          type="button"
+          onClick={() => navigate("/calculators?tab=tax")}
+          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-financial-accent transition-colors"
+        >
+          <ArrowLeft className="h-3 w-3" />
+          Back to Tax Calculator
+        </button>
+      </div>
+
 
       <Card className="glass-card shadow-financial overflow-hidden">
         <CardContent className="p-6 sm:p-10 min-h-[420px]">
