@@ -1,6 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Award, Users2, TrendingUp, Shield } from "lucide-react";
-import { useCountUp } from "@/hooks/useCountUp";
+import { StatsBlock } from "@/components/shared/StatsBlock";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const About = () => {
@@ -8,15 +7,7 @@ const About = () => {
   const { ref: storyRef, isVisible: storyVisible } = useScrollAnimation({ threshold: 0.15 });
   const { ref: valuesRef, isVisible: valuesVisible } = useScrollAnimation({ threshold: 0.1 });
   const { ref: teamRef, isVisible: teamVisible } = useScrollAnimation({ threshold: 0.1 });
-  const clientsCount = useCountUp({ end: 500, duration: 2000, suffix: "+" });
-  const aumValue = useCountUp({ end: 12, duration: 2000, prefix: "₹", suffix: "Cr+" });
 
-  const stats = [
-    { icon: Users2, value: clientsCount.value, label: "Happy Clients", description: "Satisfied investors across India", ref: clientsCount.ref, animated: true },
-    { icon: TrendingUp, value: aumValue.value, label: "Assets Under Management", description: "Growing portfolio value", ref: aumValue.ref, animated: true },
-    { icon: Award, value: "12%+", label: "Average Returns", description: "Consistent performance track record", animated: false },
-    { icon: Shield, value: "100%", label: "Research Based", description: "Data-driven investment decisions", animated: false }
-  ];
 
   const values = [
     {
@@ -57,12 +48,12 @@ const About = () => {
         {/* Our Story */}
         <div 
           ref={storyRef}
-          className={`grid lg:grid-cols-2 gap-8 items-center mb-12 transition-all duration-700 ease-out ${
+          className={`mb-12 transition-all duration-700 ease-out ${
             storyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <div className="space-y-6">
-            <h3 className="text-3xl font-bold text-foreground">Our Story</h3>
+          <div className="max-w-3xl mb-12 sm:mb-16">
+            <h3 className="text-3xl font-bold text-foreground mb-4">Our Story</h3>
             <div className="space-y-4 text-muted-foreground">
               <p>
                 Moneva Growvest Pvt. Ltd. was born from a simple observation: traditional financial advisory services were either too expensive for the average investor or too generic to be truly helpful. We set out to change that.
@@ -79,18 +70,8 @@ const About = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-6">
-            {stats.map((stat, index) => (
-              <Card key={index} className="bg-gradient-card border-0 shadow-card hover:shadow-financial transition-all duration-300">
-                <CardContent className="p-6 text-center">
-                  <stat.icon className="w-8 h-8 text-financial-accent mx-auto mb-4" />
-                  <div ref={stat.animated ? stat.ref : undefined} className="text-2xl font-bold text-financial-accent mb-2">{stat.value}</div>
-                  <div className="text-sm font-medium text-foreground mb-2">{stat.label}</div>
-                  <div className="text-xs text-muted-foreground">{stat.description}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {/* Stats cards - larger spaced grid */}
+          <StatsBlock variant="cards" />
         </div>
 
         {/* Our Values */}

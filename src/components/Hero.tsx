@@ -3,6 +3,7 @@ import heroImage from "@/assets/premium-financial-hero.jpg";
 import heroVideo from "@/assets/hero-video.mp4";
 import heroAdvisorAsset from "@/assets/hero-advisor.webp.asset.json";
 const heroAdvisor = heroAdvisorAsset.url;
+import { StatsBlock } from "@/components/shared/StatsBlock";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useBackgroundParallax } from "@/hooks/useParallax";
 import { motion } from "framer-motion";
@@ -44,34 +45,8 @@ const imageVariants = {
   },
 };
 
-const statsVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.8,
-    },
-  },
-};
-
-const statItemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut" as const,
-    },
-  },
-};
 
 const Hero = () => {
-  const researchCount = useCountUp({ end: 100, suffix: '%', duration: 800, delay: 100 });
-  const clientsCount = useCountUp({ end: 500, suffix: '+', duration: 800, delay: 200 });
-  const aumCount = useCountUp({ end: 12, prefix: '₹', suffix: 'Cr+', duration: 800, delay: 300 });
   const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 800, delay: 400 });
   
   const { smoothScrollY } = useBackgroundParallax(0.3);
@@ -239,42 +214,14 @@ const Hero = () => {
           </motion.div>
         </div>
         
-        {/* Stats section - centered on page */}
+        {/* Stats section - compact horizontal strip */}
         <motion.div 
           className="flex justify-center pt-8 sm:pt-10"
-          variants={statsVariants}
-          initial="hidden"
-          animate="visible"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
         >
-          <div className="grid grid-cols-3 gap-4 sm:gap-8 md:gap-16 w-full max-w-2xl">
-            <motion.div 
-              className="text-center transform hover:scale-110 transition-transform duration-300"
-              variants={statItemVariants}
-            >
-              <div ref={researchCount.ref} className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-financial-accent">
-                {researchCount.value}
-              </div>
-              <div className="text-xs sm:text-sm md:text-base text-muted-foreground">Research Based</div>
-            </motion.div>
-            <motion.div 
-              className="text-center transform hover:scale-110 transition-transform duration-300"
-              variants={statItemVariants}
-            >
-              <div ref={clientsCount.ref} className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-financial-accent">
-                {clientsCount.value}
-              </div>
-              <div className="text-xs sm:text-sm md:text-base text-muted-foreground">Happy Clients</div>
-            </motion.div>
-            <motion.div 
-              className="text-center transform hover:scale-110 transition-transform duration-300"
-              variants={statItemVariants}
-            >
-              <div ref={aumCount.ref} className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-financial-accent">
-                {aumCount.value}
-              </div>
-              <div className="text-xs sm:text-sm md:text-base text-muted-foreground">Assets Managed</div>
-            </motion.div>
-          </div>
+          <StatsBlock variant="compact" className="max-w-3xl" />
         </motion.div>
       </div>
     </section>
