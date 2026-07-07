@@ -888,6 +888,7 @@ const MutualFundScreener = ({ onCompare }: MutualFundScreenerProps) => {
           </TableBody>
         </Table>
       </Card>
+      )}
 
       <MutualFundDetailModal
         fund={selectedFund}
