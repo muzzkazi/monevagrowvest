@@ -202,6 +202,10 @@ const Header = () => {
                 </div>
               </div>
 
+              <Link to="/market-insights" className={`${navLinkClass(location.pathname === '/market-insights')} flex items-center gap-1.5`}>
+                Insights
+              </Link>
+
               <Link to="/financial-education" className={`${navLinkClass(location.pathname === '/financial-education')} flex items-center gap-1.5`}>
                 Learning
               </Link>
@@ -312,6 +316,9 @@ const Header = () => {
                     </MobileNavLink>
 
                     <div className="my-2 border-t border-border" />
+                    <MobileNavLink to="/market-insights" onClick={closeMobile}>
+                      Market Insights
+                    </MobileNavLink>
                     <MobileNavLink to="/financial-education" onClick={closeMobile}>
                       Learning
                     </MobileNavLink>
