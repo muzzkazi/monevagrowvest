@@ -135,7 +135,7 @@ const Hero = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left content */}
           <motion.div 
-            className="space-y-6 sm:space-y-8 flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1 min-h-[320px] sm:min-h-[360px] lg:min-h-[420px]"
+            className="space-y-6 sm:space-y-8 flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -188,14 +188,14 @@ const Hero = () => {
             initial="hidden"
             animate="visible"
           >
-            <div className="relative group max-w-md lg:max-w-none">
+            <div className="relative group max-w-md lg:w-fit">
               <div className="absolute inset-0 bg-gradient-to-r from-financial-accent/20 to-financial-gold/20 rounded-2xl sm:rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
               <img 
                 src={heroAdvisor} 
                 alt="Indian family reviewing investment portfolio together at home" 
                 width={1024}
                 height={1280}
-                className="relative w-full h-auto rounded-2xl sm:rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
+                className="relative w-full lg:w-auto lg:max-h-[360px] rounded-2xl sm:rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
               />
               <motion.div 
                 className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-gradient-gold p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer"
