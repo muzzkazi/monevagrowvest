@@ -59,6 +59,11 @@ export const useCountUp = ({
       let step = 0;
 
       intervalRef.current = setInterval(() => {
+        if (hasCompleted.current) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          return;
+        }
         step += 1;
         if (step >= steps) {
           if (intervalRef.current) clearInterval(intervalRef.current);
