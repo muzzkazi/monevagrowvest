@@ -577,16 +577,27 @@ const InvestmentSimulation = () => {
                     
                     return (
                       <div key={strategy} className={`p-4 rounded-lg ${
-                        index === 0 ? 'bg-financial-gold/10 border border-financial-gold/20' : 'bg-muted/50'
+                        strategy === 'conservative' ? 'bg-destructive/10 border border-destructive/20' :
+                        strategy === 'moderate' ? 'bg-financial-accent/10 border border-financial-accent/20' :
+                        'bg-green-500/10 border border-green-500/20'
                       }`}>
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`font-medium capitalize ${index === 0 ? 'text-financial-gold' : ''}`}>{strategy}</span>
+                          <span className={`font-medium capitalize ${
+                            strategy === 'conservative' ? 'text-destructive' :
+                            strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                          }`}>{strategy}</span>
                           {index === 0 && <Badge className="bg-financial-gold text-financial-primary">Winner</Badge>}
                         </div>
-                        <div className={`text-xl font-bold ${index === 0 ? 'text-financial-gold' : 'text-foreground'}`}>
+                        <div className={`text-xl font-bold ${
+                          strategy === 'conservative' ? 'text-destructive' :
+                          strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                        }`}>
                           {formatCurrency(value)}
                         </div>
-                        <div className={`text-sm ${index === 0 ? 'text-financial-gold' : isPositive ? 'text-accent' : 'text-destructive'}`}>
+                        <div className={`text-sm ${
+                          strategy === 'conservative' ? 'text-destructive' :
+                          strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                        }`}>
                           {isPositive ? '+' : ''}{returnPercent}% total return
                         </div>
                       </div>
