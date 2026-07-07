@@ -417,7 +417,7 @@ const InvestmentSimulation = () => {
                   name="Conservative"
                   stroke="hsl(217 91% 60%)"
                   strokeWidth={2}
-                  dot={{ r: 3 }}
+                  dot={history.length > 1 ? { r: 3 } : false}
                   activeDot={{ r: 5 }}
                   isAnimationActive={false}
                 />
@@ -427,7 +427,7 @@ const InvestmentSimulation = () => {
                   name="Moderate"
                   stroke="hsl(var(--financial-accent))"
                   strokeWidth={2.5}
-                  dot={{ r: 3 }}
+                  dot={history.length > 1 ? { r: 3 } : false}
                   activeDot={{ r: 5 }}
                   isAnimationActive={false}
                 />
@@ -437,7 +437,7 @@ const InvestmentSimulation = () => {
                   name="Aggressive"
                   stroke="hsl(0 84% 60%)"
                   strokeWidth={2}
-                  dot={{ r: 3 }}
+                  dot={history.length > 1 ? { r: 3 } : false}
                   activeDot={{ r: 5 }}
                   isAnimationActive={false}
                 />
