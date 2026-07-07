@@ -13,6 +13,8 @@ import {
   Tooltip,
   Legend,
   ReferenceDot,
+  BarChart,
+  Bar,
 } from 'recharts';
 import { 
   LineChart, 
@@ -26,7 +28,9 @@ import {
   RotateCcw,
   Target,
   AlertTriangle,
-  Award
+  Award,
+  BarChart3,
+  ArrowLeft
 } from 'lucide-react';
 
 interface MarketEvent {
@@ -62,6 +66,13 @@ interface HistoryPoint {
   return: number;
 }
 
+interface TenureResult extends Portfolio {
+  startYear: number;
+  endYear: number;
+  label: string;
+  years: number;
+}
+
 const initialHistory: HistoryPoint[] = [
   { year: 0, label: 'Start', conservative: 10000, moderate: 10000, aggressive: 10000, event: 'Initial Investment', return: 0 },
 ];
@@ -79,6 +90,7 @@ const InvestmentSimulation = () => {
 
   const [selectedStrategy, setSelectedStrategy] = useState<keyof Portfolio | null>(null);
   const [speed, setSpeed] = useState(1000); // milliseconds
+  const [viewMode, setViewMode] = useState<'simulation' | 'compare'>('simulation');
 
   // Full historical timeline 1999–2023. `year` is the position; calendar year is in `event` text.
   const allMarketEvents: MarketEvent[] = [
@@ -125,6 +137,44 @@ const InvestmentSimulation = () => {
       .map((e, i) => ({ ...e, year: i + 1 }));
   }, [startCalendarYear]);
 
+  // Instant comparison across all tenures using the same strategy logic.
+  const tenureResults = useMemo<TenureResult[]>(() => {
+    return startYearOptions.map((opt) => {
+      const sliceStart = opt.startCalendar - 1999;
+      const slice = allMarketEvents.slice(sliceStart);
+      let portfolio = { conservative: 10000, moderate: 10000, aggressive: 10000 };
+      slice.forEach((event) => {
+        const baseReturn = event.return;
+        portfolio = {
+          conservative: portfolio.conservative * (1 + (baseReturn > 0 ? baseReturn * 0.6 : baseReturn * 0.4)),
+          moderate: portfolio.moderate * (1 + baseReturn * 0.8),
+          aggressive: portfolio.aggressive * (1 + (baseReturn > 0 ? baseReturn * 1.3 : baseReturn * 1.5)),
+        };
+      });
+      return {
+        startYear: opt.startCalendar,
+        endYear: 2023,
+        label: opt.label,
+        years: 2023 - opt.startCalendar + 1,
+        conservative: Math.round(portfolio.conservative),
+        moderate: Math.round(portfolio.moderate),
+        aggressive: Math.round(portfolio.aggressive),
+      };
+    });
+  }, []);
+
+  const bestResult = useMemo(() => {
+    let best: { strategy: keyof Portfolio; value: number; tenure: TenureResult } | null = null;
+    tenureResults.forEach((tenure) => {
+      (['conservative', 'moderate', 'aggressive'] as (keyof Portfolio)[]).forEach((strategy) => {
+        const value = tenure[strategy];
+        if (!best || value > best.value) {
+          best = { strategy, value, tenure };
+        }
+      });
+    });
+    return best;
+  }, [tenureResults]);
 
   const getStrategyMultiplier = (strategy: keyof Portfolio, baseReturn: number): number => {
     switch (strategy) {
@@ -243,6 +293,10 @@ const InvestmentSimulation = () => {
     return ((current - initial) / initial * 100).toFixed(1);
   };
 
+  const getCAGR = (initial: number, final: number, years: number) => {
+    return ((Math.pow(final / initial, 1 / years) - 1) * 100).toFixed(1);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Control Panel */}
@@ -255,337 +309,481 @@ const InvestmentSimulation = () => {
                 Investment Time Machine
               </CardTitle>
               <CardDescription>
-                Experience {marketEvents.length} years of market volatility with ₹10,000 in each strategy
+                {viewMode === 'simulation'
+                  ? `Experience ${marketEvents.length} years of market volatility with ₹10,000 in each strategy`
+                  : 'Compare final returns across 10, 15, 20 and 25-year historical windows ending in 2023'}
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
-              {!simState.isRunning && !simState.isComplete && (
-                <Button onClick={startSimulation} className="bg-financial-accent hover:bg-financial-accent/90">
-                  <Play className="w-4 h-4 mr-2" />
-                  {simState.currentYear > 0 ? 'Resume' : 'Start Simulation'}
-                </Button>
-              )}
-              {simState.isRunning && (
-                <Button onClick={pauseSimulation} variant="outline">
-                  <Pause className="w-4 h-4 mr-2" />
-                  Pause
-                </Button>
-              )}
-              <Button onClick={resetSimulation} variant="outline">
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {/* Timeframe selector — disabled mid-run */}
-          <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-border">
-            <span className="text-sm text-muted-foreground mr-1">Timeframe:</span>
-            {startYearOptions.map((opt) => (
-              <Button
-                key={opt.startCalendar}
-                size="sm"
-                variant={startCalendarYear === opt.startCalendar ? 'default' : 'outline'}
-                disabled={simState.isRunning || simState.currentYear > 0}
-                onClick={() => {
-                  setStartCalendarYear(opt.startCalendar);
-                  setHistory(initialHistory);
-                }}
-                className={startCalendarYear === opt.startCalendar ? 'bg-financial-accent hover:bg-financial-accent/90' : ''}
-              >
-                {opt.label}
-              </Button>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center">
-                <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
-                <span className="text-sm">Year {simState.currentYear}/{marketEvents.length}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">Speed:</span>
-                <Button
-                  size="sm"
-                  variant={speed === 2000 ? "default" : "outline"}
-                  onClick={() => setSpeed(2000)}
-                >
-                  Slow
-                </Button>
-                <Button
-                  size="sm"
-                  variant={speed === 1000 ? "default" : "outline"}
-                  onClick={() => setSpeed(1000)}
-                >
-                  Normal
-                </Button>
-                <Button
-                  size="sm"
-                  variant={speed === 500 ? "default" : "outline"}
-                  onClick={() => setSpeed(500)}
-                >
-                  Fast
-                </Button>
-              </div>
-            </div>
-          </div>
-          
-          <Progress value={(simState.currentYear / marketEvents.length) * 100} className="h-2" />
-        </CardContent>
-      </Card>
-
-      {/* Current Market Event */}
-      {simState.currentEvent && (
-        <Card className="glass-card border-financial-accent/50">
-          <CardContent className="pt-6">
-            <div className="flex items-start space-x-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                simState.currentEvent.return > 0 ? 'bg-accent/20' : 'bg-destructive/20'
-              }`}>
-                {simState.currentEvent.return > 0 ? 
-                  <TrendingUp className="w-6 h-6 text-accent" /> : 
-                  <TrendingDown className="w-6 h-6 text-destructive" />
-                }
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  <h4 className="font-bold">Year {simState.currentEvent.year}: {simState.currentEvent.event}</h4>
-                  <Badge variant={simState.currentEvent.return > 0 ? "default" : "destructive"}>
-                    {simState.currentEvent.return > 0 ? '+' : ''}{(simState.currentEvent.return * 100).toFixed(1)}%
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-1">{simState.currentEvent.description}</p>
-                <p className="text-sm font-medium">{simState.currentEvent.news}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Market & Portfolio Chart */}
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <LineChart className="w-5 h-5 mr-2 text-financial-accent" />
-            Market Events & Portfolio Reaction
-          </CardTitle>
-          <CardDescription>
-            Watch each strategy respond to historical market events year by year
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[360px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <RLineChart data={history} margin={{ top: 20, right: 24, left: 8, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                  interval={0}
-                  angle={-25}
-                  textAnchor="end"
-                  height={60}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
-                  domain={['dataMin - 1000', 'dataMax + 1000']}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                  formatter={(value: number, name: string) => [formatCurrency(value), name]}
-                  labelFormatter={(label, payload) => {
-                    const p = payload?.[0]?.payload as HistoryPoint | undefined;
-                    if (!p) return label;
-                    const sign = p.return > 0 ? '+' : '';
-                    return p.year === 0
-                      ? p.event
-                      : `${p.event} — Market: ${sign}${(p.return * 100).toFixed(1)}%`;
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line
-                  type="monotone"
-                  dataKey="conservative"
-                  name="Conservative"
-                  stroke="hsl(217 91% 60%)"
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                  activeDot={{ r: 5 }}
-                  isAnimationActive={false}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="moderate"
-                  name="Moderate"
-                  stroke="hsl(var(--financial-accent))"
-                  strokeWidth={2.5}
-                  dot={{ r: 3 }}
-                  activeDot={{ r: 5 }}
-                  isAnimationActive={false}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="aggressive"
-                  name="Aggressive"
-                  stroke="hsl(0 84% 60%)"
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                  activeDot={{ r: 5 }}
-                  isAnimationActive={false}
-                />
-                {history
-                  .filter((p) => p.return < 0)
-                  .map((p) => (
-                    <ReferenceDot
-                      key={`crash-${p.year}`}
-                      x={p.label}
-                      y={p.moderate}
-                      r={6}
-                      fill="hsl(0 84% 60%)"
-                      stroke="hsl(var(--background))"
-                      strokeWidth={2}
-                      ifOverflow="extendDomain"
-                    />
-                  ))}
-              </RLineChart>
-            </ResponsiveContainer>
-          </div>
-          {history.length === 1 ? (
-            <p className="text-xs text-center text-muted-foreground mt-3">
-              Press <span className="font-semibold text-foreground">Start Simulation</span> to see how each strategy reacts to 10 years of Indian market events
-            </p>
-          ) : (
-            <p className="text-xs text-center text-muted-foreground mt-3">
-              Red dots mark market crashes — notice how the aggressive strategy drops further but recovers faster
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Portfolio Performance */}
-      <div className="grid md:grid-cols-3 gap-6">
-        {(Object.entries(simState.portfolio) as [keyof Portfolio, number][]).map(([strategy, value]) => {
-          const isSelected = selectedStrategy === strategy;
-          const isRunning = simState.isRunning || simState.currentYear > 0;
-          const returnPercent = getReturnPercent(10000, value);
-          const isPositive = value >= 10000;
-          
-          return (
-            <Card 
-              key={strategy}
-              className={`glass-card cursor-pointer transition-all hover:scale-105 ${
-                isSelected ? 'ring-2 ring-financial-accent' : ''
-              }`}
-              onClick={() => setSelectedStrategy(strategy)}
-            >
-              <CardHeader className="text-center">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                  strategy === 'conservative' ? 'bg-blue-500' :
-                  strategy === 'moderate' ? 'bg-financial-accent' : 'bg-red-500'
-                }`}>
-                  {strategy === 'conservative' ? <Target className="w-8 h-8 text-white" /> :
-                   strategy === 'moderate' ? <Calculator className="w-8 h-8 text-white" /> :
-                   <TrendingUp className="w-8 h-8 text-white" />}
-                </div>
-                <CardTitle className="capitalize text-xl">{strategy}</CardTitle>
-                <CardDescription>
-                  {strategy === 'conservative' ? 'Low risk, steady returns' :
-                   strategy === 'moderate' ? 'Balanced risk and reward' :
-                   'High risk, high potential'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <div className="space-y-3">
-                  <div>
-                    <div className={`text-2xl font-bold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
-                      {formatCurrency(value)}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Current Value</div>
-                  </div>
-                  
-                  {isRunning && (
-                    <div className={`text-lg font-semibold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
-                      {isPositive ? '+' : ''}{returnPercent}%
-                    </div>
+              {viewMode === 'simulation' ? (
+                <>
+                  {!simState.isRunning && !simState.isComplete && (
+                    <Button onClick={startSimulation} className="bg-financial-accent hover:bg-financial-accent/90">
+                      <Play className="w-4 h-4 mr-2" />
+                      {simState.currentYear > 0 ? 'Resume' : 'Start Simulation'}
+                    </Button>
                   )}
-                  
-                  <div className="text-xs text-muted-foreground">
-                    Started with {formatCurrency(10000)}
+                  {simState.isRunning && (
+                    <Button onClick={pauseSimulation} variant="outline">
+                      <Pause className="w-4 h-4 mr-2" />
+                      Pause
+                    </Button>
+                  )}
+                  <Button onClick={resetSimulation} variant="outline">
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Reset
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      resetSimulation();
+                      setViewMode('compare');
+                    }}
+                    variant="outline"
+                    className="border-financial-gold/50 text-financial-gold hover:bg-financial-gold/10"
+                  >
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Compare Tenures
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={() => setViewMode('simulation')}
+                  variant="outline"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Simulation
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+
+        {viewMode === 'simulation' && (
+          <CardContent>
+            {/* Timeframe selector — disabled mid-run */}
+            <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-border">
+              <span className="text-sm text-muted-foreground mr-1">Timeframe:</span>
+              {startYearOptions.map((opt) => (
+                <Button
+                  key={opt.startCalendar}
+                  size="sm"
+                  variant={startCalendarYear === opt.startCalendar ? 'default' : 'outline'}
+                  disabled={simState.isRunning || simState.currentYear > 0}
+                  onClick={() => {
+                    setStartCalendarYear(opt.startCalendar);
+                    setHistory(initialHistory);
+                  }}
+                  className={startCalendarYear === opt.startCalendar ? 'bg-financial-accent hover:bg-financial-accent/90' : ''}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center">
+                  <Timer className="w-4 h-4 mr-1 text-muted-foreground" />
+                  <span className="text-sm">Year {simState.currentYear}/{marketEvents.length}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-muted-foreground">Speed:</span>
+                  <Button
+                    size="sm"
+                    variant={speed === 2000 ? "default" : "outline"}
+                    onClick={() => setSpeed(2000)}
+                  >
+                    Slow
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={speed === 1000 ? "default" : "outline"}
+                    onClick={() => setSpeed(1000)}
+                  >
+                    Normal
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={speed === 500 ? "default" : "outline"}
+                    onClick={() => setSpeed(500)}
+                  >
+                    Fast
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            <Progress value={(simState.currentYear / marketEvents.length) * 100} className="h-2" />
+          </CardContent>
+        )}
+      </Card>
+
+      {viewMode === 'simulation' && (
+        <>
+          {/* Current Market Event */}
+          {simState.currentEvent && (
+            <Card className="glass-card border-financial-accent/50">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    simState.currentEvent.return > 0 ? 'bg-accent/20' : 'bg-destructive/20'
+                  }`}>
+                    {simState.currentEvent.return > 0 ? 
+                      <TrendingUp className="w-6 h-6 text-accent" /> : 
+                      <TrendingDown className="w-6 h-6 text-destructive" />
+                    }
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h4 className="font-bold">Year {simState.currentEvent.year}: {simState.currentEvent.event}</h4>
+                      <Badge variant={simState.currentEvent.return > 0 ? "default" : "destructive"}>
+                        {simState.currentEvent.return > 0 ? '+' : ''}{(simState.currentEvent.return * 100).toFixed(1)}%
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-1">{simState.currentEvent.description}</p>
+                    <p className="text-sm font-medium">{simState.currentEvent.news}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+          )}
 
-      {/* Results Summary */}
-      {simState.isComplete && (
+          {/* Market & Portfolio Chart */}
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <LineChart className="w-5 h-5 mr-2 text-financial-accent" />
+                Market Events & Portfolio Reaction
+              </CardTitle>
+              <CardDescription>
+                Watch each strategy respond to historical market events year by year
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[360px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RLineChart data={history} margin={{ top: 20, right: 24, left: 8, bottom: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                      interval={0}
+                      angle={-25}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                      tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                      domain={['dataMin - 1000', 'dataMax + 1000']}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                      formatter={(value: number, name: string) => [formatCurrency(value), name]}
+                      labelFormatter={(label, payload) => {
+                        const p = payload?.[0]?.payload as HistoryPoint | undefined;
+                        if (!p) return label;
+                        const sign = p.return > 0 ? '+' : '';
+                        return p.year === 0
+                          ? p.event
+                          : `${p.event} — Market: ${sign}${(p.return * 100).toFixed(1)}%`;
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Line
+                      type="monotone"
+                      dataKey="conservative"
+                      name="Conservative"
+                      stroke="hsl(217 91% 60%)"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                      activeDot={{ r: 5 }}
+                      isAnimationActive={false}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="moderate"
+                      name="Moderate"
+                      stroke="hsl(var(--financial-accent))"
+                      strokeWidth={2.5}
+                      dot={{ r: 3 }}
+                      activeDot={{ r: 5 }}
+                      isAnimationActive={false}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="aggressive"
+                      name="Aggressive"
+                      stroke="hsl(0 84% 60%)"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                      activeDot={{ r: 5 }}
+                      isAnimationActive={false}
+                    />
+                    {history
+                      .filter((p) => p.return < 0)
+                      .map((p) => (
+                        <ReferenceDot
+                          key={`crash-${p.year}`}
+                          x={p.label}
+                          y={p.moderate}
+                          r={6}
+                          fill="hsl(0 84% 60%)"
+                          stroke="hsl(var(--background))"
+                          strokeWidth={2}
+                          ifOverflow="extendDomain"
+                        />
+                      ))}
+                  </RLineChart>
+                </ResponsiveContainer>
+              </div>
+              {history.length === 1 ? (
+                <p className="text-xs text-center text-muted-foreground mt-3">
+                  Press <span className="font-semibold text-foreground">Start Simulation</span> to see how each strategy reacts to 10 years of Indian market events
+                </p>
+              ) : (
+                <p className="text-xs text-center text-muted-foreground mt-3">
+                  Red dots mark market crashes — notice how the aggressive strategy drops further but recovers faster
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Portfolio Performance */}
+          <div className="grid md:grid-cols-3 gap-6">
+            {(Object.entries(simState.portfolio) as [keyof Portfolio, number][]).map(([strategy, value]) => {
+              const isSelected = selectedStrategy === strategy;
+              const isRunning = simState.isRunning || simState.currentYear > 0;
+              const returnPercent = getReturnPercent(10000, value);
+              const isPositive = value >= 10000;
+              
+              return (
+                <Card 
+                  key={strategy}
+                  className={`glass-card cursor-pointer transition-all hover:scale-105 ${
+                    isSelected ? 'ring-2 ring-financial-accent' : ''
+                  }`}
+                  onClick={() => setSelectedStrategy(strategy)}
+                >
+                  <CardHeader className="text-center">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
+                      strategy === 'conservative' ? 'bg-blue-500' :
+                      strategy === 'moderate' ? 'bg-financial-accent' : 'bg-red-500'
+                    }`}>
+                      {strategy === 'conservative' ? <Target className="w-8 h-8 text-white" /> :
+                       strategy === 'moderate' ? <Calculator className="w-8 h-8 text-white" /> :
+                       <TrendingUp className="w-8 h-8 text-white" />}
+                    </div>
+                    <CardTitle className="capitalize text-xl">{strategy}</CardTitle>
+                    <CardDescription>
+                      {strategy === 'conservative' ? 'Low risk, steady returns' :
+                       strategy === 'moderate' ? 'Balanced risk and reward' :
+                       'High risk, high potential'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <div className="space-y-3">
+                      <div>
+                        <div className={`text-2xl font-bold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
+                          {formatCurrency(value)}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Current Value</div>
+                      </div>
+                      
+                      {isRunning && (
+                        <div className={`text-lg font-semibold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
+                          {isPositive ? '+' : ''}{returnPercent}%
+                        </div>
+                      )}
+                      
+                      <div className="text-xs text-muted-foreground">
+                        Started with {formatCurrency(10000)}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Results Summary */}
+          {simState.isComplete && (
+            <Card className="glass-card">
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <CardTitle className="flex items-center">
+                      <Award className="w-6 h-6 mr-2 text-financial-gold" />
+                      {marketEvents.length}-Year Simulation Complete!
+                    </CardTitle>
+                    <CardDescription>Here's how each strategy performed</CardDescription>
+                  </div>
+                  <Button onClick={resetSimulation} className="shrink-0">
+                    <Play className="w-4 h-4 mr-2" />
+                    Run Another Simulation
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {(Object.entries(simState.portfolio) as [keyof Portfolio, number][])
+                      .sort(([,a], [,b]) => b - a)
+                      .map(([strategy, value], index) => {
+                        const returnPercent = getReturnPercent(10000, value);
+                        const isPositive = value >= 10000;
+                        
+                        return (
+                          <div key={strategy} className={`p-4 rounded-lg ${
+                            index === 0 ? 'bg-financial-gold/10 border border-financial-gold/20' : 'bg-muted/50'
+                          }`}>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-medium capitalize">{strategy}</span>
+                              {index === 0 && <Badge className="bg-financial-gold text-financial-primary">Winner</Badge>}
+                            </div>
+                            <div className={`text-xl font-bold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
+                              {formatCurrency(value)}
+                            </div>
+                            <div className={`text-sm ${isPositive ? 'text-accent' : 'text-destructive'}`}>
+                              {isPositive ? '+' : ''}{returnPercent}% total return
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                  
+                  <div className="mt-6 p-4 bg-financial-accent/5 rounded-lg">
+                    <h4 className="font-medium mb-2 flex items-center">
+                      <AlertTriangle className="w-4 h-4 mr-1 text-financial-accent" />
+                      Key Lessons
+                    </h4>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <div>• Higher risk strategies can deliver better long-term returns, but with more volatility</div>
+                      <div>• Conservative approaches provide stability but may limit growth potential</div>
+                      <div>• Market timing is impossible - consistent investing often wins</div>
+                      <div>• Diversification across strategies can balance risk and reward</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      {viewMode === 'compare' && (
         <Card className="glass-card">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <CardTitle className="flex items-center">
-                  <Award className="w-6 h-6 mr-2 text-financial-gold" />
-                  {marketEvents.length}-Year Simulation Complete!
+                  <BarChart3 className="w-6 h-6 mr-2 text-financial-gold" />
+                  Which Tenure Gave More Return?
                 </CardTitle>
-                <CardDescription>Here's how each strategy performed</CardDescription>
+                <CardDescription>
+                  Final value of ₹10,000 invested at the start of each window, using the same three strategy rules.
+                </CardDescription>
               </div>
-              <Button onClick={resetSimulation} className="shrink-0">
-                <Play className="w-4 h-4 mr-2" />
-                Run Another Simulation
-              </Button>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid md:grid-cols-3 gap-4">
-                {(Object.entries(simState.portfolio) as [keyof Portfolio, number][])
-                  .sort(([,a], [,b]) => b - a)
-                  .map(([strategy, value], index) => {
-                    const returnPercent = getReturnPercent(10000, value);
-                    const isPositive = value >= 10000;
-                    
-                    return (
-                      <div key={strategy} className={`p-4 rounded-lg ${
-                        index === 0 ? 'bg-financial-gold/10 border border-financial-gold/20' : 'bg-muted/50'
-                      }`}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium capitalize">{strategy}</span>
-                          {index === 0 && <Badge className="bg-financial-gold text-financial-primary">Winner</Badge>}
-                        </div>
-                        <div className={`text-xl font-bold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
-                          {formatCurrency(value)}
-                        </div>
-                        <div className={`text-sm ${isPositive ? 'text-accent' : 'text-destructive'}`}>
-                          {isPositive ? '+' : ''}{returnPercent}% total return
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-              
-              <div className="mt-6 p-4 bg-financial-accent/5 rounded-lg">
-                <h4 className="font-medium mb-2 flex items-center">
-                  <AlertTriangle className="w-4 h-4 mr-1 text-financial-accent" />
-                  Key Lessons
-                </h4>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <div>• Higher risk strategies can deliver better long-term returns, but with more volatility</div>
-                  <div>• Conservative approaches provide stability but may limit growth potential</div>
-                  <div>• Market timing is impossible - consistent investing often wins</div>
-                  <div>• Diversification across strategies can balance risk and reward</div>
+          <CardContent className="space-y-8">
+            {/* Best-tenure summary */}
+            {bestResult && (
+              <div className="p-5 rounded-xl bg-financial-gold/10 border border-financial-gold/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge className="bg-financial-gold text-financial-primary">Highest Return</Badge>
+                  <span className="text-sm text-muted-foreground">across all windows and strategies</span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold capitalize">
+                  {bestResult.strategy} · {bestResult.tenure.label}
+                </div>
+                <div className="text-lg text-financial-gold font-semibold mt-1">
+                  {formatCurrency(bestResult.value)} &nbsp;·&nbsp; {getCAGR(10000, bestResult.value, bestResult.tenure.years)}% CAGR
                 </div>
               </div>
+            )}
+
+            {/* Bar chart comparison */}
+            <div className="h-[360px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={tenureResults} margin={{ top: 20, right: 24, left: 8, bottom: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                    interval={0}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                    tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                    formatter={(value: number, name: string) => [formatCurrency(value), name]}
+                    labelFormatter={(label) => `${label} — final value`}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Bar dataKey="conservative" name="Conservative" fill="hsl(217 91% 60%)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="moderate" name="Moderate" fill="hsl(var(--financial-accent))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="aggressive" name="Aggressive" fill="hsl(0 84% 60%)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
+
+            {/* Detailed comparison table */}
+            <div className="overflow-x-auto rounded-xl border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Strategy</th>
+                    {tenureResults.map((r) => (
+                      <th key={r.startYear} className="text-right px-4 py-3 font-medium text-muted-foreground">
+                        {r.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {(['Conservative', 'Moderate', 'Aggressive'] as const).map((strategyLabel) => {
+                    const strategy = strategyLabel.toLowerCase() as keyof Portfolio;
+                    const bestForStrategy = Math.max(...tenureResults.map((r) => r[strategy]));
+                    return (
+                      <tr key={strategy}>
+                        <td className="px-4 py-3 font-medium">{strategyLabel}</td>
+                        {tenureResults.map((r) => {
+                          const isBest = r[strategy] === bestForStrategy;
+                          return (
+                            <td
+                              key={r.startYear}
+                              className={`px-4 py-3 text-right ${isBest ? 'bg-financial-gold/10' : ''}`}
+                            >
+                              <div className="font-semibold">{formatCurrency(r[strategy])}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {getCAGR(10000, r[strategy], r.years)}% CAGR
+                              </div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-xs text-center text-muted-foreground">
+              Longer windows include extra market cycles, so CAGR is usually a fairer comparison than final value alone.
+            </p>
           </CardContent>
         </Card>
       )}

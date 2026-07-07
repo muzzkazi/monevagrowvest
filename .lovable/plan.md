@@ -1,32 +1,24 @@
+Add a tenure comparison view to the Time Machine so users can see which historical investment window (10, 15, 20, or 25 years) produced the highest return.
 
-For Moneva, I'd pick **Option 1: Unify both tools on `taxEngine.ts`** — but with a small twist.
+## What we will build
 
-## My recommendation: Option 1 (with light differentiation)
+1. **"Compare Tenures" mode inside InvestmentSimulation**
+   - Add a toggle between the existing animated single-run and a new instant comparison view.
+   - The comparison calculates the final Conservative/Moderate/Aggressive portfolio values for every available start year (2014, 2009, 2004, 1999) using the same return series and strategy multipliers already in the component.
 
-### Why
-1. **Correctness is non-negotiable for a tax tool.** The standalone calculator is on FY 2023-24, New Regime only. That's actively misleading users. Fixing this is table stakes.
-2. **Single source of truth.** Both surfaces should produce identical numbers for identical inputs. `taxEngine.ts` already handles slabs, 87A rebate, 4% cess, HRA, 80C/80D/NPS, home loan, capital gains, and Old vs New comparison. Duplicating that logic is a bug factory.
-3. **Two entry points serve real, different intents:**
-   - **Calculator tab** = "I have 60 seconds, give me a number" (income-led, instant)
-   - **AI Planning wizard** = "Walk me through it and tell me what to do" (guided, 11 steps, recommendations)
-   Removing the calculator (Option 2) loses the fast-path user. Keeping them separate but inconsistent (status quo) breaks trust.
-4. **Option 3 (rename + banner)** doesn't fix the underlying math problem — it just labels the inconsistency.
+2. **Comparison results UI**
+   - A clean table or bar chart showing, for each tenure:
+     - Window label (e.g. "2014–2023")
+     - Final value for each strategy
+     - Total return % and approximate CAGR/XIRR
+   - Highlight the tenure with the best top-performing strategy and the best strategy overall.
 
-### What I'd build
+3. **No breaking changes**
+   - Keep the existing animated simulation and controls intact.
+   - The comparison will be a separate, instant computation so users can flip back and forth quickly.
 
-**Rewrite `src/components/Calculators.tsx` Tax Calculator tab** to:
-- Import and call `computeTax()` from `src/lib/taxEngine.ts`
-- Show a compact form: Income, Income Type (salaried/self-employed), 80C invested, 80D, Home loan interest, NPS
-- Display **side-by-side Old vs New** result cards with: taxable income, total tax, effective rate
-- Highlight the **recommended regime** with a badge + savings amount
-- Show **FY 2024-25** label clearly
-- Add a subtle CTA card at the bottom: *"Want HRA, capital gains, and personalized SIP suggestions? → Open full Tax Planning wizard"* linking to `/tax-planning`
-
-This keeps the calculator fast, makes it accurate, and naturally funnels power users to the wizard without nagging.
-
-### Files touched
-- `src/components/Calculators.tsx` — rewrite the Tax Calculator tab section only
-- No changes to `taxEngine.ts` or `TaxPlanningWizard.tsx`
-
-### Out of scope
-- No new routes, no schema changes, no new dependencies.
+## Technical notes
+- Reuse `allMarketEvents`, `getStrategyMultiplier`, and the existing `Portfolio` types.
+- Add a helper to run the math synchronously for all four slices.
+- Display results in a new card below the controls, using the existing `Card`/`recharts` patterns already used in the page.
+- Update the Time Machine intro text in FinancialEducation to mention the new comparison feature if it fits naturally.
