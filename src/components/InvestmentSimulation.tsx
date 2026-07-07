@@ -564,13 +564,13 @@ const InvestmentSimulation = () => {
                         index === 0 ? 'bg-financial-gold/10 border border-financial-gold/20' : 'bg-muted/50'
                       }`}>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium capitalize">{strategy}</span>
+                          <span className={`font-medium capitalize ${index === 0 ? 'text-financial-gold' : ''}`}>{strategy}</span>
                           {index === 0 && <Badge className="bg-financial-gold text-financial-primary">Winner</Badge>}
                         </div>
-                        <div className="text-xl font-bold text-foreground">
+                        <div className={`text-xl font-bold ${index === 0 ? 'text-financial-gold' : 'text-foreground'}`}>
                           {formatCurrency(value)}
                         </div>
-                        <div className={`text-sm ${isPositive ? 'text-accent' : 'text-destructive'}`}>
+                        <div className={`text-sm ${index === 0 ? 'text-financial-gold' : isPositive ? 'text-accent' : 'text-destructive'}`}>
                           {isPositive ? '+' : ''}{returnPercent}% total return
                         </div>
                       </div>
