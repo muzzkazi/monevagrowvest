@@ -328,38 +328,45 @@ const TaxPlanningWizard = () => {
 
 /* --------------------------- Screens --------------------------- */
 
+// Entry screen — restyled to sit inside the shared planning shell rather than
+// act as a separate promotional splash. The page-level header already shows
+// the Receipt icon, H1 and description, so this focuses on what the user gets
+// and the primary CTA.
 const ScreenWelcome = ({ onStart }: { onStart: () => void }) => (
-  <div className="text-center space-y-6 py-8">
-    <div className="inline-flex p-4 bg-financial-accent/10 rounded-full">
-      <Receipt className="h-12 w-12 text-financial-accent" />
+  <div className="space-y-6">
+    <div>
+      <h2 className="text-xl font-display font-semibold">Let's build your tax plan</h2>
+      <p className="text-sm text-muted-foreground mt-1">
+        Answer a few quick questions to get a personalised old vs new regime comparison and deduction suggestions.
+      </p>
     </div>
-    <h2 className="text-3xl sm:text-4xl font-display font-bold">
-      Check and reduce your income tax in minutes
-    </h2>
-    <p className="text-muted-foreground max-w-md mx-auto">
-      Compare old vs new regime, find unused deductions, and discover how much
-      more you could be saving — all in under 2 minutes.
-    </p>
-    <Button
-      size="lg"
-      onClick={() => {
-        track("cta_start");
-        onStart();
-      }}
-      className="bg-financial-accent hover:bg-financial-accent/90 text-white gap-2 text-base px-8"
-    >
-      Start now <ArrowRight className="h-4 w-4" />
-    </Button>
-    <div className="flex items-center justify-center gap-6 pt-4 text-xs text-muted-foreground">
-      <span className="flex items-center gap-1.5">
-        <CheckCircle2 className="h-3.5 w-3.5 text-financial-accent" /> 100% Free
-      </span>
-      <span className="flex items-center gap-1.5">
-        <CheckCircle2 className="h-3.5 w-3.5 text-financial-accent" /> No signup
-      </span>
-      <span className="flex items-center gap-1.5">
-        <CheckCircle2 className="h-3.5 w-3.5 text-financial-accent" /> 2 minutes
-      </span>
+
+    <div className="grid sm:grid-cols-3 gap-3">
+      {[
+        { icon: CheckCircle2, label: "100% Free" },
+        { icon: CheckCircle2, label: "No signup" },
+        { icon: Clock, label: "~2 minutes" },
+      ].map(({ icon: Icon, label }) => (
+        <div
+          key={label}
+          className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm"
+        >
+          <Icon className="h-4 w-4 text-financial-accent" />
+          <span>{label}</span>
+        </div>
+      ))}
+    </div>
+
+    <div className="flex justify-end pt-2">
+      <Button
+        onClick={() => {
+          track("cta_start");
+          onStart();
+        }}
+        className="gap-2 bg-financial-accent hover:bg-financial-accent/90 text-white"
+      >
+        Start now <ArrowRight className="h-4 w-4" />
+      </Button>
     </div>
   </div>
 );
