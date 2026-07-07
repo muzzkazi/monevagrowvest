@@ -171,7 +171,7 @@ const Hero = () => {
                 variants={itemVariants}
               >
                 Take control of your{" "}
-                <span className="bg-gradient-to-r from-financial-accent to-financial-gold bg-clip-text text-transparent">
+                <span className="text-financial-gold">
                   financial destiny
                 </span>
               </motion.h1>
