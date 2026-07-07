@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
-import { useCountUp } from "@/hooks/useCountUp";
+
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const ClientAvatar = ({ initials }: { initials: string }) => (
