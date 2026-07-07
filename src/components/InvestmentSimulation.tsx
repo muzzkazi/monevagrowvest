@@ -427,7 +427,7 @@ const InvestmentSimulation = () => {
                   type="monotone"
                   dataKey="conservative"
                   name="Conservative"
-                  stroke="hsl(217 91% 60%)"
+                  stroke="hsl(var(--destructive))"
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
@@ -447,7 +447,7 @@ const InvestmentSimulation = () => {
                   type="monotone"
                   dataKey="aggressive"
                   name="Aggressive"
-                  stroke="hsl(0 84% 60%)"
+                  stroke="hsl(142 71% 45%)"
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
