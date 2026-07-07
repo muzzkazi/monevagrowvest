@@ -91,14 +91,16 @@ const Services = () => {
                     <h3 className="text-xl font-display font-semibold mb-4 text-foreground group-hover:text-financial-accent transition-colors duration-300">{service.title}</h3>
                     <p className="text-muted-foreground leading-relaxed mb-6">{service.description}</p>
                     
-                    <div className="space-y-3 mb-6">
-                      {service.features.map((feature, featureIndex) => (
-                        <div key={featureIndex} className="flex items-center gap-3 group/item">
-                          <CheckCircle className="w-4 h-4 text-financial-accent flex-shrink-0 group-hover/item:scale-110 transition-transform duration-200" />
-                          <span className="text-sm text-muted-foreground">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {service.features.length > 0 && (
+                      <div className="space-y-3 mb-6">
+                        {service.features.map((feature, featureIndex) => (
+                          <div key={featureIndex} className="flex items-center gap-3 group/item">
+                            <CheckCircle className="w-4 h-4 text-financial-accent flex-shrink-0 group-hover/item:scale-110 transition-transform duration-200" />
+                            <span className="text-sm text-muted-foreground">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   
                     {service.title === "Financial Planning Tools" ? (
                       <Link to="/calculators">
