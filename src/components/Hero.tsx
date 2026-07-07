@@ -195,7 +195,7 @@ const Hero = () => {
                 alt="Indian family reviewing investment portfolio together at home" 
                 width={1024}
                 height={1280}
-                className="relative w-full lg:w-auto lg:max-h-[420px] rounded-2xl sm:rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
+                className="relative w-full lg:w-auto lg:max-h-[360px] rounded-2xl sm:rounded-3xl shadow-financial transform group-hover:scale-105 transition-transform duration-500"
               />
               <motion.div 
                 className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-gradient-gold p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-gold animate-float hover:animate-none hover:scale-110 transition-all duration-300 cursor-pointer"
