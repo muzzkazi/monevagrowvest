@@ -215,14 +215,9 @@ const Hero = () => {
         </div>
         
         {/* Stats section - compact horizontal strip */}
-        <motion.div 
-          className="flex justify-center pt-8 sm:pt-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-        >
+        <div className="flex justify-center pt-8 sm:pt-10">
           <StatsBlock variant="compact" className="max-w-3xl" />
-        </motion.div>
+        </div>
       </div>
     </section>
   );
