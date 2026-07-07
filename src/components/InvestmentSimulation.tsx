@@ -411,40 +411,36 @@ const InvestmentSimulation = () => {
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                {history.length > 1 && (
-                  <>
-                    <Line
-                      type="monotone"
-                      dataKey="conservative"
-                      name="Conservative"
-                      stroke="hsl(217 91% 60%)"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5 }}
-                      isAnimationActive={false}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="moderate"
-                      name="Moderate"
-                      stroke="hsl(var(--financial-accent))"
-                      strokeWidth={2.5}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5 }}
-                      isAnimationActive={false}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="aggressive"
-                      name="Aggressive"
-                      stroke="hsl(0 84% 60%)"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5 }}
-                      isAnimationActive={false}
-                    />
-                  </>
-                )}
+                <Line
+                  type="monotone"
+                  dataKey="conservative"
+                  name="Conservative"
+                  stroke="hsl(217 91% 60%)"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="moderate"
+                  name="Moderate"
+                  stroke="hsl(var(--financial-accent))"
+                  strokeWidth={2.5}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="aggressive"
+                  name="Aggressive"
+                  stroke="hsl(0 84% 60%)"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  isAnimationActive={false}
+                />
                 {history
                   .filter((p) => p.return < 0)
                   .map((p) => (
