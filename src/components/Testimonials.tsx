@@ -101,27 +101,6 @@ const Testimonials = () => {
           ))}
         </div>
 
-        <div 
-          ref={statsRef}
-          className={`text-center mt-6 transition-all duration-700 ease-out ${
-            statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto">
-            <div>
-              <p ref={clientsCount.ref} className="text-3xl font-bold text-financial-accent">{clientsCount.value}</p>
-              <p className="text-sm text-muted-foreground">Happy Clients</p>
-            </div>
-            <div>
-              <p ref={aumCount.ref} className="text-3xl font-bold text-financial-accent">{aumCount.value}</p>
-              <p className="text-sm text-muted-foreground">Assets Managed</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-financial-accent">12%</p>
-              <p className="text-sm text-muted-foreground">Avg Returns</p>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
