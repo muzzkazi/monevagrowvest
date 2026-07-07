@@ -390,7 +390,7 @@ const PortfolioReviewPage = () => {
             <div>
               <Badge variant="secondary" className="mb-2 text-[10px]">ONE-TIME REVIEW</Badge>
               <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-1">
-                AI Portfolio Review
+                Portfolio Review (One-Time)
               </h1>
               <p className="text-muted-foreground">
                 A one-time diagnostic of your existing mutual funds. For continuous monitoring of NAV, performance, overlap and AMC updates, use{" "}
