@@ -127,7 +127,7 @@ const FinancialEducation = () => {
 
 
         {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto" id="investing-lab-tabs">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="time-machine" className="flex items-center">
               <LineChart className="w-4 h-4 mr-2" />
