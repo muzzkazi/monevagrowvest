@@ -1,71 +1,11 @@
+import { Link } from "react-router-dom";
 import PageLayout from "@/components/shared/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, CalendarDays, Clock, User, ArrowRight } from "lucide-react";
+import { blogPosts } from "@/data/blogPosts";
 
-const blogPosts = [
-  {
-    id: 1,
-    title: "5 Essential Steps to Start Your SIP Journey",
-    excerpt:
-      "Learn how to begin systematic investment planning with our beginner-friendly guide to building wealth through disciplined investing.",
-    author: "Moneva Team",
-    date: "2024-03-15",
-    readTime: "5 min read",
-    category: "Investment",
-  },
-  {
-    id: 2,
-    title: "Tax Saving Strategies for New Investors",
-    excerpt:
-      "Discover smart tax planning techniques that can help young professionals save money while building their investment portfolio.",
-    author: "Moneva Team",
-    date: "2024-03-10",
-    readTime: "7 min read",
-    category: "Tax Planning",
-  },
-  {
-    id: 3,
-    title: "Building Your First Emergency Fund",
-    excerpt:
-      "Why every young professional needs an emergency fund and how to build one systematically without compromising your lifestyle.",
-    author: "Moneva Team",
-    date: "2024-03-05",
-    readTime: "4 min read",
-    category: "Financial Planning",
-  },
-  {
-    id: 4,
-    title: "Understanding Mutual Fund Categories",
-    excerpt:
-      "A simple guide to different types of mutual funds and how to choose the right ones for your investment goals.",
-    author: "Moneva Team",
-    date: "2024-02-28",
-    readTime: "6 min read",
-    category: "Investment",
-  },
-  {
-    id: 5,
-    title: "Debt vs Equity: Building a Balanced Portfolio",
-    excerpt:
-      "How to think about asset allocation across debt and equity based on your age, goals, and risk appetite.",
-    author: "Moneva Team",
-    date: "2024-02-20",
-    readTime: "6 min read",
-    category: "Portfolio",
-  },
-  {
-    id: 6,
-    title: "Reading a Mutual Fund Factsheet Like a Pro",
-    excerpt:
-      "Expense ratio, standard deviation, Sharpe, alpha — decode every number that matters before you invest.",
-    author: "Moneva Team",
-    date: "2024-02-12",
-    readTime: "8 min read",
-    category: "Investment",
-  },
-];
 
 const Blog = () => {
   return (
