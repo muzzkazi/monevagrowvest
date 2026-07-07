@@ -431,7 +431,8 @@ const InvestmentSimulation = () => {
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
-                  isAnimationActive={false}
+                  isAnimationActive={true}
+                  animationDuration={speed}
                 />
                 <Line
                   type="monotone"
@@ -441,7 +442,8 @@ const InvestmentSimulation = () => {
                   strokeWidth={2.5}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
-                  isAnimationActive={false}
+                  isAnimationActive={true}
+                  animationDuration={speed}
                 />
                 <Line
                   type="monotone"
@@ -451,7 +453,8 @@ const InvestmentSimulation = () => {
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
-                  isAnimationActive={false}
+                  isAnimationActive={true}
+                  animationDuration={speed}
                 />
                 {history
                   .filter((p) => p.return < 0)
