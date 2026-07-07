@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { AnimatePresence, motion, Transition } from "framer-motion";
+import { motion, Transition } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import RouteLoadingSkeleton from "./components/shared/RouteLoadingSkeleton";
@@ -33,10 +33,13 @@ const BrokerageCalls = lazy(() => import("./pages/BrokerageCalls"));
 
 const queryClient = new QueryClient();
 
+// Fade-in only — no exit animation. Removing the exit phase means the moment
+// the route changes, the old page unmounts and the Suspense skeleton (or the
+// new page) renders immediately, without waiting for an exit tween. A fixed
+// tween duration guarantees the same feel on mobile and desktop.
 const pageVariants = {
-  initial: { opacity: 0, y: 8 },
+  initial: { opacity: 0, y: 6 },
   in: { opacity: 1, y: 0 },
-  out: { opacity: 0, y: -4 },
 };
 
 const pageTransition: Transition = {
@@ -49,44 +52,41 @@ const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial="initial"
-        animate="in"
-        exit="out"
-        variants={pageVariants}
-        transition={pageTransition}
-      >
-        <Suspense fallback={<RouteLoadingSkeleton />}>
-          <Routes location={location}>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/calculators" element={<Calculators />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/ai-planning" element={<AIPlanning />} />
-            <Route path="/debt-management" element={<DebtManagement />} />
-            <Route path="/mutual-fund-comparison" element={<MutualFundComparison />} />
-            <Route path="/portfolio-overlap" element={<PortfolioOverlap />} />
-            <Route path="/portfolio-review" element={<PortfolioReview />} />
-            <Route path="/mutual-fund-tracker" element={<MutualFundTracker />} />
-            <Route path="/goal-based-planning" element={<GoalBasedPlanning />} />
-            <Route path="/sip-based-planning" element={<SIPBasedPlanning />} />
-            <Route path="/financial-education" element={<FinancialEducationPage />} />
-            <Route path="/budget-tracker" element={<BudgetTrackerPage />} />
-            <Route path="/stock-screener" element={<StockScreenerPage />} />
-            <Route path="/tax-planning" element={<TaxPlanning />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/brokerage-calls" element={<BrokerageCalls />} />
+    <motion.div
+      key={location.pathname}
+      initial="initial"
+      animate="in"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
+      <Suspense fallback={<RouteLoadingSkeleton />}>
+        <Routes location={location}>
+          <Route path="/" element={<Index />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/calculators" element={<Calculators />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/ai-planning" element={<AIPlanning />} />
+          <Route path="/debt-management" element={<DebtManagement />} />
+          <Route path="/mutual-fund-comparison" element={<MutualFundComparison />} />
+          <Route path="/portfolio-overlap" element={<PortfolioOverlap />} />
+          <Route path="/portfolio-review" element={<PortfolioReview />} />
+          <Route path="/mutual-fund-tracker" element={<MutualFundTracker />} />
+          <Route path="/goal-based-planning" element={<GoalBasedPlanning />} />
+          <Route path="/sip-based-planning" element={<SIPBasedPlanning />} />
+          <Route path="/financial-education" element={<FinancialEducationPage />} />
+          <Route path="/budget-tracker" element={<BudgetTrackerPage />} />
+          <Route path="/stock-screener" element={<StockScreenerPage />} />
+          <Route path="/tax-planning" element={<TaxPlanning />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/brokerage-calls" element={<BrokerageCalls />} />
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </motion.div>
-    </AnimatePresence>
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </motion.div>
   );
 };
 
