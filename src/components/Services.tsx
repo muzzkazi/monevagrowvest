@@ -32,9 +32,9 @@ const Services = () => {
     {
       icon: Calculator,
       title: "Financial Planning Tools",
-      description: "Access our comprehensive suite of calculators and planning tools to make informed decisions about your financial future.",
-      features: ["SIP calculator", "EMI calculator", "Tax planning tools", "Retirement planner"],
-      cta: "Try Our Calculators"
+      description: "From SIP and EMI to tax and retirement — every calculator you need in one place.",
+      features: [],
+      cta: "Explore All Tools"
     },
     {
       icon: PieChart,
