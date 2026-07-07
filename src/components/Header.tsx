@@ -150,7 +150,7 @@ const Header = () => {
                       </div>
                       <div className="flex flex-col">
                         <span>Portfolio Overlap</span>
-                        <span className="text-[10px] text-muted-foreground font-normal">Check fund duplication</span>
+                        <span className="text-[10px] text-muted-foreground font-normal">Compare funds for duplication</span>
                       </div>
                     </Link>
                     <Link to="/portfolio-review" onClick={() => trackNavClick('AI Portfolio Review', '/portfolio-review', 'screener')} className="flex items-center gap-3 px-5 py-2.5 text-sm font-medium hover:bg-financial-accent/10 hover:text-financial-accent transition-colors group/item">
