@@ -20,6 +20,7 @@ import {
 import { useStockPrices } from "@/hooks/useStockPrices";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useBrokerRecos } from "@/hooks/useBrokerRecos";
+import { BrokerRecoGridSkeleton } from "@/components/shared/DataSkeletons";
 
 function formatRelativeDate(iso: string): string {
   try {
