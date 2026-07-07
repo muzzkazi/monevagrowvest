@@ -289,11 +289,11 @@ const Header = () => {
                     <MobileNavLink to="/portfolio-overlap" onClick={closeMobile} track={{ label: 'Portfolio Overlap', category: 'screener' }}>
                       Portfolio Overlap
                     </MobileNavLink>
-                    <MobileNavLink to="/portfolio-review" onClick={closeMobile} track={{ label: 'AI Portfolio Review', category: 'screener' }}>
-                      AI Portfolio Review
+                    <MobileNavLink to="/portfolio-review" onClick={closeMobile} track={{ label: 'Portfolio Review (One-Time)', category: 'screener' }}>
+                      Portfolio Review (One-Time)
                     </MobileNavLink>
-                    <MobileNavLink to="/mutual-fund-tracker" onClick={closeMobile} track={{ label: 'MF Portfolio Tracker', category: 'screener' }}>
-                      MF Portfolio Tracker
+                    <MobileNavLink to="/mutual-fund-tracker" onClick={closeMobile} track={{ label: 'Portfolio Tracker (Ongoing)', category: 'screener' }}>
+                      Portfolio Tracker (Ongoing)
                     </MobileNavLink>
 
 
