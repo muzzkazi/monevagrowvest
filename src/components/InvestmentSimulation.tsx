@@ -500,14 +500,17 @@ const InvestmentSimulation = () => {
             >
               <CardHeader className="text-center">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                  strategy === 'conservative' ? 'bg-blue-500' :
-                  strategy === 'moderate' ? 'bg-financial-accent' : 'bg-red-500'
+                  strategy === 'conservative' ? 'bg-red-500' :
+                  strategy === 'moderate' ? 'bg-financial-accent' : 'bg-green-500'
                 }`}>
                   {strategy === 'conservative' ? <Target className="w-8 h-8 text-white" /> :
                    strategy === 'moderate' ? <Calculator className="w-8 h-8 text-white" /> :
                    <TrendingUp className="w-8 h-8 text-white" />}
                 </div>
-                <CardTitle className="capitalize text-xl">{strategy}</CardTitle>
+                <CardTitle className={`capitalize text-xl ${
+                  strategy === 'conservative' ? 'text-destructive' :
+                  strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                }`}>{strategy}</CardTitle>
                 <CardDescription>
                   {strategy === 'conservative' ? 'Low risk, steady returns' :
                    strategy === 'moderate' ? 'Balanced risk and reward' :
@@ -517,14 +520,20 @@ const InvestmentSimulation = () => {
               <CardContent className="text-center">
                 <div className="space-y-3">
                   <div>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className={`text-2xl font-bold ${
+                      strategy === 'conservative' ? 'text-destructive' :
+                      strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                    }`}>
                       {formatCurrency(value)}
                     </div>
                     <div className="text-sm text-muted-foreground">Current Value</div>
                   </div>
                   
                   {isRunning && (
-                    <div className={`text-lg font-semibold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
+                    <div className={`text-lg font-semibold ${
+                      strategy === 'conservative' ? 'text-destructive' :
+                      strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                    }`}>
                       {isPositive ? '+' : ''}{returnPercent}%
                     </div>
                   )}
