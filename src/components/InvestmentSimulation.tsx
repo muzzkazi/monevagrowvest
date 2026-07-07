@@ -427,7 +427,7 @@ const InvestmentSimulation = () => {
                   type="monotone"
                   dataKey="conservative"
                   name="Conservative"
-                  stroke="hsl(217 91% 60%)"
+                  stroke="hsl(var(--destructive))"
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
@@ -447,7 +447,7 @@ const InvestmentSimulation = () => {
                   type="monotone"
                   dataKey="aggressive"
                   name="Aggressive"
-                  stroke="hsl(0 84% 60%)"
+                  stroke="hsl(142 71% 45%)"
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
@@ -500,14 +500,17 @@ const InvestmentSimulation = () => {
             >
               <CardHeader className="text-center">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                  strategy === 'conservative' ? 'bg-blue-500' :
-                  strategy === 'moderate' ? 'bg-financial-accent' : 'bg-red-500'
+                  strategy === 'conservative' ? 'bg-red-500' :
+                  strategy === 'moderate' ? 'bg-financial-accent' : 'bg-green-500'
                 }`}>
                   {strategy === 'conservative' ? <Target className="w-8 h-8 text-white" /> :
                    strategy === 'moderate' ? <Calculator className="w-8 h-8 text-white" /> :
                    <TrendingUp className="w-8 h-8 text-white" />}
                 </div>
-                <CardTitle className="capitalize text-xl">{strategy}</CardTitle>
+                <CardTitle className={`capitalize text-xl ${
+                  strategy === 'conservative' ? 'text-destructive' :
+                  strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                }`}>{strategy}</CardTitle>
                 <CardDescription>
                   {strategy === 'conservative' ? 'Low risk, steady returns' :
                    strategy === 'moderate' ? 'Balanced risk and reward' :
@@ -517,14 +520,20 @@ const InvestmentSimulation = () => {
               <CardContent className="text-center">
                 <div className="space-y-3">
                   <div>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className={`text-2xl font-bold ${
+                      strategy === 'conservative' ? 'text-destructive' :
+                      strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                    }`}>
                       {formatCurrency(value)}
                     </div>
                     <div className="text-sm text-muted-foreground">Current Value</div>
                   </div>
                   
                   {isRunning && (
-                    <div className={`text-lg font-semibold ${isPositive ? 'text-accent' : 'text-destructive'}`}>
+                    <div className={`text-lg font-semibold ${
+                      strategy === 'conservative' ? 'text-destructive' :
+                      strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                    }`}>
                       {isPositive ? '+' : ''}{returnPercent}%
                     </div>
                   )}
@@ -568,16 +577,27 @@ const InvestmentSimulation = () => {
                     
                     return (
                       <div key={strategy} className={`p-4 rounded-lg ${
-                        index === 0 ? 'bg-financial-gold/10 border border-financial-gold/20' : 'bg-muted/50'
+                        strategy === 'conservative' ? 'bg-destructive/10 border border-destructive/20' :
+                        strategy === 'moderate' ? 'bg-financial-accent/10 border border-financial-accent/20' :
+                        'bg-green-500/10 border border-green-500/20'
                       }`}>
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`font-medium capitalize ${index === 0 ? 'text-financial-gold' : ''}`}>{strategy}</span>
+                          <span className={`font-medium capitalize ${
+                            strategy === 'conservative' ? 'text-destructive' :
+                            strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                          }`}>{strategy}</span>
                           {index === 0 && <Badge className="bg-financial-gold text-financial-primary">Winner</Badge>}
                         </div>
-                        <div className={`text-xl font-bold ${index === 0 ? 'text-financial-gold' : 'text-foreground'}`}>
+                        <div className={`text-xl font-bold ${
+                          strategy === 'conservative' ? 'text-destructive' :
+                          strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                        }`}>
                           {formatCurrency(value)}
                         </div>
-                        <div className={`text-sm ${index === 0 ? 'text-financial-gold' : isPositive ? 'text-accent' : 'text-destructive'}`}>
+                        <div className={`text-sm ${
+                          strategy === 'conservative' ? 'text-destructive' :
+                          strategy === 'moderate' ? 'text-financial-accent' : 'text-green-500'
+                        }`}>
                           {isPositive ? '+' : ''}{returnPercent}% total return
                         </div>
                       </div>
