@@ -2,16 +2,20 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Trophy, 
-  Target, 
-  TrendingUp, 
+import {
+  Trophy,
+  Target,
+  TrendingUp,
   LineChart,
   Zap,
   Gamepad2,
   BarChart3,
-  Brain
+  Brain,
+  Rewind,
+  Compass,
+  ArrowDown,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 import InvestmentSimulation from './InvestmentSimulation';
 import MarketExplorer from './education/MarketExplorer';
