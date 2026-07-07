@@ -47,7 +47,7 @@ const imageVariants = {
 
 
 const Hero = () => {
-  const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 800, delay: 400 });
+  const returnsCount = useCountUp({ end: 12, suffix: '%+', duration: 1600, delay: 400 });
   
   const { smoothScrollY } = useBackgroundParallax(0.3);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -221,7 +221,7 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.5 }}
         >
-          <StatsBlock variant="compact" className="max-w-3xl" />
+          <StatsBlock variant="compact" duration={1600} className="max-w-3xl" />
         </motion.div>
       </div>
     </section>
