@@ -11,6 +11,7 @@ import { AnimatedSection, ParallaxSection } from "@/hooks/useScrollAnimation";
 // Below-the-fold sections: code-split + deferred mount.
 // This prevents their JS, components AND data fetches (broker-recos,
 // market-news, etc.) from competing with the LCP hero.
+const InvestingLabTeaser = lazy(() => import("@/components/InvestingLabTeaser"));
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const SuccessStories = lazy(() => import("@/components/SuccessStories"));
 const Partners = lazy(() => import("@/components/Partners"));
@@ -30,6 +31,14 @@ const Index = () => {
         <Hero />
 
         <Suspense fallback={<SectionFallback />}>
+          <DeferredMount minHeight={520}>
+            <ParallaxSection speed={0.03} className="relative z-10">
+              <AnimatedSection animation="fade-in">
+                <InvestingLabTeaser />
+              </AnimatedSection>
+            </ParallaxSection>
+          </DeferredMount>
+
           <DeferredMount minHeight={480}>
             <ParallaxSection speed={0.05} className="relative z-10">
               <AnimatedSection animation="fade-in">
@@ -37,6 +46,7 @@ const Index = () => {
               </AnimatedSection>
             </ParallaxSection>
           </DeferredMount>
+
 
           <DeferredMount minHeight={480}>
             <ParallaxSection speed={-0.03} className="relative z-10">
