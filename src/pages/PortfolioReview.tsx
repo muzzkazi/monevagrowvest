@@ -44,6 +44,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import PortfolioModeOnboarding from "@/components/portfolio/PortfolioModeOnboarding";
 import ReviewVsTrackerChecklist from "@/components/portfolio/ReviewVsTrackerChecklist";
+import LookThroughExposure from "@/components/portfolio/LookThroughExposure";
+
 
 
 type RiskProfile = "Conservative" | "Moderate" | "Aggressive";
@@ -978,7 +980,11 @@ const PortfolioReviewPage = () => {
                 </div>
               </Card>
 
+              {/* Look-through stock exposure */}
+              <LookThroughExposure funds={funds} />
+
               {/* Per-fund verdicts */}
+
               <div>
                 <h2 className="text-xl font-semibold text-foreground mb-4">
                   Per-Fund Recommendations
