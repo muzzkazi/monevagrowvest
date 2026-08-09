@@ -44,6 +44,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import PortfolioModeOnboarding from "@/components/portfolio/PortfolioModeOnboarding";
 import ReviewVsTrackerChecklist from "@/components/portfolio/ReviewVsTrackerChecklist";
+import LookThroughExposure from "@/components/portfolio/LookThroughExposure";
+
 
 
 type RiskProfile = "Conservative" | "Moderate" | "Aggressive";
