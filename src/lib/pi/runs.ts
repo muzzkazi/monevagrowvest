@@ -89,18 +89,21 @@ export const saveRun = async (params: {
   output: EngineOutput | null;
 }): Promise<string> => {
   const { data: auth } = await supabase.auth.getUser();
+  // The jsonb columns accept any serialisable structure; the generated types
+  // model them as Json, so the captured domain objects are cast once here.
+  const asJson = (v: unknown) => JSON.parse(JSON.stringify(v ?? null)) as never;
   const payload = {
     client_id: params.clientId ?? null,
     run_name: params.runName.trim() || "Untitled run",
-    profile: params.inputs.profile as unknown as Record<string, unknown>,
-    goals: params.inputs.goals as unknown as Record<string, unknown>[],
-    risk_answers: params.inputs.riskAnswers as unknown as Record<string, unknown>,
-    constraints: params.inputs.constraints as unknown as Record<string, unknown>,
-    funds: params.inputs.funds as unknown as Record<string, unknown>[],
+    profile: asJson(params.inputs.profile),
+    goals: asJson(params.inputs.goals),
+    risk_answers: asJson(params.inputs.riskAnswers),
+    constraints: asJson(params.inputs.constraints),
+    funds: asJson(params.inputs.funds),
     additional_sip: params.inputs.additionalSip,
     declared_sip_budget: params.inputs.declaredSipBudget,
     assumed_return_pct: params.assumedReturnPct,
-    output: params.output as unknown as Record<string, unknown> | null,
+    output: asJson(params.output),
     created_by: auth.user?.id ?? null,
   };
 
