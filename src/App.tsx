@@ -32,6 +32,8 @@ const TaxPlanning = lazy(() => import("./pages/TaxPlanning"));
 const Auth = lazy(() => import("./pages/Auth"));
 const BrokerageCalls = lazy(() => import("./pages/BrokerageCalls"));
 const MarketInsights = lazy(() => import("./pages/MarketInsights"));
+const AdminClients = lazy(() => import("./pages/admin/AdminClients"));
+const AdminClientDetail = lazy(() => import("./pages/admin/AdminClientDetail"));
 
 const queryClient = new QueryClient();
 
