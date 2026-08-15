@@ -15,7 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { ArrowLeft, Lock, Plus, Save, Trash2, History } from "lucide-react";
+import { ArrowLeft, Lock, Plus, Save, Trash2, History, FileDown, Eye } from "lucide-react";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { generateClientReportPdf } from "@/lib/clientReportPdf";
 
 type Client = {
   id: string; full_name: string; email: string | null; phone: string | null;
@@ -40,6 +42,7 @@ const CATEGORIES = ["Large Cap", "Mid Cap", "Small Cap", "Flexi Cap", "Index", "
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
 const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
+  const { canEdit } = useIsAdmin();
   const [client, setClient] = useState<Client | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [funds, setFunds] = useState<Fund[]>([]);
@@ -145,6 +148,16 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
     load();
   };
 
+  const downloadReport = () => {
+    if (!client) return;
+    try {
+      generateClientReportPdf({ client, goals, funds, log });
+      toast.success("Report downloaded");
+    } catch (e) {
+      toast.error("Could not generate the report");
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 max-w-5xl py-12 space-y-4">
@@ -175,6 +188,10 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
         <div className="flex flex-wrap items-center gap-3 mb-2">
           <Badge variant="secondary" className="gap-1.5"><Lock className="h-3 w-3" /> Private</Badge>
           <Badge variant="outline" className="capitalize">{client.risk_profile} risk</Badge>
+          {!canEdit && <Badge variant="outline" className="gap-1.5"><Eye className="h-3 w-3" /> Read-only access</Badge>}
+          <Button variant="outline" size="sm" className="gap-2 ml-auto" onClick={downloadReport}>
+            <FileDown className="h-4 w-4" /> Download PDF report
+          </Button>
         </div>
         <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground">{client.full_name}</h1>
         <p className="text-muted-foreground mt-2 text-sm">
@@ -193,7 +210,7 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
           {/* Portfolio */}
           <TabsContent value="portfolio" className="mt-6 space-y-4">
             <div className="flex justify-end">
-              <Dialog open={fundOpen} onOpenChange={setFundOpen}>
+              {canEdit && <Dialog open={fundOpen} onOpenChange={setFundOpen}>
                 <DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Add fund</Button></DialogTrigger>
                 <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
                   <DialogHeader><DialogTitle>Add fund to portfolio</DialogTitle></DialogHeader>
@@ -214,7 +231,7 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                   </div>
                   <DialogFooter><Button onClick={addFund}>Add fund</Button></DialogFooter>
                 </DialogContent>
-              </Dialog>
+              </Dialog>}
             </div>
 
             <Card className="overflow-hidden">
@@ -244,6 +261,7 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                             type="number"
                             defaultValue={Number(f.monthly_sip)}
                             className="h-9"
+                            disabled={!canEdit}
                             onBlur={(e) => {
                               const v = Number(e.target.value);
                               if (v !== Number(f.monthly_sip)) updateFund(f, { monthly_sip: v }, `SIP changed to ${inr(v)}/month`);
@@ -255,7 +273,7 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                             value={f.status}
                             onValueChange={(v) => updateFund(f, { status: v }, `status set to ${v}`)}
                           >
-                            <SelectTrigger className="h-9 w-28"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="h-9 w-28" disabled={!canEdit}><SelectValue /></SelectTrigger>
                             <SelectContent>
                               <SelectItem value="active">Active</SelectItem>
                               <SelectItem value="paused">Paused</SelectItem>
@@ -264,9 +282,11 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                           </Select>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => removeFund(f)} aria-label={`Remove ${f.fund_name}`}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          {canEdit && (
+                            <Button variant="ghost" size="icon" onClick={() => removeFund(f)} aria-label={`Remove ${f.fund_name}`}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -312,9 +332,9 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
               <div className="sm:col-span-2"><Label>Existing investments elsewhere</Label><Textarea rows={3} value={client.existing_investments ?? ""} onChange={(e) => setClient({ ...client, existing_investments: e.target.value })} /></div>
               <div className="sm:col-span-2"><Label>Notes</Label><Textarea rows={4} value={client.notes ?? ""} onChange={(e) => setClient({ ...client, notes: e.target.value })} /></div>
               <div className="sm:col-span-2 flex justify-end">
-                <Button onClick={saveProfile} disabled={savingProfile} className="gap-2">
+                {canEdit && <Button onClick={saveProfile} disabled={savingProfile} className="gap-2">
                   <Save className="h-4 w-4" /> {savingProfile ? "Saving…" : "Save changes"}
-                </Button>
+                </Button>}
               </div>
             </Card>
           </TabsContent>
@@ -322,7 +342,7 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
           {/* Goals */}
           <TabsContent value="goals" className="mt-6 space-y-4">
             <div className="flex justify-end">
-              <Dialog open={goalOpen} onOpenChange={setGoalOpen}>
+              {canEdit && <Dialog open={goalOpen} onOpenChange={setGoalOpen}>
                 <DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Add goal</Button></DialogTrigger>
                 <DialogContent className="max-w-lg">
                   <DialogHeader><DialogTitle>New goal</DialogTitle></DialogHeader>
@@ -347,7 +367,7 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                   </div>
                   <DialogFooter><Button onClick={addGoal}>Add goal</Button></DialogFooter>
                 </DialogContent>
-              </Dialog>
+              </Dialog>}
             </div>
             {goals.length === 0 ? (
               <Card className="p-10 text-center text-sm text-muted-foreground">No goals recorded yet.</Card>
@@ -364,9 +384,11 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Badge variant="outline" className="capitalize">{g.priority}</Badge>
-                        <Button variant="ghost" size="icon" onClick={() => removeGoal(g)} aria-label={`Remove ${g.goal_name}`}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {canEdit && (
+                          <Button variant="ghost" size="icon" onClick={() => removeGoal(g)} aria-label={`Remove ${g.goal_name}`}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                     {g.notes && <p className="text-sm text-muted-foreground mt-3">{g.notes}</p>}
@@ -411,7 +433,7 @@ const AdminClientDetail = () => {
   const { id } = useParams<{ id: string }>();
   return (
     <PageLayout>
-      <AdminGuard>{id ? <AdminClientDetailInner clientId={id} /> : null}</AdminGuard>
+      <AdminGuard allowAdvisor>{id ? <AdminClientDetailInner clientId={id} /> : null}</AdminGuard>
     </PageLayout>
   );
 };

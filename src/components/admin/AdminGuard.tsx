@@ -6,9 +6,18 @@ import { Button } from "@/components/ui/button";
 /**
  * Wraps admin-only routes. The real protection is the RLS policies on the
  * client tables — this only controls what the UI renders.
+ *
+ * allowAdvisor: also let read-only advisor accounts through.
  */
-const AdminGuard = ({ children }: { children: React.ReactNode }) => {
-  const { isAdmin, loading, user } = useIsAdmin();
+const AdminGuard = ({
+  children,
+  allowAdvisor = false,
+}: {
+  children: React.ReactNode;
+  allowAdvisor?: boolean;
+}) => {
+  const { isAdmin, isTeam, loading, user } = useIsAdmin();
+  const allowed = allowAdvisor ? isTeam : isAdmin;
 
   if (loading) {
     return (
@@ -18,7 +27,7 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!isAdmin) {
+  if (!allowed) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="max-w-md text-center space-y-4">
