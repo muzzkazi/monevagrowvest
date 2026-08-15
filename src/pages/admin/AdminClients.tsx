@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import PageLayout from "@/components/shared/PageLayout";
 import AdminGuard from "@/components/admin/AdminGuard";
@@ -240,10 +239,6 @@ const AdminClientsInner = () => {
 
 const AdminClients = () => (
   <PageLayout>
-    <Helmet>
-      <title>Client Book · Advisor Console</title>
-      <meta name="robots" content="noindex, nofollow" />
-    </Helmet>
     <AdminGuard>
       <AdminClientsInner />
     </AdminGuard>
