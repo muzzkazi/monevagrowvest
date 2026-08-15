@@ -100,7 +100,14 @@ const TaxSwitchPanel = ({
                   <p className="text-sm font-semibold text-foreground">{o.schemeName}</p>
                   <p className="text-xs text-muted-foreground">Amount considered {inr(o.amountConsidered)}</p>
                 </div>
-                <Badge variant="secondary" className={verdictTone[o.verdict]}>{o.verdict}</Badge>
+                {blocked ? (
+                  <Badge variant="secondary" className="bg-destructive/10 text-destructive gap-1">
+                    <Lock className="h-3 w-3" aria-hidden /> Switch blocked — data incomplete
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className={verdictTone[o.verdict]}>{o.verdict}</Badge>
+                )}
+
               </div>
               <div className="flex flex-wrap gap-4 text-xs">
                 <span className="text-muted-foreground">
