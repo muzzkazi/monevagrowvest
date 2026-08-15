@@ -79,6 +79,9 @@ const markup = (ui: React.ReactElement) => {
   const { container } = render(ui);
   const html = container.innerHTML
     .replace(/(id|for|aria-controls|aria-labelledby|aria-describedby)="[^"]*"/g, '$1="X"')
+    // "as of" stamps are wall-clock by design — mask them, not the numbers.
+    .replace(/\d{1,2}\/\d{1,2}\/\d{4},?\s*/g, "DATE ")
+    .replace(/\d{1,2}:\d{2}(:\d{2})?(\s?[apAP]\.?[mM]\.?)?/g, "TIME")
     .replace(/\s+/g, " ");
   cleanup();
   return html;
