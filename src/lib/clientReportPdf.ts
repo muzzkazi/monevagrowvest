@@ -126,7 +126,6 @@ export const generateClientReportPdf = ({
     y += lines.length * 12 + 8;
   };
 
-  type Col = { header: string; width: number; align?: "left" | "right"; get: (r: never) => string };
   const table = <T,>(cols: { header: string; width: number; align?: "left" | "right"; get: (r: T) => string }[], rows: T[]) => {
     const drawHead = () => {
       room(34);
