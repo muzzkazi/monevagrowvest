@@ -19,7 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { Lock, Plus, Search, Users, Wallet, Wand2, ShieldCheck } from "lucide-react";
+import { Lock, Plus, Search, Users, Wallet, Wand2, ShieldCheck, BrainCircuit } from "lucide-react";
 
 type Client = {
   id: string;
@@ -133,6 +133,9 @@ const AdminClientsInner = () => {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline" className="gap-2">
+            <Link to="/admin/portfolio-intelligence"><BrainCircuit className="h-4 w-4" /> Portfolio Intelligence</Link>
+          </Button>
           <Button asChild variant="outline" className="gap-2">
             <Link to="/admin/bulk-sip"><Wand2 className="h-4 w-4" /> Bulk SIP changes</Link>
           </Button>
