@@ -18,6 +18,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Lock, Plus, Search, Users, Wallet, Wand2, ShieldCheck } from "lucide-react";
 
 type Client = {
@@ -36,6 +37,7 @@ const RISK = ["conservative", "moderate", "aggressive"];
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
 const AdminClientsInner = () => {
+  const { canEdit } = useIsAdmin();
   const [clients, setClients] = useState<Client[]>([]);
   const [sipTotals, setSipTotals] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -137,7 +139,7 @@ const AdminClientsInner = () => {
           <Button asChild variant="outline" className="gap-2">
             <Link to="/admin/roles"><ShieldCheck className="h-4 w-4" /> Team & roles</Link>
           </Button>
-          <Dialog open={open} onOpenChange={setOpen}>
+          {canEdit && <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Add client</Button>
             </DialogTrigger>
@@ -173,7 +175,7 @@ const AdminClientsInner = () => {
                 <Button onClick={createClient} disabled={saving}>{saving ? "Saving…" : "Save client"}</Button>
               </DialogFooter>
             </DialogContent>
-          </Dialog>
+          </Dialog>}
           </div>
         </div>
 
