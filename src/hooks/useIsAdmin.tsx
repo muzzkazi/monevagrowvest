@@ -2,20 +2,24 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
+export type TeamRole = "admin" | "advisor" | "user";
+
 /**
- * Server-validated admin check. Reads the user_roles table (protected by RLS),
+ * Server-validated role check. Reads the user_roles table (protected by RLS),
  * never local storage.
+ * - admin  : full read/write on the client book + role management
+ * - advisor: read-only access to the client book
  */
 export const useIsAdmin = () => {
   const { user, loading: authLoading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [roles, setRoles] = useState<TeamRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
     if (authLoading) return;
     if (!user) {
-      setIsAdmin(false);
+      setRoles([]);
       setLoading(false);
       return;
     }
@@ -24,11 +28,9 @@ export const useIsAdmin = () => {
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle()
       .then(({ data }) => {
         if (!active) return;
-        setIsAdmin(!!data);
+        setRoles(((data ?? []).map((r) => r.role) as TeamRole[]) ?? []);
         setLoading(false);
       });
     return () => {
@@ -36,5 +38,18 @@ export const useIsAdmin = () => {
     };
   }, [user, authLoading]);
 
-  return { isAdmin, loading: loading || authLoading, user };
+  const isAdmin = roles.includes("admin");
+  const isAdvisor = roles.includes("advisor");
+
+  return {
+    isAdmin,
+    isAdvisor,
+    // anyone who may view the client book
+    isTeam: isAdmin || isAdvisor,
+    // only admins may write
+    canEdit: isAdmin,
+    roles,
+    loading: loading || authLoading,
+    user,
+  };
 };
