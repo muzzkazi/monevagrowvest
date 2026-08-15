@@ -57,11 +57,14 @@ export const generateClientReportPdf = ({
   goals,
   funds,
   log,
+  save = true,
 }: {
   client: ReportClient;
   goals: ReportGoal[];
   funds: ReportFund[];
   log: ReportLog[];
+  /** set to false to get the document back without triggering a download (used in tests) */
+  save?: boolean;
 }) => {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
@@ -301,5 +304,6 @@ export const generateClientReportPdf = ({
   footer();
 
   const safeName = client.full_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-  doc.save(`${safeName}-advisory-report-${new Date().toISOString().split("T")[0]}.pdf`);
+  if (save) doc.save(`${safeName}-advisory-report-${new Date().toISOString().split("T")[0]}.pdf`);
+  return doc;
 };
