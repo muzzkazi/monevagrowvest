@@ -134,6 +134,9 @@ const AdminClientsInner = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
           <Button asChild variant="outline" className="gap-2">
+            <Link to="/admin/portfolio-intelligence"><BrainCircuit className="h-4 w-4" /> Portfolio Intelligence</Link>
+          </Button>
+          <Button asChild variant="outline" className="gap-2">
             <Link to="/admin/bulk-sip"><Wand2 className="h-4 w-4" /> Bulk SIP changes</Link>
           </Button>
           <Button asChild variant="outline" className="gap-2">
