@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Receipt } from "lucide-react";
+import { Lock, Receipt } from "lucide-react";
 import { HoldingTax, SwitchPlan, SwitchVerdict } from "@/lib/pi/tax";
+import { DataQualityReport } from "@/lib/pi/dataQuality";
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
@@ -14,8 +15,19 @@ const verdictTone: Record<SwitchVerdict, string> = {
   "Insufficient current data": "bg-destructive/10 text-destructive",
 };
 
-const TaxSwitchPanel = ({ plan, holdings }: { plan: SwitchPlan; holdings: HoldingTax[] }) => (
-  <Card>
+const TaxSwitchPanel = ({
+  plan,
+  holdings,
+  quality = null,
+}: {
+  plan: SwitchPlan;
+  holdings: HoldingTax[];
+  quality?: DataQualityReport | null;
+}) => {
+  const blocked = quality ? !quality.switchingAllowed : false;
+  return (
+  <Card className={blocked ? "border-destructive/40" : undefined}>
+
     <CardHeader className="pb-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <CardTitle className="text-base flex items-center gap-2">
@@ -33,7 +45,27 @@ const TaxSwitchPanel = ({ plan, holdings }: { plan: SwitchPlan; holdings: Holdin
       </div>
     </CardHeader>
     <CardContent className="space-y-6">
+      {blocked && quality && (
+        <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3" role="alert">
+          <Lock className="h-4 w-4 mt-0.5 text-destructive shrink-0" aria-hidden />
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-destructive">
+              Switching is locked until the data requirements are met.
+            </p>
+            <ul className="space-y-0.5">
+              {quality.blockers.map((b) => (
+                <li key={b.id} className="text-xs text-muted-foreground">• {b.message} <em>Fix: {b.fix}</em></li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              Tax figures below stay visible for review, but no exit is recommended and no verdict can be acted on.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-3">
+
         <div className="rounded-lg border border-border p-4">
           <p className="text-xs text-muted-foreground">Equity LTCG exemption left this year</p>
           <p className="text-xl font-serif font-bold text-foreground">{inr(plan.exemptionRemaining)}</p>
@@ -68,7 +100,14 @@ const TaxSwitchPanel = ({ plan, holdings }: { plan: SwitchPlan; holdings: Holdin
                   <p className="text-sm font-semibold text-foreground">{o.schemeName}</p>
                   <p className="text-xs text-muted-foreground">Amount considered {inr(o.amountConsidered)}</p>
                 </div>
-                <Badge variant="secondary" className={verdictTone[o.verdict]}>{o.verdict}</Badge>
+                {blocked ? (
+                  <Badge variant="secondary" className="bg-destructive/10 text-destructive gap-1">
+                    <Lock className="h-3 w-3" aria-hidden /> Switch blocked — data incomplete
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className={verdictTone[o.verdict]}>{o.verdict}</Badge>
+                )}
+
               </div>
               <div className="flex flex-wrap gap-4 text-xs">
                 <span className="text-muted-foreground">
@@ -157,6 +196,8 @@ const TaxSwitchPanel = ({ plan, holdings }: { plan: SwitchPlan; holdings: Holdin
       </div>
     </CardContent>
   </Card>
-);
+  );
+};
+
 
 export default TaxSwitchPanel;

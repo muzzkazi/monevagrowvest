@@ -311,6 +311,81 @@ export type Database = {
         }
         Relationships: []
       }
+      pi_run_versions: {
+        Row: {
+          additional_sip: number
+          assumed_return_pct: number | null
+          change_note: string | null
+          client_id: string | null
+          constraints: Json
+          created_at: string
+          created_by: string | null
+          declared_sip_budget: number
+          funds: Json
+          goals: Json
+          id: string
+          output: Json | null
+          profile: Json
+          risk_answers: Json
+          run_id: string
+          run_name: string
+          version_no: number
+        }
+        Insert: {
+          additional_sip?: number
+          assumed_return_pct?: number | null
+          change_note?: string | null
+          client_id?: string | null
+          constraints?: Json
+          created_at?: string
+          created_by?: string | null
+          declared_sip_budget?: number
+          funds?: Json
+          goals?: Json
+          id?: string
+          output?: Json | null
+          profile?: Json
+          risk_answers?: Json
+          run_id: string
+          run_name?: string
+          version_no: number
+        }
+        Update: {
+          additional_sip?: number
+          assumed_return_pct?: number | null
+          change_note?: string | null
+          client_id?: string | null
+          constraints?: Json
+          created_at?: string
+          created_by?: string | null
+          declared_sip_budget?: number
+          funds?: Json
+          goals?: Json
+          id?: string
+          output?: Json | null
+          profile?: Json
+          risk_answers?: Json
+          run_id?: string
+          run_name?: string
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pi_run_versions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pi_run_versions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "pi_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pi_runs: {
         Row: {
           additional_sip: number

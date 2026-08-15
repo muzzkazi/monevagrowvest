@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, BrainCircuit, Play, Sparkles } from "lucide-react";
+import { ArrowLeft, BrainCircuit, FileDown, Play, Sparkles } from "lucide-react";
 import PageLayout from "@/components/shared/PageLayout";
 import AdvisorRouteGuard from "@/components/admin/AdvisorRouteGuard";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,12 @@ import StressTestPanel from "@/components/portfolio-intelligence/StressTestPanel
 import TaxSwitchPanel from "@/components/portfolio-intelligence/TaxSwitchPanel";
 import NavDataPanel from "@/components/portfolio-intelligence/NavDataPanel";
 import SavedRunsPanel from "@/components/portfolio-intelligence/SavedRunsPanel";
+import DataQualityPanel from "@/components/portfolio-intelligence/DataQualityPanel";
+import VersionHistoryPanel from "@/components/portfolio-intelligence/VersionHistoryPanel";
+import { buildDataQualityReport } from "@/lib/pi/dataQuality";
+import { appendVersion } from "@/lib/pi/versions";
+import { generateRunPdf } from "@/lib/pi/runPdf";
+import { useToast } from "@/hooks/use-toast";
 import { runEngine } from "@/lib/pi/engine";
 import { emptyConstraints, emptyProfile, emptyRiskAnswers, newGoal } from "@/lib/pi/defaults";
 import { buildSwitchPlan, computeHoldingTaxes } from "@/lib/pi/tax";
@@ -31,6 +37,7 @@ import { AssetBucket, ClientProfile, Constraints, EngineOutput, Goal, PortfolioF
 
 const PortfolioIntelligenceInner = () => {
   const { canEdit } = useIsAdmin();
+  const { toast } = useToast();
   const [profile, setProfile] = useState<ClientProfile>(emptyProfile);
   const [goals, setGoals] = useState<Goal[]>([newGoal()]);
   const [riskAnswers, setRiskAnswers] = useState<RiskAnswers>(emptyRiskAnswers);
@@ -42,6 +49,8 @@ const PortfolioIntelligenceInner = () => {
   const [tab, setTab] = useState("profile");
   const [runId, setRunId] = useState<string | null>(null);
   const [linkedClientId, setLinkedClientId] = useState<string | null>(null);
+  const [runName, setRunName] = useState("Untitled run");
+  const [versionToken, setVersionToken] = useState(0);
 
   const schemeCodes = useMemo(
     () => funds.map((f) => (f as PortfolioFund & { schemeCode?: string }).schemeCode ?? "").filter(Boolean),
@@ -125,6 +134,40 @@ const PortfolioIntelligenceInner = () => {
     });
   }, [output, funds, goals, nav.metrics]);
 
+  /* Data-quality gate — decides whether taxable switches may be recommended. */
+  const quality = useMemo(
+    () =>
+      buildDataQualityReport({
+        funds,
+        annualIncome: profile.annualIncome,
+        nav: {
+          requestedCodes: nav.requestedCodes,
+          unavailable: nav.unavailable,
+          oldestFetchedAt: nav.oldestFetchedAt,
+          error: nav.error,
+        },
+      }),
+    [funds, profile.annualIncome, nav.requestedCodes, nav.unavailable, nav.oldestFetchedAt, nav.error],
+  );
+
+  const downloadReport = () => {
+    if (!output) return;
+    try {
+      generateRunPdf({
+        runName,
+        inputs,
+        assumedReturnPct,
+        output,
+        holdings: taxViews?.holdings ?? [],
+        switchPlan: quality.switchingAllowed ? (taxViews?.plan ?? null) : null,
+        stress,
+        quality,
+      });
+    } catch (e) {
+      toast({ title: "Export failed", description: (e as Error).message, variant: "destructive" });
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-28 pb-20 space-y-8">
       <div className="space-y-4">
@@ -145,9 +188,16 @@ const PortfolioIntelligenceInner = () => {
               filled in.
             </p>
           </div>
-          <Button onClick={() => run()} className="gap-2">
-            <Play className="h-4 w-4" /> Run analysis
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {output && (
+              <Button variant="outline" onClick={downloadReport} className="gap-2">
+                <FileDown className="h-4 w-4" /> Download report
+              </Button>
+            )}
+            <Button onClick={() => run()} className="gap-2">
+              <Play className="h-4 w-4" /> Run analysis
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -212,8 +262,9 @@ const PortfolioIntelligenceInner = () => {
                 onRefresh={nav.refresh}
                 requestedCodes={nav.requestedCodes}
               />
+              <DataQualityPanel report={quality} onRefreshNav={nav.refresh} refreshing={nav.loading} />
               <AnalysisPanel output={output} />
-              {taxViews && <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} />}
+              {taxViews && <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />}
               {stress && <StressTestPanel stress={stress} />}
             </>
           ) : (
@@ -227,19 +278,38 @@ const PortfolioIntelligenceInner = () => {
             </Card>
           )}
         </TabsContent>
-        <TabsContent value="saved" className="mt-6">
+        <TabsContent value="saved" className="mt-6 space-y-6">
           <SavedRunsPanel
             inputs={inputs}
             assumedReturnPct={assumedReturnPct}
             output={output}
             canEdit={canEdit}
             currentRunId={runId}
-            onRunSaved={(id, _name, clientId) => {
+            onRunSaved={(id, name, clientId) => {
               setRunId(id);
+              setRunName(name);
               setLinkedClientId(clientId);
+              // Each save appends an immutable version so iterations stay comparable.
+              appendVersion({
+                runId: id,
+                runName: name,
+                clientId,
+                inputs,
+                assumedReturnPct,
+                output,
+              })
+                .then((no) => {
+                  setVersionToken((t) => t + 1);
+                  toast({ title: `Version v${no} recorded` });
+                })
+                .catch((e) =>
+                  toast({ title: "Version not recorded", description: (e as Error).message, variant: "destructive" }),
+                );
             }}
-            onRunLoaded={(id, _name, clientId, loaded) => {
+            onRunLoaded={(id, name, clientId, loaded) => {
               setRunId(id);
+              setRunName(name);
+              setVersionToken((t) => t + 1);
               setLinkedClientId(clientId);
               setProfile(loaded.profile);
               setGoals(loaded.goals);
@@ -261,7 +331,9 @@ const PortfolioIntelligenceInner = () => {
               </Link>
             </p>
           )}
+          <VersionHistoryPanel runId={runId} refreshToken={versionToken} />
         </TabsContent>
+
       </Tabs>
     </div>
   );
