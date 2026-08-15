@@ -247,7 +247,7 @@ const AdminClientsInner = () => {
 
 const AdminClients = () => (
   <PageLayout>
-    <AdminGuard>
+    <AdminGuard allowAdvisor>
       <AdminClientsInner />
     </AdminGuard>
   </PageLayout>
