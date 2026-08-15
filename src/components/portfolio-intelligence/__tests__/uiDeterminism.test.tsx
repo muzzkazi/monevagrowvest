@@ -57,8 +57,11 @@ const freshNav = {
   error: null,
 };
 
+// Same holdings, with AMFI scheme codes present so NAV coverage is satisfied.
+const codedFunds = funds.map((f, i) => ({ ...f, schemeCode: String(100001 + i) }));
+
 const completeQuality = buildDataQualityReport({
-  funds,
+  funds: codedFunds,
   annualIncome: profile.annualIncome,
   nav: freshNav,
   now: FIXED_NOW,
