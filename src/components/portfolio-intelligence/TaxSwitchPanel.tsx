@@ -45,7 +45,27 @@ const TaxSwitchPanel = ({
       </div>
     </CardHeader>
     <CardContent className="space-y-6">
+      {blocked && quality && (
+        <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3" role="alert">
+          <Lock className="h-4 w-4 mt-0.5 text-destructive shrink-0" aria-hidden />
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-destructive">
+              Switching is locked until the data requirements are met.
+            </p>
+            <ul className="space-y-0.5">
+              {quality.blockers.map((b) => (
+                <li key={b.id} className="text-xs text-muted-foreground">• {b.message} <em>Fix: {b.fix}</em></li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              Tax figures below stay visible for review, but no exit is recommended and no verdict can be acted on.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-3">
+
         <div className="rounded-lg border border-border p-4">
           <p className="text-xs text-muted-foreground">Equity LTCG exemption left this year</p>
           <p className="text-xl font-serif font-bold text-foreground">{inr(plan.exemptionRemaining)}</p>
