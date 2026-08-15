@@ -35,6 +35,207 @@ export type Database = {
         }
         Relationships: []
       }
+      client_activity_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          client_id: string
+          created_at: string
+          details: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          client_id: string
+          created_at?: string
+          details?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          client_id?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_activity_log_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_funds: {
+        Row: {
+          category: string | null
+          client_id: string
+          created_at: string
+          fund_name: string
+          id: string
+          lumpsum_amount: number
+          monthly_sip: number
+          rationale: string | null
+          scheme_code: string | null
+          sip_day: number | null
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          client_id: string
+          created_at?: string
+          fund_name: string
+          id?: string
+          lumpsum_amount?: number
+          monthly_sip?: number
+          rationale?: string | null
+          scheme_code?: string | null
+          sip_day?: number | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          client_id?: string
+          created_at?: string
+          fund_name?: string
+          id?: string
+          lumpsum_amount?: number
+          monthly_sip?: number
+          rationale?: string | null
+          scheme_code?: string | null
+          sip_day?: number | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_funds_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_goals: {
+        Row: {
+          client_id: string
+          created_at: string
+          goal_name: string
+          id: string
+          notes: string | null
+          priority: string
+          target_amount: number | null
+          target_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          goal_name: string
+          id?: string
+          notes?: string | null
+          priority?: string
+          target_amount?: number | null
+          target_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          goal_name?: string
+          id?: string
+          notes?: string | null
+          priority?: string
+          target_amount?: number | null
+          target_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_goals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          city: string | null
+          created_at: string
+          created_by: string | null
+          date_of_birth: string | null
+          email: string | null
+          existing_investments: string | null
+          full_name: string
+          id: string
+          investment_horizon_years: number | null
+          kyc_status: string
+          monthly_income: number | null
+          monthly_investable: number | null
+          notes: string | null
+          occupation: string | null
+          phone: string | null
+          risk_profile: string
+          status: string
+          tax_bracket: string | null
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          existing_investments?: string | null
+          full_name: string
+          id?: string
+          investment_horizon_years?: number | null
+          kyc_status?: string
+          monthly_income?: number | null
+          monthly_investable?: number | null
+          notes?: string | null
+          occupation?: string | null
+          phone?: string | null
+          risk_profile?: string
+          status?: string
+          tax_bracket?: string | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          existing_investments?: string | null
+          full_name?: string
+          id?: string
+          investment_horizon_years?: number | null
+          kyc_status?: string
+          monthly_income?: number | null
+          monthly_investable?: number | null
+          notes?: string | null
+          occupation?: string | null
+          phone?: string | null
+          risk_profile?: string
+          status?: string
+          tax_bracket?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       nav_click_events: {
         Row: {
           category: string
@@ -98,6 +299,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       watchlist: {
         Row: {
           added_at: string
@@ -127,10 +349,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -257,6 +485,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
