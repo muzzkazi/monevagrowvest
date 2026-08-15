@@ -169,6 +169,8 @@ const TaxSwitchPanel = ({
       </div>
     </CardContent>
   </Card>
-);
+  );
+};
+
 
 export default TaxSwitchPanel;
