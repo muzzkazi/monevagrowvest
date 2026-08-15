@@ -88,6 +88,10 @@ const AnimatedRoutes = () => {
           <Route path="/brokerage-calls" element={<BrokerageCalls />} />
           <Route path="/market-insights" element={<MarketInsights />} />
 
+          {/* Private advisor console — not linked publicly */}
+          <Route path="/admin/clients" element={<AdminClients />} />
+          <Route path="/admin/clients/:id" element={<AdminClientDetail />} />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
