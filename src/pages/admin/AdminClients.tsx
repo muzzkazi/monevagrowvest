@@ -19,7 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { Lock, Plus, Search, Users, Wallet, Wand2, ShieldCheck } from "lucide-react";
+import { Lock, Plus, Search, Users, Wallet, Wand2, ShieldCheck, BrainCircuit } from "lucide-react";
 
 type Client = {
   id: string;
