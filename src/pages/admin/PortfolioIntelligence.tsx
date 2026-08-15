@@ -331,7 +331,9 @@ const PortfolioIntelligenceInner = () => {
               </Link>
             </p>
           )}
+          <VersionHistoryPanel runId={runId} refreshToken={versionToken} />
         </TabsContent>
+
       </Tabs>
     </div>
   );
