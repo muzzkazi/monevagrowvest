@@ -236,6 +236,45 @@ export type Database = {
         }
         Relationships: []
       }
+      nav_cache: {
+        Row: {
+          fetched_at: string
+          fund_house: string | null
+          latest_nav: number | null
+          latest_nav_date: string | null
+          nav_history: Json
+          scheme_category: string | null
+          scheme_code: string
+          scheme_name: string | null
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          fetched_at?: string
+          fund_house?: string | null
+          latest_nav?: number | null
+          latest_nav_date?: string | null
+          nav_history?: Json
+          scheme_category?: string | null
+          scheme_code: string
+          scheme_name?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          fetched_at?: string
+          fund_house?: string | null
+          latest_nav?: number | null
+          latest_nav_date?: string | null
+          nav_history?: Json
+          scheme_category?: string | null
+          scheme_code?: string
+          scheme_name?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       nav_click_events: {
         Row: {
           category: string
@@ -271,6 +310,68 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      pi_runs: {
+        Row: {
+          additional_sip: number
+          assumed_return_pct: number | null
+          client_id: string | null
+          constraints: Json
+          created_at: string
+          created_by: string | null
+          declared_sip_budget: number
+          funds: Json
+          goals: Json
+          id: string
+          output: Json | null
+          profile: Json
+          risk_answers: Json
+          run_name: string
+          updated_at: string
+        }
+        Insert: {
+          additional_sip?: number
+          assumed_return_pct?: number | null
+          client_id?: string | null
+          constraints?: Json
+          created_at?: string
+          created_by?: string | null
+          declared_sip_budget?: number
+          funds?: Json
+          goals?: Json
+          id?: string
+          output?: Json | null
+          profile?: Json
+          risk_answers?: Json
+          run_name?: string
+          updated_at?: string
+        }
+        Update: {
+          additional_sip?: number
+          assumed_return_pct?: number | null
+          client_id?: string | null
+          constraints?: Json
+          created_at?: string
+          created_by?: string | null
+          declared_sip_budget?: number
+          funds?: Json
+          goals?: Json
+          id?: string
+          output?: Json | null
+          profile?: Json
+          risk_answers?: Json
+          run_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pi_runs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
