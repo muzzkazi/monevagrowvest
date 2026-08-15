@@ -18,7 +18,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Lock, Plus, Search, Users, Wallet } from "lucide-react";
+import { Lock, Plus, Search, Users, Wallet, Wand2, ShieldCheck } from "lucide-react";
 
 type Client = {
   id: string;
@@ -130,6 +130,13 @@ const AdminClientsInner = () => {
               Log each client's profile, goals and risk, then design and maintain their monthly SIP portfolio.
             </p>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline" className="gap-2">
+            <Link to="/admin/bulk-sip"><Wand2 className="h-4 w-4" /> Bulk SIP changes</Link>
+          </Button>
+          <Button asChild variant="outline" className="gap-2">
+            <Link to="/admin/roles"><ShieldCheck className="h-4 w-4" /> Team & roles</Link>
+          </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Add client</Button>
@@ -167,6 +174,7 @@ const AdminClientsInner = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4 mb-8">

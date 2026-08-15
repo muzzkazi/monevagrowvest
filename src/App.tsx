@@ -34,6 +34,8 @@ const BrokerageCalls = lazy(() => import("./pages/BrokerageCalls"));
 const MarketInsights = lazy(() => import("./pages/MarketInsights"));
 const AdminClients = lazy(() => import("./pages/admin/AdminClients"));
 const AdminClientDetail = lazy(() => import("./pages/admin/AdminClientDetail"));
+const AdminBulkSip = lazy(() => import("./pages/admin/AdminBulkSip"));
+const AdminRoles = lazy(() => import("./pages/admin/AdminRoles"));
 
 const queryClient = new QueryClient();
 
@@ -91,6 +93,8 @@ const AnimatedRoutes = () => {
           {/* Private advisor console — not linked publicly */}
           <Route path="/admin/clients" element={<AdminClients />} />
           <Route path="/admin/clients/:id" element={<AdminClientDetail />} />
+          <Route path="/admin/bulk-sip" element={<AdminBulkSip />} />
+          <Route path="/admin/roles" element={<AdminRoles />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

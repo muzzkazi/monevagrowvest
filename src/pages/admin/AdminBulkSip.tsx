@@ -13,7 +13,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { ArrowLeft, Layers, Lock, Plus, Wand2 } from "lucide-react";
@@ -49,7 +48,6 @@ const AdminBulkSipInner = () => {
   const [roundTo, setRoundTo] = useState("500");
 
   // Add-one-fund-to-many-clients
-  const [addOpen, setAddOpen] = useState(false);
   const [addForm, setAddForm] = useState({ fund_name: "", category: "", monthly_sip: "", rationale: "" });
   const [addClients, setAddClients] = useState<Record<string, boolean>>({});
   const [adding, setAdding] = useState(false);
@@ -166,7 +164,6 @@ const AdminBulkSipInner = () => {
     setAdding(false);
     if (error) return toast.error(error.message);
     toast.success(`Added to ${ids.length} client${ids.length > 1 ? "s" : ""}`);
-    setAddOpen(false);
     setAddForm({ fund_name: "", category: "", monthly_sip: "", rationale: "" });
     setAddClients({});
     load();
