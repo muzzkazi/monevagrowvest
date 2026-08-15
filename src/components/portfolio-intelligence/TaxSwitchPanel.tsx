@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Receipt } from "lucide-react";
+import { Lock, Receipt } from "lucide-react";
 import { HoldingTax, SwitchPlan, SwitchVerdict } from "@/lib/pi/tax";
+import { DataQualityReport } from "@/lib/pi/dataQuality";
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
@@ -14,8 +15,19 @@ const verdictTone: Record<SwitchVerdict, string> = {
   "Insufficient current data": "bg-destructive/10 text-destructive",
 };
 
-const TaxSwitchPanel = ({ plan, holdings }: { plan: SwitchPlan; holdings: HoldingTax[] }) => (
-  <Card>
+const TaxSwitchPanel = ({
+  plan,
+  holdings,
+  quality = null,
+}: {
+  plan: SwitchPlan;
+  holdings: HoldingTax[];
+  quality?: DataQualityReport | null;
+}) => {
+  const blocked = quality ? !quality.switchingAllowed : false;
+  return (
+  <Card className={blocked ? "border-destructive/40" : undefined}>
+
     <CardHeader className="pb-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <CardTitle className="text-base flex items-center gap-2">
