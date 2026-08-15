@@ -36,6 +36,7 @@ const AdminClients = lazy(() => import("./pages/admin/AdminClients"));
 const AdminClientDetail = lazy(() => import("./pages/admin/AdminClientDetail"));
 const AdminBulkSip = lazy(() => import("./pages/admin/AdminBulkSip"));
 const AdminRoles = lazy(() => import("./pages/admin/AdminRoles"));
+const AdminPortfolioIntelligence = lazy(() => import("./pages/admin/PortfolioIntelligence"));
 
 const queryClient = new QueryClient();
 
