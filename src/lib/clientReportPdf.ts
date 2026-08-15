@@ -47,6 +47,19 @@ const MUTED: [number, number, number] = [110, 122, 140];
 const LINE: [number, number, number] = [222, 228, 236];
 
 const M = 44; // page margin
+
+// jsPDF's built-in fonts are Latin-1 only — normalise common symbols so they
+// never render as mojibake.
+const clean = (s: string) =>
+  (s ?? "")
+    .replace(/[\u2192\u27a1]/g, "->")
+    .replace(/[\u2190]/g, "<-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/\u2026/g, "...")
+    .replace(/\u20b9/g, "Rs. ")
+    .replace(/[^\x00-\xFF]/g, "");
 const money = (n: number | null | undefined) =>
   n === null || n === undefined ? "-" : `Rs. ${Math.round(Number(n)).toLocaleString("en-IN")}`;
 const dateStr = (s: string | null) => (s ? new Date(s).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "-");
@@ -109,9 +122,9 @@ export const generateClientReportPdf = ({
       const x = M + col * colW;
       const rowY = y;
       doc.setFont("helvetica", "normal").setTextColor(...MUTED);
-      doc.text(row[0], x, rowY);
+      doc.text(clean(row[0]), x, rowY);
       doc.setFont("helvetica", "bold").setTextColor(...INK);
-      const value = doc.splitTextToSize(row[1] || "-", colW - 16);
+      const value = doc.splitTextToSize(clean(row[1]) || "-", colW - 16);
       doc.text(value.slice(0, 2), x, rowY + 13);
       if (col === 1 || i === rows.length - 1) y += 34;
     });
@@ -119,10 +132,10 @@ export const generateClientReportPdf = ({
 
   const paragraph = (label: string, text: string | null) => {
     if (!text) return;
-    const lines = doc.splitTextToSize(text, contentW);
+    const lines = doc.splitTextToSize(clean(text), contentW);
     room(28 + lines.length * 12);
     doc.setFont("helvetica", "normal").setFontSize(9.5).setTextColor(...MUTED);
-    doc.text(label, M, y);
+    doc.text(clean(label), M, y);
     y += 13;
     doc.setTextColor(...INK);
     doc.text(lines, M, y);
@@ -149,7 +162,7 @@ export const generateClientReportPdf = ({
     doc.setFont("helvetica", "normal").setFontSize(9.5);
 
     rows.forEach((r) => {
-      const cells = cols.map((c) => doc.splitTextToSize(c.get(r) || "-", c.width - 16));
+      const cells = cols.map((c) => doc.splitTextToSize(clean(c.get(r)) || "-", c.width - 16));
       const h = Math.max(...cells.map((c) => c.length)) * 12 + 10;
       if (y + h > H - 56) {
         newPage();
@@ -189,11 +202,11 @@ export const generateClientReportPdf = ({
 
   y = 154;
   doc.setFont("helvetica", "bold").setFontSize(17).setTextColor(...INK);
-  doc.text(client.full_name, M, y);
+  doc.text(clean(client.full_name), M, y);
   y += 18;
   doc.setFont("helvetica", "normal").setFontSize(9.5).setTextColor(...MUTED);
   doc.text(
-    [client.email, client.phone, client.city].filter(Boolean).join("  |  ") || "No contact details on record",
+    clean([client.email, client.phone, client.city].filter(Boolean).join("  |  ")) || "No contact details on record",
     M,
     y
   );
