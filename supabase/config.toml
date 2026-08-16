@@ -28,3 +28,6 @@ verify_jwt = true
 
 [functions.pi-chat]
 verify_jwt = true
+
+[functions.pi-holdings-extract]
+verify_jwt = true
