@@ -1,4 +1,5 @@
-import { FileDown, GitCompareArrows } from "lucide-react";
+import { useState } from "react";
+import { Check, FileDown, GitCompareArrows, Link2 } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -17,6 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import GlossaryTerm from "@/components/portfolio-intelligence/GlossaryTerm";
 import { ScenarioKey, StressOutput } from "@/lib/pi/stress";
 import { generateScenarioPdf } from "@/lib/pi/scenarioPdf";
+import { useToast } from "@/hooks/use-toast";
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
@@ -55,6 +57,8 @@ export interface ScenarioComparePanelProps {
 }
 
 const ScenarioComparePanel = ({ stress, selected, onSelectedChange, meta }: ScenarioComparePanelProps) => {
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
   const allKeys = stress.scenarios.map((s) => s.key);
   const activeKeys = selected && selected.length > 0 ? selected : allKeys;
   const rows = stress.scenarios.filter((s) => activeKeys.includes(s.key));
@@ -65,6 +69,20 @@ const ScenarioComparePanel = ({ stress, selected, onSelectedChange, meta }: Scen
       ? activeKeys.filter((k) => k !== key)
       : [...allKeys.filter((k) => activeKeys.includes(k) || k === key)];
     onSelectedChange(next.length === 0 ? allKeys : next);
+  };
+
+  const copyShareLink = async () => {
+    // window.location already mirrors tab, layer and selected scenarios via the
+    // deep-link effect in PortfolioIntelligence, so it is the canonical share URL.
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast({ title: "Share link copied", description: "Analysis tab, layer and scenarios are in the URL." });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({ title: "Could not copy", description: "Copy the URL from your browser's address bar.", variant: "destructive" });
+    }
   };
 
   const exportPdf = () => generateScenarioPdf(stress, { ...meta, selected: activeKeys });
@@ -88,6 +106,10 @@ const ScenarioComparePanel = ({ stress, selected, onSelectedChange, meta }: Scen
             </Badge>
             <Button variant="outline" size="sm" onClick={exportPdf} className="gap-2 text-xs">
               <FileDown className="h-3.5 w-3.5" /> Export scenarios PDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={copyShareLink} className="gap-2 text-xs">
+              {copied ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Link2 className="h-3.5 w-3.5" />}
+              {copied ? "Link copied" : "Copy share link"}
             </Button>
           </div>
         </div>

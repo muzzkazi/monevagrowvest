@@ -47,22 +47,31 @@ export const generateScenarioPdf = (
     (s) => !meta.selected || meta.selected.length === 0 || meta.selected.includes(s.key),
   );
 
-  let y = M;
+  /* Branded header band — Moneva wordmark + amber accent. */
+  doc.setFillColor(...BLUE).rect(0, 0, W, 48, "F");
+  doc.setFillColor(...AMBER).rect(0, 48, W, 3, "F");
+  doc.setFont("helvetica", "bold").setFontSize(17).setTextColor(255, 255, 255);
+  doc.text("MONEVA", M, 24);
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(226, 232, 240);
+  doc.text("PORTFOLIO INTELLIGENCE", M, 36);
+  doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(255, 255, 255);
+  doc.text("SCENARIO COMPARISON", W - M, 24, { align: "right" });
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(226, 232, 240);
+  doc.text(clean(`${meta.clientName ?? "Client"}  |  ${meta.runName ?? "Untitled run"}`), W - M, 36, { align: "right" });
 
-  /* Header band */
-  doc.setFillColor(...BLUE).rect(0, 0, W, 6, "F");
-  doc.setFont("helvetica", "bold").setFontSize(15).setTextColor(...INK);
-  doc.text("Scenario comparison - recommended portfolio", M, y + 12);
-  y += 28;
+  let y = 64;
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...INK);
+  doc.text("Scenario comparison - recommended portfolio", M, y);
+  y += 15;
   doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...MUTED);
   doc.text(
     clean(
-      `${meta.clientName ?? "Client"}  |  ${meta.runName ?? "Untitled run"}  |  basis: ${basisLabel(stress.basis)}  |  computed ${new Date(stress.asOf).toISOString()}`,
+      `Basis: ${basisLabel(stress.basis)}   |   Computed ${new Date(stress.asOf).toISOString()}`,
     ),
     M,
     y,
   );
-  y += 20;
+  y += 16;
 
   doc.setFontSize(8.5).setTextColor(...INK);
   const intro = doc.splitTextToSize(
@@ -89,6 +98,41 @@ export const generateScenarioPdf = (
     doc.text(clean(`${s.valueChange < 0 ? "" : "+"}${rs(s.valueChange)} change`), cx + 8, y + 54);
   });
   y += 74;
+
+  /* Totals — portfolio return & value change across selected scenarios. */
+  const best = rows.reduce((a, b) => (b.portfolioReturnPct > a.portfolioReturnPct ? b : a), rows[0]);
+  const worst = rows.reduce((a, b) => (b.portfolioReturnPct < a.portfolioReturnPct ? b : a), rows[0]);
+  const boxH = 66;
+  const half = inner / 2;
+  doc.setFillColor(247, 250, 254).roundedRect(M, y, inner, boxH, 5, 5, "F");
+  doc.setDrawColor(...LINE).roundedRect(M, y, inner, boxH, 5, 5, "S");
+  doc.setDrawColor(...LINE).line(M + half, y + 26, M + half, y + boxH - 8);
+  doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...INK);
+  doc.text("Portfolio return & value change - totals", M + 12, y + 17);
+  // Best outcome (left)
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
+  doc.text("BEST OUTCOME", M + 12, y + 31);
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...GREEN);
+  doc.text(clean(`${best.portfolioReturnPct > 0 ? "+" : ""}${best.portfolioReturnPct}%`), M + 12, y + 47);
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...INK);
+  doc.text(
+    clean(`${best.valueChange < 0 ? "" : "+"}${rs(best.valueChange)}  (${best.label})`),
+    M + 12,
+    y + 58,
+  );
+  // Worst outcome (right)
+  const rx = M + half;
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
+  doc.text("WORST OUTCOME", rx + 12, y + 31);
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...RED);
+  doc.text(clean(`${worst.portfolioReturnPct > 0 ? "+" : ""}${worst.portfolioReturnPct}%`), rx + 12, y + 47);
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...INK);
+  doc.text(
+    clean(`${worst.valueChange < 0 ? "" : "+"}${rs(worst.valueChange)}  (${worst.label})`),
+    rx + 12,
+    y + 58,
+  );
+  y += boxH + 14;
 
   /* Comparison table */
   const measures: Array<{ label: string; value: (s: (typeof rows)[number]) => string; wrap?: boolean }> = [
