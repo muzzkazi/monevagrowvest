@@ -17,18 +17,23 @@ const Field = ({
   label,
   value,
   onChange,
-  type = "number",
   hint,
+  plain,
 }: {
   label: string;
   value: string | number;
   onChange: (v: string) => void;
-  type?: string;
   hint?: string;
+  /** Plain number input (no comma grouping) — for years, ages, percentages. */
+  plain?: boolean;
 }) => (
   <div className="space-y-1.5">
     <Label className="text-xs text-muted-foreground">{label}</Label>
-    <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="h-9" />
+    {plain ? (
+      <Input type="number" value={value} onChange={(e) => onChange(e.target.value)} className="h-9" />
+    ) : (
+      <NumberInput value={value} onTextChange={onChange} className="h-9" />
+    )}
     {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
   </div>
 );
