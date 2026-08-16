@@ -168,6 +168,24 @@ const PortfolioIntelligenceInner = () => {
     [output, quality, stress, assumedReturnPct, runName],
   );
 
+  /* Fund-selection fact sheet — per-fund reasons, trade-offs, goal/constraint mapping. */
+  const fundFacts = useMemo(
+    () =>
+      output
+        ? buildFundSelectionFacts({
+            runName,
+            assumedReturnPct,
+            funds,
+            goals,
+            constraints,
+            output,
+            switchingAllowed: quality.switchingAllowed,
+            blockers: (quality.blockers ?? []).map((b) => `${b.area}: ${b.message}`),
+          })
+        : null,
+    [output, runName, assumedReturnPct, funds, goals, constraints, quality],
+  );
+
   /* Challenge / sanity review — deterministic contradictions, computed first. */
   const challenge = useMemo(
     () =>
