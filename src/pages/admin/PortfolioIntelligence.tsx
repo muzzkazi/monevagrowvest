@@ -22,6 +22,9 @@ import SavedRunsPanel from "@/components/portfolio-intelligence/SavedRunsPanel";
 import DataQualityPanel from "@/components/portfolio-intelligence/DataQualityPanel";
 import NarrativePanel from "@/components/portfolio-intelligence/NarrativePanel";
 import ChallengeReviewPanel from "@/components/portfolio-intelligence/ChallengeReviewPanel";
+import FundCommentaryPanel from "@/components/portfolio-intelligence/FundCommentaryPanel";
+import AdvisorChatPanel from "@/components/portfolio-intelligence/AdvisorChatPanel";
+import { buildFundSelectionFacts } from "@/lib/pi/fundFacts";
 import VersionHistoryPanel from "@/components/portfolio-intelligence/VersionHistoryPanel";
 import { buildDataQualityReport } from "@/lib/pi/dataQuality";
 import { buildNarrativeFacts } from "@/lib/pi/aiFacts";
@@ -163,6 +166,24 @@ const PortfolioIntelligenceInner = () => {
         : null,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [output, quality, stress, assumedReturnPct, runName],
+  );
+
+  /* Fund-selection fact sheet — per-fund reasons, trade-offs, goal/constraint mapping. */
+  const fundFacts = useMemo(
+    () =>
+      output
+        ? buildFundSelectionFacts({
+            runName,
+            assumedReturnPct,
+            funds,
+            goals,
+            constraints,
+            output,
+            switchingAllowed: quality.switchingAllowed,
+            blockers: (quality.blockers ?? []).map((b) => `${b.area}: ${b.message}`),
+          })
+        : null,
+    [output, runName, assumedReturnPct, funds, goals, constraints, quality],
   );
 
   /* Challenge / sanity review — deterministic contradictions, computed first. */
@@ -321,6 +342,19 @@ const PortfolioIntelligenceInner = () => {
                     </CardContent>
                   </Card>
                 )
+              )}
+              {fundFacts && <FundCommentaryPanel facts={fundFacts} />}
+              {narrativeFacts && (
+                <AdvisorChatPanel
+                  facts={narrativeFacts}
+                  fundFacts={fundFacts}
+                  gate={{
+                    challengeCleared,
+                    runName,
+                    runId,
+                    blockers: (quality.blockers ?? []).map((b) => `${b.area}: ${b.message}`),
+                  }}
+                />
               )}
               {taxViews && <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />}
               {stress && <StressTestPanel stress={stress} />}

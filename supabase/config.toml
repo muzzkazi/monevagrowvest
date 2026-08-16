@@ -22,3 +22,9 @@ verify_jwt = true
 
 [functions.pi-challenge]
 verify_jwt = true
+
+[functions.pi-fund-commentary]
+verify_jwt = true
+
+[functions.pi-chat]
+verify_jwt = true
