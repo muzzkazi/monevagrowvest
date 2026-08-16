@@ -14,7 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ArrowLeft, Lock, ShieldCheck, Trash2, UserPlus, Eye, Pencil } from "lucide-react";
+import { logAdminAction } from "@/lib/admin/auditLog";
+import { ArrowLeft, Lock, ScrollText, ShieldCheck, Trash2, UserPlus, Eye, Pencil } from "lucide-react";
 
 type RoleRow = { id: string; user_id: string; role: string; created_at: string };
 type Invite = { id: string; email: string; role: string; note: string | null; accepted_at: string | null; created_at: string };
@@ -61,6 +62,7 @@ const AdminRolesInner = () => {
       toast.error(error.message.includes("duplicate") ? "That email is already invited" : error.message);
       return;
     }
+    await logAdminAction("invite_created", `Advisor invite created for ${email}`, { role: form.role }, email);
     toast.success("Invite saved — the role is granted as soon as they sign up");
     setForm({ email: "", role: "advisor", note: "" });
     load();
@@ -69,6 +71,7 @@ const AdminRolesInner = () => {
   const removeInvite = async (i: Invite) => {
     const { error } = await supabase.from("team_invites").delete().eq("id", i.id);
     if (error) return toast.error(error.message);
+    await logAdminAction("invite_revoked", `Invite removed for ${i.email}`, { role: i.role }, i.email);
     toast.success("Invite removed");
     load();
   };
