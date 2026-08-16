@@ -229,7 +229,46 @@ const AdminRolesInner = () => {
             </Table>
           )}
         </Card>
+
+        <h2 className="font-semibold text-foreground mt-10 mb-3 flex items-center gap-2">
+          <ScrollText className="h-4 w-4 text-financial-accent" /> Audit trail
+        </h2>
+        <Card className="overflow-hidden">
+          {loading ? (
+            <div className="p-4 space-y-3">{[0, 1].map((i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
+          ) : audit.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              No admin activity recorded yet. Role changes and scenario exports appear here.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>When</TableHead>
+                  <TableHead>Action</TableHead>
+                  <TableHead>By</TableHead>
+                  <TableHead>Details</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {audit.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(a.created_at).toLocaleString("en-IN")}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-[10px]">{a.action.replace(/_/g, " ")}</Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-foreground">{a.actor_email ?? "system"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{a.details ?? "—"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </Card>
       </div>
+
     </section>
   );
 };
