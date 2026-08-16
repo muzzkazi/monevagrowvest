@@ -99,40 +99,38 @@ export const generateScenarioPdf = (
   });
   y += 74;
 
-  /* Totals — portfolio return & value change across selected scenarios. */
+  /* Totals — portfolio return & value change for every selected scenario. */
   const best = rows.reduce((a, b) => (b.portfolioReturnPct > a.portfolioReturnPct ? b : a), rows[0]);
   const worst = rows.reduce((a, b) => (b.portfolioReturnPct < a.portfolioReturnPct ? b : a), rows[0]);
-  const boxH = 66;
-  const half = inner / 2;
+  const boxH = 92;
+  const tcw = inner / Math.max(rows.length, 1);
   doc.setFillColor(247, 250, 254).roundedRect(M, y, inner, boxH, 5, 5, "F");
   doc.setDrawColor(...LINE).roundedRect(M, y, inner, boxH, 5, 5, "S");
-  doc.setDrawColor(...LINE).line(M + half, y + 26, M + half, y + boxH - 8);
   doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...INK);
-  doc.text("Portfolio return & value change - totals", M + 12, y + 17);
-  // Best outcome (left)
+  doc.text("Portfolio return & value change - totals (all selected scenarios)", M + 12, y + 17);
+  rows.forEach((s, i) => {
+    const cx = M + i * tcw + 12;
+    if (i > 0) doc.setDrawColor(...LINE).line(M + i * tcw, y + 26, M + i * tcw, y + boxH - 24);
+    doc.setFont("helvetica", "normal").setFontSize(6.8).setTextColor(...MUTED);
+    doc.text(clean(s.label.toUpperCase()), cx, y + 34);
+    doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(...toneFor(s.key));
+    doc.text(clean(`${s.portfolioReturnPct > 0 ? "+" : ""}${s.portfolioReturnPct}%`), cx, y + 50);
+    doc.setFont("helvetica", "normal").setFontSize(7.6).setTextColor(...INK);
+    doc.text(clean(`${s.valueChange < 0 ? "" : "+"}${rs(s.valueChange)}`), cx, y + 61);
+    doc.setFontSize(7).setTextColor(...MUTED);
+    doc.text(clean(`value ${rs(s.endValue)}`), cx, y + 70);
+  });
+  doc.setDrawColor(...LINE).line(M + 10, y + boxH - 20, W - M - 10, y + boxH - 20);
   doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
-  doc.text("BEST OUTCOME", M + 12, y + 31);
-  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...GREEN);
-  doc.text(clean(`${best.portfolioReturnPct > 0 ? "+" : ""}${best.portfolioReturnPct}%`), M + 12, y + 47);
-  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...INK);
   doc.text(
-    clean(`${best.valueChange < 0 ? "" : "+"}${rs(best.valueChange)}  (${best.label})`),
+    clean(
+      `Best: ${best.label} ${best.portfolioReturnPct > 0 ? "+" : ""}${best.portfolioReturnPct}% (${best.valueChange < 0 ? "" : "+"}${rs(best.valueChange)})   |   Worst: ${worst.label} ${worst.portfolioReturnPct > 0 ? "+" : ""}${worst.portfolioReturnPct}% (${worst.valueChange < 0 ? "" : "+"}${rs(worst.valueChange)})`,
+    ),
     M + 12,
-    y + 58,
-  );
-  // Worst outcome (right)
-  const rx = M + half;
-  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
-  doc.text("WORST OUTCOME", rx + 12, y + 31);
-  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...RED);
-  doc.text(clean(`${worst.portfolioReturnPct > 0 ? "+" : ""}${worst.portfolioReturnPct}%`), rx + 12, y + 47);
-  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...INK);
-  doc.text(
-    clean(`${worst.valueChange < 0 ? "" : "+"}${rs(worst.valueChange)}  (${worst.label})`),
-    rx + 12,
-    y + 58,
+    y + boxH - 8,
   );
   y += boxH + 14;
+
 
   /* Comparison table */
   const measures: Array<{ label: string; value: (s: (typeof rows)[number]) => string; wrap?: boolean }> = [
@@ -204,24 +202,35 @@ export const generateScenarioPdf = (
     y += 6;
   });
 
-  /* Footer + traceability */
-  doc.setDrawColor(...LINE).line(M, H - 44, W - M, H - 44);
-  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
-  doc.text(
-    doc.splitTextToSize(
-      clean(
-        "Scenarios are deterministic stress outcomes, not forecasts. Where live NAV history is unavailable the basis is stated as an assumption set. Advisor review required before sharing.",
+  /* Footer on every page: disclaimer, client/run trace, timestamp, page numbers. */
+  const generatedAt = new Date();
+  const stamp = generatedAt.toISOString().replace("T", " ").slice(0, 19) + " UTC";
+  const pageCount = doc.getNumberOfPages();
+  for (let p = 1; p <= pageCount; p += 1) {
+    doc.setPage(p);
+    doc.setDrawColor(...LINE).line(M, H - 52, W - M, H - 52);
+    doc.setFont("helvetica", "normal").setFontSize(6.8).setTextColor(...MUTED);
+    doc.text(
+      doc.splitTextToSize(
+        clean(
+          "Scenarios are deterministic stress outcomes, not forecasts. Where live NAV history is unavailable the basis is stated as an assumption set. Advisor review required before sharing.",
+        ),
+        inner - 70,
       ),
-      inner,
-    ),
-    M,
-    H - 32,
-  );
-  doc.text(
-    clean(`run:${meta.runId ?? "unsaved"} version:${meta.versionId ?? "none"}`),
-    M,
-    H - 18,
-  );
+      M,
+      H - 40,
+    );
+    doc.text(
+      clean(
+        `${meta.clientName ?? "Client"} | ${meta.runName ?? "Untitled run"} | run:${meta.runId ?? "unsaved"} version:${meta.versionId ?? "none"}`,
+      ),
+      M,
+      H - 20,
+    );
+    doc.text(clean(`Generated ${stamp}`), M, H - 11);
+    doc.setFont("helvetica", "bold").setFontSize(7).setTextColor(...INK);
+    doc.text(clean(`Page ${p} of ${pageCount}`), W - M, H - 11, { align: "right" });
+  }
 
   doc.setProperties({
     title: `Moneva scenario comparison - ${clean(meta.runName ?? "run")}`,
@@ -233,11 +242,20 @@ export const generateScenarioPdf = (
         `versionId=${meta.versionId ?? "none"}`,
         `scenarios=${rows.map((r) => r.key).join("|")}`,
         `asOf=${stress.asOf}`,
+        `generatedAt=${generatedAt.toISOString()}`,
       ].join(";"),
     ),
   });
 
-  const filename = `moneva-scenarios-${clean(meta.runName ?? "run").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.pdf`;
+  const slug = (s: string, fallback: string) => {
+    const out = clean(s).replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+    return out || fallback;
+  };
+  const scenarioSet =
+    rows.length === stress.scenarios.length ? "all-scenarios" : rows.map((r) => r.key).join("-");
+  const dateStr = generatedAt.toISOString().slice(0, 10);
+  const filename = `moneva-scenarios_${slug(meta.clientName ?? "", "client")}_${slug(scenarioSet, "scenarios")}_${dateStr}.pdf`;
   if (opts.save !== false) doc.save(filename);
+
   return doc;
 };
