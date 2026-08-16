@@ -86,7 +86,7 @@ const riskTolerance = (a: RiskAnswers): RiskDimension => {
   };
 };
 
-const riskCapacity = (p: ClientProfile, goals: Goal[]): RiskDimension => {
+const riskCapacity = (p: ClientProfile, goals: Goal[], year: number): RiskDimension => {
   const drivers: string[] = [];
   let score = 50;
 
@@ -115,7 +115,7 @@ const riskCapacity = (p: ClientProfile, goals: Goal[]): RiskDimension => {
   if (p.insuranceCover <= 0) { score -= 5; drivers.push("No insurance cover recorded"); }
 
   const nearEssential = goals.some(
-    (g) => g.essential && g.targetYear - new Date().getFullYear() <= 3,
+    (g) => g.essential && g.targetYear - year <= 3,
   );
   if (nearEssential) { score -= 12; drivers.push("Essential goal due within 3 years"); }
 
@@ -123,13 +123,13 @@ const riskCapacity = (p: ClientProfile, goals: Goal[]): RiskDimension => {
   return { score, label: scoreToProfile(score), drivers };
 };
 
-const riskNeed = (goals: Goal[], monthlySip: number, currentCorpus: number): RiskDimension => {
+const riskNeed = (goals: Goal[], monthlySip: number, currentCorpus: number, year: number): RiskDimension => {
   const drivers: string[] = [];
   if (goals.length === 0) {
     return { score: 50, label: "Moderate", drivers: ["No goals captured — risk need not measurable"] };
   }
   const required = goals
-    .map((g) => solveRequiredReturn(g, monthlySip, currentCorpus))
+    .map((g) => solveRequiredReturn(g, monthlySip, currentCorpus, year))
     .filter((r): r is number => r !== null);
 
   if (required.length === 0) {
@@ -143,8 +143,8 @@ const riskNeed = (goals: Goal[], monthlySip: number, currentCorpus: number): Ris
 };
 
 // Solve the annual return that makes existing corpus + SIP reach the inflated goal cost.
-const solveRequiredReturn = (goal: Goal, monthlySip: number, corpus: number): number | null => {
-  const years = goal.targetYear - new Date().getFullYear();
+const solveRequiredReturn = (goal: Goal, monthlySip: number, corpus: number, year: number): number | null => {
+  const years = goal.targetYear - year;
   if (years <= 0) return null;
   const target = goal.currentCost * Math.pow(1 + goal.inflationPct / 100, years);
   const start = goal.currentAllocated || corpus * 0;
