@@ -444,7 +444,7 @@ const PortfolioIntelligenceInner = () => {
                   selected={scenarioKeys}
                   onSelectedChange={setScenarioSelection}
                   meta={{
-                    clientName: profile.name || "Client",
+                    clientName: profile.clientName || "Client",
                     runName,
                     runId,
                     versionId: null,
