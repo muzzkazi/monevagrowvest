@@ -99,6 +99,41 @@ export const generateScenarioPdf = (
   });
   y += 74;
 
+  /* Totals — portfolio return & value change across selected scenarios. */
+  const best = rows.reduce((a, b) => (b.portfolioReturnPct > a.portfolioReturnPct ? b : a), rows[0]);
+  const worst = rows.reduce((a, b) => (b.portfolioReturnPct < a.portfolioReturnPct ? b : a), rows[0]);
+  const boxH = 66;
+  const half = inner / 2;
+  doc.setFillColor(247, 250, 254).roundedRect(M, y, inner, boxH, 5, 5, "F");
+  doc.setDrawColor(...LINE).roundedRect(M, y, inner, boxH, 5, 5, "S");
+  doc.setDrawColor(...LINE).line(M + half, y + 26, M + half, y + boxH - 8);
+  doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...INK);
+  doc.text("Portfolio return & value change - totals", M + 12, y + 17);
+  // Best outcome (left)
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
+  doc.text("BEST OUTCOME", M + 12, y + 31);
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...GREEN);
+  doc.text(clean(`${best.portfolioReturnPct > 0 ? "+" : ""}${best.portfolioReturnPct}%`), M + 12, y + 47);
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...INK);
+  doc.text(
+    clean(`${best.valueChange < 0 ? "" : "+"}${rs(best.valueChange)}  (${best.label})`),
+    M + 12,
+    y + 58,
+  );
+  // Worst outcome (right)
+  const rx = M + half;
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
+  doc.text("WORST OUTCOME", rx + 12, y + 31);
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...RED);
+  doc.text(clean(`${worst.portfolioReturnPct > 0 ? "+" : ""}${worst.portfolioReturnPct}%`), rx + 12, y + 47);
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...INK);
+  doc.text(
+    clean(`${worst.valueChange < 0 ? "" : "+"}${rs(worst.valueChange)}  (${worst.label})`),
+    rx + 12,
+    y + 58,
+  );
+  y += boxH + 14;
+
   /* Comparison table */
   const measures: Array<{ label: string; value: (s: (typeof rows)[number]) => string; wrap?: boolean }> = [
     { label: "One-year return", value: (s) => `${s.portfolioReturnPct > 0 ? "+" : ""}${s.portfolioReturnPct}%` },
