@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,18 +18,23 @@ const Field = ({
   label,
   value,
   onChange,
-  type = "number",
   hint,
+  plain,
 }: {
   label: string;
   value: string | number;
   onChange: (v: string) => void;
-  type?: string;
   hint?: string;
+  /** Plain number input (no comma grouping) — for years, ages, percentages. */
+  plain?: boolean;
 }) => (
   <div className="space-y-1.5">
     <Label className="text-xs text-muted-foreground">{label}</Label>
-    <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="h-9" />
+    {plain ? (
+      <Input type="number" value={value} onChange={(e) => onChange(e.target.value)} className="h-9" />
+    ) : (
+      <NumberInput value={value} onTextChange={onChange} className="h-9" />
+    )}
     {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
   </div>
 );
@@ -53,7 +59,7 @@ export const ProfileStep = ({
             <Label className="text-xs text-muted-foreground">Client name</Label>
             <Input value={profile.clientName} onChange={(e) => set("clientName", e.target.value)} className="h-9" />
           </div>
-          <Field label="Age" value={profile.age} onChange={(v) => set("age", num(v))} />
+          <Field plain label="Age" value={profile.age} onChange={(v) => set("age", num(v))} />
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Employment type</Label>
             <Select value={profile.employmentType} onValueChange={(v) => set("employmentType", v)}>
@@ -87,7 +93,7 @@ export const ProfileStep = ({
           <Field label="Annual income (₹)" value={profile.annualIncome} onChange={(v) => set("annualIncome", num(v))} />
           <Field label="Monthly income (₹)" value={profile.monthlyIncome} onChange={(v) => set("monthlyIncome", num(v))} />
           <Field label="Monthly expenses (₹)" value={profile.monthlyExpenses} onChange={(v) => set("monthlyExpenses", num(v))} />
-          <Field label="Dependents" value={profile.dependents} onChange={(v) => set("dependents", num(v))} />
+          <Field plain label="Dependents" value={profile.dependents} onChange={(v) => set("dependents", num(v))} />
         </CardContent>
       </Card>
 
@@ -161,10 +167,10 @@ export const GoalsStep = ({ goals, onChange }: { goals: Goal[]; onChange: (g: Go
               </Select>
             </div>
             <Field label="Cost today (₹)" value={g.currentCost} onChange={(v) => update(g.id, { currentCost: num(v) })} />
-            <Field label="Target year" value={g.targetYear} onChange={(v) => update(g.id, { targetYear: num(v) })} />
+            <Field plain label="Target year" value={g.targetYear} onChange={(v) => update(g.id, { targetYear: num(v) })} />
             <Field label="Already allocated (₹)" value={g.currentAllocated} onChange={(v) => update(g.id, { currentAllocated: num(v) })} />
             <Field label="Monthly contribution (₹)" value={g.monthlyContribution} onChange={(v) => update(g.id, { monthlyContribution: num(v) })} />
-            <Field label="Inflation assumption (%)" value={g.inflationPct} onChange={(v) => update(g.id, { inflationPct: num(v) })} />
+            <Field plain label="Inflation assumption (%)" value={g.inflationPct} onChange={(v) => update(g.id, { inflationPct: num(v) })} />
             <div className="flex items-center gap-3 sm:col-span-2">
               <Switch checked={g.essential} onCheckedChange={(v) => update(g.id, { essential: v })} id={`ess-${g.id}`} />
               <Label htmlFor={`ess-${g.id}`} className="text-sm">Essential goal (not discretionary)</Label>

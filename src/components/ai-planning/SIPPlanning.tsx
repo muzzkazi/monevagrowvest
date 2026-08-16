@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -570,12 +571,11 @@ const SIPPlanning = ({ onComplete }: SIPPlanningProps) => {
               <Label htmlFor="monthlyAmount">Monthly SIP Amount</Label>
               <div className="relative">
                 <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
+                <NumberInput
                   id="monthlyAmount"
-                  type="number"
-                  placeholder="5000"
+                  placeholder="5,000"
                   value={monthlyAmount}
-                  onChange={(e) => setMonthlyAmount(e.target.value)}
+                  onTextChange={(v) => setMonthlyAmount(v.replace(/,/g, ""))}
                   className="pl-10"
                 />
               </div>

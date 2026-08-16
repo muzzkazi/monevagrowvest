@@ -4,6 +4,7 @@ import PageLayout from "@/components/shared/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -824,11 +825,9 @@ const PortfolioReviewPage = () => {
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           <span className="text-sm text-muted-foreground">₹</span>
-                          <Input
-                            type="number"
-                            min={0}
+                          <NumberInput
                             value={f.monthlySip || ""}
-                            onChange={(e) => updateSip(f.schemeCode, e.target.value)}
+                            onTextChange={(v) => updateSip(f.schemeCode, v.replace(/,/g, ""))}
                             className="w-28 h-9"
                             placeholder="Monthly SIP"
                           />
