@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Info } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ClientProfile, Constraints, Goal, PortfolioFund, RiskAnswers, AssetBucket, FundRole } from "@/lib/pi/types";
 import { RISK_QUESTIONS, SECTOR_EXCLUSIONS, newFund, newGoal } from "@/lib/pi/defaults";
 
