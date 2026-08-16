@@ -5,6 +5,7 @@ import PageLayout from "@/components/shared/PageLayout";
 import AdminGuard from "@/components/admin/AdminGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -165,8 +166,8 @@ const AdminClientsInner = () => {
                   </Select>
                 </div>
                 <div><Label>Horizon (years)</Label><Input type="number" value={form.investment_horizon_years} onChange={(e) => setForm({ ...form, investment_horizon_years: e.target.value })} /></div>
-                <div><Label>Monthly income (₹)</Label><Input type="number" value={form.monthly_income} onChange={(e) => setForm({ ...form, monthly_income: e.target.value })} /></div>
-                <div><Label>Monthly investable (₹)</Label><Input type="number" value={form.monthly_investable} onChange={(e) => setForm({ ...form, monthly_investable: e.target.value })} /></div>
+                <div><Label>Monthly income (₹)</Label><NumberInput value={form.monthly_income} onTextChange={(v) => setForm({ ...form, monthly_income: v })} /></div>
+                <div><Label>Monthly investable (₹)</Label><NumberInput value={form.monthly_investable} onTextChange={(v) => setForm({ ...form, monthly_investable: v })} /></div>
                 <div><Label>Occupation</Label><Input value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} /></div>
                 <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
                 <div className="sm:col-span-2">

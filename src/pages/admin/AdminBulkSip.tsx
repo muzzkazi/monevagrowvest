@@ -5,6 +5,7 @@ import PageLayout from "@/components/shared/PageLayout";
 import AdminGuard from "@/components/admin/AdminGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -240,7 +241,7 @@ const AdminBulkSipInner = () => {
               </div>
               <div>
                 <Label>{mode === "increase_pct" ? "Percentage" : "Amount (₹)"}</Label>
-                <Input type="number" value={value} onChange={(e) => setValue(e.target.value)} />
+                <NumberInput value={value} onTextChange={setValue} />
               </div>
               <div>
                 <Label>Round to nearest (₹)</Label>
@@ -338,7 +339,7 @@ const AdminBulkSipInner = () => {
                     <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div><Label>Monthly SIP per client (₹)</Label><Input type="number" value={addForm.monthly_sip} onChange={(e) => setAddForm({ ...addForm, monthly_sip: e.target.value })} /></div>
+                <div><Label>Monthly SIP per client (₹)</Label><NumberInput value={addForm.monthly_sip} onTextChange={(v) => setAddForm({ ...addForm, monthly_sip: v })} /></div>
                 <div className="sm:col-span-2"><Label>Why this fund</Label><Textarea rows={3} value={addForm.rationale} onChange={(e) => setAddForm({ ...addForm, rationale: e.target.value })} /></div>
               </div>
 
