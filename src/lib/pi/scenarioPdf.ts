@@ -15,7 +15,7 @@ const RED: [number, number, number] = [185, 28, 28];
 /** ASCII-only so jsPDF never switches to UTF-16 hex strings. */
 const clean = (s: string) => (s ?? "").replace(/[\u2010-\u2015]/g, "-").replace(/[^\x20-\x7E]/g, "");
 
-const rs = (n: number) => `Rs. ${Math.round(n).toLocaleString("en-IN")}`;
+const rs = (n: number) => `${n < 0 ? "-" : ""}Rs. ${Math.abs(Math.round(n)).toLocaleString("en-IN")}`;
 
 const toneFor = (key: ScenarioKey): [number, number, number] =>
   key === "upside" ? GREEN : key === "base" ? BLUE : key === "downside" ? AMBER : RED;
@@ -176,7 +176,7 @@ export const generateScenarioPdf = (
   doc.text(
     clean(`run:${meta.runId ?? "unsaved"} version:${meta.versionId ?? "none"}`),
     M,
-    H - 14,
+    H - 18,
   );
 
   doc.setProperties({
