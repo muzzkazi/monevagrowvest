@@ -25,9 +25,11 @@ export const parseIndianInput = (raw: string): number => {
 };
 
 export interface NumberInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type"> {
-  /** Current numeric value (or empty string for blank). */
-  value: number | string;
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type" | "defaultValue"> {
+  /** Current numeric value (or empty string for blank). Omit for uncontrolled use with defaultValue. */
+  value?: number | string;
+  /** Initial value when used uncontrolled. */
+  defaultValue?: number | string;
   /** Called with the parsed number on every keystroke. */
   onValueChange?: (value: number) => void;
   /** Called with the raw comma-formatted string on every keystroke. */
@@ -37,17 +39,21 @@ export interface NumberInputProps
   blankOnZero?: boolean;
 }
 
+const toDisplay = (v: number | string | undefined, allowDecimal: boolean, blankOnZero?: boolean) => {
+  if (v === "" || v === null || v === undefined) return "";
+  if (blankOnZero && Number(v) === 0) return "";
+  return formatIndianInput(String(v), allowDecimal);
+};
+
 /**
  * Text input that groups digits with Indian-style commas as the user types
  * while reporting a clean numeric value to the parent.
  */
 export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ value, onValueChange, onTextChange, allowDecimal = true, blankOnZero, ...props }, ref) => {
-    const display = React.useMemo(() => {
-      if (value === "" || value === null || value === undefined) return "";
-      if (blankOnZero && Number(value) === 0) return "";
-      return formatIndianInput(String(value), allowDecimal);
-    }, [value, allowDecimal, blankOnZero]);
+  ({ value, defaultValue, onValueChange, onTextChange, allowDecimal = true, blankOnZero, ...props }, ref) => {
+    const controlled = value !== undefined;
+    const [inner, setInner] = React.useState(() => toDisplay(defaultValue, allowDecimal, blankOnZero));
+    const display = controlled ? toDisplay(value, allowDecimal, blankOnZero) : inner;
 
     return (
       <Input
@@ -57,6 +63,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
         value={display}
         onChange={(e) => {
           const formatted = formatIndianInput(e.target.value, allowDecimal);
+          if (!controlled) setInner(formatted);
           onTextChange?.(formatted);
           onValueChange?.(parseIndianInput(formatted));
         }}
