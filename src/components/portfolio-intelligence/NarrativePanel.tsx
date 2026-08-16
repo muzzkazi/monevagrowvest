@@ -75,7 +75,13 @@ const Bullets = ({ title, items }: { title: string; items: string[] }) =>
     </div>
   );
 
-const NarrativePanel = ({ facts }: { facts: NarrativeFacts }) => {
+const NarrativePanel = ({
+  facts,
+  onNarrativeChange,
+}: {
+  facts: NarrativeFacts;
+  onNarrativeChange?: (n: ClientNarrative | null) => void;
+}) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [narrative, setNarrative] = useState<ClientNarrative | null>(null);
@@ -91,6 +97,7 @@ const NarrativePanel = ({ facts }: { facts: NarrativeFacts }) => {
       if (payload?.error || !payload?.narrative) throw new Error(payload?.error || "No narrative returned");
       const n = payload.narrative;
       setNarrative(n);
+      onNarrativeChange?.(n);
       setGeneratedAt(payload.generatedAt ?? new Date().toISOString());
       // Guardrail: no figure may exist in the note that is absent from the engine facts.
       setUnverified(verifyNarrativeNumbers(narrativeToText(n), collectAllowedNumbers(facts)));
