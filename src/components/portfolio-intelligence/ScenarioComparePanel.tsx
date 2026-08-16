@@ -1,4 +1,4 @@
-import { GitCompareArrows } from "lucide-react";
+import { FileDown, GitCompareArrows } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -11,9 +11,12 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Toggle } from "@/components/ui/toggle";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import GlossaryTerm from "@/components/portfolio-intelligence/GlossaryTerm";
 import { ScenarioKey, StressOutput } from "@/lib/pi/stress";
+import { generateScenarioPdf } from "@/lib/pi/scenarioPdf";
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
@@ -43,8 +46,28 @@ const textToneFor = (key: ScenarioKey) =>
         : "text-destructive";
 
 /** Side-by-side comparison of the four stress scenarios for the recommended portfolio. */
-const ScenarioComparePanel = ({ stress }: { stress: StressOutput }) => {
-  const rows = stress.scenarios;
+export interface ScenarioComparePanelProps {
+  stress: StressOutput;
+  /** Scenario keys currently shown; when omitted all scenarios are shown. */
+  selected?: ScenarioKey[];
+  onSelectedChange?: (keys: ScenarioKey[]) => void;
+  meta?: { clientName?: string; runName?: string; runId?: string | null; versionId?: string | null };
+}
+
+const ScenarioComparePanel = ({ stress, selected, onSelectedChange, meta }: ScenarioComparePanelProps) => {
+  const allKeys = stress.scenarios.map((s) => s.key);
+  const activeKeys = selected && selected.length > 0 ? selected : allKeys;
+  const rows = stress.scenarios.filter((s) => activeKeys.includes(s.key));
+
+  const toggleKey = (key: ScenarioKey) => {
+    if (!onSelectedChange) return;
+    const next = activeKeys.includes(key)
+      ? activeKeys.filter((k) => k !== key)
+      : [...allKeys.filter((k) => activeKeys.includes(k) || k === key)];
+    onSelectedChange(next.length === 0 ? allKeys : next);
+  };
+
+  const exportPdf = () => generateScenarioPdf(stress, { ...meta, selected: activeKeys });
   const chartData = rows.map((s) => ({
     name: s.label,
     key: s.key,
@@ -59,9 +82,14 @@ const ScenarioComparePanel = ({ stress }: { stress: StressOutput }) => {
           <CardTitle className="text-base flex items-center gap-2">
             <GitCompareArrows className="h-4 w-4 text-financial-accent" /> Scenario comparison — recommended portfolio
           </CardTitle>
-          <Badge variant="secondary" className="text-[10px]">
-            <GlossaryTerm id="stressTest">Stress test basis: {stress.basis}</GlossaryTerm>
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="text-[10px]">
+              <GlossaryTerm id="stressTest">Stress test basis: {stress.basis}</GlossaryTerm>
+            </Badge>
+            <Button variant="outline" size="sm" onClick={exportPdf} className="gap-2 text-xs">
+              <FileDown className="h-3.5 w-3.5" /> Export scenarios PDF
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -69,6 +97,23 @@ const ScenarioComparePanel = ({ stress }: { stress: StressOutput }) => {
           The same recommended allocation put through four one-year outcomes, side by side. All figures come from the
           deterministic stress engine.
         </p>
+
+        {onSelectedChange && (
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Choose which scenarios to compare">
+            {stress.scenarios.map((s) => (
+              <Toggle
+                key={s.key}
+                size="sm"
+                pressed={activeKeys.includes(s.key)}
+                onPressedChange={() => toggleKey(s.key)}
+                aria-label={`Show ${s.label} scenario`}
+                className="text-xs"
+              >
+                {s.label}
+              </Toggle>
+            ))}
+          </div>
+        )}
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {rows.map((s) => (
