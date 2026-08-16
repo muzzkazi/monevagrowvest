@@ -178,8 +178,8 @@ export const runChallengeChecks = ({
   }
 
   /* 8. High-severity concentration with nothing being trimmed. */
-  const severe = output.concentration.filter((c) => c.severity === "high" || c.severity === "High");
-  if (severe.length > 0 && !plan.some((a) => a.action === "REDUCE" || a.action === "STOP")) {
+  const severe = output.concentration.filter((c) => c.severity === "High" || c.severity === "Warning");
+  if (severe.length > 0 && !plan.some((a) => a.action === "REDUCE" || a.action === "STOP SIP")) {
     f.push({
       id: "concentration-not-addressed",
       severity: "watch",
