@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          details: string | null
+          id: string
+          metadata: Json
+          target_email: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          metadata?: Json
+          target_email?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          metadata?: Json
+          target_email?: string | null
+        }
+        Relationships: []
+      }
       broker_recos_cache: {
         Row: {
           fetched_at: string
