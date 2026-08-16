@@ -618,10 +618,15 @@ export interface EngineInput {
   additionalSip: number;
   declaredSipBudget: number;
   assumedReturnPct: number;
+  /** Clock injection — defaults to now. Tests pass a frozen Date so the engine
+   *  is byte-identical across runs (deterministic given inputs + clock). */
+  now?: Date;
 }
 
 export const runEngine = (input: EngineInput): EngineOutput => {
   const { profile, goals, constraints, funds, riskAnswers, additionalSip, declaredSipBudget, assumedReturnPct } = input;
+  const now = input.now ?? new Date();
+  const year = now.getFullYear();
 
   const currentValue = sum(funds.map((f) => f.currentValue));
   const invested = sum(funds.map((f) => f.investedAmount));
@@ -630,7 +635,7 @@ export const runEngine = (input: EngineInput): EngineOutput => {
     profile.epf + profile.ppf + profile.nps + profile.fixedDeposits + profile.directEquity +
     profile.bonds + profile.realEstate + profile.otherInvestments;
 
-  const risk = assessRisk(profile, goals, riskAnswers, currentSip + additionalSip, currentValue);
+  const risk = assessRisk(profile, goals, riskAnswers, currentSip + additionalSip, currentValue, year);
   const target = targetAllocation(risk, profile, constraints);
   const current = currentAllocation(funds);
 
@@ -659,7 +664,7 @@ export const runEngine = (input: EngineInput): EngineOutput => {
 
   const concentration = concentrationFlags(funds);
   const redundancy = redundancyFlags(funds);
-  const goalMaths = goals.map((g) => computeGoal(g, assumedReturnPct, currentSip + additionalSip));
+  const goalMaths = goals.map((g) => computeGoal(g, assumedReturnPct, currentSip + additionalSip, year));
   const sipPlan = optimiseSip(funds, allocation, additionalSip);
   const scores = computeScores(funds, allocation, concentration, redundancy, goalMaths, constraints);
 
@@ -670,7 +675,7 @@ export const runEngine = (input: EngineInput): EngineOutput => {
   ];
 
   return {
-    asOf: new Date().toISOString(),
+    asOf: now.toISOString(),
     dataFlags,
     totals: { currentValue, invested, currentSip, additionalSip, totalOtherAssets },
     risk,
