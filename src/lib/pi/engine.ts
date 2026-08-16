@@ -175,10 +175,11 @@ export const assessRisk = (
   answers: RiskAnswers,
   monthlySip: number,
   corpus: number,
+  year: number,
 ): RiskAssessment => {
   const tolerance = riskTolerance(answers);
-  const capacity = riskCapacity(profile, goals);
-  const need = riskNeed(goals, monthlySip, corpus);
+  const capacity = riskCapacity(profile, goals, year);
+  const need = riskNeed(goals, monthlySip, corpus, year);
 
   // Ceiling = weakest of tolerance / capacity. Need can only pull the profile
   // DOWN (a low need means no reason to take more risk), never above the ceiling.
@@ -203,7 +204,7 @@ export const assessRisk = (
   // Horizon adjustment — the shortest essential goal caps equity.
   const essential = goals.filter((g) => g.essential);
   if (essential.length) {
-    const minYears = Math.min(...essential.map((g) => g.targetYear - new Date().getFullYear()));
+    const minYears = Math.min(...essential.map((g) => g.targetYear - year));
     if (minYears < 3) {
       hi = Math.min(hi, 40); lo = Math.min(lo, 20);
       notes.push("Essential goal under 3 years — equity ceiling reduced");
@@ -235,8 +236,8 @@ export const assessRisk = (
 /* Goal maths                                                          */
 /* ------------------------------------------------------------------ */
 
-export const computeGoal = (goal: Goal, assumedReturnPct: number, monthlySip: number): GoalMath => {
-  const years = Math.max(0, goal.targetYear - new Date().getFullYear());
+export const computeGoal = (goal: Goal, assumedReturnPct: number, monthlySip: number, year: number): GoalMath => {
+  const years = Math.max(0, goal.targetYear - year);
   const futureCost = goal.currentCost * Math.pow(1 + goal.inflationPct / 100, years);
   const m = assumedReturnPct / 12 / 100;
   const n = years * 12;
@@ -255,7 +256,7 @@ export const computeGoal = (goal: Goal, assumedReturnPct: number, monthlySip: nu
     projectedCorpus,
     fundingGap: futureCost - projectedCorpus,
     fundedPct: futureCost > 0 ? round1((projectedCorpus / futureCost) * 100) : 0,
-    requiredReturnPct: solveRequiredReturn(goal, monthlySip, goal.currentAllocated),
+    requiredReturnPct: solveRequiredReturn(goal, monthlySip, goal.currentAllocated, year),
   };
 };
 
