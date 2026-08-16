@@ -10,6 +10,7 @@ import { PiRunInputs } from "./runs";
 import { HoldingTax, SwitchPlan } from "./tax";
 import { StressOutput } from "./stress";
 import { DataQualityReport } from "./dataQuality";
+import { RunPdfIdentity, buildRunPdfIdentity, encodeRunPdfKeywords } from "./pdfMetadata";
 
 const BLUE: [number, number, number] = [19, 89, 210];
 const AMBER: [number, number, number] = [166, 96, 6];
@@ -36,6 +37,13 @@ const money = (n: number | null | undefined) =>
 export interface RunPdfInput {
   runName: string;
   versionNo?: number | null;
+  /** Saved run row id — embedded in the PDF metadata for traceability. */
+  runId?: string | null;
+  /** pi_run_versions row id for the exported version. */
+  versionId?: string | null;
+  clientId?: string | null;
+  /** created_at / updated_at of the saved row this export represents. */
+  savedAt?: string | null;
   inputs: PiRunInputs;
   assumedReturnPct: number;
   output: EngineOutput;
@@ -49,6 +57,10 @@ export interface RunPdfInput {
 export const generateRunPdf = ({
   runName,
   versionNo,
+  runId = null,
+  versionId = null,
+  clientId = null,
+  savedAt = null,
   inputs,
   assumedReturnPct,
   output,
@@ -59,6 +71,27 @@ export const generateRunPdf = ({
   save = true,
 }: RunPdfInput) => {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+  /* ---------- Identity metadata (traceable back to the saved run) ---------- */
+  const identity: RunPdfIdentity = buildRunPdfIdentity({
+    runId,
+    versionId,
+    versionNo,
+    clientId,
+    runName,
+    inputs,
+    assumedReturnPct,
+    output,
+    savedAt,
+  });
+  doc.setProperties({
+    title: `Portfolio Intelligence - ${clean(runName)}${versionNo ? ` v${versionNo}` : ""}`,
+    subject: `Run ${identity.runId ?? "unsaved"} | version ${identity.versionNo ?? "-"} (${identity.versionId ?? "-"}) | fingerprint ${identity.fingerprint}`,
+    author: "Moneva GrowVest",
+    creator: "Moneva Portfolio Intelligence",
+    keywords: encodeRunPdfKeywords(identity),
+  });
+
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const contentW = W - M * 2;
@@ -68,6 +101,14 @@ export const generateRunPdf = ({
     doc.setFontSize(8).setTextColor(...MUTED).setFont("helvetica", "normal");
     doc.text("Confidential advisory record - Moneva GrowVest - deterministic engine output", M, H - 24);
     doc.text(`Page ${doc.getNumberOfPages()}`, W - M, H - 24, { align: "right" });
+    doc.setFontSize(7);
+    doc.text(
+      clean(
+        `Run ${identity.runId ?? "unsaved"} | version ${identity.versionNo ?? "-"} | version id ${identity.versionId ?? "-"} | fingerprint ${identity.fingerprint}`,
+      ),
+      M,
+      H - 13,
+    );
   };
   const newPage = () => {
     footer();
