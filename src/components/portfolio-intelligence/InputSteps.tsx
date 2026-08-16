@@ -400,7 +400,23 @@ export const PortfolioStep = ({
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Import existing holdings</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Upload a holdings screenshot, CAS / broker PDF or CSV / Excel export instead of typing each scheme.
+            You review and edit every extracted figure before it is added.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <HoldingsImportDialog
+            onImport={(rows) => onChange([...funds, ...rows.map(toPortfolioFund)])}
+          />
+        </CardContent>
+      </Card>
+
       {funds.map((f) => (
+
         <Card key={f.id}>
           <CardContent className="pt-6 grid gap-4 sm:grid-cols-4">
             <div className="space-y-1.5 sm:col-span-2">
