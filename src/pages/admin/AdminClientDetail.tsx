@@ -19,6 +19,8 @@ import { toast } from "sonner";
 import { ArrowLeft, Lock, Plus, Save, Trash2, History, FileDown, Eye } from "lucide-react";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { generateClientReportPdf } from "@/lib/clientReportPdf";
+import HoldingsImportDialog from "@/components/portfolio-intelligence/HoldingsImportDialog";
+import type { ExtractedHolding } from "@/lib/pi/holdingsImport";
 
 type Client = {
   id: string; full_name: string; email: string | null; phone: string | null;
