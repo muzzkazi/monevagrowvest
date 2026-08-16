@@ -59,7 +59,7 @@ export const ProfileStep = ({
             <Label className="text-xs text-muted-foreground">Client name</Label>
             <Input value={profile.clientName} onChange={(e) => set("clientName", e.target.value)} className="h-9" />
           </div>
-          <Field label="Age" value={profile.age} onChange={(v) => set("age", num(v))} />
+          <Field plain label="Age" value={profile.age} onChange={(v) => set("age", num(v))} />
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Employment type</Label>
             <Select value={profile.employmentType} onValueChange={(v) => set("employmentType", v)}>
@@ -93,7 +93,7 @@ export const ProfileStep = ({
           <Field label="Annual income (₹)" value={profile.annualIncome} onChange={(v) => set("annualIncome", num(v))} />
           <Field label="Monthly income (₹)" value={profile.monthlyIncome} onChange={(v) => set("monthlyIncome", num(v))} />
           <Field label="Monthly expenses (₹)" value={profile.monthlyExpenses} onChange={(v) => set("monthlyExpenses", num(v))} />
-          <Field label="Dependents" value={profile.dependents} onChange={(v) => set("dependents", num(v))} />
+          <Field plain label="Dependents" value={profile.dependents} onChange={(v) => set("dependents", num(v))} />
         </CardContent>
       </Card>
 
@@ -167,10 +167,10 @@ export const GoalsStep = ({ goals, onChange }: { goals: Goal[]; onChange: (g: Go
               </Select>
             </div>
             <Field label="Cost today (₹)" value={g.currentCost} onChange={(v) => update(g.id, { currentCost: num(v) })} />
-            <Field label="Target year" value={g.targetYear} onChange={(v) => update(g.id, { targetYear: num(v) })} />
+            <Field plain label="Target year" value={g.targetYear} onChange={(v) => update(g.id, { targetYear: num(v) })} />
             <Field label="Already allocated (₹)" value={g.currentAllocated} onChange={(v) => update(g.id, { currentAllocated: num(v) })} />
             <Field label="Monthly contribution (₹)" value={g.monthlyContribution} onChange={(v) => update(g.id, { monthlyContribution: num(v) })} />
-            <Field label="Inflation assumption (%)" value={g.inflationPct} onChange={(v) => update(g.id, { inflationPct: num(v) })} />
+            <Field plain label="Inflation assumption (%)" value={g.inflationPct} onChange={(v) => update(g.id, { inflationPct: num(v) })} />
             <div className="flex items-center gap-3 sm:col-span-2">
               <Switch checked={g.essential} onCheckedChange={(v) => update(g.id, { essential: v })} id={`ess-${g.id}`} />
               <Label htmlFor={`ess-${g.id}`} className="text-sm">Essential goal (not discretionary)</Label>
