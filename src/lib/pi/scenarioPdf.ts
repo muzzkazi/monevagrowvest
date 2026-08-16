@@ -47,22 +47,31 @@ export const generateScenarioPdf = (
     (s) => !meta.selected || meta.selected.length === 0 || meta.selected.includes(s.key),
   );
 
-  let y = M;
+  /* Branded header band — Moneva wordmark + amber accent. */
+  doc.setFillColor(...BLUE).rect(0, 0, W, 48, "F");
+  doc.setFillColor(...AMBER).rect(0, 48, W, 3, "F");
+  doc.setFont("helvetica", "bold").setFontSize(17).setTextColor(255, 255, 255);
+  doc.text("MONEVA", M, 24);
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(226, 232, 240);
+  doc.text("PORTFOLIO INTELLIGENCE", M, 36);
+  doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(255, 255, 255);
+  doc.text("SCENARIO COMPARISON", W - M, 24, { align: "right" });
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(226, 232, 240);
+  doc.text(clean(`${meta.clientName ?? "Client"}  |  ${meta.runName ?? "Untitled run"}`), W - M, 36, { align: "right" });
 
-  /* Header band */
-  doc.setFillColor(...BLUE).rect(0, 0, W, 6, "F");
-  doc.setFont("helvetica", "bold").setFontSize(15).setTextColor(...INK);
-  doc.text("Scenario comparison - recommended portfolio", M, y + 12);
-  y += 28;
+  let y = 64;
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...INK);
+  doc.text("Scenario comparison - recommended portfolio", M, y);
+  y += 15;
   doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...MUTED);
   doc.text(
     clean(
-      `${meta.clientName ?? "Client"}  |  ${meta.runName ?? "Untitled run"}  |  basis: ${basisLabel(stress.basis)}  |  computed ${new Date(stress.asOf).toISOString()}`,
+      `Basis: ${basisLabel(stress.basis)}   |   Computed ${new Date(stress.asOf).toISOString()}`,
     ),
     M,
     y,
   );
-  y += 20;
+  y += 16;
 
   doc.setFontSize(8.5).setTextColor(...INK);
   const intro = doc.splitTextToSize(
