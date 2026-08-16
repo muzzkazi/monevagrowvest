@@ -294,31 +294,58 @@ const PortfolioIntelligenceInner = () => {
             <>
               <Card className="border-financial-accent/30">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-financial-accent" /> AI advisor layer
-                  </CardTitle>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-financial-accent" /> AI advisor layer
+                    </CardTitle>
+                    <ToggleGroup
+                      type="single"
+                      value={layerView}
+                      onValueChange={(v) => v && setLayerView(v as LayerView)}
+                      aria-label="Show engine math, plain English, or both"
+                      className="flex-wrap"
+                    >
+                      <ToggleGroupItem value="math" className="gap-1.5 text-xs px-3">
+                        <Calculator className="h-3.5 w-3.5" /> Layer A · math
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="plain" className="gap-1.5 text-xs px-3">
+                        <MessagesSquare className="h-3.5 w-3.5" /> Layer B · plain English
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="both" className="gap-1.5 text-xs px-3">
+                        Both
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-2">
                   <p className="text-sm text-muted-foreground">
-                    The AI advisor layer sits on top of these exact numbers — it interprets, challenges inconsistent
-                    proposals and writes the client-facing explanation, but never recalculates or overrides the engine.
-                    Assumed return used for goal projection: <strong className="text-foreground">{assumedReturnPct}% p.a.</strong> (derived
-                    from the engine's equity band, not a forecast).
+                    <GlossaryTerm id="layerA">Layer A</GlossaryTerm> computes every figure deterministically;{" "}
+                    <GlossaryTerm id="layerB">Layer B</GlossaryTerm> only explains those figures in plain English and is
+                    blocked from inventing numbers. Use the toggle to see the same recommendation either way.
+                    Assumed return used for goal projection:{" "}
+                    <strong className="text-foreground">{assumedReturnPct}% p.a.</strong> (derived from the engine's{" "}
+                    <GlossaryTerm id="equityRange">equity band</GlossaryTerm>, not a forecast).
                   </p>
                 </CardContent>
               </Card>
-              <NavDataPanel
-                series={nav.series}
-                metrics={nav.metrics}
-                unavailable={nav.unavailable}
-                oldestFetchedAt={nav.oldestFetchedAt}
-                loading={nav.loading}
-                error={nav.error}
-                onRefresh={nav.refresh}
-                requestedCodes={nav.requestedCodes}
-              />
-              <DataQualityPanel report={quality} onRefreshNav={nav.refresh} refreshing={nav.loading} />
-              <AnalysisPanel output={output} />
+
+              {showMath && (
+                <>
+                  <NavDataPanel
+                    series={nav.series}
+                    metrics={nav.metrics}
+                    unavailable={nav.unavailable}
+                    oldestFetchedAt={nav.oldestFetchedAt}
+                    loading={nav.loading}
+                    error={nav.error}
+                    onRefresh={nav.refresh}
+                    requestedCodes={nav.requestedCodes}
+                  />
+                  <DataQualityPanel report={quality} onRefreshNav={nav.refresh} refreshing={nav.loading} />
+                  <AnalysisPanel output={output} />
+                </>
+              )}
+
               {narrativeFacts && challenge && (
                 <ChallengeReviewPanel
                   report={challenge}
@@ -326,9 +353,10 @@ const PortfolioIntelligenceInner = () => {
                   onClearedChange={setChallengeCleared}
                 />
               )}
-              {narrativeFacts && challenge && (
+
+              {showPlain && narrativeFacts && challenge && (
                 challengeCleared ? (
-                  <NarrativePanel facts={narrativeFacts} />
+                  <NarrativePanel facts={narrativeFacts} onNarrativeChange={setNarrative} />
                 ) : (
                   <Card className="border-dashed">
                     <CardContent className="py-10 text-center space-y-2">
@@ -343,8 +371,18 @@ const PortfolioIntelligenceInner = () => {
                   </Card>
                 )
               )}
-              {fundFacts && <FundCommentaryPanel facts={fundFacts} />}
-              {narrativeFacts && (
+              {showPlain && fundFacts && (
+                <FundCommentaryPanel facts={fundFacts} onCommentaryChange={setCommentary} />
+              )}
+              {showPlain && narrativeFacts && challengeCleared && (
+                <OnePageSummaryPanel
+                  facts={narrativeFacts}
+                  fundFacts={fundFacts}
+                  narrative={narrative}
+                  commentary={commentary}
+                />
+              )}
+              {showPlain && narrativeFacts && (
                 <AdvisorChatPanel
                   facts={narrativeFacts}
                   fundFacts={fundFacts}
@@ -356,9 +394,14 @@ const PortfolioIntelligenceInner = () => {
                   }}
                 />
               )}
-              {taxViews && <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />}
-              {stress && <StressTestPanel stress={stress} />}
+              {showMath && taxViews && (
+                <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />
+              )}
+              {stress && <ScenarioComparePanel stress={stress} />}
+              {showMath && stress && <StressTestPanel stress={stress} />}
+              <GlossaryPanel />
             </>
+
           ) : (
             <Card>
               <CardContent className="py-16 text-center space-y-3">
