@@ -201,9 +201,137 @@ export const generateScenarioPdf = (
     }
     y += 6;
   });
+  /* Visual comparison — return bars + portfolio value line, page 2. */
+  const generatedAt = new Date();
+  doc.addPage();
+  y = M;
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(...INK);
+  doc.text("Visual comparison", M, y);
+  y += 14;
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...MUTED);
+  doc.text("Charted directly from the same deterministic figures shown in the tables above.", M, y);
+  y += 18;
+
+  // --- Bar chart: one-year return % (zero baseline) ---
+  const AX = M + 60; // left gutter reserved for axis labels
+  const plotW = W - M - AX;
+  const chartH = 150;
+  const chartTop = y + 14;
+  const chartBottom = chartTop + chartH;
+  const maxAbs = Math.max(...rows.map((s) => Math.abs(s.portfolioReturnPct)), 1);
+  const zeroY = chartTop + chartH / 2;
+  doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...INK);
+  doc.text("One-year portfolio return (%)", M, y);
+  doc.setDrawColor(...LINE).line(AX, chartTop, AX, chartBottom);
+  doc.setDrawColor(...LINE).line(AX, zeroY, W - M, zeroY);
+  doc.setFont("helvetica", "normal").setFontSize(6.5).setTextColor(...MUTED);
+  doc.text("0%", AX - 5, zeroY + 3, { align: "right" });
+  doc.text(clean(`+${Math.round(maxAbs)}%`), AX - 5, chartTop + 4, { align: "right" });
+  doc.text(clean(`-${Math.round(maxAbs)}%`), AX - 5, chartBottom, { align: "right" });
+
+  const bcw = plotW / Math.max(rows.length, 1);
+  const barW = Math.min(52, bcw * 0.5);
+  rows.forEach((s, i) => {
+    const cx = AX + i * bcw + bcw / 2;
+    const h = (Math.abs(s.portfolioReturnPct) / maxAbs) * (chartH / 2);
+    const up = s.portfolioReturnPct >= 0;
+    doc.setFillColor(...toneFor(s.key));
+    doc.rect(cx - barW / 2, up ? zeroY - h : zeroY, barW, h, "F");
+    doc.setFont("helvetica", "bold").setFontSize(7.5).setTextColor(...toneFor(s.key));
+    doc.text(
+      clean(`${up ? "+" : ""}${s.portfolioReturnPct}%`),
+      cx,
+      up ? zeroY - h - 4 : Math.min(zeroY + h + 9, chartBottom + 8),
+      { align: "center" },
+    );
+    doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
+    doc.text(clean(s.label), cx, chartBottom + 22, { align: "center" });
+  });
+  y = chartBottom + 46;
+
+  // --- Line chart: end portfolio value across scenarios ---
+  const lh = 120;
+  const lTop = y + 14;
+  const lBottom = lTop + lh;
+  const vals = rows.map((s) => s.endValue);
+  const vMax = Math.max(...vals);
+  const vMin = Math.min(...vals);
+  const span = vMax - vMin || Math.max(vMax, 1);
+  const yFor = (v: number) => lBottom - ((v - (vMin - span * 0.2)) / (span * 1.45)) * lh;
+  doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...INK);
+  doc.text("Portfolio value by scenario", M, y);
+  doc.setDrawColor(...LINE).line(AX, lTop, AX, lBottom);
+  doc.setDrawColor(...LINE).line(AX, lBottom, W - M, lBottom);
+  doc.setFont("helvetica", "normal").setFontSize(6.5).setTextColor(...MUTED);
+  doc.text(clean(rs(vMax)), AX - 5, yFor(vMax) + 3, { align: "right" });
+  doc.text(clean(rs(vMin)), AX - 5, yFor(vMin) + 3, { align: "right" });
+
+  const lpw = W - M - AX - 30;
+  const pts = rows.map((s, i) => ({
+    x: AX + 20 + i * (lpw / Math.max(rows.length - 1, 1)),
+    py: yFor(s.endValue),
+    s,
+  }));
+  doc.setDrawColor(...BLUE).setLineWidth(1.2);
+  pts.forEach((p, i) => {
+    if (i > 0) doc.line(pts[i - 1].x, pts[i - 1].py, p.x, p.py);
+  });
+  doc.setLineWidth(0.5);
+  pts.forEach((p) => {
+    doc.setFillColor(...toneFor(p.s.key)).circle(p.x, p.py, 3, "F");
+    doc.setFont("helvetica", "bold").setFontSize(7).setTextColor(...INK);
+    doc.text(clean(rs(p.s.endValue)), p.x, p.py - 8, { align: "center" });
+
+    doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
+    doc.text(clean(p.s.label), p.x, lBottom + 12, { align: "center" });
+  });
+  y = lBottom + 32;
+
+  /* Audit & disclaimer section */
+  const auditItems: Array<[string, string]> = [
+    [
+      "Assumptions",
+      `Every figure is a one-year deterministic stress outcome applied to the current recommended allocation. Basis for this run: ${basisLabel(stress.basis)}. Where live NAV history is missing or has fewer than 30 observations, an assumption set is used and the affected bucket is marked "assumption" in the bucket detail. No forecasting, probability or simulation is involved; the same inputs always produce the same numbers.`,
+    ],
+    [
+      "Timestamp meaning",
+      `"Computed" (${new Date(stress.asOf).toISOString()}) is when the stress engine produced these numbers from the NAV and allocation data available at that moment. "Generated" (${generatedAt.toISOString()}) is when this PDF was rendered. If the two differ, the PDF was exported from a previously computed run and the underlying market data has not been refreshed since the computed time.`,
+    ],
+    [
+      "Traceability fields",
+      `run: ${meta.runId ?? "unsaved"} - the saved Portfolio Intelligence run this export belongs to ("unsaved" means the run was not persisted). version: ${meta.versionId ?? "none"} - the immutable version snapshot of that run. Client: ${meta.clientName ?? "Client"}. Run name: ${meta.runName ?? "Untitled run"}. Scenario set exported: ${rows.map((r) => r.key).join(", ")}. These fields also appear in the PDF document properties and in the page footer.`,
+    ],
+    [
+      "Review and use",
+      "This document is an internal advisory working paper. Numbers must be reviewed by the advisor before being shared with a client, and are not a guarantee, projection or recommendation to buy or sell any scheme. Mutual fund investments are subject to market risks.",
+    ],
+  ];
+
+  if (y > H - 200) {
+    doc.addPage();
+    y = M;
+  }
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(...INK);
+  doc.text("Audit notes & disclaimer", M, y);
+  y += 16;
+  auditItems.forEach(([label, body]) => {
+    doc.setFont("helvetica", "normal").setFontSize(7.6);
+    const lines = doc.splitTextToSize(clean(body), inner - 8);
+    if (y + lines.length * 9 + 18 > H - 60) {
+      doc.addPage();
+      y = M;
+    }
+    doc.setFont("helvetica", "bold").setFontSize(8.2).setTextColor(...BLUE);
+    doc.text(clean(label), M, y);
+    y += 11;
+    doc.setFont("helvetica", "normal").setFontSize(7.6).setTextColor(...INK);
+    doc.text(lines, M + 8, y);
+
+    y += lines.length * 9 + 10;
+  });
 
   /* Footer on every page: disclaimer, client/run trace, timestamp, page numbers. */
-  const generatedAt = new Date();
+
   const stamp = generatedAt.toISOString().replace("T", " ").slice(0, 19) + " UTC";
   const pageCount = doc.getNumberOfPages();
   for (let p = 1; p <= pageCount; p += 1) {
