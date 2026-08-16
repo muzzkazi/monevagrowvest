@@ -343,6 +343,19 @@ const PortfolioIntelligenceInner = () => {
                   </Card>
                 )
               )}
+              {fundFacts && <FundCommentaryPanel facts={fundFacts} />}
+              {narrativeFacts && (
+                <AdvisorChatPanel
+                  facts={narrativeFacts}
+                  fundFacts={fundFacts}
+                  gate={{
+                    challengeCleared,
+                    runName,
+                    runId,
+                    blockers: (quality.blockers ?? []).map((b) => `${b.area}: ${b.message}`),
+                  }}
+                />
+              )}
               {taxViews && <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />}
               {stress && <StressTestPanel stress={stress} />}
             </>
