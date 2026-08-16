@@ -5,7 +5,7 @@
 // enforces that, so hallucinated numbers are surfaced instead of shipped to a client.
 
 import { DataQualityReport } from "@/lib/pi/dataQuality";
-import { StressTestResult } from "@/lib/pi/stress";
+import { StressOutput } from "@/lib/pi/stress";
 import { EngineOutput } from "@/lib/pi/types";
 import { PiRunInputs } from "@/lib/pi/runs";
 
@@ -62,7 +62,20 @@ export interface NarrativeFacts {
     why: string;
     confidence: string;
   }>;
-  stress: Array<{ scenario: string; portfolioValue: number; drawdownPct: number; recoveryYears: number | null; note: string }> | null;
+  stress: {
+    basis: string;
+    scenarios: Array<{
+      scenario: string;
+      description: string;
+      portfolioReturnPct: number;
+      endValue: number;
+      valueChange: number;
+      basis: string;
+      recoveryNote: string;
+      goalNote: string | null;
+    }>;
+    dataGaps: string[];
+  } | null;
   dataQuality: {
     navFreshness: string;
     navAgeHours: number | null;
@@ -93,7 +106,7 @@ export const buildNarrativeFacts = ({
   assumedReturnPct: number;
   output: EngineOutput;
   quality: DataQualityReport;
-  stress: StressTestResult | null;
+  stress: StressOutput | null;
 }): NarrativeFacts => {
   const p = inputs.profile;
   return {
@@ -166,20 +179,27 @@ export const buildNarrativeFacts = ({
       confidence: a.confidence,
     })),
     stress: stress
-      ? stress.scenarios.map((s) => ({
-          scenario: s.name,
-          portfolioValue: r(s.portfolioValue),
-          drawdownPct: r(s.drawdownPct, 1),
-          recoveryYears: s.recoveryYears === null ? null : r(s.recoveryYears, 1),
-          note: s.note,
-        }))
+      ? {
+          basis: stress.basis,
+          scenarios: stress.scenarios.map((s) => ({
+            scenario: s.label,
+            description: s.description,
+            portfolioReturnPct: r(s.portfolioReturnPct, 2),
+            endValue: r(s.endValue),
+            valueChange: r(s.valueChange),
+            basis: s.basis,
+            recoveryNote: s.recoveryNote,
+            goalNote: s.goalNote,
+          })),
+          dataGaps: stress.dataGaps,
+        }
       : null,
     dataQuality: {
       navFreshness: quality.navFreshness,
       navAgeHours: quality.navAgeHours,
       taxInputsComplete: quality.taxInputsComplete,
       switchingAllowed: quality.switchingAllowed,
-      blockers: quality.blockers ?? [],
+      blockers: (quality.blockers ?? []).map((b) => `${b.area}: ${b.message}`),
     },
     dataFlags: output.dataFlags,
     integrity: output.integrity,
