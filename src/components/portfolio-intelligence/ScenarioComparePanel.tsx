@@ -107,6 +107,10 @@ const ScenarioComparePanel = ({ stress, selected, onSelectedChange, meta }: Scen
             <Button variant="outline" size="sm" onClick={exportPdf} className="gap-2 text-xs">
               <FileDown className="h-3.5 w-3.5" /> Export scenarios PDF
             </Button>
+            <Button variant="outline" size="sm" onClick={copyShareLink} className="gap-2 text-xs">
+              {copied ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Link2 className="h-3.5 w-3.5" />}
+              {copied ? "Link copied" : "Copy share link"}
+            </Button>
           </div>
         </div>
       </CardHeader>
