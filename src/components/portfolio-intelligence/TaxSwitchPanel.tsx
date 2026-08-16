@@ -26,12 +26,17 @@ const TaxSwitchPanel = ({
 }) => {
   const blocked = quality ? !quality.switchingAllowed : false;
   return (
-  <Card className={blocked ? "border-destructive/40" : undefined}>
+  <Card
+    role="region"
+    aria-labelledby="tax-switch-title"
+    aria-describedby={blocked ? "tax-switch-lock" : undefined}
+    className={blocked ? "border-destructive/40" : undefined}
+  >
 
     <CardHeader className="pb-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Receipt className="h-4 w-4 text-financial-accent" /> Tax-aware switch plan
+        <CardTitle id="tax-switch-title" className="text-base flex items-center gap-2">
+          <Receipt className="h-4 w-4 text-financial-accent" aria-hidden /> Tax-aware switch plan
         </CardTitle>
         {plan.slab ? (
           <Badge variant="secondary">
@@ -46,13 +51,13 @@ const TaxSwitchPanel = ({
     </CardHeader>
     <CardContent className="space-y-6">
       {blocked && quality && (
-        <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3" role="alert">
+        <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3" role="alert" aria-live="assertive" id="tax-switch-lock">
           <Lock className="h-4 w-4 mt-0.5 text-destructive shrink-0" aria-hidden />
           <div className="space-y-1">
             <p className="text-sm font-medium text-destructive">
               Switching is locked until the data requirements are met.
             </p>
-            <ul className="space-y-0.5">
+            <ul className="space-y-0.5" aria-label="Reasons switching is locked">
               {quality.blockers.map((b) => (
                 <li key={b.id} className="text-xs text-muted-foreground">• {b.message} <em>Fix: {b.fix}</em></li>
               ))}
