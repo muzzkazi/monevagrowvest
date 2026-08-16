@@ -1,4 +1,5 @@
-import { FileDown, GitCompareArrows } from "lucide-react";
+import { useState } from "react";
+import { Check, FileDown, GitCompareArrows, Link2 } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -17,6 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import GlossaryTerm from "@/components/portfolio-intelligence/GlossaryTerm";
 import { ScenarioKey, StressOutput } from "@/lib/pi/stress";
 import { generateScenarioPdf } from "@/lib/pi/scenarioPdf";
+import { useToast } from "@/hooks/use-toast";
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
