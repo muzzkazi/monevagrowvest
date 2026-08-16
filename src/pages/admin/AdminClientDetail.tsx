@@ -137,6 +137,28 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
     load();
   };
 
+  /** Bulk-adds reviewed rows from an uploaded holdings report. */
+  const importHoldings = async (rows: ExtractedHolding[]) => {
+    const payload = rows.map((r) => ({
+      client_id: clientId,
+      fund_name: r.schemeName.trim(),
+      category: CATEGORIES.includes(r.subCategory) ? r.subCategory : CATEGORIES.includes(r.role) ? r.role : null,
+      monthly_sip: r.sipAmount,
+      lumpsum_amount: r.investedAmount,
+      start_date: r.purchaseDate || null,
+      rationale: `Imported from holdings statement${r.currentValue ? ` · current value ${inr(r.currentValue)}` : ""}`,
+    }));
+    const { error } = await supabase.from("client_funds").insert(payload);
+    if (error) throw new Error(error.message);
+    await logAction(
+      "Holdings imported",
+      `${payload.length} scheme(s) imported from an uploaded holdings report · ${inr(payload.reduce((a, p) => a + p.monthly_sip, 0))}/month SIP`,
+    );
+    load();
+  };
+
+
+
   const updateFund = async (f: Fund, patch: Partial<Fund>, label: string) => {
     const { error } = await supabase.from("client_funds").update(patch).eq("id", f.id);
     if (error) return toast.error(error.message);
