@@ -99,40 +99,38 @@ export const generateScenarioPdf = (
   });
   y += 74;
 
-  /* Totals — portfolio return & value change across selected scenarios. */
+  /* Totals — portfolio return & value change for every selected scenario. */
   const best = rows.reduce((a, b) => (b.portfolioReturnPct > a.portfolioReturnPct ? b : a), rows[0]);
   const worst = rows.reduce((a, b) => (b.portfolioReturnPct < a.portfolioReturnPct ? b : a), rows[0]);
-  const boxH = 66;
-  const half = inner / 2;
+  const boxH = 92;
+  const tcw = inner / Math.max(rows.length, 1);
   doc.setFillColor(247, 250, 254).roundedRect(M, y, inner, boxH, 5, 5, "F");
   doc.setDrawColor(...LINE).roundedRect(M, y, inner, boxH, 5, 5, "S");
-  doc.setDrawColor(...LINE).line(M + half, y + 26, M + half, y + boxH - 8);
   doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...INK);
-  doc.text("Portfolio return & value change - totals", M + 12, y + 17);
-  // Best outcome (left)
+  doc.text("Portfolio return & value change - totals (all selected scenarios)", M + 12, y + 17);
+  rows.forEach((s, i) => {
+    const cx = M + i * tcw + 12;
+    if (i > 0) doc.setDrawColor(...LINE).line(M + i * tcw, y + 26, M + i * tcw, y + boxH - 24);
+    doc.setFont("helvetica", "normal").setFontSize(6.8).setTextColor(...MUTED);
+    doc.text(clean(s.label.toUpperCase()), cx, y + 34);
+    doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(...toneFor(s.key));
+    doc.text(clean(`${s.portfolioReturnPct > 0 ? "+" : ""}${s.portfolioReturnPct}%`), cx, y + 50);
+    doc.setFont("helvetica", "normal").setFontSize(7.6).setTextColor(...INK);
+    doc.text(clean(`${s.valueChange < 0 ? "" : "+"}${rs(s.valueChange)}`), cx, y + 61);
+    doc.setFontSize(7).setTextColor(...MUTED);
+    doc.text(clean(`value ${rs(s.endValue)}`), cx, y + 70);
+  });
+  doc.setDrawColor(...LINE).line(M + 10, y + boxH - 20, W - M - 10, y + boxH - 20);
   doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
-  doc.text("BEST OUTCOME", M + 12, y + 31);
-  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...GREEN);
-  doc.text(clean(`${best.portfolioReturnPct > 0 ? "+" : ""}${best.portfolioReturnPct}%`), M + 12, y + 47);
-  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...INK);
   doc.text(
-    clean(`${best.valueChange < 0 ? "" : "+"}${rs(best.valueChange)}  (${best.label})`),
+    clean(
+      `Best: ${best.label} ${best.portfolioReturnPct > 0 ? "+" : ""}${best.portfolioReturnPct}% (${best.valueChange < 0 ? "" : "+"}${rs(best.valueChange)})   |   Worst: ${worst.label} ${worst.portfolioReturnPct > 0 ? "+" : ""}${worst.portfolioReturnPct}% (${worst.valueChange < 0 ? "" : "+"}${rs(worst.valueChange)})`,
+    ),
     M + 12,
-    y + 58,
-  );
-  // Worst outcome (right)
-  const rx = M + half;
-  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
-  doc.text("WORST OUTCOME", rx + 12, y + 31);
-  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...RED);
-  doc.text(clean(`${worst.portfolioReturnPct > 0 ? "+" : ""}${worst.portfolioReturnPct}%`), rx + 12, y + 47);
-  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...INK);
-  doc.text(
-    clean(`${worst.valueChange < 0 ? "" : "+"}${rs(worst.valueChange)}  (${worst.label})`),
-    rx + 12,
-    y + 58,
+    y + boxH - 8,
   );
   y += boxH + 14;
+
 
   /* Comparison table */
   const measures: Array<{ label: string; value: (s: (typeof rows)[number]) => string; wrap?: boolean }> = [
