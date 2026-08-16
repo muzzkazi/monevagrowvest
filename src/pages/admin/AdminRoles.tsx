@@ -129,7 +129,6 @@ const AdminRolesInner = () => {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="advisor">Advisor (read-only)</SelectItem>
-                  <SelectItem value="admin">Admin (full access)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -145,7 +144,10 @@ const AdminRolesInner = () => {
           </div>
           <p className="text-xs text-muted-foreground mt-3">
             The invited person signs up at <span className="font-medium text-foreground">/auth</span> with this exact email
-            and receives the role automatically on their first sign-in.
+            and receives read-only advisor access automatically on their first sign-in. Admin access is locked to the
+            owner account and cannot be granted to any other email.
+          </p>
+
           </p>
         </Card>
 
