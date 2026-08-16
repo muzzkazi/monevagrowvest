@@ -147,8 +147,6 @@ const AdminRolesInner = () => {
             and receives read-only advisor access automatically on their first sign-in. Admin access is locked to the
             owner account and cannot be granted to any other email.
           </p>
-
-          </p>
         </Card>
 
         <h2 className="font-semibold text-foreground mt-10 mb-3">Pending & accepted invites</h2>
