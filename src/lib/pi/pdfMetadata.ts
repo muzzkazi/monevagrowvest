@@ -85,8 +85,16 @@ export const buildRunPdfIdentity = (params: {
   }),
 });
 
+// Keywords are kept strictly ASCII: a non-ASCII character makes jsPDF write the
+// whole metadata string as a UTF-16 hex string, which is not auditable by eye.
 const esc = (v: string | number | null) =>
-  v === null || v === undefined ? "-" : String(v).replace(/[;()\\]/g, " ").trim() || "-";
+  v === null || v === undefined
+    ? "-"
+    : String(v)
+        .replace(/[;()\\]/g, " ")
+        .replace(/[^\x20-\x7E]/g, "-")
+        .replace(/\s+/g, " ")
+        .trim() || "-";
 
 /** Serialises the identity into the PDF Keywords field: `key=value; key=value`. */
 export const encodeRunPdfKeywords = (id: RunPdfIdentity): string =>
@@ -123,7 +131,12 @@ export const parseRunPdfKeywords = (keywords: string): Record<string, string> =>
 /** Pulls the Keywords string out of raw PDF bytes decoded as latin1. */
 export const readRunPdfKeywords = (rawPdf: string): string | null => {
   const m = rawPdf.match(/\/Keywords\s*\(((?:\\.|[^\\()])*)\)/);
-  return m ? m[1].replace(/\\([()\\])/g, "$1") : null;
+  if (m) return m[1].replace(/\\([()\\])/g, "$1");
+  // Fallback: hex string form, <FEFF....> UTF-16BE.
+  const hex = rawPdf.match(/\/Keywords\s*<([0-9A-Fa-f]+)>/);
+  if (!hex) return null;
+  const bytes = hex[1].replace(/^FEFF/i, "").match(/.{1,4}/g) ?? [];
+  return bytes.map((h) => String.fromCharCode(parseInt(h, 16))).join("");
 };
 
 export const readRunPdfIdentity = (rawPdf: string): Record<string, string> | null => {
