@@ -86,7 +86,7 @@ const riskTolerance = (a: RiskAnswers): RiskDimension => {
   };
 };
 
-const riskCapacity = (p: ClientProfile, goals: Goal[]): RiskDimension => {
+const riskCapacity = (p: ClientProfile, goals: Goal[], year: number): RiskDimension => {
   const drivers: string[] = [];
   let score = 50;
 
@@ -115,7 +115,7 @@ const riskCapacity = (p: ClientProfile, goals: Goal[]): RiskDimension => {
   if (p.insuranceCover <= 0) { score -= 5; drivers.push("No insurance cover recorded"); }
 
   const nearEssential = goals.some(
-    (g) => g.essential && g.targetYear - new Date().getFullYear() <= 3,
+    (g) => g.essential && g.targetYear - year <= 3,
   );
   if (nearEssential) { score -= 12; drivers.push("Essential goal due within 3 years"); }
 
@@ -123,13 +123,13 @@ const riskCapacity = (p: ClientProfile, goals: Goal[]): RiskDimension => {
   return { score, label: scoreToProfile(score), drivers };
 };
 
-const riskNeed = (goals: Goal[], monthlySip: number, currentCorpus: number): RiskDimension => {
+const riskNeed = (goals: Goal[], monthlySip: number, currentCorpus: number, year: number): RiskDimension => {
   const drivers: string[] = [];
   if (goals.length === 0) {
     return { score: 50, label: "Moderate", drivers: ["No goals captured — risk need not measurable"] };
   }
   const required = goals
-    .map((g) => solveRequiredReturn(g, monthlySip, currentCorpus))
+    .map((g) => solveRequiredReturn(g, monthlySip, currentCorpus, year))
     .filter((r): r is number => r !== null);
 
   if (required.length === 0) {
@@ -143,8 +143,8 @@ const riskNeed = (goals: Goal[], monthlySip: number, currentCorpus: number): Ris
 };
 
 // Solve the annual return that makes existing corpus + SIP reach the inflated goal cost.
-const solveRequiredReturn = (goal: Goal, monthlySip: number, corpus: number): number | null => {
-  const years = goal.targetYear - new Date().getFullYear();
+const solveRequiredReturn = (goal: Goal, monthlySip: number, corpus: number, year: number): number | null => {
+  const years = goal.targetYear - year;
   if (years <= 0) return null;
   const target = goal.currentCost * Math.pow(1 + goal.inflationPct / 100, years);
   const start = goal.currentAllocated || corpus * 0;
@@ -175,10 +175,11 @@ export const assessRisk = (
   answers: RiskAnswers,
   monthlySip: number,
   corpus: number,
+  year: number,
 ): RiskAssessment => {
   const tolerance = riskTolerance(answers);
-  const capacity = riskCapacity(profile, goals);
-  const need = riskNeed(goals, monthlySip, corpus);
+  const capacity = riskCapacity(profile, goals, year);
+  const need = riskNeed(goals, monthlySip, corpus, year);
 
   // Ceiling = weakest of tolerance / capacity. Need can only pull the profile
   // DOWN (a low need means no reason to take more risk), never above the ceiling.
@@ -203,7 +204,7 @@ export const assessRisk = (
   // Horizon adjustment — the shortest essential goal caps equity.
   const essential = goals.filter((g) => g.essential);
   if (essential.length) {
-    const minYears = Math.min(...essential.map((g) => g.targetYear - new Date().getFullYear()));
+    const minYears = Math.min(...essential.map((g) => g.targetYear - year));
     if (minYears < 3) {
       hi = Math.min(hi, 40); lo = Math.min(lo, 20);
       notes.push("Essential goal under 3 years — equity ceiling reduced");
@@ -235,8 +236,8 @@ export const assessRisk = (
 /* Goal maths                                                          */
 /* ------------------------------------------------------------------ */
 
-export const computeGoal = (goal: Goal, assumedReturnPct: number, monthlySip: number): GoalMath => {
-  const years = Math.max(0, goal.targetYear - new Date().getFullYear());
+export const computeGoal = (goal: Goal, assumedReturnPct: number, monthlySip: number, year: number): GoalMath => {
+  const years = Math.max(0, goal.targetYear - year);
   const futureCost = goal.currentCost * Math.pow(1 + goal.inflationPct / 100, years);
   const m = assumedReturnPct / 12 / 100;
   const n = years * 12;
@@ -255,7 +256,7 @@ export const computeGoal = (goal: Goal, assumedReturnPct: number, monthlySip: nu
     projectedCorpus,
     fundingGap: futureCost - projectedCorpus,
     fundedPct: futureCost > 0 ? round1((projectedCorpus / futureCost) * 100) : 0,
-    requiredReturnPct: solveRequiredReturn(goal, monthlySip, goal.currentAllocated),
+    requiredReturnPct: solveRequiredReturn(goal, monthlySip, goal.currentAllocated, year),
   };
 };
 
@@ -617,10 +618,15 @@ export interface EngineInput {
   additionalSip: number;
   declaredSipBudget: number;
   assumedReturnPct: number;
+  /** Clock injection — defaults to now. Tests pass a frozen Date so the engine
+   *  is byte-identical across runs (deterministic given inputs + clock). */
+  now?: Date;
 }
 
 export const runEngine = (input: EngineInput): EngineOutput => {
   const { profile, goals, constraints, funds, riskAnswers, additionalSip, declaredSipBudget, assumedReturnPct } = input;
+  const now = input.now ?? new Date();
+  const year = now.getFullYear();
 
   const currentValue = sum(funds.map((f) => f.currentValue));
   const invested = sum(funds.map((f) => f.investedAmount));
@@ -629,7 +635,7 @@ export const runEngine = (input: EngineInput): EngineOutput => {
     profile.epf + profile.ppf + profile.nps + profile.fixedDeposits + profile.directEquity +
     profile.bonds + profile.realEstate + profile.otherInvestments;
 
-  const risk = assessRisk(profile, goals, riskAnswers, currentSip + additionalSip, currentValue);
+  const risk = assessRisk(profile, goals, riskAnswers, currentSip + additionalSip, currentValue, year);
   const target = targetAllocation(risk, profile, constraints);
   const current = currentAllocation(funds);
 
@@ -658,7 +664,7 @@ export const runEngine = (input: EngineInput): EngineOutput => {
 
   const concentration = concentrationFlags(funds);
   const redundancy = redundancyFlags(funds);
-  const goalMaths = goals.map((g) => computeGoal(g, assumedReturnPct, currentSip + additionalSip));
+  const goalMaths = goals.map((g) => computeGoal(g, assumedReturnPct, currentSip + additionalSip, year));
   const sipPlan = optimiseSip(funds, allocation, additionalSip);
   const scores = computeScores(funds, allocation, concentration, redundancy, goalMaths, constraints);
 
@@ -669,7 +675,7 @@ export const runEngine = (input: EngineInput): EngineOutput => {
   ];
 
   return {
-    asOf: new Date().toISOString(),
+    asOf: now.toISOString(),
     dataFlags,
     totals: { currentValue, invested, currentSip, additionalSip, totalOtherAssets },
     risk,

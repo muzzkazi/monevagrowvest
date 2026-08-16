@@ -34,12 +34,12 @@ const bucketMetrics: Partial<Record<AssetBucket, NavMetrics[]>> = {
 
 const output = runEngine(engineInput);
 
-const holdings = computeHoldingTaxes(funds, { annualIncome: profile.annualIncome });
+const holdings = computeHoldingTaxes(funds, { annualIncome: profile.annualIncome, asOf: FIXED_NOW });
 
 const switchPlan = buildSwitchPlan(
   funds,
   [{ fundId: "f2", reason: "Small cap sleeve is above the risk band", amount: 300000 }],
-  { annualIncome: profile.annualIncome },
+  { annualIncome: profile.annualIncome, asOf: FIXED_NOW },
 );
 
 const stress = runStressTest({
@@ -48,6 +48,7 @@ const stress = runStressTest({
   monthlySip: output.totals.currentSip + output.totals.additionalSip,
   bucketMetrics,
   nearestEssentialGoalYears: 8,
+  now: FIXED_NOW,
 });
 
 const freshNav = {

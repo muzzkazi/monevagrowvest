@@ -46,7 +46,7 @@ const brokenQuality = buildDataQualityReport({
 const switchPlan = buildSwitchPlan(
   funds,
   [{ fundId: "f2", reason: "Small cap sleeve is above the risk band", amount: 300000 }],
-  { annualIncome: profile.annualIncome },
+  { annualIncome: profile.annualIncome, asOf: FIXED_NOW },
 );
 
 const base = {

@@ -66,6 +66,8 @@ export interface StressInput {
   bucketMetrics?: Partial<Record<AssetBucket, NavMetrics[]>>;
   /** Nearest essential goal in years, used for the recovery commentary. */
   nearestEssentialGoalYears?: number | null;
+  /** Clock injection — defaults to now. Tests pass a frozen Date for determinism. */
+  now?: Date;
 }
 
 export interface StressOutput {
@@ -100,6 +102,7 @@ const weightedShockFromMetrics = (metrics: NavMetrics[], key: ScenarioKey): numb
 
 export const runStressTest = (input: StressInput): StressOutput => {
   const { allocation, portfolioValue, monthlySip, bucketMetrics, nearestEssentialGoalYears } = input;
+  const now = input.now ?? new Date();
   const dataGaps: string[] = [];
   let anyComputed = false;
   let anyAssumed = false;
@@ -171,7 +174,7 @@ export const runStressTest = (input: StressInput): StressOutput => {
     anyComputed && anyAssumed ? "mixed" : anyComputed ? "computed" : "assumption";
 
   return {
-    asOf: new Date().toISOString(),
+    asOf: now.toISOString(),
     basis,
     scenarios,
     notes: [
