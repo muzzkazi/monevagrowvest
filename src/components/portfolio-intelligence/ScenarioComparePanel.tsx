@@ -19,6 +19,7 @@ import GlossaryTerm from "@/components/portfolio-intelligence/GlossaryTerm";
 import { ScenarioKey, StressOutput } from "@/lib/pi/stress";
 import { generateScenarioPdf } from "@/lib/pi/scenarioPdf";
 import { useToast } from "@/hooks/use-toast";
+import { logAdminAction } from "@/lib/admin/auditLog";
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
@@ -85,7 +86,20 @@ const ScenarioComparePanel = ({ stress, selected, onSelectedChange, meta }: Scen
     }
   };
 
-  const exportPdf = () => generateScenarioPdf(stress, { ...meta, selected: activeKeys });
+  const exportPdf = () => {
+    generateScenarioPdf(stress, { ...meta, selected: activeKeys });
+    void logAdminAction(
+      "scenario_export",
+      `Exported scenarios PDF (${activeKeys.join(", ")}) for ${meta?.clientName ?? "unnamed client"}`,
+      {
+        scenarios: activeKeys,
+        client_name: meta?.clientName ?? null,
+        run_name: meta?.runName ?? null,
+        run_id: meta?.runId ?? null,
+        version_id: meta?.versionId ?? null,
+      },
+    );
+  };
   const chartData = rows.map((s) => ({
     name: s.label,
     key: s.key,

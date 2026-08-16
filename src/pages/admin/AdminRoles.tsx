@@ -14,9 +14,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ArrowLeft, Lock, ShieldCheck, Trash2, UserPlus, Eye, Pencil } from "lucide-react";
+import { logAdminAction } from "@/lib/admin/auditLog";
+import { ArrowLeft, Lock, ScrollText, ShieldCheck, Trash2, UserPlus, Eye, Pencil } from "lucide-react";
 
 type RoleRow = { id: string; user_id: string; role: string; created_at: string };
+type AuditRow = { id: string; action: string; actor_email: string | null; target_email: string | null; details: string | null; created_at: string };
 type Invite = { id: string; email: string; role: string; note: string | null; accepted_at: string | null; created_at: string };
 
 const ROLE_INFO: Record<string, { label: string; blurb: string; icon: typeof Eye }> = {
@@ -30,17 +32,20 @@ const AdminRolesInner = () => {
   const [invites, setInvites] = useState<Invite[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [audit, setAudit] = useState<AuditRow[]>([]);
   const [form, setForm] = useState({ email: "", role: "advisor", note: "" });
 
   const load = async () => {
     setLoading(true);
-    const [{ data: rs, error }, { data: iv }] = await Promise.all([
+    const [{ data: rs, error }, { data: iv }, { data: al }] = await Promise.all([
       supabase.from("user_roles").select("id, user_id, role, created_at").order("created_at"),
       supabase.from("team_invites").select("id, email, role, note, accepted_at, created_at").order("created_at", { ascending: false }),
+      supabase.from("admin_audit_log").select("id, action, actor_email, target_email, details, created_at").order("created_at", { ascending: false }).limit(50),
     ]);
     if (error) toast.error("Could not load team roles");
     setRoles((rs as RoleRow[]) ?? []);
     setInvites((iv as Invite[]) ?? []);
+    setAudit((al as AuditRow[]) ?? []);
     setLoading(false);
   };
 
@@ -61,6 +66,7 @@ const AdminRolesInner = () => {
       toast.error(error.message.includes("duplicate") ? "That email is already invited" : error.message);
       return;
     }
+    await logAdminAction("invite_created", `Advisor invite created for ${email}`, { role: form.role }, email);
     toast.success("Invite saved — the role is granted as soon as they sign up");
     setForm({ email: "", role: "advisor", note: "" });
     load();
@@ -69,6 +75,7 @@ const AdminRolesInner = () => {
   const removeInvite = async (i: Invite) => {
     const { error } = await supabase.from("team_invites").delete().eq("id", i.id);
     if (error) return toast.error(error.message);
+    await logAdminAction("invite_revoked", `Invite removed for ${i.email}`, { role: i.role }, i.email);
     toast.success("Invite removed");
     load();
   };
@@ -226,7 +233,46 @@ const AdminRolesInner = () => {
             </Table>
           )}
         </Card>
+
+        <h2 className="font-semibold text-foreground mt-10 mb-3 flex items-center gap-2">
+          <ScrollText className="h-4 w-4 text-financial-accent" /> Audit trail
+        </h2>
+        <Card className="overflow-hidden">
+          {loading ? (
+            <div className="p-4 space-y-3">{[0, 1].map((i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
+          ) : audit.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              No admin activity recorded yet. Role changes and scenario exports appear here.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>When</TableHead>
+                  <TableHead>Action</TableHead>
+                  <TableHead>By</TableHead>
+                  <TableHead>Details</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {audit.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(a.created_at).toLocaleString("en-IN")}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-[10px]">{a.action.replace(/_/g, " ")}</Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-foreground">{a.actor_email ?? "system"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{a.details ?? "—"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </Card>
       </div>
+
     </section>
   );
 };
