@@ -210,7 +210,8 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
 
           {/* Portfolio */}
           <TabsContent value="portfolio" className="mt-6 space-y-4">
-            <div className="flex justify-end">
+            <div className="flex flex-wrap justify-end gap-2">
+              {canEdit && <HoldingsImportDialog onImport={importHoldings} title="Import this client's holdings" />}
               {canEdit && <Dialog open={fundOpen} onOpenChange={setFundOpen}>
                 <DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Add fund</Button></DialogTrigger>
                 <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
