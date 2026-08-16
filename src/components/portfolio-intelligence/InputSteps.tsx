@@ -298,21 +298,42 @@ export const ConstraintsStep = ({
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Mandate preferences</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Mandate preferences</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            These are hard eligibility filters — funds that don't match a switched-on mandate are excluded from the recommendation.
+          </p>
+        </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           {([
-            ["esg", "ESG / ethical mandate"],
-            ["taxSaving", "Tax saving required (ELSS)"],
-            ["incomeNeed", "Regular income need"],
-            ["capitalPreservation", "Capital preservation priority"],
-          ] as Array<[keyof Constraints, string]>).map(([k, label]) => (
+            ["esg", "ESG / ethical mandate", "Limits funds to those meeting Environmental, Social and Governance (ESG) criteria — excludes funds with poor ESG ratings or controversial holdings."],
+            ["taxSaving", "Tax saving required (ELSS)", "Restricts to Equity Linked Savings Schemes (ELSS) — the only equity funds eligible for ₹1.5L Section 80C deduction, with a 3-year lock-in."],
+            ["incomeNeed", "Regular income need", "Prefers funds that pay regular dividends / income (e.g. dividend-yield, debt) over pure growth funds."],
+            ["capitalPreservation", "Capital preservation priority", "Tilts toward low-volatility, capital-protecting funds (debt, arbitrage, conservative hybrid) over high-growth equity."],
+          ] as Array<[keyof Constraints, string, string]>).map(([k, label, desc]) => (
             <div key={k} className="flex items-center gap-3">
               <Switch
                 id={`c-${k}`}
                 checked={Boolean(constraints[k])}
                 onCheckedChange={(v) => set(k, v as never)}
               />
-              <Label htmlFor={`c-${k}`} className="text-sm">{label}</Label>
+              <Label htmlFor={`c-${k}`} className="text-sm flex items-center gap-1.5">
+                {label}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                      aria-label={`What is ${label}?`}
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="w-64 text-xs leading-relaxed" side="right">
+                    {desc}
+                  </TooltipContent>
+                </Tooltip>
+              </Label>
             </div>
           ))}
         </CardContent>
