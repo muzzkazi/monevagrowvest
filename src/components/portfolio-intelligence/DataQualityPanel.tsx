@@ -20,11 +20,15 @@ const DataQualityPanel = ({
   onRefreshNav?: () => void;
   refreshing?: boolean;
 }) => (
-  <Card className={report.switchingAllowed ? "" : "border-destructive/40"}>
+  <Card
+    role="region"
+    aria-labelledby="data-quality-title"
+    className={report.switchingAllowed ? "" : "border-destructive/40"}
+  >
     <CardHeader className="pb-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Database className="h-4 w-4 text-financial-accent" /> Data quality &amp; switch readiness
+        <CardTitle id="data-quality-title" className="text-base flex items-center gap-2">
+          <Database className="h-4 w-4 text-financial-accent" aria-hidden /> Data quality &amp; switch readiness
         </CardTitle>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className={freshnessTone[report.navFreshness]}>
@@ -40,8 +44,16 @@ const DataQualityPanel = ({
             Tax inputs {report.taxInputsComplete ? "complete" : "incomplete"}
           </Badge>
           {onRefreshNav && (
-            <Button size="sm" variant="outline" className="gap-1.5" onClick={onRefreshNav} disabled={refreshing}>
-              <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} /> Refresh NAV
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              onClick={onRefreshNav}
+              disabled={refreshing}
+              aria-label="Refresh NAV data"
+              aria-busy={refreshing ? true : undefined}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} aria-hidden /> Refresh NAV
             </Button>
           )}
         </div>
@@ -49,7 +61,7 @@ const DataQualityPanel = ({
     </CardHeader>
     <CardContent className="space-y-4">
       {report.switchingAllowed ? (
-        <div className="flex items-start gap-2 rounded-lg border border-financial-accent/30 bg-financial-accent/5 p-3">
+        <div className="flex items-start gap-2 rounded-lg border border-financial-accent/30 bg-financial-accent/5 p-3" role="status" aria-live="polite">
           <CheckCircle2 className="h-4 w-4 mt-0.5 text-financial-accent" aria-hidden />
           <p className="text-sm text-foreground">
             All tax inputs are captured and the NAV data behind the analysis is current, so switch recommendations are
@@ -57,7 +69,7 @@ const DataQualityPanel = ({
           </p>
         </div>
       ) : (
-        <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3" role="alert">
+        <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3" role="alert" aria-live="assertive">
           <ShieldAlert className="h-4 w-4 mt-0.5 text-destructive" aria-hidden />
           <div className="space-y-1">
             <p className="text-sm font-medium text-destructive">
@@ -72,9 +84,9 @@ const DataQualityPanel = ({
       )}
 
       {report.blockers.length > 0 && (
-        <div className="space-y-2">
+        <ul className="space-y-2" aria-label="Blocking data requirements">
           {report.blockers.map((i) => (
-            <div key={i.id} className="rounded-lg border border-destructive/30 p-3">
+            <li key={i.id} className="rounded-lg border border-destructive/30 p-3">
               <div className="flex items-start gap-2">
                 <Badge variant="secondary" className="bg-destructive/10 text-destructive shrink-0">{i.area}</Badge>
                 <div>
@@ -82,15 +94,15 @@ const DataQualityPanel = ({
                   <p className="text-xs text-muted-foreground mt-0.5">Fix: {i.fix}</p>
                 </div>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
       {report.warnings.length > 0 && (
-        <div className="space-y-2">
+        <ul className="space-y-2" aria-label="Data quality warnings">
           {report.warnings.map((i) => (
-            <div key={i.id} className="rounded-lg border border-financial-gold/40 p-3">
+            <li key={i.id} className="rounded-lg border border-financial-gold/40 p-3">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="h-4 w-4 mt-0.5 text-financial-gold shrink-0" aria-hidden />
                 <div>
@@ -98,9 +110,9 @@ const DataQualityPanel = ({
                   <p className="text-xs text-muted-foreground mt-0.5">Fix: {i.fix}</p>
                 </div>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </CardContent>
   </Card>
