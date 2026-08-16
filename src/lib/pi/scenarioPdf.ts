@@ -213,24 +213,26 @@ export const generateScenarioPdf = (
   y += 18;
 
   // --- Bar chart: one-year return % (zero baseline) ---
+  const AX = M + 60; // left gutter reserved for axis labels
+  const plotW = W - M - AX;
   const chartH = 150;
   const chartTop = y + 14;
   const chartBottom = chartTop + chartH;
   const maxAbs = Math.max(...rows.map((s) => Math.abs(s.portfolioReturnPct)), 1);
-  const zeroY = chartTop + (chartH * maxAbs) / (maxAbs * 2);
+  const zeroY = chartTop + chartH / 2;
   doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...INK);
   doc.text("One-year portfolio return (%)", M, y);
-  doc.setDrawColor(...LINE).line(M, chartTop, M, chartBottom);
-  doc.setDrawColor(...LINE).line(M, zeroY, W - M, zeroY);
+  doc.setDrawColor(...LINE).line(AX, chartTop, AX, chartBottom);
+  doc.setDrawColor(...LINE).line(AX, zeroY, W - M, zeroY);
   doc.setFont("helvetica", "normal").setFontSize(6.5).setTextColor(...MUTED);
-  doc.text("0%", M - 4, zeroY + 3, { align: "right" });
-  doc.text(clean(`+${Math.round(maxAbs)}%`), M - 4, chartTop + 4, { align: "right" });
-  doc.text(clean(`-${Math.round(maxAbs)}%`), M - 4, chartBottom, { align: "right" });
+  doc.text("0%", AX - 5, zeroY + 3, { align: "right" });
+  doc.text(clean(`+${Math.round(maxAbs)}%`), AX - 5, chartTop + 4, { align: "right" });
+  doc.text(clean(`-${Math.round(maxAbs)}%`), AX - 5, chartBottom, { align: "right" });
 
-  const bcw = (inner - 10) / Math.max(rows.length, 1);
+  const bcw = plotW / Math.max(rows.length, 1);
   const barW = Math.min(52, bcw * 0.5);
   rows.forEach((s, i) => {
-    const cx = M + 10 + i * bcw + bcw / 2;
+    const cx = AX + i * bcw + bcw / 2;
     const h = (Math.abs(s.portfolioReturnPct) / maxAbs) * (chartH / 2);
     const up = s.portfolioReturnPct >= 0;
     doc.setFillColor(...toneFor(s.key));
@@ -239,13 +241,13 @@ export const generateScenarioPdf = (
     doc.text(
       clean(`${up ? "+" : ""}${s.portfolioReturnPct}%`),
       cx,
-      up ? zeroY - h - 4 : zeroY + h + 9,
+      up ? zeroY - h - 4 : Math.min(zeroY + h + 9, chartBottom + 8),
       { align: "center" },
     );
     doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
-    doc.text(clean(s.label), cx, chartBottom + 12, { align: "center" });
+    doc.text(clean(s.label), cx, chartBottom + 22, { align: "center" });
   });
-  y = chartBottom + 30;
+  y = chartBottom + 46;
 
   // --- Line chart: end portfolio value across scenarios ---
   const lh = 120;
@@ -255,17 +257,18 @@ export const generateScenarioPdf = (
   const vMax = Math.max(...vals);
   const vMin = Math.min(...vals);
   const span = vMax - vMin || Math.max(vMax, 1);
-  const yFor = (v: number) => lBottom - ((v - (vMin - span * 0.15)) / (span * 1.3)) * lh;
+  const yFor = (v: number) => lBottom - ((v - (vMin - span * 0.2)) / (span * 1.45)) * lh;
   doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...INK);
   doc.text("Portfolio value by scenario", M, y);
-  doc.setDrawColor(...LINE).line(M, lTop, M, lBottom);
-  doc.setDrawColor(...LINE).line(M, lBottom, W - M, lBottom);
+  doc.setDrawColor(...LINE).line(AX, lTop, AX, lBottom);
+  doc.setDrawColor(...LINE).line(AX, lBottom, W - M, lBottom);
   doc.setFont("helvetica", "normal").setFontSize(6.5).setTextColor(...MUTED);
-  doc.text(clean(rs(vMax)), M - 4, yFor(vMax) + 3, { align: "right" });
-  doc.text(clean(rs(vMin)), M - 4, yFor(vMin) + 3, { align: "right" });
+  doc.text(clean(rs(vMax)), AX - 5, yFor(vMax) + 3, { align: "right" });
+  doc.text(clean(rs(vMin)), AX - 5, yFor(vMin) + 3, { align: "right" });
 
+  const lpw = W - M - AX - 30;
   const pts = rows.map((s, i) => ({
-    x: M + 20 + i * ((inner - 40) / Math.max(rows.length - 1, 1)),
+    x: AX + 20 + i * (lpw / Math.max(rows.length - 1, 1)),
     py: yFor(s.endValue),
     s,
   }));
@@ -278,6 +281,7 @@ export const generateScenarioPdf = (
     doc.setFillColor(...toneFor(p.s.key)).circle(p.x, p.py, 3, "F");
     doc.setFont("helvetica", "bold").setFontSize(7).setTextColor(...INK);
     doc.text(clean(rs(p.s.endValue)), p.x, p.py - 8, { align: "center" });
+
     doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...MUTED);
     doc.text(clean(p.s.label), p.x, lBottom + 12, { align: "center" });
   });
