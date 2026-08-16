@@ -224,8 +224,8 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                         <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
-                    <div><Label>Monthly SIP (₹)</Label><NumberInput value={fundForm.monthly_sip} onTextChange={(v) => setFundForm({ ...fundForm, monthly_sip: v })} /></div>
-                    <div><Label>Lumpsum (₹)</Label><NumberInput value={fundForm.lumpsum_amount} onTextChange={(v) => setFundForm({ ...fundForm, lumpsum_amount: v })} /></div>
+                    <div><Label>Monthly SIP (₹)</Label><NumberInput value={fundForm.monthly_sip} onTextChange={(v0) => { const v = v0.replace(/,/g, ""); setFundForm({ ...fundForm, monthly_sip: v }); }} /></div>
+                    <div><Label>Lumpsum (₹)</Label><NumberInput value={fundForm.lumpsum_amount} onTextChange={(v0) => { const v = v0.replace(/,/g, ""); setFundForm({ ...fundForm, lumpsum_amount: v }); }} /></div>
                     <div><Label>SIP day of month</Label><Input type="number" min={1} max={28} value={fundForm.sip_day} onChange={(e) => setFundForm({ ...fundForm, sip_day: e.target.value })} /></div>
                     <div className="sm:col-span-2"><Label>Start date</Label><Input type="date" value={fundForm.start_date} onChange={(e) => setFundForm({ ...fundForm, start_date: e.target.value })} /></div>
                     <div className="sm:col-span-2"><Label>Why this fund</Label><Textarea rows={3} value={fundForm.rationale} onChange={(e) => setFundForm({ ...fundForm, rationale: e.target.value })} /></div>
@@ -350,7 +350,7 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                   <div className="grid gap-4">
                     <div><Label>Goal name *</Label><Input value={goalForm.goal_name} onChange={(e) => setGoalForm({ ...goalForm, goal_name: e.target.value })} placeholder="Child education, retirement…" /></div>
                     <div className="grid sm:grid-cols-2 gap-4">
-                      <div><Label>Target amount (₹)</Label><NumberInput value={goalForm.target_amount} onTextChange={(v) => setGoalForm({ ...goalForm, target_amount: v })} /></div>
+                      <div><Label>Target amount (₹)</Label><NumberInput value={goalForm.target_amount} onTextChange={(v0) => { const v = v0.replace(/,/g, ""); setGoalForm({ ...goalForm, target_amount: v }); }} /></div>
                       <div><Label>Target date</Label><Input type="date" value={goalForm.target_date} onChange={(e) => setGoalForm({ ...goalForm, target_date: e.target.value })} /></div>
                     </div>
                     <div>

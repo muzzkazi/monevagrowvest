@@ -166,8 +166,8 @@ const AdminClientsInner = () => {
                   </Select>
                 </div>
                 <div><Label>Horizon (years)</Label><Input type="number" value={form.investment_horizon_years} onChange={(e) => setForm({ ...form, investment_horizon_years: e.target.value })} /></div>
-                <div><Label>Monthly income (₹)</Label><NumberInput value={form.monthly_income} onTextChange={(v) => setForm({ ...form, monthly_income: v })} /></div>
-                <div><Label>Monthly investable (₹)</Label><NumberInput value={form.monthly_investable} onTextChange={(v) => setForm({ ...form, monthly_investable: v })} /></div>
+                <div><Label>Monthly income (₹)</Label><NumberInput value={form.monthly_income} onTextChange={(v0) => { const v = v0.replace(/,/g, ""); setForm({ ...form, monthly_income: v }); }} /></div>
+                <div><Label>Monthly investable (₹)</Label><NumberInput value={form.monthly_investable} onTextChange={(v0) => { const v = v0.replace(/,/g, ""); setForm({ ...form, monthly_investable: v }); }} /></div>
                 <div><Label>Occupation</Label><Input value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} /></div>
                 <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
                 <div className="sm:col-span-2">

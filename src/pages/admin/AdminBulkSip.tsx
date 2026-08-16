@@ -241,7 +241,7 @@ const AdminBulkSipInner = () => {
               </div>
               <div>
                 <Label>{mode === "increase_pct" ? "Percentage" : "Amount (₹)"}</Label>
-                <NumberInput value={value} onTextChange={setValue} />
+                <NumberInput value={value} onTextChange={(v) => setValue(v.replace(/,/g, ""))} />
               </div>
               <div>
                 <Label>Round to nearest (₹)</Label>
@@ -339,7 +339,7 @@ const AdminBulkSipInner = () => {
                     <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div><Label>Monthly SIP per client (₹)</Label><NumberInput value={addForm.monthly_sip} onTextChange={(v) => setAddForm({ ...addForm, monthly_sip: v })} /></div>
+                <div><Label>Monthly SIP per client (₹)</Label><NumberInput value={addForm.monthly_sip} onTextChange={(v0) => { const v = v0.replace(/,/g, ""); setAddForm({ ...addForm, monthly_sip: v }); }} /></div>
                 <div className="sm:col-span-2"><Label>Why this fund</Label><Textarea rows={3} value={addForm.rationale} onChange={(e) => setAddForm({ ...addForm, rationale: e.target.value })} /></div>
               </div>
 
