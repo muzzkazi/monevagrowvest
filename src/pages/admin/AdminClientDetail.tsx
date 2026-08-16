@@ -259,8 +259,7 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                         <TableCell className="text-sm text-muted-foreground">{f.category || "—"}</TableCell>
                         <TableCell>
                           <NumberInput
-                            defaultValue={Number(f.monthly_sip).toLocaleString("en-IN")}
-                            value={undefined as never}
+                            defaultValue={Number(f.monthly_sip)}
                             className="h-9"
                             disabled={!canEdit}
                             onBlur={(e) => {
