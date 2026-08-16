@@ -258,13 +258,13 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">{f.category || "—"}</TableCell>
                         <TableCell>
-                          <Input
-                            type="number"
-                            defaultValue={Number(f.monthly_sip)}
+                          <NumberInput
+                            defaultValue={Number(f.monthly_sip).toLocaleString("en-IN")}
+                            value={undefined as never}
                             className="h-9"
                             disabled={!canEdit}
                             onBlur={(e) => {
-                              const v = Number(e.target.value);
+                              const v = Number(e.target.value.replace(/,/g, ""));
                               if (v !== Number(f.monthly_sip)) updateFund(f, { monthly_sip: v }, `SIP changed to ${inr(v)}/month`);
                             }}
                           />

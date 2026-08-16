@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -428,12 +429,10 @@ const BudgetTracker = () => {
               </div>
               <div>
                 <Label htmlFor="item-amount">{newItem.type === "income" ? "Expected Amount" : "Budget Limit"}</Label>
-                <Input
+                <NumberInput
                   id="item-amount"
-                  type="number"
-                  min={0}
                   value={newItem.budgetAmount}
-                  onChange={(e) => setNewItem({ ...newItem, budgetAmount: e.target.value })}
+                  onTextChange={(v) => setNewItem({ ...newItem, budgetAmount: v.replace(/,/g, "") })}
                   placeholder="Amount"
                 />
               </div>
@@ -483,12 +482,10 @@ const BudgetTracker = () => {
               </div>
               <div>
                 <Label htmlFor="trans-amount">Amount</Label>
-                <Input
+                <NumberInput
                   id="trans-amount"
-                  type="number"
-                  min={0}
                   value={newTransaction.amount}
-                  onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
+                  onTextChange={(v) => setNewTransaction({ ...newTransaction, amount: v.replace(/,/g, "") })}
                   placeholder="Amount"
                 />
               </div>
@@ -637,14 +634,10 @@ const BudgetTracker = () => {
                 </div>
                 <div>
                   <Label htmlFor="edit-amount">Amount</Label>
-                  <Input
+                  <NumberInput
                     id="edit-amount"
-                    type="number"
-                    min={0}
                     value={editingTxn.amount || ""}
-                    onChange={(e) =>
-                      setEditingTxn({ ...editingTxn, amount: parseFloat(e.target.value) || 0 })
-                    }
+                    onValueChange={(v) => setEditingTxn({ ...editingTxn, amount: v })}
                   />
                 </div>
               </div>

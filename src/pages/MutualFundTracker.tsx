@@ -3,6 +3,7 @@ import PageLayout from "@/components/shared/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -223,10 +224,9 @@ const PortfolioTab = ({
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">SIP ₹</span>
-                      <Input
-                        type="number"
+                      <NumberInput
                         value={f.monthlySIP}
-                        onChange={(e) => updateSIP(f.code, Number(e.target.value) || 0)}
+                        onValueChange={(v) => updateSIP(f.code, v)}
                         className="w-28 h-9"
                       />
                       <Button
