@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, BrainCircuit, FileDown, Play, Sparkles } from "lucide-react";
+import { ArrowLeft, BrainCircuit, Calculator, FileDown, MessagesSquare, Play, Sparkles } from "lucide-react";
 import PageLayout from "@/components/shared/PageLayout";
 import AdvisorRouteGuard from "@/components/admin/AdvisorRouteGuard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   ConstraintsStep,
   GoalsStep,
@@ -24,6 +25,12 @@ import NarrativePanel from "@/components/portfolio-intelligence/NarrativePanel";
 import ChallengeReviewPanel from "@/components/portfolio-intelligence/ChallengeReviewPanel";
 import FundCommentaryPanel from "@/components/portfolio-intelligence/FundCommentaryPanel";
 import AdvisorChatPanel from "@/components/portfolio-intelligence/AdvisorChatPanel";
+import ScenarioComparePanel from "@/components/portfolio-intelligence/ScenarioComparePanel";
+import OnePageSummaryPanel from "@/components/portfolio-intelligence/OnePageSummaryPanel";
+import GlossaryPanel from "@/components/portfolio-intelligence/GlossaryPanel";
+import GlossaryTerm from "@/components/portfolio-intelligence/GlossaryTerm";
+import type { ClientNarrative } from "@/components/portfolio-intelligence/NarrativePanel";
+import type { FundCommentary } from "@/components/portfolio-intelligence/FundCommentaryPanel";
 import { buildFundSelectionFacts } from "@/lib/pi/fundFacts";
 import VersionHistoryPanel from "@/components/portfolio-intelligence/VersionHistoryPanel";
 import { buildDataQualityReport } from "@/lib/pi/dataQuality";
@@ -42,6 +49,8 @@ import { useNavData } from "@/hooks/useNavData";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AssetBucket, ClientProfile, Constraints, EngineOutput, Goal, PortfolioFund, RiskAnswers } from "@/lib/pi/types";
 
+type LayerView = "math" | "plain" | "both";
+
 const PortfolioIntelligenceInner = () => {
   const { canEdit } = useIsAdmin();
   const { toast } = useToast();
@@ -59,6 +68,11 @@ const PortfolioIntelligenceInner = () => {
   const [runName, setRunName] = useState("Untitled run");
   const [versionToken, setVersionToken] = useState(0);
   const [challengeCleared, setChallengeCleared] = useState(false);
+  const [layerView, setLayerView] = useState<LayerView>("both");
+  const [narrative, setNarrative] = useState<ClientNarrative | null>(null);
+  const [commentary, setCommentary] = useState<FundCommentary | null>(null);
+  const showMath = layerView !== "plain";
+  const showPlain = layerView !== "math";
 
   const schemeCodes = useMemo(
     () => funds.map((f) => (f as PortfolioFund & { schemeCode?: string }).schemeCode ?? "").filter(Boolean),
@@ -294,31 +308,58 @@ const PortfolioIntelligenceInner = () => {
             <>
               <Card className="border-financial-accent/30">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-financial-accent" /> AI advisor layer
-                  </CardTitle>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-financial-accent" /> AI advisor layer
+                    </CardTitle>
+                    <ToggleGroup
+                      type="single"
+                      value={layerView}
+                      onValueChange={(v) => v && setLayerView(v as LayerView)}
+                      aria-label="Show engine math, plain English, or both"
+                      className="flex-wrap"
+                    >
+                      <ToggleGroupItem value="math" className="gap-1.5 text-xs px-3">
+                        <Calculator className="h-3.5 w-3.5" /> Layer A · math
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="plain" className="gap-1.5 text-xs px-3">
+                        <MessagesSquare className="h-3.5 w-3.5" /> Layer B · plain English
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="both" className="gap-1.5 text-xs px-3">
+                        Both
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-2">
                   <p className="text-sm text-muted-foreground">
-                    The AI advisor layer sits on top of these exact numbers — it interprets, challenges inconsistent
-                    proposals and writes the client-facing explanation, but never recalculates or overrides the engine.
-                    Assumed return used for goal projection: <strong className="text-foreground">{assumedReturnPct}% p.a.</strong> (derived
-                    from the engine's equity band, not a forecast).
+                    <GlossaryTerm id="layerA">Layer A</GlossaryTerm> computes every figure deterministically;{" "}
+                    <GlossaryTerm id="layerB">Layer B</GlossaryTerm> only explains those figures in plain English and is
+                    blocked from inventing numbers. Use the toggle to see the same recommendation either way.
+                    Assumed return used for goal projection:{" "}
+                    <strong className="text-foreground">{assumedReturnPct}% p.a.</strong> (derived from the engine's{" "}
+                    <GlossaryTerm id="equityRange">equity band</GlossaryTerm>, not a forecast).
                   </p>
                 </CardContent>
               </Card>
-              <NavDataPanel
-                series={nav.series}
-                metrics={nav.metrics}
-                unavailable={nav.unavailable}
-                oldestFetchedAt={nav.oldestFetchedAt}
-                loading={nav.loading}
-                error={nav.error}
-                onRefresh={nav.refresh}
-                requestedCodes={nav.requestedCodes}
-              />
-              <DataQualityPanel report={quality} onRefreshNav={nav.refresh} refreshing={nav.loading} />
-              <AnalysisPanel output={output} />
+
+              {showMath && (
+                <>
+                  <NavDataPanel
+                    series={nav.series}
+                    metrics={nav.metrics}
+                    unavailable={nav.unavailable}
+                    oldestFetchedAt={nav.oldestFetchedAt}
+                    loading={nav.loading}
+                    error={nav.error}
+                    onRefresh={nav.refresh}
+                    requestedCodes={nav.requestedCodes}
+                  />
+                  <DataQualityPanel report={quality} onRefreshNav={nav.refresh} refreshing={nav.loading} />
+                  <AnalysisPanel output={output} />
+                </>
+              )}
+
               {narrativeFacts && challenge && (
                 <ChallengeReviewPanel
                   report={challenge}
@@ -326,9 +367,10 @@ const PortfolioIntelligenceInner = () => {
                   onClearedChange={setChallengeCleared}
                 />
               )}
-              {narrativeFacts && challenge && (
+
+              {showPlain && narrativeFacts && challenge && (
                 challengeCleared ? (
-                  <NarrativePanel facts={narrativeFacts} />
+                  <NarrativePanel facts={narrativeFacts} onNarrativeChange={setNarrative} />
                 ) : (
                   <Card className="border-dashed">
                     <CardContent className="py-10 text-center space-y-2">
@@ -343,8 +385,18 @@ const PortfolioIntelligenceInner = () => {
                   </Card>
                 )
               )}
-              {fundFacts && <FundCommentaryPanel facts={fundFacts} />}
-              {narrativeFacts && (
+              {showPlain && fundFacts && (
+                <FundCommentaryPanel facts={fundFacts} onCommentaryChange={setCommentary} />
+              )}
+              {showPlain && narrativeFacts && challengeCleared && (
+                <OnePageSummaryPanel
+                  facts={narrativeFacts}
+                  fundFacts={fundFacts}
+                  narrative={narrative}
+                  commentary={commentary}
+                />
+              )}
+              {showPlain && narrativeFacts && (
                 <AdvisorChatPanel
                   facts={narrativeFacts}
                   fundFacts={fundFacts}
@@ -356,9 +408,14 @@ const PortfolioIntelligenceInner = () => {
                   }}
                 />
               )}
-              {taxViews && <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />}
-              {stress && <StressTestPanel stress={stress} />}
+              {showMath && taxViews && (
+                <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />
+              )}
+              {stress && <ScenarioComparePanel stress={stress} />}
+              {showMath && stress && <StressTestPanel stress={stress} />}
+              <GlossaryPanel />
             </>
+
           ) : (
             <Card>
               <CardContent className="py-16 text-center space-y-3">

@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertTriangle, Info, ShieldCheck, TrendingDown, TrendingUp } from "lucide-react";
 import { EngineOutput } from "@/lib/pi/types";
+import GlossaryTerm from "@/components/portfolio-intelligence/GlossaryTerm";
 
 const inr = (n: number) =>
   `₹${Math.round(n).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
@@ -80,7 +81,9 @@ const AnalysisPanel = ({ output }: { output: EngineOutput }) => {
           <CardContent className="space-y-2">
             <p className="text-2xl font-serif font-bold text-foreground">{risk.finalProfile}</p>
             <p className="text-xs text-muted-foreground">
-              Equity band {risk.equityRange[0]}-{risk.equityRange[1]}% · binding constraint: <strong className="text-foreground">{risk.bindingConstraint}</strong>
+              <GlossaryTerm id="equityRange">Equity band</GlossaryTerm> {risk.equityRange[0]}-{risk.equityRange[1]}% ·{" "}
+              <GlossaryTerm id="bindingConstraint">binding constraint</GlossaryTerm>:{" "}
+              <strong className="text-foreground">{risk.bindingConstraint}</strong>
             </p>
             <div className="grid grid-cols-3 gap-2 pt-2">
               {[["Tolerance", risk.tolerance], ["Capacity", risk.capacity], ["Need", risk.need]].map(([label, d]) => {
@@ -102,11 +105,13 @@ const AnalysisPanel = ({ output }: { output: EngineOutput }) => {
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-base">Why this risk profile</CardTitle></CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
-          {[["Risk tolerance", risk.tolerance], ["Risk capacity", risk.capacity], ["Risk need", risk.need]].map(([label, d]) => {
+          {([["Risk tolerance", risk.tolerance, "riskTolerance"], ["Risk capacity", risk.capacity, "riskCapacity"], ["Risk need", risk.need, "riskNeed"]] as const).map(([label, d, gid]) => {
             const dim = d as typeof risk.tolerance;
             return (
               <div key={label as string} className="space-y-1.5">
-                <p className="text-sm font-medium text-foreground">{label as string} — {dim.label}</p>
+                <p className="text-sm font-medium text-foreground">
+                  <GlossaryTerm id={gid}>{label as string}</GlossaryTerm> — {dim.label}
+                </p>
                 {dim.drivers.map((x) => <p key={x} className="text-xs text-muted-foreground">• {x}</p>)}
               </div>
             );
