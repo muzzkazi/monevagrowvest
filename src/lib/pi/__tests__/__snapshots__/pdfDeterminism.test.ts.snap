@@ -80,7 +80,7 @@ exports[`run PDF export determinism > keeps the text layer stable against a comm
   "- Exit load and stamp duty are not included - check the scheme document before executing.",
   "Confidential advisory record - Moneva GrowVest - deterministic engine output",
   "Page 1",
-  "Run unsaved | version 3 | version id - | fingerprint cf8fac00",
+  "Run unsaved | version 3 | version id - | fingerprint a174b7df",
   "- Scenarios apply a one-year shock to the current allocation. They are not forecasts and no probability is attached.",
   "- Where a bucket has real NAV history, the downside uses the worst observed rolling 1-year return and the severe case uses the observed max drawdown of the",
   "actual funds held.",
@@ -180,7 +180,7 @@ exports[`run PDF export determinism > keeps the text layer stable against a comm
   "Rs. 23,400",
   "Confidential advisory record - Moneva GrowVest - deterministic engine output",
   "Page 2",
-  "Run unsaved | version 3 | version id - | fingerprint cf8fac00",
+  "Run unsaved | version 3 | version id - | fingerprint a174b7df",
   "STRESS TEST (COMPUTED BASIS)",
   "+14.94%",
   "Base",
@@ -233,6 +233,6 @@ exports[`run PDF export determinism > keeps the text layer stable against a comm
   "- Fund SIPs total Rs. 43,000 but the declared monthly SIP is Rs. 60,000.",
   "Confidential advisory record - Moneva GrowVest - deterministic engine output",
   "Page 3",
-  "Run unsaved | version 3 | version id - | fingerprint cf8fac00",
+  "Run unsaved | version 3 | version id - | fingerprint a174b7df",
 ]
 `;
