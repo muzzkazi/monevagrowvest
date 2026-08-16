@@ -315,6 +315,7 @@ export const generateScenarioPdf = (
   doc.text("Audit notes & disclaimer", M, y);
   y += 16;
   auditItems.forEach(([label, body]) => {
+    doc.setFont("helvetica", "normal").setFontSize(7.6);
     const lines = doc.splitTextToSize(clean(body), inner - 8);
     if (y + lines.length * 9 + 18 > H - 60) {
       doc.addPage();
@@ -325,6 +326,7 @@ export const generateScenarioPdf = (
     y += 11;
     doc.setFont("helvetica", "normal").setFontSize(7.6).setTextColor(...INK);
     doc.text(lines, M + 8, y);
+
     y += lines.length * 9 + 10;
   });
 
