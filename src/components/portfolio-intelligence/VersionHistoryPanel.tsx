@@ -73,6 +73,10 @@ const VersionHistoryPanel = ({
       generateRunPdf({
         runName: v.runName,
         versionNo: v.versionNo,
+        runId: v.runId,
+        versionId: v.id,
+        clientId: v.clientId,
+        savedAt: v.createdAt,
         inputs: v.inputs,
         assumedReturnPct: v.assumedReturnPct ?? 10,
         output,
