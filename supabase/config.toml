@@ -17,3 +17,5 @@ verify_jwt = false
 
 [functions.mf-news-by-fund]
 verify_jwt = false
+[functions.pi-narrative]
+verify_jwt = true

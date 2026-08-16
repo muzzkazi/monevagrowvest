@@ -20,8 +20,10 @@ import TaxSwitchPanel from "@/components/portfolio-intelligence/TaxSwitchPanel";
 import NavDataPanel from "@/components/portfolio-intelligence/NavDataPanel";
 import SavedRunsPanel from "@/components/portfolio-intelligence/SavedRunsPanel";
 import DataQualityPanel from "@/components/portfolio-intelligence/DataQualityPanel";
+import NarrativePanel from "@/components/portfolio-intelligence/NarrativePanel";
 import VersionHistoryPanel from "@/components/portfolio-intelligence/VersionHistoryPanel";
 import { buildDataQualityReport } from "@/lib/pi/dataQuality";
+import { buildNarrativeFacts } from "@/lib/pi/aiFacts";
 import { appendVersion } from "@/lib/pi/versions";
 import { generateRunPdf } from "@/lib/pi/runPdf";
 import { useToast } from "@/hooks/use-toast";
@@ -150,6 +152,16 @@ const PortfolioIntelligenceInner = () => {
     [funds, profile.annualIncome, nav.requestedCodes, nav.unavailable, nav.oldestFetchedAt, nav.error],
   );
 
+  /* Layer B fact sheet — read-only view of the deterministic output. */
+  const narrativeFacts = useMemo(
+    () =>
+      output
+        ? buildNarrativeFacts({ runName, inputs, assumedReturnPct, output, quality, stress })
+        : null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [output, quality, stress, assumedReturnPct, runName],
+  );
+
   const downloadReport = () => {
     if (!output) return;
     try {
@@ -264,6 +276,7 @@ const PortfolioIntelligenceInner = () => {
               />
               <DataQualityPanel report={quality} onRefreshNav={nav.refresh} refreshing={nav.loading} />
               <AnalysisPanel output={output} />
+              {narrativeFacts && <NarrativePanel facts={narrativeFacts} />}
               {taxViews && <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />}
               {stress && <StressTestPanel stress={stress} />}
             </>
