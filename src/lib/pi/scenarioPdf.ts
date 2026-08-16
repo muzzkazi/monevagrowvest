@@ -145,11 +145,12 @@ export const generateScenarioPdf = (
     (s.buckets ?? []).forEach((b) => {
       doc.text(
         clean(
-          `${b.bucket}: ${b.shockPct > 0 ? "+" : ""}${b.shockPct}% on ${rs(b.startValue)} -> ${rs(b.endValue)}`,
+          `${b.bucket}: ${b.weightPct}% weight, shock ${b.shockPct > 0 ? "+" : ""}${b.shockPct}% (${b.source}) -> ${b.valueChange < 0 ? "" : "+"}${rs(b.valueChange)}`,
         ),
         M + 8,
         y,
       );
+
       y += 10;
     });
     if (!s.buckets?.length) {
