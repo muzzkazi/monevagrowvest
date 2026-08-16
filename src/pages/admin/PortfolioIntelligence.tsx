@@ -21,9 +21,11 @@ import NavDataPanel from "@/components/portfolio-intelligence/NavDataPanel";
 import SavedRunsPanel from "@/components/portfolio-intelligence/SavedRunsPanel";
 import DataQualityPanel from "@/components/portfolio-intelligence/DataQualityPanel";
 import NarrativePanel from "@/components/portfolio-intelligence/NarrativePanel";
+import ChallengeReviewPanel from "@/components/portfolio-intelligence/ChallengeReviewPanel";
 import VersionHistoryPanel from "@/components/portfolio-intelligence/VersionHistoryPanel";
 import { buildDataQualityReport } from "@/lib/pi/dataQuality";
 import { buildNarrativeFacts } from "@/lib/pi/aiFacts";
+import { runChallengeChecks } from "@/lib/pi/challenge";
 import { appendVersion } from "@/lib/pi/versions";
 import { generateRunPdf } from "@/lib/pi/runPdf";
 import { useToast } from "@/hooks/use-toast";
@@ -53,6 +55,7 @@ const PortfolioIntelligenceInner = () => {
   const [linkedClientId, setLinkedClientId] = useState<string | null>(null);
   const [runName, setRunName] = useState("Untitled run");
   const [versionToken, setVersionToken] = useState(0);
+  const [challengeCleared, setChallengeCleared] = useState(false);
 
   const schemeCodes = useMemo(
     () => funds.map((f) => (f as PortfolioFund & { schemeCode?: string }).schemeCode ?? "").filter(Boolean),
@@ -162,11 +165,30 @@ const PortfolioIntelligenceInner = () => {
     [output, quality, stress, assumedReturnPct, runName],
   );
 
+  /* Challenge / sanity review — deterministic contradictions, computed first. */
+  const challenge = useMemo(
+    () =>
+      output
+        ? runChallengeChecks({
+            inputs,
+            output,
+            quality,
+            switchPlan: taxViews?.plan ?? null,
+            stress,
+            assumedReturnPct,
+          })
+        : null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [output, quality, stress, taxViews, assumedReturnPct],
+  );
+
   const downloadReport = () => {
     if (!output) return;
     try {
       generateRunPdf({
         runName,
+        runId,
+        clientId: linkedClientId,
         inputs,
         assumedReturnPct,
         output,
@@ -276,7 +298,30 @@ const PortfolioIntelligenceInner = () => {
               />
               <DataQualityPanel report={quality} onRefreshNav={nav.refresh} refreshing={nav.loading} />
               <AnalysisPanel output={output} />
-              {narrativeFacts && <NarrativePanel facts={narrativeFacts} />}
+              {narrativeFacts && challenge && (
+                <ChallengeReviewPanel
+                  report={challenge}
+                  facts={narrativeFacts}
+                  onClearedChange={setChallengeCleared}
+                />
+              )}
+              {narrativeFacts && challenge && (
+                challengeCleared ? (
+                  <NarrativePanel facts={narrativeFacts} />
+                ) : (
+                  <Card className="border-dashed">
+                    <CardContent className="py-10 text-center space-y-2">
+                      <p className="text-sm font-medium text-foreground">
+                        Client-facing review note is locked
+                      </p>
+                      <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+                        Run the challenge &amp; sanity review above and accept it first. Nothing client-facing is written
+                        while the engine output and the recommendations still contradict each other.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )
+              )}
               {taxViews && <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />}
               {stress && <StressTestPanel stress={stress} />}
             </>

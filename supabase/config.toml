@@ -19,3 +19,6 @@ verify_jwt = false
 verify_jwt = false
 [functions.pi-narrative]
 verify_jwt = true
+
+[functions.pi-challenge]
+verify_jwt = true

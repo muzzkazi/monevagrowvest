@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`challenge checks > keeps the finding set stable against a snapshot 1`] = `
+[
+  {
+    "area": "Data",
+    "id": "engine-dataflag-0",
+    "severity": "watch",
+  },
+  {
+    "area": "Data",
+    "id": "engine-dataflag-1",
+    "severity": "watch",
+  },
+  {
+    "area": "Data",
+    "id": "engine-dataflag-2",
+    "severity": "watch",
+  },
+  {
+    "area": "Data",
+    "id": "engine-integrity-0",
+    "severity": "watch",
+  },
+  {
+    "area": "SIP plan",
+    "id": "sip-total-not-reconciled",
+    "severity": "watch",
+  },
+]
+`;
