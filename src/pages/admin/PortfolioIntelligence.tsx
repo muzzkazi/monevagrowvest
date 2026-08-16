@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, BrainCircuit, FileDown, Play, Sparkles } from "lucide-react";
+import { ArrowLeft, BrainCircuit, Calculator, FileDown, MessagesSquare, Play, Sparkles } from "lucide-react";
 import PageLayout from "@/components/shared/PageLayout";
 import AdvisorRouteGuard from "@/components/admin/AdvisorRouteGuard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   ConstraintsStep,
   GoalsStep,
@@ -24,6 +25,12 @@ import NarrativePanel from "@/components/portfolio-intelligence/NarrativePanel";
 import ChallengeReviewPanel from "@/components/portfolio-intelligence/ChallengeReviewPanel";
 import FundCommentaryPanel from "@/components/portfolio-intelligence/FundCommentaryPanel";
 import AdvisorChatPanel from "@/components/portfolio-intelligence/AdvisorChatPanel";
+import ScenarioComparePanel from "@/components/portfolio-intelligence/ScenarioComparePanel";
+import OnePageSummaryPanel from "@/components/portfolio-intelligence/OnePageSummaryPanel";
+import GlossaryPanel from "@/components/portfolio-intelligence/GlossaryPanel";
+import GlossaryTerm from "@/components/portfolio-intelligence/GlossaryTerm";
+import type { ClientNarrative } from "@/components/portfolio-intelligence/NarrativePanel";
+import type { FundCommentary } from "@/components/portfolio-intelligence/FundCommentaryPanel";
 import { buildFundSelectionFacts } from "@/lib/pi/fundFacts";
 import VersionHistoryPanel from "@/components/portfolio-intelligence/VersionHistoryPanel";
 import { buildDataQualityReport } from "@/lib/pi/dataQuality";
@@ -42,6 +49,8 @@ import { useNavData } from "@/hooks/useNavData";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AssetBucket, ClientProfile, Constraints, EngineOutput, Goal, PortfolioFund, RiskAnswers } from "@/lib/pi/types";
 
+type LayerView = "math" | "plain" | "both";
+
 const PortfolioIntelligenceInner = () => {
   const { canEdit } = useIsAdmin();
   const { toast } = useToast();
@@ -59,6 +68,11 @@ const PortfolioIntelligenceInner = () => {
   const [runName, setRunName] = useState("Untitled run");
   const [versionToken, setVersionToken] = useState(0);
   const [challengeCleared, setChallengeCleared] = useState(false);
+  const [layerView, setLayerView] = useState<LayerView>("both");
+  const [narrative, setNarrative] = useState<ClientNarrative | null>(null);
+  const [commentary, setCommentary] = useState<FundCommentary | null>(null);
+  const showMath = layerView !== "plain";
+  const showPlain = layerView !== "math";
 
   const schemeCodes = useMemo(
     () => funds.map((f) => (f as PortfolioFund & { schemeCode?: string }).schemeCode ?? "").filter(Boolean),
