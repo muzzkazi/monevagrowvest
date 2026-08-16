@@ -57,6 +57,8 @@ export interface ScenarioComparePanelProps {
 }
 
 const ScenarioComparePanel = ({ stress, selected, onSelectedChange, meta }: ScenarioComparePanelProps) => {
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
   const allKeys = stress.scenarios.map((s) => s.key);
   const activeKeys = selected && selected.length > 0 ? selected : allKeys;
   const rows = stress.scenarios.filter((s) => activeKeys.includes(s.key));
@@ -67,6 +69,20 @@ const ScenarioComparePanel = ({ stress, selected, onSelectedChange, meta }: Scen
       ? activeKeys.filter((k) => k !== key)
       : [...allKeys.filter((k) => activeKeys.includes(k) || k === key)];
     onSelectedChange(next.length === 0 ? allKeys : next);
+  };
+
+  const copyShareLink = async () => {
+    // window.location already mirrors tab, layer and selected scenarios via the
+    // deep-link effect in PortfolioIntelligence, so it is the canonical share URL.
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast({ title: "Share link copied", description: "Analysis tab, layer and scenarios are in the URL." });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({ title: "Could not copy", description: "Copy the URL from your browser's address bar.", variant: "destructive" });
+    }
   };
 
   const exportPdf = () => generateScenarioPdf(stress, { ...meta, selected: activeKeys });
