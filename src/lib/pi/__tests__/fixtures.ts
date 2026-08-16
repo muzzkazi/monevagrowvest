@@ -140,6 +140,7 @@ export const engineInput = {
   additionalSip: 12000,
   declaredSipBudget: 60000,
   assumedReturnPct: 11,
+  now: FIXED_NOW,
 };
 
 export const navMetric = (schemeCode: string, seed: number): NavMetrics => ({

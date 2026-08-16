@@ -254,6 +254,7 @@ export const buildSwitchPlan = (
   candidates: Array<{ fundId: string; reason: string; amount?: number }>,
   ctx: TaxContext,
 ): SwitchPlan => {
+  const asOf = ctx.asOf ?? new Date();
   const taxes = computeHoldingTaxes(funds, ctx);
   const byId = new Map(taxes.map((t) => [t.fundId, t]));
   const fundById = new Map(funds.map((f) => [f.id, f]));
@@ -337,7 +338,7 @@ export const buildSwitchPlan = (
     .map((o) => `${o.schemeName}: exit tax not computable from captured data.`);
 
   return {
-    asOf: new Date().toISOString(),
+    asOf: asOf.toISOString(),
     slab,
     exemptionRemaining: Math.max(0, LTCG_EQUITY_EXEMPTION - (ctx.exemptionAlreadyUsed ?? 0)),
     options,
