@@ -236,7 +236,8 @@ const walkNumbers = (value: unknown, sink: Set<number>) => {
   }
 };
 
-export const collectAllowedNumbers = (facts: NarrativeFacts): Set<string> => {
+// Accepts any deterministic fact sheet (client narrative facts or fund-selection facts).
+export const collectAllowedNumbers = (facts: NarrativeFacts | Record<string, unknown>): Set<string> => {
   const nums = new Set<number>();
   walkNumbers(facts, nums);
   // Small integers are list ordinals / counts, not claims about money.
