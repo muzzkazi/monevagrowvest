@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, BrainCircuit, Calculator, FileDown, MessagesSquare, Play, Sparkles } from "lucide-react";
 import PageLayout from "@/components/shared/PageLayout";
 import AdvisorRouteGuard from "@/components/admin/AdvisorRouteGuard";
@@ -42,7 +42,7 @@ import { useToast } from "@/hooks/use-toast";
 import { runEngine } from "@/lib/pi/engine";
 import { emptyConstraints, emptyProfile, emptyRiskAnswers, newGoal } from "@/lib/pi/defaults";
 import { buildSwitchPlan, computeHoldingTaxes } from "@/lib/pi/tax";
-import { runStressTest } from "@/lib/pi/stress";
+import { runStressTest, ScenarioKey } from "@/lib/pi/stress";
 import { NavMetrics } from "@/lib/pi/navMetrics";
 import { PiRunInputs } from "@/lib/pi/runs";
 import { useNavData } from "@/hooks/useNavData";
@@ -50,6 +50,8 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AssetBucket, ClientProfile, Constraints, EngineOutput, Goal, PortfolioFund, RiskAnswers } from "@/lib/pi/types";
 
 type LayerView = "math" | "plain" | "both";
+
+const ALL_SCENARIOS: ScenarioKey[] = ["base", "downside", "upside", "severe"];
 
 const PortfolioIntelligenceInner = () => {
   const { canEdit } = useIsAdmin();
@@ -62,17 +64,42 @@ const PortfolioIntelligenceInner = () => {
   const [additionalSip, setAdditionalSip] = useState(10000);
   const [declaredSipBudget, setDeclaredSipBudget] = useState(0);
   const [output, setOutput] = useState<EngineOutput | null>(null);
-  const [tab, setTab] = useState("profile");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [tab, setTab] = useState(() => searchParams.get("tab") ?? "profile");
   const [runId, setRunId] = useState<string | null>(null);
   const [linkedClientId, setLinkedClientId] = useState<string | null>(null);
   const [runName, setRunName] = useState("Untitled run");
   const [versionToken, setVersionToken] = useState(0);
   const [challengeCleared, setChallengeCleared] = useState(false);
-  const [layerView, setLayerView] = useState<LayerView>("both");
+  const [layerView, setLayerView] = useState<LayerView>(() => {
+    const v = searchParams.get("layer");
+    return v === "math" || v === "plain" || v === "both" ? v : "both";
+  });
+  const [scenarioKeys, setScenarioKeys] = useState<ScenarioKey[]>(() => {
+    const raw = (searchParams.get("scenarios") ?? "").split(",").filter(Boolean) as ScenarioKey[];
+    const valid = raw.filter((k) => ALL_SCENARIOS.includes(k));
+    return valid.length > 0 ? valid : ALL_SCENARIOS;
+  });
   const [narrative, setNarrative] = useState<ClientNarrative | null>(null);
   const [commentary, setCommentary] = useState<FundCommentary | null>(null);
   const showMath = layerView !== "plain";
   const showPlain = layerView !== "math";
+
+  /* Deep-linkable view state: tab, Layer A/B toggle and selected scenarios live in the URL. */
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", tab);
+    next.set("layer", layerView);
+    next.set("scenarios", scenarioKeys.join(","));
+    if (next.toString() !== searchParams.toString()) {
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, layerView, scenarioKeys]);
+
+  const setScenarioSelection = useCallback((keys: ScenarioKey[]) => {
+    setScenarioKeys(keys.length === 0 ? ALL_SCENARIOS : keys);
+  }, []);
 
   const schemeCodes = useMemo(
     () => funds.map((f) => (f as PortfolioFund & { schemeCode?: string }).schemeCode ?? "").filter(Boolean),
@@ -411,7 +438,19 @@ const PortfolioIntelligenceInner = () => {
               {showMath && taxViews && (
                 <TaxSwitchPanel plan={taxViews.plan} holdings={taxViews.holdings} quality={quality} />
               )}
-              {stress && <ScenarioComparePanel stress={stress} />}
+              {stress && (
+                <ScenarioComparePanel
+                  stress={stress}
+                  selected={scenarioKeys}
+                  onSelectedChange={setScenarioSelection}
+                  meta={{
+                    clientName: profile.name || "Client",
+                    runName,
+                    runId,
+                    versionId: null,
+                  }}
+                />
+              )}
               {showMath && stress && <StressTestPanel stress={stress} />}
               <GlossaryPanel />
             </>
