@@ -11,6 +11,8 @@ import { Trash2, Plus, Info } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ClientProfile, Constraints, Goal, PortfolioFund, RiskAnswers, AssetBucket, FundRole } from "@/lib/pi/types";
 import { RISK_QUESTIONS, SECTOR_EXCLUSIONS, newFund, newGoal } from "@/lib/pi/defaults";
+import HoldingsImportDialog from "@/components/portfolio-intelligence/HoldingsImportDialog";
+import { toPortfolioFund } from "@/lib/pi/holdingsImport";
 
 const num = (v: string) => (v === "" ? 0 : Number(v.replace(/[^0-9.-]/g, "")));
 
