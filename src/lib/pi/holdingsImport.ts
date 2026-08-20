@@ -5,20 +5,44 @@ import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
 import type { AssetBucket, FundRole, PortfolioFund } from "@/lib/pi/types";
 
+export type SipFrequency =
+  | "None"
+  | "Daily"
+  | "Weekly"
+  | "Fortnightly"
+  | "Monthly"
+  | "Quarterly"
+  | "Half Yearly"
+  | "Yearly"
+  | "Unknown";
+
 export type ExtractedHolding = {
   schemeName: string;
   fundHouse: string;
+  plan: "Direct" | "Regular" | "Unknown";
+  option: "Growth" | "IDCW" | "Unknown";
+  folio: string;
+  isin: string;
+  schemeCode: string;
   category: string;
   subCategory: string;
   assetBucket: AssetBucket;
   role: FundRole;
   currentValue: number;
   investedAmount: number;
+  /** Monthly-equivalent SIP used everywhere downstream. */
   sipAmount: number;
+  /** Instalment amount exactly as printed, at `sipFrequency`. */
+  sipInstalment: number;
+  sipFrequency: SipFrequency;
+  sipStartDate: string;
+  sipDay: number;
   units: number;
   purchaseDate: string;
   confidence: "high" | "medium" | "low";
   missingFields: string[];
+  /** Plain-English notes on anything inferred rather than read. */
+  assumptions: string[];
   sourceNote: string;
 };
 
@@ -26,8 +50,30 @@ export type ExtractionResult = {
   statementType: string;
   statementDate: string;
   holdings: ExtractedHolding[];
+  assumptions: string[];
   warnings: string[];
 };
+
+/** Instalments per month for each frequency — used to normalise SIPs to monthly. */
+export const SIP_PER_MONTH: Record<SipFrequency, number> = {
+  None: 0,
+  Daily: 21,
+  Weekly: 52 / 12,
+  Fortnightly: 26 / 12,
+  Monthly: 1,
+  Quarterly: 1 / 3,
+  "Half Yearly": 1 / 6,
+  Yearly: 1 / 12,
+  Unknown: 1,
+};
+
+export const SIP_FREQUENCIES: SipFrequency[] = [
+  "None", "Daily", "Weekly", "Fortnightly", "Monthly", "Quarterly", "Half Yearly", "Yearly", "Unknown",
+];
+
+/** Monthly-equivalent SIP for an instalment at a given frequency. */
+export const monthlyEquivalent = (instalment: number, freq: SipFrequency) =>
+  Math.round(Math.max(0, instalment) * (SIP_PER_MONTH[freq] ?? 1));
 
 export const ACCEPTED_TYPES =
   ".png,.jpg,.jpeg,.webp,.pdf,.csv,.xls,.xlsx,image/png,image/jpeg,image/webp,application/pdf";
