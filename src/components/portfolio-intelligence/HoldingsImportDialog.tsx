@@ -12,9 +12,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Upload, FileUp, Loader2, AlertTriangle, X } from "lucide-react";
+import { Upload, FileUp, Loader2, AlertTriangle, Info, X } from "lucide-react";
 import {
   ACCEPTED_TYPES, ExtractedHolding, ExtractionResult, extractHoldings,
+  monthlyEquivalent, SIP_FREQUENCIES, SipFrequency,
 } from "@/lib/pi/holdingsImport";
 import type { AssetBucket, FundRole } from "@/lib/pi/types";
 
