@@ -98,6 +98,26 @@ const HoldingsImportDialog = ({
 
   const selectedCount = rows.filter((_, i) => selected[i]).length;
 
+  /** Document-level assumptions plus every row-level inference, de-duplicated. */
+  const allAssumptions = Array.from(
+    new Set([
+      ...(result?.assumptions ?? []),
+      ...rows.flatMap((r, i) =>
+        r.assumptions.map((a) => `${r.schemeName || `Row ${i + 1}`}: ${a}`),
+      ),
+    ]),
+  );
+
+  /** Keeps the monthly-equivalent SIP in step with instalment/frequency edits. */
+  const updateSip = (i: number, patch: { sipInstalment?: number; sipFrequency?: SipFrequency }) =>
+    setRows((prev) =>
+      prev.map((r, idx) => {
+        if (idx !== i) return r;
+        const next = { ...r, ...patch };
+        return { ...next, sipAmount: monthlyEquivalent(next.sipInstalment, next.sipFrequency) };
+      }),
+    );
+
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
       <DialogTrigger asChild>
