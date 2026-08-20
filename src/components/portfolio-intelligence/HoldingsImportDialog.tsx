@@ -289,10 +289,35 @@ const HoldingsImportDialog = ({
                       </TableCell>
                       <TableCell>
                         <NumberInput
-                          value={r.sipAmount}
-                          onTextChange={(v) => update(i, { sipAmount: Number(v.replace(/[^0-9]/g, "") || 0) })}
+                          value={r.sipInstalment}
+                          onTextChange={(v) => updateSip(i, { sipInstalment: Number(v.replace(/[^0-9]/g, "") || 0) })}
                           className="h-9"
+                          aria-label={`SIP instalment for ${r.schemeName || `row ${i + 1}`}`}
                         />
+                        <Select
+                          value={r.sipFrequency}
+                          onValueChange={(v) => updateSip(i, { sipFrequency: v as SipFrequency })}
+                        >
+                          <SelectTrigger className="h-8 mt-1 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {SIP_FREQUENCIES.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          ≈ ₹{r.sipAmount.toLocaleString("en-IN")}/month
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="date"
+                          value={r.sipStartDate}
+                          onChange={(e) => update(i, { sipStartDate: e.target.value })}
+                          className="h-9"
+                          aria-label={`SIP start date for ${r.schemeName || `row ${i + 1}`}`}
+                        />
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          {r.sipDay ? `Debited on day ${r.sipDay}` : "Debit day not printed"}
+                        </p>
                       </TableCell>
                       <TableCell>
                         <Badge variant={confidenceVariant(r.confidence)} className="capitalize">{r.confidence}</Badge>
