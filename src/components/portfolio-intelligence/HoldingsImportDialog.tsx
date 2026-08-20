@@ -12,9 +12,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Upload, FileUp, Loader2, AlertTriangle, X } from "lucide-react";
+import { Upload, FileUp, Loader2, AlertTriangle, Info, X } from "lucide-react";
 import {
   ACCEPTED_TYPES, ExtractedHolding, ExtractionResult, extractHoldings,
+  monthlyEquivalent, SIP_FREQUENCIES, SipFrequency,
 } from "@/lib/pi/holdingsImport";
 import type { AssetBucket, FundRole } from "@/lib/pi/types";
 
@@ -97,6 +98,26 @@ const HoldingsImportDialog = ({
 
   const selectedCount = rows.filter((_, i) => selected[i]).length;
 
+  /** Document-level assumptions plus every row-level inference, de-duplicated. */
+  const allAssumptions = Array.from(
+    new Set([
+      ...(result?.assumptions ?? []),
+      ...rows.flatMap((r, i) =>
+        r.assumptions.map((a) => `${r.schemeName || `Row ${i + 1}`}: ${a}`),
+      ),
+    ]),
+  );
+
+  /** Keeps the monthly-equivalent SIP in step with instalment/frequency edits. */
+  const updateSip = (i: number, patch: { sipInstalment?: number; sipFrequency?: SipFrequency }) =>
+    setRows((prev) =>
+      prev.map((r, idx) => {
+        if (idx !== i) return r;
+        const next = { ...r, ...patch };
+        return { ...next, sipAmount: monthlyEquivalent(next.sipInstalment, next.sipFrequency) };
+      }),
+    );
+
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
       <DialogTrigger asChild>
@@ -174,8 +195,23 @@ const HoldingsImportDialog = ({
               </Card>
             )}
 
+            {allAssumptions.length > 0 && (
+              <Card className="p-3 bg-financial-muted">
+                <div className="flex gap-2 text-xs text-muted-foreground">
+                  <Info className="h-4 w-4 text-financial-accent shrink-0" />
+                  <div className="space-y-1">
+                    <p className="font-medium text-foreground">Assumptions made while reading this report</p>
+                    <ul className="space-y-1 list-disc pl-4">
+                      {allAssumptions.map((a, i) => <li key={i}>{a}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             <p className="text-xs text-muted-foreground">
               Check every figure against the document before importing — low-confidence rows were partly unreadable.
+              SIPs are stored as a monthly equivalent; edit the instalment or frequency to correct it.
             </p>
 
             <div className="overflow-x-auto">
@@ -188,7 +224,8 @@ const HoldingsImportDialog = ({
                     <TableHead className="min-w-[130px]">Role</TableHead>
                     <TableHead className="min-w-[120px]">Current ₹</TableHead>
                     <TableHead className="min-w-[120px]">Invested ₹</TableHead>
-                    <TableHead className="min-w-[110px]">SIP ₹</TableHead>
+                    <TableHead className="min-w-[200px]">SIP instalment &amp; frequency</TableHead>
+                    <TableHead className="min-w-[150px]">SIP start</TableHead>
                     <TableHead>Confidence</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -210,7 +247,15 @@ const HoldingsImportDialog = ({
                           placeholder="Fund house"
                           className="h-8 mt-1 text-xs"
                         />
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          <Badge variant="outline" className="text-[10px]">{r.plan} plan</Badge>
+                          <Badge variant="outline" className="text-[10px]">{r.option}</Badge>
+                          {r.folio && <Badge variant="outline" className="text-[10px]">Folio {r.folio}</Badge>}
+                        </div>
                         {r.sourceNote && <p className="text-[11px] text-muted-foreground mt-1">{r.sourceNote}</p>}
+                        {r.assumptions.length > 0 && (
+                          <p className="text-[11px] text-financial-accent mt-1">Assumed: {r.assumptions.join(" ")}</p>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Select value={r.assetBucket} onValueChange={(v) => update(i, { assetBucket: v as AssetBucket })}>
@@ -244,10 +289,35 @@ const HoldingsImportDialog = ({
                       </TableCell>
                       <TableCell>
                         <NumberInput
-                          value={r.sipAmount}
-                          onTextChange={(v) => update(i, { sipAmount: Number(v.replace(/[^0-9]/g, "") || 0) })}
+                          value={r.sipInstalment}
+                          onTextChange={(v) => updateSip(i, { sipInstalment: Number(v.replace(/[^0-9]/g, "") || 0) })}
                           className="h-9"
+                          aria-label={`SIP instalment for ${r.schemeName || `row ${i + 1}`}`}
                         />
+                        <Select
+                          value={r.sipFrequency}
+                          onValueChange={(v) => updateSip(i, { sipFrequency: v as SipFrequency })}
+                        >
+                          <SelectTrigger className="h-8 mt-1 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {SIP_FREQUENCIES.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          ≈ ₹{r.sipAmount.toLocaleString("en-IN")}/month
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="date"
+                          value={r.sipStartDate}
+                          onChange={(e) => update(i, { sipStartDate: e.target.value })}
+                          className="h-9"
+                          aria-label={`SIP start date for ${r.schemeName || `row ${i + 1}`}`}
+                        />
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          {r.sipDay ? `Debited on day ${r.sipDay}` : "Debit day not printed"}
+                        </p>
                       </TableCell>
                       <TableCell>
                         <Badge variant={confidenceVariant(r.confidence)} className="capitalize">{r.confidence}</Badge>

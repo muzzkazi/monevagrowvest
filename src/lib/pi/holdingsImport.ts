@@ -5,20 +5,44 @@ import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
 import type { AssetBucket, FundRole, PortfolioFund } from "@/lib/pi/types";
 
+export type SipFrequency =
+  | "None"
+  | "Daily"
+  | "Weekly"
+  | "Fortnightly"
+  | "Monthly"
+  | "Quarterly"
+  | "Half Yearly"
+  | "Yearly"
+  | "Unknown";
+
 export type ExtractedHolding = {
   schemeName: string;
   fundHouse: string;
+  plan: "Direct" | "Regular" | "Unknown";
+  option: "Growth" | "IDCW" | "Unknown";
+  folio: string;
+  isin: string;
+  schemeCode: string;
   category: string;
   subCategory: string;
   assetBucket: AssetBucket;
   role: FundRole;
   currentValue: number;
   investedAmount: number;
+  /** Monthly-equivalent SIP used everywhere downstream. */
   sipAmount: number;
+  /** Instalment amount exactly as printed, at `sipFrequency`. */
+  sipInstalment: number;
+  sipFrequency: SipFrequency;
+  sipStartDate: string;
+  sipDay: number;
   units: number;
   purchaseDate: string;
   confidence: "high" | "medium" | "low";
   missingFields: string[];
+  /** Plain-English notes on anything inferred rather than read. */
+  assumptions: string[];
   sourceNote: string;
 };
 
@@ -26,8 +50,30 @@ export type ExtractionResult = {
   statementType: string;
   statementDate: string;
   holdings: ExtractedHolding[];
+  assumptions: string[];
   warnings: string[];
 };
+
+/** Instalments per month for each frequency — used to normalise SIPs to monthly. */
+export const SIP_PER_MONTH: Record<SipFrequency, number> = {
+  None: 0,
+  Daily: 21,
+  Weekly: 52 / 12,
+  Fortnightly: 26 / 12,
+  Monthly: 1,
+  Quarterly: 1 / 3,
+  "Half Yearly": 1 / 6,
+  Yearly: 1 / 12,
+  Unknown: 1,
+};
+
+export const SIP_FREQUENCIES: SipFrequency[] = [
+  "None", "Daily", "Weekly", "Fortnightly", "Monthly", "Quarterly", "Half Yearly", "Yearly", "Unknown",
+];
+
+/** Monthly-equivalent SIP for an instalment at a given frequency. */
+export const monthlyEquivalent = (instalment: number, freq: SipFrequency) =>
+  Math.round(Math.max(0, instalment) * (SIP_PER_MONTH[freq] ?? 1));
 
 export const ACCEPTED_TYPES =
   ".png,.jpg,.jpeg,.webp,.pdf,.csv,.xls,.xlsx,image/png,image/jpeg,image/webp,application/pdf";
@@ -84,6 +130,7 @@ export const extractHoldings = async (files: File[]): Promise<ExtractionResult> 
     statementType: result.statementType || "unknown",
     statementDate: result.statementDate || "",
     holdings: result.holdings.map(normaliseHolding),
+    assumptions: Array.isArray(result.assumptions) ? result.assumptions.map(String) : [],
     warnings: Array.isArray(result.warnings) ? result.warnings : [],
   };
 };
@@ -101,24 +148,85 @@ const n = (v: unknown) => {
   return Number.isFinite(x) && x >= 0 ? Math.round(x) : 0;
 };
 
-const normaliseHolding = (h: Partial<ExtractedHolding>): ExtractedHolding => ({
-  schemeName: String(h.schemeName ?? "").trim(),
-  fundHouse: String(h.fundHouse ?? "").trim(),
-  category: ["Equity", "Debt", "Hybrid", "Other"].includes(String(h.category)) ? String(h.category) : "Equity",
-  subCategory: String(h.subCategory ?? "").trim(),
-  assetBucket: BUCKETS.includes(h.assetBucket as AssetBucket) ? (h.assetBucket as AssetBucket) : "Indian Equity",
-  role: ROLES.includes(h.role as FundRole) ? (h.role as FundRole) : "Flexi Cap",
-  currentValue: n(h.currentValue),
-  investedAmount: n(h.investedAmount),
-  sipAmount: n(h.sipAmount),
-  units: Number.isFinite(Number(h.units)) ? Number(h.units) : 0,
-  purchaseDate: /^\d{4}-\d{2}-\d{2}$/.test(String(h.purchaseDate ?? "")) ? String(h.purchaseDate) : "",
-  confidence: (["high", "medium", "low"] as const).includes(h.confidence as "high")
-    ? (h.confidence as ExtractedHolding["confidence"])
-    : "low",
-  missingFields: Array.isArray(h.missingFields) ? h.missingFields.map(String) : [],
-  sourceNote: String(h.sourceNote ?? "").slice(0, 120),
-});
+const date = (v: unknown) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v ?? "")) ? String(v) : "");
+
+/** Infers plan/option from the scheme name when the model could not read them. */
+const planFromName = (name: string): ExtractedHolding["plan"] =>
+  /\bdirect\b/i.test(name) ? "Direct" : /\bregular\b/i.test(name) ? "Regular" : "Unknown";
+const optionFromName = (name: string): ExtractedHolding["option"] =>
+  /\b(growth)\b/i.test(name) ? "Growth" : /\b(idcw|dividend|payout|reinvest)/i.test(name) ? "IDCW" : "Unknown";
+
+const normaliseHolding = (h: Partial<ExtractedHolding>): ExtractedHolding => {
+  const schemeName = String(h.schemeName ?? "").trim();
+  const assumptions = Array.isArray(h.assumptions) ? h.assumptions.map(String) : [];
+
+  const instalment = n(h.sipInstalment ?? h.sipAmount);
+  let frequency: SipFrequency = SIP_FREQUENCIES.includes(h.sipFrequency as SipFrequency)
+    ? (h.sipFrequency as SipFrequency)
+    : instalment > 0
+      ? "Unknown"
+      : "None";
+  if (instalment === 0 && frequency !== "None") frequency = "None";
+  if (frequency === "Unknown" && instalment > 0) {
+    assumptions.push("SIP frequency was not stated — treated as monthly. Confirm the instalment interval.");
+  } else if (frequency !== "None" && frequency !== "Monthly" && instalment > 0) {
+    assumptions.push(
+      `${frequency} instalment of ₹${instalment.toLocaleString("en-IN")} converted to a monthly equivalent of ₹${monthlyEquivalent(instalment, frequency).toLocaleString("en-IN")}.`,
+    );
+  }
+
+  let plan = (["Direct", "Regular", "Unknown"] as const).includes(h.plan as "Direct") ? h.plan! : "Unknown";
+  if (plan === "Unknown") {
+    const guess = planFromName(schemeName);
+    if (guess !== "Unknown") {
+      plan = guess;
+      assumptions.push(`Plan read as ${guess} from the scheme name.`);
+    }
+  }
+  let option = (["Growth", "IDCW", "Unknown"] as const).includes(h.option as "Growth") ? h.option! : "Unknown";
+  if (option === "Unknown") {
+    const guess = optionFromName(schemeName);
+    if (guess !== "Unknown") {
+      option = guess;
+      assumptions.push(`Option read as ${guess} from the scheme name.`);
+    }
+  }
+
+  const sipStartDate = date(h.sipStartDate);
+  const purchaseDate = date(h.purchaseDate);
+  if (frequency !== "None" && !sipStartDate && purchaseDate) {
+    assumptions.push("SIP start date not printed — first purchase date used instead.");
+  }
+
+  return {
+    schemeName,
+    fundHouse: String(h.fundHouse ?? "").trim(),
+    plan,
+    option,
+    folio: String(h.folio ?? "").trim(),
+    isin: String(h.isin ?? "").trim(),
+    schemeCode: String(h.schemeCode ?? "").trim(),
+    category: ["Equity", "Debt", "Hybrid", "Other"].includes(String(h.category)) ? String(h.category) : "Equity",
+    subCategory: String(h.subCategory ?? "").trim(),
+    assetBucket: BUCKETS.includes(h.assetBucket as AssetBucket) ? (h.assetBucket as AssetBucket) : "Indian Equity",
+    role: ROLES.includes(h.role as FundRole) ? (h.role as FundRole) : "Flexi Cap",
+    currentValue: n(h.currentValue),
+    investedAmount: n(h.investedAmount),
+    sipInstalment: instalment,
+    sipFrequency: frequency,
+    sipAmount: monthlyEquivalent(instalment, frequency),
+    sipStartDate: sipStartDate || (frequency !== "None" ? purchaseDate : ""),
+    sipDay: Math.min(31, Math.max(0, n(h.sipDay))),
+    units: Number.isFinite(Number(h.units)) ? Number(h.units) : 0,
+    purchaseDate,
+    confidence: (["high", "medium", "low"] as const).includes(h.confidence as "high")
+      ? (h.confidence as ExtractedHolding["confidence"])
+      : "low",
+    missingFields: Array.isArray(h.missingFields) ? h.missingFields.map(String) : [],
+    assumptions,
+    sourceNote: String(h.sourceNote ?? "").slice(0, 120),
+  };
+};
 
 /** Maps a reviewed extraction row onto the Portfolio Intelligence fund shape. */
 export const toPortfolioFund = (h: ExtractedHolding): PortfolioFund => ({
@@ -132,5 +240,5 @@ export const toPortfolioFund = (h: ExtractedHolding): PortfolioFund => ({
   currentValue: h.currentValue,
   investedAmount: h.investedAmount,
   sipAmount: h.sipAmount,
-  purchaseDate: h.purchaseDate || "",
+  purchaseDate: h.sipStartDate || h.purchaseDate || "",
 });
