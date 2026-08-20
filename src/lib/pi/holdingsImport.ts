@@ -240,5 +240,5 @@ export const toPortfolioFund = (h: ExtractedHolding): PortfolioFund => ({
   currentValue: h.currentValue,
   investedAmount: h.investedAmount,
   sipAmount: h.sipAmount,
-  purchaseDate: h.purchaseDate || "",
+  purchaseDate: h.sipStartDate || h.purchaseDate || "",
 });
