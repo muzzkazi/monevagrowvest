@@ -247,7 +247,15 @@ const HoldingsImportDialog = ({
                           placeholder="Fund house"
                           className="h-8 mt-1 text-xs"
                         />
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          <Badge variant="outline" className="text-[10px]">{r.plan} plan</Badge>
+                          <Badge variant="outline" className="text-[10px]">{r.option}</Badge>
+                          {r.folio && <Badge variant="outline" className="text-[10px]">Folio {r.folio}</Badge>}
+                        </div>
                         {r.sourceNote && <p className="text-[11px] text-muted-foreground mt-1">{r.sourceNote}</p>}
+                        {r.assumptions.length > 0 && (
+                          <p className="text-[11px] text-financial-accent mt-1">Assumed: {r.assumptions.join(" ")}</p>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Select value={r.assetBucket} onValueChange={(v) => update(i, { assetBucket: v as AssetBucket })}>
