@@ -145,8 +145,18 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
       category: CATEGORIES.includes(r.subCategory) ? r.subCategory : CATEGORIES.includes(r.role) ? r.role : null,
       monthly_sip: r.sipAmount,
       lumpsum_amount: r.investedAmount,
-      start_date: r.purchaseDate || null,
-      rationale: `Imported from holdings statement${r.currentValue ? ` · current value ${inr(r.currentValue)}` : ""}`,
+      sip_day: r.sipDay || null,
+      start_date: r.sipStartDate || r.purchaseDate || null,
+      rationale: [
+        "Imported from holdings statement",
+        r.currentValue ? `current value ${inr(r.currentValue)}` : "",
+        r.sipFrequency !== "None" && r.sipInstalment
+          ? `${r.sipFrequency.toLowerCase()} SIP of ${inr(r.sipInstalment)} (≈ ${inr(r.sipAmount)}/month)`
+          : "",
+        r.plan !== "Unknown" ? `${r.plan} plan` : "",
+        r.option !== "Unknown" ? r.option : "",
+        r.assumptions.length ? `Assumptions: ${r.assumptions.join(" ")}` : "",
+      ].filter(Boolean).join(" · "),
     }));
     const { error } = await supabase.from("client_funds").insert(payload);
     if (error) throw new Error(error.message);
