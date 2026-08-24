@@ -382,8 +382,35 @@ const PortfolioIntelligenceInner = () => {
           <ArrowLeft className="h-4 w-4" /> {linkedClientId ? "Back to client record" : "Back to client book"}
         </Link>
         {prefilling && (
-          <p className="text-xs text-muted-foreground">Loading this client's profile, goals and holdings…</p>
+          <Card className="border-financial-accent/40 bg-financial-accent/5">
+            <CardContent className="pt-5 space-y-2">
+              <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-financial-accent" />
+                Loading this client's profile, goals and holdings…
+              </p>
+              <Progress value={66} aria-label="Loading client record" className="h-1.5" />
+            </CardContent>
+          </Card>
         )}
+        {prefillError && (
+          <Card className="border-destructive/40 bg-destructive/5">
+            <CardContent className="pt-5 space-y-3">
+              <p className="text-sm font-medium text-destructive flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" /> Could not prefill from the client record
+              </p>
+              <p className="text-sm text-muted-foreground">{prefillError}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" className="gap-2" onClick={() => setPrefillAttempt((n) => n + 1)}>
+                  <RefreshCw className="h-3.5 w-3.5" /> Retry
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setPrefillError(null)}>
+                  Continue with a blank run
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {prefillNotes.length > 0 && (
           <Card className="border-financial-gold/40 bg-financial-gold/5">
             <CardContent className="pt-5 space-y-1.5">
