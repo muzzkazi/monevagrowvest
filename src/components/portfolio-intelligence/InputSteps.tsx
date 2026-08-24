@@ -12,7 +12,10 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { ClientProfile, Constraints, Goal, PortfolioFund, RiskAnswers, AssetBucket, FundRole } from "@/lib/pi/types";
 import { RISK_QUESTIONS, SECTOR_EXCLUSIONS, newFund, newGoal } from "@/lib/pi/defaults";
 import HoldingsImportDialog from "@/components/portfolio-intelligence/HoldingsImportDialog";
+import SchemePicker from "@/components/portfolio-intelligence/SchemePicker";
+import { schemePatch } from "@/lib/pi/schemeClassify";
 import { toPortfolioFund } from "@/lib/pi/holdingsImport";
+
 
 const num = (v: string) => (v === "" ? 0 : Number(v.replace(/[^0-9.-]/g, "")));
 
@@ -417,48 +420,86 @@ export const PortfolioStep = ({
         </CardContent>
       </Card>
 
-      {funds.map((f) => (
+      {funds.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          No holdings yet. Add one below or import a statement — every edit is saved to this browser automatically, so
+          switching tabs or leaving the page won't lose your work.
+        </p>
+      )}
 
+      {funds.map((f, i) => (
         <Card key={f.id}>
-          <CardContent className="pt-6 grid gap-4 sm:grid-cols-4">
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label className="text-xs text-muted-foreground">Scheme name</Label>
-              <Input value={f.schemeName} onChange={(e) => update(f.id, { schemeName: e.target.value })} className="h-9" />
+          <CardContent className="pt-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Scheme name (search AMFI)</Label>
+                <SchemePicker
+                  value={f.schemeName}
+                  onTextChange={(t) => update(f.id, { schemeName: t, schemeCode: undefined })}
+                  onSelect={(hit) => update(f.id, schemePatch(hit.schemeName, hit.schemeCode))}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Pick from the list and the fund house, category, asset bucket and portfolio role are filled in for you.
+                </p>
+              </div>
+              <Badge variant="secondary" className="mt-6">#{i + 1}</Badge>
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Fund house</Label>
-              <Input value={f.fundHouse} onChange={(e) => update(f.id, { fundHouse: e.target.value })} className="h-9" />
+
+            {f.schemeName && (
+              <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                <Badge variant="outline">{f.fundHouse || "Fund house —"}</Badge>
+                <Badge variant="outline">{f.subCategory || "Sub-category —"}</Badge>
+                <Badge variant="outline">{f.assetBucket}</Badge>
+                <Badge variant="outline">{f.role}</Badge>
+                {f.schemeCode && <span className="text-muted-foreground">AMFI code {f.schemeCode}</span>}
+              </div>
+            )}
+
+            <div className="grid gap-4 sm:grid-cols-4">
+              <Field label="Current value (₹)" value={f.currentValue} onChange={(v) => update(f.id, { currentValue: num(v) })} />
+              <Field label="Invested amount (₹)" value={f.investedAmount} onChange={(v) => update(f.id, { investedAmount: num(v) })} />
+              <Field label="Monthly SIP (₹)" value={f.sipAmount} onChange={(v) => update(f.id, { sipAmount: num(v) })} />
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">First purchase date</Label>
+                <Input type="date" value={f.purchaseDate ?? ""} onChange={(e) => update(f.id, { purchaseDate: e.target.value })} className="h-9" />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Sub-category</Label>
-              <Input value={f.subCategory} onChange={(e) => update(f.id, { subCategory: e.target.value })} className="h-9" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Asset bucket</Label>
-              <Select value={f.assetBucket} onValueChange={(v) => update(f.id, { assetBucket: v as AssetBucket })}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {BUCKETS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Portfolio role</Label>
-              <Select value={f.role} onValueChange={(v) => update(f.id, { role: v as FundRole })}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <Field label="Current value (₹)" value={f.currentValue} onChange={(v) => update(f.id, { currentValue: num(v) })} />
-            <Field label="Invested amount (₹)" value={f.investedAmount} onChange={(v) => update(f.id, { investedAmount: num(v) })} />
-            <Field label="Monthly SIP (₹)" value={f.sipAmount} onChange={(v) => update(f.id, { sipAmount: num(v) })} />
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">First purchase date</Label>
-              <Input type="date" value={f.purchaseDate ?? ""} onChange={(e) => update(f.id, { purchaseDate: e.target.value })} className="h-9" />
-            </div>
-            <div className="flex items-end justify-end sm:col-span-4">
+
+            <details className="rounded-md border border-border bg-financial-muted/40 px-3 py-2">
+              <summary className="text-xs text-muted-foreground cursor-pointer select-none">
+                Adjust classification (only if the auto-detected values look wrong)
+              </summary>
+              <div className="grid gap-4 sm:grid-cols-4 pt-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Fund house</Label>
+                  <Input value={f.fundHouse} onChange={(e) => update(f.id, { fundHouse: e.target.value })} className="h-9" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Sub-category</Label>
+                  <Input value={f.subCategory} onChange={(e) => update(f.id, { subCategory: e.target.value })} className="h-9" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Asset bucket</Label>
+                  <Select value={f.assetBucket} onValueChange={(v) => update(f.id, { assetBucket: v as AssetBucket })}>
+                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {BUCKETS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Portfolio role</Label>
+                  <Select value={f.role} onValueChange={(v) => update(f.id, { role: v as FundRole })}>
+                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </details>
+
+            <div className="flex justify-end">
               <Button variant="ghost" size="sm" onClick={() => onChange(funds.filter((x) => x.id !== f.id))}>
                 <Trash2 className="h-4 w-4 mr-1" /> Remove holding
               </Button>
@@ -469,6 +510,7 @@ export const PortfolioStep = ({
       <Button variant="outline" onClick={() => onChange([...funds, newFund()])}>
         <Plus className="h-4 w-4 mr-1" /> Add holding
       </Button>
+
     </div>
   );
 };
