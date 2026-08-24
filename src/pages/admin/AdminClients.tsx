@@ -37,12 +37,19 @@ const RISK = ["conservative", "moderate", "aggressive"];
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
+const PAGE_SIZE = 10;
+
 const AdminClientsInner = () => {
   const { canEdit } = useIsAdmin();
   const [clients, setClients] = useState<Client[]>([]);
   const [sipTotals, setSipTotals] = useState<Record<string, number>>({});
+  const [fundNames, setFundNames] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [scheme, setScheme] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [riskFilter, setRiskFilter] = useState("all");
+  const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -56,16 +63,19 @@ const AdminClientsInner = () => {
     setLoading(true);
     const [{ data: cs, error }, { data: funds }] = await Promise.all([
       supabase.from("clients").select("id, full_name, email, phone, risk_profile, monthly_investable, status, created_at").order("created_at", { ascending: false }),
-      supabase.from("client_funds").select("client_id, monthly_sip, status"),
+      supabase.from("client_funds").select("client_id, fund_name, monthly_sip, status"),
     ]);
     if (error) toast.error("Could not load clients");
     setClients((cs as Client[]) ?? []);
     const totals: Record<string, number> = {};
+    const names: Record<string, string[]> = {};
     (funds ?? []).forEach((f) => {
+      names[f.client_id] = [...(names[f.client_id] ?? []), f.fund_name ?? ""];
       if (f.status !== "active") return;
       totals[f.client_id] = (totals[f.client_id] ?? 0) + Number(f.monthly_sip ?? 0);
     });
     setSipTotals(totals);
+    setFundNames(names);
     setLoading(false);
   };
 
@@ -73,11 +83,22 @@ const AdminClientsInner = () => {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return clients;
-    return clients.filter((c) =>
-      [c.full_name, c.email, c.phone].some((v) => (v ?? "").toLowerCase().includes(q))
-    );
-  }, [clients, query]);
+    const s = scheme.trim().toLowerCase();
+    return clients.filter((c) => {
+      if (q && ![c.full_name, c.email, c.phone].some((v) => (v ?? "").toLowerCase().includes(q))) return false;
+      if (s && !(fundNames[c.id] ?? []).some((n) => n.toLowerCase().includes(s))) return false;
+      if (statusFilter !== "all" && c.status !== statusFilter) return false;
+      if (riskFilter !== "all" && c.risk_profile !== riskFilter) return false;
+      return true;
+    });
+  }, [clients, query, scheme, statusFilter, riskFilter, fundNames]);
+
+  useEffect(() => { setPage(1); }, [query, scheme, statusFilter, riskFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const activeFilters = (query ? 1 : 0) + (scheme ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (riskFilter !== "all" ? 1 : 0);
 
   const totalBook = Object.values(sipTotals).reduce((a, b) => a + b, 0);
 
@@ -200,9 +221,37 @@ const AdminClientsInner = () => {
           </Card>
         </div>
 
-        <div className="relative mb-4 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search client by name, email or phone" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input className="pl-9" placeholder="Name, email or phone" value={query} onChange={(e) => setQuery(e.target.value)} />
+          </div>
+          <Input placeholder="Scheme / fund name" value={scheme} onChange={(e) => setScheme(e.target.value)} />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="prospect">Prospect</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={riskFilter} onValueChange={setRiskFilter}>
+            <SelectTrigger><SelectValue placeholder="Risk profile" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All risk profiles</SelectItem>
+              {RISK.map((r) => <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center justify-between mb-3 text-xs text-muted-foreground">
+          <span>{filtered.length} of {clients.length} clients{activeFilters > 0 ? ` · ${activeFilters} filter${activeFilters > 1 ? "s" : ""} applied` : ""}</span>
+          {activeFilters > 0 && (
+            <Button variant="ghost" size="sm" onClick={() => { setQuery(""); setScheme(""); setStatusFilter("all"); setRiskFilter("all"); }}>
+              Clear filters
+            </Button>
+          )}
         </div>
 
         <Card className="overflow-hidden">
@@ -212,38 +261,51 @@ const AdminClientsInner = () => {
             </div>
           ) : filtered.length === 0 ? (
             <div className="p-10 text-center text-sm text-muted-foreground">
-              No clients yet. Add your first client to start building their plan.
+              {clients.length === 0
+                ? "No clients yet. Add your first client to start building their plan."
+                : "No clients match these filters."}
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Risk</TableHead>
-                  <TableHead className="text-right">Monthly SIP</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell>
-                      <div className="font-medium text-foreground">{c.full_name}</div>
-                      <div className="text-xs text-muted-foreground">{c.email || c.phone || "—"}</div>
-                    </TableCell>
-                    <TableCell><Badge variant="outline" className="capitalize">{c.risk_profile}</Badge></TableCell>
-                    <TableCell className="text-right font-medium">{inr(sipTotals[c.id] ?? 0)}</TableCell>
-                    <TableCell><span className="text-xs capitalize text-muted-foreground">{c.status}</span></TableCell>
-                    <TableCell className="text-right">
-                      <Button asChild variant="ghost" size="sm">
-                        <Link to={`/admin/clients/${c.id}`}>Open</Link>
-                      </Button>
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Risk</TableHead>
+                    <TableHead className="text-right">Monthly SIP</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {paged.map((c) => (
+                    <TableRow key={c.id}>
+                      <TableCell>
+                        <div className="font-medium text-foreground">{c.full_name}</div>
+                        <div className="text-xs text-muted-foreground">{c.email || c.phone || "—"}</div>
+                      </TableCell>
+                      <TableCell><Badge variant="outline" className="capitalize">{c.risk_profile}</Badge></TableCell>
+                      <TableCell className="text-right font-medium">{inr(sipTotals[c.id] ?? 0)}</TableCell>
+                      <TableCell><span className="text-xs capitalize text-muted-foreground">{c.status}</span></TableCell>
+                      <TableCell className="text-right">
+                        <Button asChild variant="ghost" size="sm">
+                          <Link to={`/admin/clients/${c.id}`}>Open</Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between gap-3 p-3 border-t border-border">
+                  <span className="text-xs text-muted-foreground">Page {currentPage} of {totalPages}</span>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>Previous</Button>
+                    <Button variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>Next</Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </Card>
       </div>
