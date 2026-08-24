@@ -170,9 +170,9 @@ export default {
 				'smooth': 'var(--transition-smooth)'
 			},
 			fontFamily: {
-				'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
-				'serif': ['Playfair Display', 'ui-serif', 'Georgia'],
-				'display': ['Playfair Display', 'ui-serif', 'Georgia']
+				'sans': ['IBM Plex Sans', 'ui-sans-serif', 'system-ui'],
+				'serif': ['Libre Baskerville', 'ui-serif', 'Georgia'],
+				'display': ['Libre Baskerville', 'ui-serif', 'Georgia']
 			}
 		}
 	},
