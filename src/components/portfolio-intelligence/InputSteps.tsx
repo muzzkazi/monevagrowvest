@@ -439,7 +439,8 @@ export const PortfolioStep = ({
                   onSelect={(hit) => update(f.id, schemePatch(hit.schemeName, hit.schemeCode))}
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  Pick from the list and the fund house, category, asset bucket and portfolio role are filled in for you.
+                  Pick from the list — or just type the full name and move on — and the fund house, sub-category,
+                  asset bucket and portfolio role are filled in for you. Only confirm them if something looks wrong.
                 </p>
               </div>
               <Badge variant="secondary" className="mt-6">#{i + 1}</Badge>
