@@ -67,6 +67,7 @@ const SchemePicker = ({
   const commit = (hit: Hit) => {
     setPicked(true);
     setNoMatch(false);
+    selfText.current = hit.schemeName;
     setQuery(hit.schemeName);
     setOpen(false);
     onSelect(hit);
