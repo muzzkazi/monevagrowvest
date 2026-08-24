@@ -83,6 +83,7 @@ export const loadClientPrefill = async (clientId: string): Promise<ClientPrefill
   if (age === null) missing.push("date of birth (age)");
   if (client.monthly_income === null) missing.push("monthly income");
   missing.push("monthly expenses, dependents and the wider asset / liability position");
+  if ((fundsRes.data ?? []).length > 0) missing.push("current market value of each holding (only invested amounts are on record)");
 
   const monthlyIncome = Number(client.monthly_income ?? 0) || base.monthlyIncome;
 
