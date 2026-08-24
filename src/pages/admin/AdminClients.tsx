@@ -37,12 +37,19 @@ const RISK = ["conservative", "moderate", "aggressive"];
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
+const PAGE_SIZE = 10;
+
 const AdminClientsInner = () => {
   const { canEdit } = useIsAdmin();
   const [clients, setClients] = useState<Client[]>([]);
   const [sipTotals, setSipTotals] = useState<Record<string, number>>({});
+  const [fundNames, setFundNames] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [scheme, setScheme] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [riskFilter, setRiskFilter] = useState("all");
+  const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -56,16 +63,19 @@ const AdminClientsInner = () => {
     setLoading(true);
     const [{ data: cs, error }, { data: funds }] = await Promise.all([
       supabase.from("clients").select("id, full_name, email, phone, risk_profile, monthly_investable, status, created_at").order("created_at", { ascending: false }),
-      supabase.from("client_funds").select("client_id, monthly_sip, status"),
+      supabase.from("client_funds").select("client_id, fund_name, monthly_sip, status"),
     ]);
     if (error) toast.error("Could not load clients");
     setClients((cs as Client[]) ?? []);
     const totals: Record<string, number> = {};
+    const names: Record<string, string[]> = {};
     (funds ?? []).forEach((f) => {
+      names[f.client_id] = [...(names[f.client_id] ?? []), f.fund_name ?? ""];
       if (f.status !== "active") return;
       totals[f.client_id] = (totals[f.client_id] ?? 0) + Number(f.monthly_sip ?? 0);
     });
     setSipTotals(totals);
+    setFundNames(names);
     setLoading(false);
   };
 
@@ -73,11 +83,22 @@ const AdminClientsInner = () => {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return clients;
-    return clients.filter((c) =>
-      [c.full_name, c.email, c.phone].some((v) => (v ?? "").toLowerCase().includes(q))
-    );
-  }, [clients, query]);
+    const s = scheme.trim().toLowerCase();
+    return clients.filter((c) => {
+      if (q && ![c.full_name, c.email, c.phone].some((v) => (v ?? "").toLowerCase().includes(q))) return false;
+      if (s && !(fundNames[c.id] ?? []).some((n) => n.toLowerCase().includes(s))) return false;
+      if (statusFilter !== "all" && c.status !== statusFilter) return false;
+      if (riskFilter !== "all" && c.risk_profile !== riskFilter) return false;
+      return true;
+    });
+  }, [clients, query, scheme, statusFilter, riskFilter, fundNames]);
+
+  useEffect(() => { setPage(1); }, [query, scheme, statusFilter, riskFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const activeFilters = (query ? 1 : 0) + (scheme ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (riskFilter !== "all" ? 1 : 0);
 
   const totalBook = Object.values(sipTotals).reduce((a, b) => a + b, 0);
 
