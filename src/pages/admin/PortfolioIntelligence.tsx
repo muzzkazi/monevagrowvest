@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, BrainCircuit, Calculator, FileDown, MessagesSquare, Play, Save, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BrainCircuit, Calculator, FileDown, Loader2, MessagesSquare, Play, RefreshCw, Save, Sparkles } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+
 import PageLayout from "@/components/shared/PageLayout";
 import AdvisorRouteGuard from "@/components/admin/AdvisorRouteGuard";
 import { Button } from "@/components/ui/button";
@@ -96,7 +98,10 @@ const PortfolioIntelligenceInner = () => {
   const [runId, setRunId] = useState<string | null>(null);
   const [linkedClientId, setLinkedClientId] = useState<string | null>(clientParam);
   const [prefilling, setPrefilling] = useState(Boolean(clientParam) && !draft.profile);
+  const [prefillError, setPrefillError] = useState<string | null>(null);
+  const [prefillAttempt, setPrefillAttempt] = useState(0);
   const [prefillNotes, setPrefillNotes] = useState<string[]>([]);
+
   const [runName, setRunName] = useState(() => draft.runName ?? "Untitled run");
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const [versionToken, setVersionToken] = useState(0);
@@ -134,31 +139,40 @@ const PortfolioIntelligenceInner = () => {
   useEffect(() => {
     if (!clientParam || draft.profile) return;
     let cancelled = false;
+    setPrefilling(true);
+    setPrefillError(null);
     (async () => {
-      const p = await loadClientPrefill(clientParam);
-      if (cancelled) return;
-      if (!p) {
+      try {
+        const p = await loadClientPrefill(clientParam);
+        if (cancelled) return;
+        if (!p) {
+          setPrefilling(false);
+          setPrefillError("That client record could not be found. You can retry or start a blank run.");
+          return;
+        }
+        setProfile(p.profile);
+        if (p.goals.length > 0) setGoals(p.goals);
+        setRiskAnswers(p.riskAnswers);
+        setConstraints(p.constraints);
+        setFunds(p.funds);
+        setDeclaredSipBudget(p.declaredSipBudget);
+        setRunName(p.runName);
+        setPrefillNotes(p.missing);
         setPrefilling(false);
-        toast({ title: "Client not found", description: "Starting a blank run instead.", variant: "destructive" });
-        return;
+        toast({
+          title: `Loaded ${p.profile.clientName}`,
+          description: `${p.funds.length} holding(s) and ${p.goals.length} goal(s) pulled from the client record.`,
+        });
+      } catch (e) {
+        if (cancelled) return;
+        setPrefilling(false);
+        setPrefillError((e as Error).message || "Could not load this client's record.");
       }
-      setProfile(p.profile);
-      if (p.goals.length > 0) setGoals(p.goals);
-      setRiskAnswers(p.riskAnswers);
-      setConstraints(p.constraints);
-      setFunds(p.funds);
-      setDeclaredSipBudget(p.declaredSipBudget);
-      setRunName(p.runName);
-      setPrefillNotes(p.missing);
-      setPrefilling(false);
-      toast({
-        title: `Loaded ${p.profile.clientName}`,
-        description: `${p.funds.length} holding(s) and ${p.goals.length} goal(s) pulled from the client record.`,
-      });
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientParam]);
+  }, [clientParam, prefillAttempt]);
+
 
   /* Autosave the whole input draft (debounced) so nothing is lost on tab switch. */
   useEffect(() => {
@@ -370,8 +384,35 @@ const PortfolioIntelligenceInner = () => {
           <ArrowLeft className="h-4 w-4" /> {linkedClientId ? "Back to client record" : "Back to client book"}
         </Link>
         {prefilling && (
-          <p className="text-xs text-muted-foreground">Loading this client's profile, goals and holdings…</p>
+          <Card className="border-financial-accent/40 bg-financial-accent/5">
+            <CardContent className="pt-5 space-y-2">
+              <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-financial-accent" />
+                Loading this client's profile, goals and holdings…
+              </p>
+              <Progress value={66} aria-label="Loading client record" className="h-1.5" />
+            </CardContent>
+          </Card>
         )}
+        {prefillError && (
+          <Card className="border-destructive/40 bg-destructive/5">
+            <CardContent className="pt-5 space-y-3">
+              <p className="text-sm font-medium text-destructive flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" /> Could not prefill from the client record
+              </p>
+              <p className="text-sm text-muted-foreground">{prefillError}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" className="gap-2" onClick={() => setPrefillAttempt((n) => n + 1)}>
+                  <RefreshCw className="h-3.5 w-3.5" /> Retry
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setPrefillError(null)}>
+                  Continue with a blank run
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {prefillNotes.length > 0 && (
           <Card className="border-financial-gold/40 bg-financial-gold/5">
             <CardContent className="pt-5 space-y-1.5">

@@ -20,6 +20,8 @@ import { ArrowLeft, BrainCircuit, Lock, Plus, Save, Trash2, History, FileDown, E
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { generateClientReportPdf } from "@/lib/clientReportPdf";
 import HoldingsImportDialog from "@/components/portfolio-intelligence/HoldingsImportDialog";
+import ClientRunHistoryPanel from "@/components/portfolio-intelligence/ClientRunHistoryPanel";
+
 import type { ExtractedHolding } from "@/lib/pi/holdingsImport";
 
 type Client = {
@@ -241,12 +243,14 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
         </p>
 
         <Tabs defaultValue="portfolio" className="mt-8">
-          <TabsList>
+          <TabsList className="flex flex-wrap h-auto">
             <TabsTrigger value="portfolio">SIP Portfolio</TabsTrigger>
             <TabsTrigger value="profile">Profile & Risk</TabsTrigger>
             <TabsTrigger value="goals">Goals</TabsTrigger>
+            <TabsTrigger value="runs">Analysis runs</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
+
 
           {/* Portfolio */}
           <TabsContent value="portfolio" className="mt-6 space-y-4">
@@ -439,7 +443,13 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
             )}
           </TabsContent>
 
+          {/* Portfolio Intelligence runs */}
+          <TabsContent value="runs" className="mt-6">
+            <ClientRunHistoryPanel clientId={clientId} clientName={client.full_name} />
+          </TabsContent>
+
           {/* History */}
+
           <TabsContent value="history" className="mt-6">
             <Card className="p-6">
               {log.length === 0 ? (
