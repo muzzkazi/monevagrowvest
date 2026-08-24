@@ -127,22 +127,55 @@ const PortfolioIntelligenceInner = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, layerView, scenarioKeys]);
 
+  /* Launched from a client record (?client=<id>) with no draft yet → prefill
+   * the wizard from the client book. Nothing is invented: fields the record
+   * does not hold stay at the wizard default and are listed for confirmation. */
+  useEffect(() => {
+    if (!clientParam || draft.profile) return;
+    let cancelled = false;
+    (async () => {
+      const p = await loadClientPrefill(clientParam);
+      if (cancelled) return;
+      if (!p) {
+        setPrefilling(false);
+        toast({ title: "Client not found", description: "Starting a blank run instead.", variant: "destructive" });
+        return;
+      }
+      setProfile(p.profile);
+      if (p.goals.length > 0) setGoals(p.goals);
+      setRiskAnswers(p.riskAnswers);
+      setConstraints(p.constraints);
+      setFunds(p.funds);
+      setDeclaredSipBudget(p.declaredSipBudget);
+      setRunName(p.runName);
+      setPrefillNotes(p.missing);
+      setPrefilling(false);
+      toast({
+        title: `Loaded ${p.profile.clientName}`,
+        description: `${p.funds.length} holding(s) and ${p.goals.length} goal(s) pulled from the client record.`,
+      });
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientParam]);
+
   /* Autosave the whole input draft (debounced) so nothing is lost on tab switch. */
   useEffect(() => {
+    if (prefilling) return;
     const t = setTimeout(() => {
       try {
         window.localStorage.setItem(
-          DRAFT_KEY,
+          draftKey,
           JSON.stringify({ profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName }),
         );
         setDraftSavedAt(new Date());
       } catch { /* quota — ignore */ }
     }, 500);
     return () => clearTimeout(t);
-  }, [profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName]);
+  }, [profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName, draftKey, prefilling]);
 
   const clearDraft = () => {
-    try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
+    try { window.localStorage.removeItem(draftKey); } catch { /* noop */ }
     setProfile(emptyProfile());
     setGoals([newGoal()]);
     setRiskAnswers(emptyRiskAnswers());
@@ -153,12 +186,14 @@ const PortfolioIntelligenceInner = () => {
     setOutput(null);
     setRunName("Untitled run");
     setDraftSavedAt(null);
+    setPrefillNotes([]);
     toast({ title: "Draft cleared", description: "All inputs reset to defaults." });
   };
 
   const setScenarioSelection = useCallback((keys: ScenarioKey[]) => {
     setScenarioKeys(keys.length === 0 ? ALL_SCENARIOS : keys);
   }, []);
+
 
 
   const schemeCodes = useMemo(
