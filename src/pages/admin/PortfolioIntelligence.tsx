@@ -58,12 +58,15 @@ const ALL_SCENARIOS: ScenarioKey[] = ["base", "downside", "upside", "severe"];
  * the analysis or leaving the page never loses a half-entered portfolio. */
 const DRAFT_KEY = "moneva.pi.draft.v1";
 
+/** Each client keeps its own draft so reviews never bleed into one another. */
+const draftKeyFor = (clientId: string | null) => (clientId ? `${DRAFT_KEY}.client.${clientId}` : DRAFT_KEY);
+
 type Draft = PiRunInputs & { runName: string };
 
-const loadDraft = (): Partial<Draft> => {
+const loadDraft = (key: string): Partial<Draft> => {
   if (typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(DRAFT_KEY);
+    const raw = window.localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as Partial<Draft>) : {};
   } catch {
     return {};
@@ -73,7 +76,12 @@ const loadDraft = (): Partial<Draft> => {
 const PortfolioIntelligenceInner = () => {
   const { canEdit } = useIsAdmin();
   const { toast } = useToast();
-  const draft = useMemo(loadDraft, []);
+  const clientParam = useMemo(
+    () => new URLSearchParams(window.location.search).get("client"),
+    [],
+  );
+  const draftKey = useMemo(() => draftKeyFor(clientParam), [clientParam]);
+  const draft = useMemo(() => loadDraft(draftKey), [draftKey]);
   const [profile, setProfile] = useState<ClientProfile>(() => draft.profile ?? emptyProfile());
   const [goals, setGoals] = useState<Goal[]>(() => draft.goals ?? [newGoal()]);
   const [riskAnswers, setRiskAnswers] = useState<RiskAnswers>(() => draft.riskAnswers ?? emptyRiskAnswers());
