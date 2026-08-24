@@ -96,7 +96,10 @@ const PortfolioIntelligenceInner = () => {
   const [runId, setRunId] = useState<string | null>(null);
   const [linkedClientId, setLinkedClientId] = useState<string | null>(clientParam);
   const [prefilling, setPrefilling] = useState(Boolean(clientParam) && !draft.profile);
+  const [prefillError, setPrefillError] = useState<string | null>(null);
+  const [prefillAttempt, setPrefillAttempt] = useState(0);
   const [prefillNotes, setPrefillNotes] = useState<string[]>([]);
+
   const [runName, setRunName] = useState(() => draft.runName ?? "Untitled run");
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const [versionToken, setVersionToken] = useState(0);
