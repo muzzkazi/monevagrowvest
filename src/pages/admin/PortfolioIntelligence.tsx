@@ -529,7 +529,7 @@ const PortfolioIntelligenceInner = () => {
 
 const PortfolioIntelligence = () => (
   <PageLayout>
-    <AdvisorRouteGuard>
+    <AdvisorRouteGuard requireRole allowAdvisor>
       <PortfolioIntelligenceInner />
     </AdvisorRouteGuard>
   </PageLayout>
