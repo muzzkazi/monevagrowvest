@@ -137,31 +137,40 @@ const PortfolioIntelligenceInner = () => {
   useEffect(() => {
     if (!clientParam || draft.profile) return;
     let cancelled = false;
+    setPrefilling(true);
+    setPrefillError(null);
     (async () => {
-      const p = await loadClientPrefill(clientParam);
-      if (cancelled) return;
-      if (!p) {
+      try {
+        const p = await loadClientPrefill(clientParam);
+        if (cancelled) return;
+        if (!p) {
+          setPrefilling(false);
+          setPrefillError("That client record could not be found. You can retry or start a blank run.");
+          return;
+        }
+        setProfile(p.profile);
+        if (p.goals.length > 0) setGoals(p.goals);
+        setRiskAnswers(p.riskAnswers);
+        setConstraints(p.constraints);
+        setFunds(p.funds);
+        setDeclaredSipBudget(p.declaredSipBudget);
+        setRunName(p.runName);
+        setPrefillNotes(p.missing);
         setPrefilling(false);
-        toast({ title: "Client not found", description: "Starting a blank run instead.", variant: "destructive" });
-        return;
+        toast({
+          title: `Loaded ${p.profile.clientName}`,
+          description: `${p.funds.length} holding(s) and ${p.goals.length} goal(s) pulled from the client record.`,
+        });
+      } catch (e) {
+        if (cancelled) return;
+        setPrefilling(false);
+        setPrefillError((e as Error).message || "Could not load this client's record.");
       }
-      setProfile(p.profile);
-      if (p.goals.length > 0) setGoals(p.goals);
-      setRiskAnswers(p.riskAnswers);
-      setConstraints(p.constraints);
-      setFunds(p.funds);
-      setDeclaredSipBudget(p.declaredSipBudget);
-      setRunName(p.runName);
-      setPrefillNotes(p.missing);
-      setPrefilling(false);
-      toast({
-        title: `Loaded ${p.profile.clientName}`,
-        description: `${p.funds.length} holding(s) and ${p.goals.length} goal(s) pulled from the client record.`,
-      });
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientParam]);
+  }, [clientParam, prefillAttempt]);
+
 
   /* Autosave the whole input draft (debounced) so nothing is lost on tab switch. */
   useEffect(() => {
