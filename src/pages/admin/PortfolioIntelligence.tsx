@@ -117,9 +117,39 @@ const PortfolioIntelligenceInner = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, layerView, scenarioKeys]);
 
+  /* Autosave the whole input draft (debounced) so nothing is lost on tab switch. */
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        window.localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({ profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName }),
+        );
+        setDraftSavedAt(new Date());
+      } catch { /* quota — ignore */ }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName]);
+
+  const clearDraft = () => {
+    try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
+    setProfile(emptyProfile());
+    setGoals([newGoal()]);
+    setRiskAnswers(emptyRiskAnswers());
+    setConstraints(emptyConstraints());
+    setFunds([]);
+    setAdditionalSip(10000);
+    setDeclaredSipBudget(0);
+    setOutput(null);
+    setRunName("Untitled run");
+    setDraftSavedAt(null);
+    toast({ title: "Draft cleared", description: "All inputs reset to defaults." });
+  };
+
   const setScenarioSelection = useCallback((keys: ScenarioKey[]) => {
     setScenarioKeys(keys.length === 0 ? ALL_SCENARIOS : keys);
   }, []);
+
 
   const schemeCodes = useMemo(
     () => funds.map((f) => (f as PortfolioFund & { schemeCode?: string }).schemeCode ?? "").filter(Boolean),
