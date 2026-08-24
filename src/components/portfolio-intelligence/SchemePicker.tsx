@@ -31,10 +31,19 @@ const SchemePicker = ({
   const [active, setActive] = useState(0);
   const [noMatch, setNoMatch] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
+  /** Text this picker itself pushed upward — used to ignore echoed prop updates. */
+  const selfText = useRef(value);
 
   useEffect(() => { prewarmAmfiSearch(); }, []);
   useEffect(() => subscribeAmfiUpdates(() => setTick((t) => t + 1)), []);
-  useEffect(() => { setQuery(value); setPicked(Boolean(value)); }, [value]);
+  useEffect(() => {
+    // Ignore the parent echoing back what the user is currently typing —
+    // otherwise the search closes itself on every keystroke.
+    if (value === selfText.current) return;
+    selfText.current = value;
+    setQuery(value);
+    setPicked(Boolean(value));
+  }, [value]);
 
   const trimmed = useMemo(() => query.trim(), [query]);
 
@@ -58,6 +67,7 @@ const SchemePicker = ({
   const commit = (hit: Hit) => {
     setPicked(true);
     setNoMatch(false);
+    selfText.current = hit.schemeName;
     setQuery(hit.schemeName);
     setOpen(false);
     onSelect(hit);
@@ -99,6 +109,7 @@ const SchemePicker = ({
             setQuery(e.target.value);
             setPicked(false);
             setNoMatch(false);
+            selfText.current = e.target.value;
             onTextChange?.(e.target.value);
           }}
           onFocus={() => { if (hits.length > 0) setOpen(true); }}
