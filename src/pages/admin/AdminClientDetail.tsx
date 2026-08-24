@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { ArrowLeft, Lock, Plus, Save, Trash2, History, FileDown, Eye } from "lucide-react";
+import { ArrowLeft, BrainCircuit, Lock, Plus, Save, Trash2, History, FileDown, Eye } from "lucide-react";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { generateClientReportPdf } from "@/lib/clientReportPdf";
 import HoldingsImportDialog from "@/components/portfolio-intelligence/HoldingsImportDialog";
