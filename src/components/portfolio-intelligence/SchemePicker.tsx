@@ -109,6 +109,7 @@ const SchemePicker = ({
             setQuery(e.target.value);
             setPicked(false);
             setNoMatch(false);
+            selfText.current = e.target.value;
             onTextChange?.(e.target.value);
           }}
           onFocus={() => { if (hits.length > 0) setOpen(true); }}
