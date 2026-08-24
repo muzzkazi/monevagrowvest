@@ -241,12 +241,14 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
         </p>
 
         <Tabs defaultValue="portfolio" className="mt-8">
-          <TabsList>
+          <TabsList className="flex flex-wrap h-auto">
             <TabsTrigger value="portfolio">SIP Portfolio</TabsTrigger>
             <TabsTrigger value="profile">Profile & Risk</TabsTrigger>
             <TabsTrigger value="goals">Goals</TabsTrigger>
+            <TabsTrigger value="runs">Analysis runs</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
+
 
           {/* Portfolio */}
           <TabsContent value="portfolio" className="mt-6 space-y-4">
