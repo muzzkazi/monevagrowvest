@@ -124,12 +124,12 @@ const SchemePicker = ({
         />
         {(loading || resolving) && <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-muted-foreground" />}
         {!loading && !resolving && picked && trimmed.length > 0 && (
-          <Check className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-financial-success" />
+          <Check className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-financial-primary" />
         )}
       </div>
 
       {noMatch && !picked && (
-        <p className="mt-1 text-[11px] text-financial-warning">
+        <p className="mt-1 text-[11px] text-financial-gold">
           No AMFI scheme matched this name — it will be saved exactly as typed, so classification may need a manual check.
         </p>
       )}
