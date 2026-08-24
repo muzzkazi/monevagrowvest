@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, BrainCircuit, Calculator, FileDown, MessagesSquare, Play, Sparkles } from "lucide-react";
+import { ArrowLeft, BrainCircuit, Calculator, FileDown, MessagesSquare, Play, Save, Sparkles } from "lucide-react";
 import PageLayout from "@/components/shared/PageLayout";
 import AdvisorRouteGuard from "@/components/admin/AdvisorRouteGuard";
 import { Button } from "@/components/ui/button";
