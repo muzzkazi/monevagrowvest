@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { ArrowLeft, Lock, Plus, Save, Trash2, History, FileDown, Eye } from "lucide-react";
+import { ArrowLeft, BrainCircuit, Lock, Plus, Save, Trash2, History, FileDown, Eye } from "lucide-react";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { generateClientReportPdf } from "@/lib/clientReportPdf";
 import HoldingsImportDialog from "@/components/portfolio-intelligence/HoldingsImportDialog";
@@ -224,9 +224,15 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
           <Badge variant="secondary" className="gap-1.5"><Lock className="h-3 w-3" /> Private</Badge>
           <Badge variant="outline" className="capitalize">{client.risk_profile} risk</Badge>
           {!canEdit && <Badge variant="outline" className="gap-1.5"><Eye className="h-3 w-3" /> Read-only access</Badge>}
-          <Button variant="outline" size="sm" className="gap-2 ml-auto" onClick={downloadReport}>
+          <Button asChild size="sm" className="gap-2 ml-auto">
+            <Link to={`/admin/portfolio-intelligence?client=${client.id}`}>
+              <BrainCircuit className="h-4 w-4" /> Run portfolio analysis
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" className="gap-2" onClick={downloadReport}>
             <FileDown className="h-4 w-4" /> Download PDF report
           </Button>
+
         </div>
         <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground">{client.full_name}</h1>
         <p className="text-muted-foreground mt-2 text-sm">

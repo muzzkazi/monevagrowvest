@@ -41,6 +41,7 @@ import { generateRunPdf } from "@/lib/pi/runPdf";
 import { useToast } from "@/hooks/use-toast";
 import { runEngine } from "@/lib/pi/engine";
 import { emptyConstraints, emptyProfile, emptyRiskAnswers, newGoal } from "@/lib/pi/defaults";
+import { loadClientPrefill } from "@/lib/pi/clientPrefill";
 import { buildSwitchPlan, computeHoldingTaxes } from "@/lib/pi/tax";
 import { runStressTest, ScenarioKey } from "@/lib/pi/stress";
 import { NavMetrics } from "@/lib/pi/navMetrics";
@@ -58,12 +59,15 @@ const ALL_SCENARIOS: ScenarioKey[] = ["base", "downside", "upside", "severe"];
  * the analysis or leaving the page never loses a half-entered portfolio. */
 const DRAFT_KEY = "moneva.pi.draft.v1";
 
+/** Each client keeps its own draft so reviews never bleed into one another. */
+const draftKeyFor = (clientId: string | null) => (clientId ? `${DRAFT_KEY}.client.${clientId}` : DRAFT_KEY);
+
 type Draft = PiRunInputs & { runName: string };
 
-const loadDraft = (): Partial<Draft> => {
+const loadDraft = (key: string): Partial<Draft> => {
   if (typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(DRAFT_KEY);
+    const raw = window.localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as Partial<Draft>) : {};
   } catch {
     return {};
@@ -73,7 +77,12 @@ const loadDraft = (): Partial<Draft> => {
 const PortfolioIntelligenceInner = () => {
   const { canEdit } = useIsAdmin();
   const { toast } = useToast();
-  const draft = useMemo(loadDraft, []);
+  const clientParam = useMemo(
+    () => new URLSearchParams(window.location.search).get("client"),
+    [],
+  );
+  const draftKey = useMemo(() => draftKeyFor(clientParam), [clientParam]);
+  const draft = useMemo(() => loadDraft(draftKey), [draftKey]);
   const [profile, setProfile] = useState<ClientProfile>(() => draft.profile ?? emptyProfile());
   const [goals, setGoals] = useState<Goal[]>(() => draft.goals ?? [newGoal()]);
   const [riskAnswers, setRiskAnswers] = useState<RiskAnswers>(() => draft.riskAnswers ?? emptyRiskAnswers());
@@ -85,7 +94,9 @@ const PortfolioIntelligenceInner = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState(() => searchParams.get("tab") ?? "profile");
   const [runId, setRunId] = useState<string | null>(null);
-  const [linkedClientId, setLinkedClientId] = useState<string | null>(null);
+  const [linkedClientId, setLinkedClientId] = useState<string | null>(clientParam);
+  const [prefilling, setPrefilling] = useState(Boolean(clientParam) && !draft.profile);
+  const [prefillNotes, setPrefillNotes] = useState<string[]>([]);
   const [runName, setRunName] = useState(() => draft.runName ?? "Untitled run");
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const [versionToken, setVersionToken] = useState(0);
@@ -117,22 +128,55 @@ const PortfolioIntelligenceInner = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, layerView, scenarioKeys]);
 
+  /* Launched from a client record (?client=<id>) with no draft yet → prefill
+   * the wizard from the client book. Nothing is invented: fields the record
+   * does not hold stay at the wizard default and are listed for confirmation. */
+  useEffect(() => {
+    if (!clientParam || draft.profile) return;
+    let cancelled = false;
+    (async () => {
+      const p = await loadClientPrefill(clientParam);
+      if (cancelled) return;
+      if (!p) {
+        setPrefilling(false);
+        toast({ title: "Client not found", description: "Starting a blank run instead.", variant: "destructive" });
+        return;
+      }
+      setProfile(p.profile);
+      if (p.goals.length > 0) setGoals(p.goals);
+      setRiskAnswers(p.riskAnswers);
+      setConstraints(p.constraints);
+      setFunds(p.funds);
+      setDeclaredSipBudget(p.declaredSipBudget);
+      setRunName(p.runName);
+      setPrefillNotes(p.missing);
+      setPrefilling(false);
+      toast({
+        title: `Loaded ${p.profile.clientName}`,
+        description: `${p.funds.length} holding(s) and ${p.goals.length} goal(s) pulled from the client record.`,
+      });
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientParam]);
+
   /* Autosave the whole input draft (debounced) so nothing is lost on tab switch. */
   useEffect(() => {
+    if (prefilling) return;
     const t = setTimeout(() => {
       try {
         window.localStorage.setItem(
-          DRAFT_KEY,
+          draftKey,
           JSON.stringify({ profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName }),
         );
         setDraftSavedAt(new Date());
       } catch { /* quota — ignore */ }
     }, 500);
     return () => clearTimeout(t);
-  }, [profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName]);
+  }, [profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName, draftKey, prefilling]);
 
   const clearDraft = () => {
-    try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
+    try { window.localStorage.removeItem(draftKey); } catch { /* noop */ }
     setProfile(emptyProfile());
     setGoals([newGoal()]);
     setRiskAnswers(emptyRiskAnswers());
@@ -143,12 +187,14 @@ const PortfolioIntelligenceInner = () => {
     setOutput(null);
     setRunName("Untitled run");
     setDraftSavedAt(null);
+    setPrefillNotes([]);
     toast({ title: "Draft cleared", description: "All inputs reset to defaults." });
   };
 
   const setScenarioSelection = useCallback((keys: ScenarioKey[]) => {
     setScenarioKeys(keys.length === 0 ? ALL_SCENARIOS : keys);
   }, []);
+
 
 
   const schemeCodes = useMemo(
@@ -317,9 +363,27 @@ const PortfolioIntelligenceInner = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-28 pb-20 space-y-8">
       <div className="space-y-4">
-        <Link to="/admin/clients" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Back to client book
+        <Link
+          to={linkedClientId ? `/admin/clients/${linkedClientId}` : "/admin/clients"}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" /> {linkedClientId ? "Back to client record" : "Back to client book"}
         </Link>
+        {prefilling && (
+          <p className="text-xs text-muted-foreground">Loading this client's profile, goals and holdings…</p>
+        )}
+        {prefillNotes.length > 0 && (
+          <Card className="border-financial-gold/40 bg-financial-gold/5">
+            <CardContent className="pt-5 space-y-1.5">
+              <p className="text-sm font-medium text-foreground">
+                Prefilled from the client record — please confirm what the record doesn't hold:
+              </p>
+              <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-0.5">
+                {prefillNotes.map((n) => <li key={n}>{n}</li>)}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <Badge variant="secondary" className="gap-1.5">
