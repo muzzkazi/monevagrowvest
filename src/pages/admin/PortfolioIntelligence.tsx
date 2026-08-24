@@ -363,9 +363,27 @@ const PortfolioIntelligenceInner = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-28 pb-20 space-y-8">
       <div className="space-y-4">
-        <Link to="/admin/clients" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Back to client book
+        <Link
+          to={linkedClientId ? `/admin/clients/${linkedClientId}` : "/admin/clients"}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" /> {linkedClientId ? "Back to client record" : "Back to client book"}
         </Link>
+        {prefilling && (
+          <p className="text-xs text-muted-foreground">Loading this client's profile, goals and holdings…</p>
+        )}
+        {prefillNotes.length > 0 && (
+          <Card className="border-financial-gold/40 bg-financial-gold/5">
+            <CardContent className="pt-5 space-y-1.5">
+              <p className="text-sm font-medium text-foreground">
+                Prefilled from the client record — please confirm what the record doesn't hold:
+              </p>
+              <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-0.5">
+                {prefillNotes.map((n) => <li key={n}>{n}</li>)}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <Badge variant="secondary" className="gap-1.5">
