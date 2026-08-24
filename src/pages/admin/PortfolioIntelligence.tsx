@@ -53,23 +53,43 @@ type LayerView = "math" | "plain" | "both";
 
 const ALL_SCENARIOS: ScenarioKey[] = ["base", "downside", "upside", "severe"];
 
+/* ── Draft autosave ─────────────────────────────────────────────────────────
+ * Inputs are written to this browser as you type so switching tabs, running
+ * the analysis or leaving the page never loses a half-entered portfolio. */
+const DRAFT_KEY = "moneva.pi.draft.v1";
+
+type Draft = PiRunInputs & { runName: string };
+
+const loadDraft = (): Partial<Draft> => {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    return raw ? (JSON.parse(raw) as Partial<Draft>) : {};
+  } catch {
+    return {};
+  }
+};
+
 const PortfolioIntelligenceInner = () => {
   const { canEdit } = useIsAdmin();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<ClientProfile>(emptyProfile);
-  const [goals, setGoals] = useState<Goal[]>([newGoal()]);
-  const [riskAnswers, setRiskAnswers] = useState<RiskAnswers>(emptyRiskAnswers);
-  const [constraints, setConstraints] = useState<Constraints>(emptyConstraints);
-  const [funds, setFunds] = useState<PortfolioFund[]>([]);
-  const [additionalSip, setAdditionalSip] = useState(10000);
-  const [declaredSipBudget, setDeclaredSipBudget] = useState(0);
+  const draft = useMemo(loadDraft, []);
+  const [profile, setProfile] = useState<ClientProfile>(() => draft.profile ?? emptyProfile());
+  const [goals, setGoals] = useState<Goal[]>(() => draft.goals ?? [newGoal()]);
+  const [riskAnswers, setRiskAnswers] = useState<RiskAnswers>(() => draft.riskAnswers ?? emptyRiskAnswers());
+  const [constraints, setConstraints] = useState<Constraints>(() => draft.constraints ?? emptyConstraints());
+  const [funds, setFunds] = useState<PortfolioFund[]>(() => draft.funds ?? []);
+  const [additionalSip, setAdditionalSip] = useState(() => draft.additionalSip ?? 10000);
+  const [declaredSipBudget, setDeclaredSipBudget] = useState(() => draft.declaredSipBudget ?? 0);
   const [output, setOutput] = useState<EngineOutput | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState(() => searchParams.get("tab") ?? "profile");
   const [runId, setRunId] = useState<string | null>(null);
   const [linkedClientId, setLinkedClientId] = useState<string | null>(null);
-  const [runName, setRunName] = useState("Untitled run");
+  const [runName, setRunName] = useState(() => draft.runName ?? "Untitled run");
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const [versionToken, setVersionToken] = useState(0);
+
   const [challengeCleared, setChallengeCleared] = useState(false);
   const [layerView, setLayerView] = useState<LayerView>(() => {
     const v = searchParams.get("layer");
