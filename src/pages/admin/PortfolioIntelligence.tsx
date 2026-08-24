@@ -334,16 +334,28 @@ const PortfolioIntelligenceInner = () => {
               filled in.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {output && (
-              <Button variant="outline" onClick={downloadReport} className="gap-2">
-                <FileDown className="h-4 w-4" /> Download report
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {output && (
+                <Button variant="outline" onClick={downloadReport} className="gap-2">
+                  <FileDown className="h-4 w-4" /> Download report
+                </Button>
+              )}
+              <Button onClick={() => run()} className="gap-2">
+                <Play className="h-4 w-4" /> Run analysis
               </Button>
-            )}
-            <Button onClick={() => run()} className="gap-2">
-              <Play className="h-4 w-4" /> Run analysis
-            </Button>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+              <Save className="h-3 w-3" />
+              {draftSavedAt
+                ? `Draft saved ${draftSavedAt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`
+                : "Draft autosaves as you type"}
+              <button type="button" onClick={clearDraft} className="underline hover:text-foreground">
+                Clear draft
+              </button>
+            </div>
           </div>
+
         </div>
       </div>
 
