@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, BrainCircuit, Calculator, FileDown, MessagesSquare, Play, Sparkles } from "lucide-react";
+import { ArrowLeft, BrainCircuit, Calculator, FileDown, MessagesSquare, Play, Save, Sparkles } from "lucide-react";
 import PageLayout from "@/components/shared/PageLayout";
 import AdvisorRouteGuard from "@/components/admin/AdvisorRouteGuard";
 import { Button } from "@/components/ui/button";
@@ -53,23 +53,43 @@ type LayerView = "math" | "plain" | "both";
 
 const ALL_SCENARIOS: ScenarioKey[] = ["base", "downside", "upside", "severe"];
 
+/* ── Draft autosave ─────────────────────────────────────────────────────────
+ * Inputs are written to this browser as you type so switching tabs, running
+ * the analysis or leaving the page never loses a half-entered portfolio. */
+const DRAFT_KEY = "moneva.pi.draft.v1";
+
+type Draft = PiRunInputs & { runName: string };
+
+const loadDraft = (): Partial<Draft> => {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    return raw ? (JSON.parse(raw) as Partial<Draft>) : {};
+  } catch {
+    return {};
+  }
+};
+
 const PortfolioIntelligenceInner = () => {
   const { canEdit } = useIsAdmin();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<ClientProfile>(emptyProfile);
-  const [goals, setGoals] = useState<Goal[]>([newGoal()]);
-  const [riskAnswers, setRiskAnswers] = useState<RiskAnswers>(emptyRiskAnswers);
-  const [constraints, setConstraints] = useState<Constraints>(emptyConstraints);
-  const [funds, setFunds] = useState<PortfolioFund[]>([]);
-  const [additionalSip, setAdditionalSip] = useState(10000);
-  const [declaredSipBudget, setDeclaredSipBudget] = useState(0);
+  const draft = useMemo(loadDraft, []);
+  const [profile, setProfile] = useState<ClientProfile>(() => draft.profile ?? emptyProfile());
+  const [goals, setGoals] = useState<Goal[]>(() => draft.goals ?? [newGoal()]);
+  const [riskAnswers, setRiskAnswers] = useState<RiskAnswers>(() => draft.riskAnswers ?? emptyRiskAnswers());
+  const [constraints, setConstraints] = useState<Constraints>(() => draft.constraints ?? emptyConstraints());
+  const [funds, setFunds] = useState<PortfolioFund[]>(() => draft.funds ?? []);
+  const [additionalSip, setAdditionalSip] = useState(() => draft.additionalSip ?? 10000);
+  const [declaredSipBudget, setDeclaredSipBudget] = useState(() => draft.declaredSipBudget ?? 0);
   const [output, setOutput] = useState<EngineOutput | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState(() => searchParams.get("tab") ?? "profile");
   const [runId, setRunId] = useState<string | null>(null);
   const [linkedClientId, setLinkedClientId] = useState<string | null>(null);
-  const [runName, setRunName] = useState("Untitled run");
+  const [runName, setRunName] = useState(() => draft.runName ?? "Untitled run");
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const [versionToken, setVersionToken] = useState(0);
+
   const [challengeCleared, setChallengeCleared] = useState(false);
   const [layerView, setLayerView] = useState<LayerView>(() => {
     const v = searchParams.get("layer");
@@ -97,9 +117,39 @@ const PortfolioIntelligenceInner = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, layerView, scenarioKeys]);
 
+  /* Autosave the whole input draft (debounced) so nothing is lost on tab switch. */
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        window.localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({ profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName }),
+        );
+        setDraftSavedAt(new Date());
+      } catch { /* quota — ignore */ }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName]);
+
+  const clearDraft = () => {
+    try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
+    setProfile(emptyProfile());
+    setGoals([newGoal()]);
+    setRiskAnswers(emptyRiskAnswers());
+    setConstraints(emptyConstraints());
+    setFunds([]);
+    setAdditionalSip(10000);
+    setDeclaredSipBudget(0);
+    setOutput(null);
+    setRunName("Untitled run");
+    setDraftSavedAt(null);
+    toast({ title: "Draft cleared", description: "All inputs reset to defaults." });
+  };
+
   const setScenarioSelection = useCallback((keys: ScenarioKey[]) => {
     setScenarioKeys(keys.length === 0 ? ALL_SCENARIOS : keys);
   }, []);
+
 
   const schemeCodes = useMemo(
     () => funds.map((f) => (f as PortfolioFund & { schemeCode?: string }).schemeCode ?? "").filter(Boolean),
@@ -284,16 +334,28 @@ const PortfolioIntelligenceInner = () => {
               filled in.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {output && (
-              <Button variant="outline" onClick={downloadReport} className="gap-2">
-                <FileDown className="h-4 w-4" /> Download report
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {output && (
+                <Button variant="outline" onClick={downloadReport} className="gap-2">
+                  <FileDown className="h-4 w-4" /> Download report
+                </Button>
+              )}
+              <Button onClick={() => run()} className="gap-2">
+                <Play className="h-4 w-4" /> Run analysis
               </Button>
-            )}
-            <Button onClick={() => run()} className="gap-2">
-              <Play className="h-4 w-4" /> Run analysis
-            </Button>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+              <Save className="h-3 w-3" />
+              {draftSavedAt
+                ? `Draft saved ${draftSavedAt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`
+                : "Draft autosaves as you type"}
+              <button type="button" onClick={clearDraft} className="underline hover:text-foreground">
+                Clear draft
+              </button>
+            </div>
           </div>
+
         </div>
       </div>
 

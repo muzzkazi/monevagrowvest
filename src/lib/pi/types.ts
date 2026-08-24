@@ -131,7 +131,10 @@ export interface Constraints {
 export interface PortfolioFund {
   id: string;
   schemeName: string;
+  /** AMFI scheme code when the scheme was picked from search. */
+  schemeCode?: string;
   fundHouse: string;
+
   category: string; // Equity / Debt / Hybrid / Other
   subCategory: string; // Large Cap, Mid Cap, ...
   assetBucket: AssetBucket;
