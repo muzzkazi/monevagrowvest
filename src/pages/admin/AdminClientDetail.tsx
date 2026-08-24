@@ -441,7 +441,13 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
             )}
           </TabsContent>
 
+          {/* Portfolio Intelligence runs */}
+          <TabsContent value="runs" className="mt-6">
+            <ClientRunHistoryPanel clientId={clientId} clientName={client.full_name} />
+          </TabsContent>
+
           {/* History */}
+
           <TabsContent value="history" className="mt-6">
             <Card className="p-6">
               {log.length === 0 ? (
