@@ -20,7 +20,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { Lock, Plus, Search, Users, Wallet, Wand2, ShieldCheck, BrainCircuit } from "lucide-react";
+import { fetchDraftClientIds } from "@/lib/pi/serverDraft";
+import { Lock, Plus, Search, Users, Wallet, Wand2, ShieldCheck, BrainCircuit, FileClock } from "lucide-react";
 
 type Client = {
   id: string;
@@ -44,6 +45,7 @@ const AdminClientsInner = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [sipTotals, setSipTotals] = useState<Record<string, number>>({});
   const [fundNames, setFundNames] = useState<Record<string, string[]>>({});
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [scheme, setScheme] = useState("");
@@ -76,6 +78,7 @@ const AdminClientsInner = () => {
     });
     setSipTotals(totals);
     setFundNames(names);
+    setDrafts(await fetchDraftClientIds());
     setLoading(false);
   };
 
@@ -283,6 +286,15 @@ const AdminClientsInner = () => {
                       <TableCell>
                         <div className="font-medium text-foreground">{c.full_name}</div>
                         <div className="text-xs text-muted-foreground">{c.email || c.phone || "—"}</div>
+                        {drafts[c.id] && (
+                          <Badge
+                            variant="outline"
+                            className="mt-1 gap-1 border-financial-gold/50 text-financial-gold text-[10px]"
+                            title={`Resumable Portfolio Intelligence draft saved ${new Date(drafts[c.id]).toLocaleString("en-IN")}`}
+                          >
+                            <FileClock className="h-3 w-3" /> Draft in progress
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell><Badge variant="outline" className="capitalize">{c.risk_profile}</Badge></TableCell>
                       <TableCell className="text-right font-medium">{inr(sipTotals[c.id] ?? 0)}</TableCell>
