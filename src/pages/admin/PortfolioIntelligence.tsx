@@ -143,6 +143,21 @@ const PortfolioIntelligenceInner = () => {
   const showMath = layerView !== "plain";
   const showPlain = layerView !== "math";
 
+  /* Mirror the draft to the database so the review resumes on any device. */
+  const flushServerDraft = useCallback((snapshot = draftRef.current) => {
+    if (!canEdit) return;
+    window.clearTimeout(serverSaveTimer.current);
+    void saveServerDraft(clientParam, snapshot);
+  }, [canEdit, clientParam]);
+
+  const scheduleServerSave = useCallback((snapshot: Draft) => {
+    if (!canEdit) return;
+    window.clearTimeout(serverSaveTimer.current);
+    serverSaveTimer.current = window.setTimeout(() => {
+      void saveServerDraft(clientParam, snapshot);
+    }, 1500);
+  }, [canEdit, clientParam]);
+
   const persistDraft = useCallback((snapshot = draftRef.current) => {
     if (prefilling) return;
     try {
@@ -153,7 +168,9 @@ const PortfolioIntelligenceInner = () => {
         setDraftSavedAt(new Date(now));
       }
     } catch { /* quota — ignore */ }
-  }, [draftKey, prefilling]);
+    scheduleServerSave(snapshot);
+  }, [draftKey, prefilling, scheduleServerSave]);
+
 
   const updateDraft = useCallback((patch: Partial<Draft>) => {
     draftRef.current = { ...draftRef.current, ...patch };
