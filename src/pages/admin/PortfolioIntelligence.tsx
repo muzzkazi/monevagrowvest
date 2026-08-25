@@ -192,7 +192,7 @@ const PortfolioIntelligenceInner = () => {
   const clearDraft = () => {
     try { window.localStorage.removeItem(draftKey); } catch { /* noop */ }
     setProfile(emptyProfile());
-    setGoals([newGoal()]);
+    setGoals([]);
     setRiskAnswers(emptyRiskAnswers());
     setConstraints(emptyConstraints());
     setFunds([]);
