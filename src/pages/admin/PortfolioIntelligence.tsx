@@ -677,6 +677,11 @@ const PortfolioIntelligenceInner = () => {
                 ? `Draft saved ${draftSavedAt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`
                 : "Draft autosaves as you type"}
               <span className="text-muted-foreground/70">· saved to the client record</span>
+              {serverRestoredAt && (
+                <span className="text-financial-gold">
+                  · restored from server ({serverRestoredAt.toLocaleDateString("en-IN")})
+                </span>
+              )}
               <button type="button" onClick={clearDraft} className="underline hover:text-foreground">
                 Clear draft
               </button>
