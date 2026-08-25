@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, ArrowRight, BrainCircuit, Calculator, FileDown, Loader2, MessagesSquare, Play, RefreshCw, Save, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -60,9 +60,11 @@ const ALL_SCENARIOS: ScenarioKey[] = ["base", "downside", "upside", "severe"];
  * Inputs are written to this browser as you type so switching tabs, running
  * the analysis or leaving the page never loses a half-entered portfolio. */
 const DRAFT_KEY = "moneva.pi.draft.v1";
+const SCROLL_KEY = "moneva.pi.scroll.v1";
 
 /** Each client keeps its own draft so reviews never bleed into one another. */
 const draftKeyFor = (clientId: string | null) => (clientId ? `${DRAFT_KEY}.client.${clientId}` : DRAFT_KEY);
+const scrollKeyFor = (clientId: string | null) => (clientId ? `${SCROLL_KEY}.client.${clientId}` : SCROLL_KEY);
 
 type Draft = PiRunInputs & { runName: string };
 
@@ -84,6 +86,7 @@ const PortfolioIntelligenceInner = () => {
     [],
   );
   const draftKey = useMemo(() => draftKeyFor(clientParam), [clientParam]);
+  const scrollKey = useMemo(() => scrollKeyFor(clientParam), [clientParam]);
   const draft = useMemo(() => loadDraft(draftKey), [draftKey]);
   const [profile, setProfile] = useState<ClientProfile>(() => draft.profile ?? emptyProfile());
   const [goals, setGoals] = useState<Goal[]>(() => draft.goals ?? []);
@@ -118,8 +121,25 @@ const PortfolioIntelligenceInner = () => {
   });
   const [narrative, setNarrative] = useState<ClientNarrative | null>(null);
   const [commentary, setCommentary] = useState<FundCommentary | null>(null);
+  const restoringScroll = useRef(false);
   const showMath = layerView !== "plain";
   const showPlain = layerView !== "math";
+
+  const persistDraft = useCallback(() => {
+    if (prefilling) return;
+    try {
+      window.localStorage.setItem(
+        draftKey,
+        JSON.stringify({ profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName }),
+      );
+      setDraftSavedAt(new Date());
+    } catch { /* quota — ignore */ }
+  }, [profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName, draftKey, prefilling]);
+
+  const saveScrollPosition = useCallback(() => {
+    if (restoringScroll.current) return;
+    try { window.sessionStorage.setItem(scrollKey, String(window.scrollY)); } catch { /* noop */ }
+  }, [scrollKey]);
 
   /* Deep-linkable view state: tab, Layer A/B toggle and selected scenarios live in the URL. */
   useEffect(() => {
@@ -174,20 +194,66 @@ const PortfolioIntelligenceInner = () => {
   }, [clientParam, prefillAttempt]);
 
 
-  /* Autosave the whole input draft (debounced) so nothing is lost on tab switch. */
+  /* Restore the user's working position after the preview/browser reloads. */
+  useEffect(() => {
+    restoringScroll.current = true;
+    let raf = 0;
+    try {
+      const y = Number(window.sessionStorage.getItem(scrollKey) ?? 0);
+      raf = window.requestAnimationFrame(() => {
+        if (Number.isFinite(y) && y > 0) window.scrollTo({ top: y, behavior: "auto" });
+        restoringScroll.current = false;
+      });
+    } catch {
+      restoringScroll.current = false;
+    }
+    return () => window.cancelAnimationFrame(raf);
+  }, [scrollKey]);
+
+  /* Keep the current scroll position in session storage without triggering layout work. */
+  useEffect(() => {
+    let raf = 0;
+    const scheduleSave = () => {
+      window.cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(saveScrollPosition);
+    };
+    const saveOnHide = () => {
+      if (document.visibilityState === "hidden") saveScrollPosition();
+    };
+    window.addEventListener("scroll", scheduleSave, { passive: true });
+    window.addEventListener("blur", saveScrollPosition);
+    window.addEventListener("pagehide", saveScrollPosition);
+    document.addEventListener("visibilitychange", saveOnHide);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", scheduleSave);
+      window.removeEventListener("blur", saveScrollPosition);
+      window.removeEventListener("pagehide", saveScrollPosition);
+      document.removeEventListener("visibilitychange", saveOnHide);
+    };
+  }, [saveScrollPosition]);
+
+  /* Autosave the whole input draft quickly so switching apps never drops fresh edits. */
   useEffect(() => {
     if (prefilling) return;
-    const t = setTimeout(() => {
-      try {
-        window.localStorage.setItem(
-          draftKey,
-          JSON.stringify({ profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName }),
-        );
-        setDraftSavedAt(new Date());
-      } catch { /* quota — ignore */ }
-    }, 500);
+    const t = setTimeout(persistDraft, 120);
     return () => clearTimeout(t);
-  }, [profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName, draftKey, prefilling]);
+  }, [persistDraft, prefilling]);
+
+  /* Flush immediately when the browser tab/app is backgrounded or closed. */
+  useEffect(() => {
+    const flushOnHide = () => {
+      if (document.visibilityState === "hidden") persistDraft();
+    };
+    window.addEventListener("blur", persistDraft);
+    window.addEventListener("pagehide", persistDraft);
+    document.addEventListener("visibilitychange", flushOnHide);
+    return () => {
+      window.removeEventListener("blur", persistDraft);
+      window.removeEventListener("pagehide", persistDraft);
+      document.removeEventListener("visibilitychange", flushOnHide);
+    };
+  }, [persistDraft]);
 
   const clearDraft = () => {
     try { window.localStorage.removeItem(draftKey); } catch { /* noop */ }
@@ -464,7 +530,7 @@ const PortfolioIntelligenceInner = () => {
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={setTab}>
+      <Tabs value={tab} onValueChange={(nextTab) => { persistDraft(); saveScrollPosition(); setTab(nextTab); }}>
         <TabsList className="flex flex-wrap h-auto">
           <TabsTrigger value="profile">1 · Client</TabsTrigger>
           <TabsTrigger value="goals">2 · Goals</TabsTrigger>
