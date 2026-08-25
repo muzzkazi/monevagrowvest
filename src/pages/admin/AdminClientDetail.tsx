@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -336,6 +336,18 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
                       </TableRow>
                     ))}
                   </TableBody>
+                  <TableFooter>
+                    <TableRow className="bg-financial-muted/50 font-semibold">
+                      <TableCell colSpan={2} className="text-foreground">Total monthly SIP ({funds.filter((f) => f.status === "active").length} active)</TableCell>
+                      <TableCell className="text-financial-accent">{inr(totalSip)}</TableCell>
+                      <TableCell colSpan={2} className="text-xs text-muted-foreground font-normal">
+                        {(() => {
+                          const paused = funds.filter((f) => f.status === "paused").reduce((a, f) => a + Number(f.monthly_sip), 0);
+                          return paused > 0 ? `+ ${inr(paused)} paused` : "";
+                        })()}
+                      </TableCell>
+                    </TableRow>
+                  </TableFooter>
                 </Table>
               )}
             </Card>
