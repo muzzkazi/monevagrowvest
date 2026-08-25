@@ -42,7 +42,7 @@ import { appendVersion } from "@/lib/pi/versions";
 import { generateRunPdf } from "@/lib/pi/runPdf";
 import { useToast } from "@/hooks/use-toast";
 import { runEngine } from "@/lib/pi/engine";
-import { emptyConstraints, emptyProfile, emptyRiskAnswers, newGoal } from "@/lib/pi/defaults";
+import { emptyConstraints, emptyProfile, emptyRiskAnswers } from "@/lib/pi/defaults";
 import { loadClientPrefill } from "@/lib/pi/clientPrefill";
 import { buildSwitchPlan, computeHoldingTaxes } from "@/lib/pi/tax";
 import { runStressTest, ScenarioKey } from "@/lib/pi/stress";
