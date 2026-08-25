@@ -306,15 +306,16 @@ const PortfolioIntelligenceInner = () => {
 
   /* Flush immediately when the browser tab/app is backgrounded or closed. */
   useEffect(() => {
+    const flushDraft = () => persistDraft();
     const flushOnHide = () => {
       if (document.visibilityState === "hidden") persistDraft();
     };
-    window.addEventListener("blur", persistDraft);
-    window.addEventListener("pagehide", persistDraft);
+    window.addEventListener("blur", flushDraft);
+    window.addEventListener("pagehide", flushDraft);
     document.addEventListener("visibilitychange", flushOnHide);
     return () => {
-      window.removeEventListener("blur", persistDraft);
-      window.removeEventListener("pagehide", persistDraft);
+      window.removeEventListener("blur", flushDraft);
+      window.removeEventListener("pagehide", flushDraft);
       document.removeEventListener("visibilitychange", flushOnHide);
     };
   }, [persistDraft]);
