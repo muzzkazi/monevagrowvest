@@ -324,6 +324,53 @@ const PortfolioReviewPage = () => {
     setFunds(prev => prev.filter(f => f.schemeCode !== code));
   };
 
+  /** Bulk add from an uploaded SIP screenshot / statement. */
+  const importFunds = async (rows: ExtractedHolding[]) => {
+    const resolved: SelectedFund[] = [];
+    const unresolved: string[] = [];
+
+    for (const r of rows) {
+      if (!r.schemeName) continue;
+      let code = r.schemeCode;
+      let name = r.schemeName;
+      if (!code) {
+        const hit = await resolveSchemeName(r.schemeName);
+        if (hit) {
+          code = String(hit.schemeCode);
+          name = hit.schemeName;
+        }
+      }
+      if (!code) {
+        unresolved.push(r.schemeName);
+        continue;
+      }
+      resolved.push({
+        schemeCode: String(code),
+        schemeName: name,
+        category: r.category || r.assetBucket,
+        subCategory: r.subCategory || r.role || inferSubCategory(name),
+        fundHouse: r.fundHouse || inferFundHouse(name),
+        monthlySip: Math.round(r.sipAmount || 0),
+      });
+    }
+
+    setFunds(prev => {
+      const seen = new Set(prev.map(f => f.schemeCode));
+      const next = [...prev];
+      for (const f of resolved) {
+        if (seen.has(f.schemeCode) || next.length >= 25) continue;
+        seen.add(f.schemeCode);
+        next.push(f);
+      }
+      return next;
+    });
+
+    if (resolved.length > 0) toast.success(`${resolved.length} fund${resolved.length > 1 ? "s" : ""} added from your upload`);
+    if (unresolved.length > 0) toast.warning(`Could not match: ${unresolved.slice(0, 3).join(", ")}${unresolved.length > 3 ? "…" : ""}. Add these manually.`);
+  };
+
+
+
   const runReview = async () => {
     if (funds.length === 0) {
       toast.error("Add at least one fund to review");
