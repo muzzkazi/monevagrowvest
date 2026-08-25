@@ -44,6 +44,7 @@ import { useToast } from "@/hooks/use-toast";
 import { runEngine } from "@/lib/pi/engine";
 import { emptyConstraints, emptyProfile, emptyRiskAnswers } from "@/lib/pi/defaults";
 import { loadClientPrefill } from "@/lib/pi/clientPrefill";
+import { deleteServerDraft, fetchServerDraft, saveServerDraft } from "@/lib/pi/serverDraft";
 import { buildSwitchPlan, computeHoldingTaxes } from "@/lib/pi/tax";
 import { runStressTest, ScenarioKey } from "@/lib/pi/stress";
 import { NavMetrics } from "@/lib/pi/navMetrics";
@@ -104,6 +105,12 @@ const PortfolioIntelligenceInner = () => {
   const [prefillError, setPrefillError] = useState<string | null>(null);
   const [prefillAttempt, setPrefillAttempt] = useState(0);
   const [prefillNotes, setPrefillNotes] = useState<string[]>([]);
+  const hadLocalDraft = Boolean(draft.profile);
+  const [serverChecked, setServerChecked] = useState(false);
+  const [serverRestoredAt, setServerRestoredAt] = useState<Date | null>(null);
+  const serverAppliedRef = useRef(false);
+  const serverSaveTimer = useRef<number | undefined>(undefined);
+
 
   const [runName, setRunName] = useState(() => draft.runName ?? "Untitled run");
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
@@ -137,6 +144,21 @@ const PortfolioIntelligenceInner = () => {
   const showMath = layerView !== "plain";
   const showPlain = layerView !== "math";
 
+  /* Mirror the draft to the database so the review resumes on any device. */
+  const flushServerDraft = useCallback((snapshot = draftRef.current) => {
+    if (!canEdit) return;
+    window.clearTimeout(serverSaveTimer.current);
+    void saveServerDraft(clientParam, snapshot);
+  }, [canEdit, clientParam]);
+
+  const scheduleServerSave = useCallback((snapshot: Draft) => {
+    if (!canEdit) return;
+    window.clearTimeout(serverSaveTimer.current);
+    serverSaveTimer.current = window.setTimeout(() => {
+      void saveServerDraft(clientParam, snapshot);
+    }, 1500);
+  }, [canEdit, clientParam]);
+
   const persistDraft = useCallback((snapshot = draftRef.current) => {
     if (prefilling) return;
     try {
@@ -147,7 +169,9 @@ const PortfolioIntelligenceInner = () => {
         setDraftSavedAt(new Date(now));
       }
     } catch { /* quota — ignore */ }
-  }, [draftKey, prefilling]);
+    scheduleServerSave(snapshot);
+  }, [draftKey, prefilling, scheduleServerSave]);
+
 
   const updateDraft = useCallback((patch: Partial<Draft>) => {
     draftRef.current = { ...draftRef.current, ...patch };
@@ -211,11 +235,59 @@ const PortfolioIntelligenceInner = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, layerView, scenarioKeys]);
 
+  /* Server-side draft restore: if this browser has no local draft, pull the
+   * stored draft for this client so the review resumes across devices. */
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (hadLocalDraft) { setServerChecked(true); return; }
+      const d = await fetchServerDraft(clientParam);
+      if (cancelled) { return; }
+      const hasContent = d && (
+        Boolean((d.profile as { clientName?: string } | null)?.clientName) ||
+        (d.funds?.length ?? 0) > 0 ||
+        (d.goals?.length ?? 0) > 0
+      );
+      if (d && hasContent) {
+        serverAppliedRef.current = true;
+        setProfile(d.profile);
+        setGoals(d.goals ?? []);
+        setRiskAnswers(d.riskAnswers);
+        setConstraints(d.constraints);
+        setFunds(d.funds ?? []);
+        setAdditionalSip(d.additionalSip ?? 10000);
+        setDeclaredSipBudget(d.declaredSipBudget ?? 0);
+        setRunName(d.runName);
+        draftRef.current = {
+          profile: d.profile,
+          goals: d.goals ?? [],
+          riskAnswers: d.riskAnswers,
+          constraints: d.constraints,
+          funds: d.funds ?? [],
+          additionalSip: d.additionalSip ?? 10000,
+          declaredSipBudget: d.declaredSipBudget ?? 0,
+          runName: d.runName,
+          tab: draftRef.current.tab,
+        };
+        try { window.localStorage.setItem(draftKey, JSON.stringify(draftRef.current)); } catch { /* noop */ }
+        setServerRestoredAt(new Date(d.updatedAt));
+        setPrefilling(false);
+        toast({
+          title: "Saved draft restored",
+          description: `Resuming the in-progress review saved ${new Date(d.updatedAt).toLocaleString("en-IN")}.`,
+        });
+      }
+      setServerChecked(true);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientParam, hadLocalDraft, draftKey]);
+
   /* Launched from a client record (?client=<id>) with no draft yet → prefill
    * the wizard from the client book. Nothing is invented: fields the record
    * does not hold stay at the wizard default and are listed for confirmation. */
   useEffect(() => {
-    if (!clientParam || draft.profile) return;
+    if (!clientParam || draft.profile || !serverChecked || serverAppliedRef.current) return;
     let cancelled = false;
     setPrefilling(true);
     setPrefillError(null);
@@ -260,7 +332,7 @@ const PortfolioIntelligenceInner = () => {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientParam, prefillAttempt]);
+  }, [clientParam, prefillAttempt, serverChecked]);
 
 
   /* Restore the user's working position after the preview/browser reloads. */
@@ -304,9 +376,9 @@ const PortfolioIntelligenceInner = () => {
 
   /* Flush immediately when the browser tab/app is backgrounded or closed. */
   useEffect(() => {
-    const flushDraft = () => persistDraft();
+    const flushDraft = () => { persistDraft(); flushServerDraft(); };
     const flushOnHide = () => {
-      if (document.visibilityState === "hidden") persistDraft();
+      if (document.visibilityState === "hidden") { persistDraft(); flushServerDraft(); }
     };
     window.addEventListener("blur", flushDraft);
     window.addEventListener("pagehide", flushDraft);
@@ -316,10 +388,13 @@ const PortfolioIntelligenceInner = () => {
       window.removeEventListener("pagehide", flushDraft);
       document.removeEventListener("visibilitychange", flushOnHide);
     };
-  }, [persistDraft]);
+  }, [persistDraft, flushServerDraft]);
 
   const clearDraft = () => {
     try { window.localStorage.removeItem(draftKey); } catch { /* noop */ }
+    window.clearTimeout(serverSaveTimer.current);
+    void deleteServerDraft(clientParam);
+    setServerRestoredAt(null);
     setProfile(emptyProfile());
     setGoals([]);
     setRiskAnswers(emptyRiskAnswers());
@@ -601,6 +676,12 @@ const PortfolioIntelligenceInner = () => {
               {draftSavedAt
                 ? `Draft saved ${draftSavedAt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`
                 : "Draft autosaves as you type"}
+              <span className="text-muted-foreground/70">· saved to the client record</span>
+              {serverRestoredAt && (
+                <span className="text-financial-gold">
+                  · restored from server ({serverRestoredAt.toLocaleDateString("en-IN")})
+                </span>
+              )}
               <button type="button" onClick={clearDraft} className="underline hover:text-foreground">
                 Clear draft
               </button>
