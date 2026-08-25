@@ -41,6 +41,10 @@ import {
 import { searchAmfi, prewarmAmfiSearch, estimateAmfiSearchMs, subscribeAmfiUpdates } from "@/lib/amfiSearch";
 import { FundSearchProgress } from "@/components/portfolio/FundSearchProgress";
 import { inferFundHouse, inferSubCategory } from "@/lib/amfiSearch";
+import HoldingsImportDialog from "@/components/portfolio-intelligence/HoldingsImportDialog";
+import type { ExtractedHolding } from "@/lib/pi/holdingsImport";
+import { resolveSchemeName } from "@/lib/pi/schemeResolve";
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import PortfolioModeOnboarding from "@/components/portfolio/PortfolioModeOnboarding";
