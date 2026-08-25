@@ -344,6 +344,65 @@ export type Database = {
         }
         Relationships: []
       }
+      pi_drafts: {
+        Row: {
+          additional_sip: number
+          client_id: string | null
+          constraints: Json
+          created_at: string
+          declared_sip_budget: number
+          funds: Json
+          goals: Json
+          id: string
+          owner_id: string
+          profile: Json
+          risk_answers: Json
+          run_name: string
+          step: string | null
+          updated_at: string
+        }
+        Insert: {
+          additional_sip?: number
+          client_id?: string | null
+          constraints?: Json
+          created_at?: string
+          declared_sip_budget?: number
+          funds?: Json
+          goals?: Json
+          id?: string
+          owner_id: string
+          profile?: Json
+          risk_answers?: Json
+          run_name?: string
+          step?: string | null
+          updated_at?: string
+        }
+        Update: {
+          additional_sip?: number
+          client_id?: string | null
+          constraints?: Json
+          created_at?: string
+          declared_sip_budget?: number
+          funds?: Json
+          goals?: Json
+          id?: string
+          owner_id?: string
+          profile?: Json
+          risk_answers?: Json
+          run_name?: string
+          step?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pi_drafts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pi_run_versions: {
         Row: {
           additional_sip: number
