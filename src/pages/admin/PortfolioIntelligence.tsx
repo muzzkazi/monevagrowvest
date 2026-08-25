@@ -104,6 +104,12 @@ const PortfolioIntelligenceInner = () => {
   const [prefillError, setPrefillError] = useState<string | null>(null);
   const [prefillAttempt, setPrefillAttempt] = useState(0);
   const [prefillNotes, setPrefillNotes] = useState<string[]>([]);
+  const hadLocalDraft = Boolean(draft.profile);
+  const [serverChecked, setServerChecked] = useState(false);
+  const [serverRestoredAt, setServerRestoredAt] = useState<Date | null>(null);
+  const serverAppliedRef = useRef(false);
+  const serverSaveTimer = useRef<number | undefined>(undefined);
+
 
   const [runName, setRunName] = useState(() => draft.runName ?? "Untitled run");
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
