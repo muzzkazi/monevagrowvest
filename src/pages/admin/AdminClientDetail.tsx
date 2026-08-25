@@ -21,6 +21,8 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { generateClientReportPdf } from "@/lib/clientReportPdf";
 import HoldingsImportDialog from "@/components/portfolio-intelligence/HoldingsImportDialog";
 import ClientRunHistoryPanel from "@/components/portfolio-intelligence/ClientRunHistoryPanel";
+import ClientInlineReview from "@/components/admin/ClientInlineReview";
+
 
 import type { ExtractedHolding } from "@/lib/pi/holdingsImport";
 
