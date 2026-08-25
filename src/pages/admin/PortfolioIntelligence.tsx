@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { AlertTriangle, ArrowLeft, BrainCircuit, Calculator, FileDown, Loader2, MessagesSquare, Play, RefreshCw, Save, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, BrainCircuit, Calculator, FileDown, Loader2, MessagesSquare, Play, RefreshCw, Save, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 import PageLayout from "@/components/shared/PageLayout";
@@ -497,6 +497,40 @@ const PortfolioIntelligenceInner = () => {
             onDeclaredSipChange={setDeclaredSipBudget}
           />
         </TabsContent>
+
+        {(() => {
+          const order = ["profile", "goals", "risk", "constraints", "portfolio"];
+          const idx = order.indexOf(tab);
+          if (idx === -1) return null;
+          const isLast = idx === order.length - 1;
+          return (
+            <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4">
+              <Button
+                variant="outline"
+                disabled={idx === 0}
+                onClick={() => setTab(order[idx - 1])}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
+              <p className="hidden text-sm text-muted-foreground sm:block">
+                Step {idx + 1} of {order.length}
+              </p>
+              {isLast ? (
+                <Button onClick={() => run()}>
+                  <Play className="mr-2 h-4 w-4" />
+                  Run analysis
+                </Button>
+              ) : (
+                <Button onClick={() => setTab(order[idx + 1])}>
+                  Next
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          );
+        })()}
+
         <TabsContent value="analysis" forceMount className="mt-6 space-y-6 data-[state=inactive]:hidden">
           {output ? (
             <>
