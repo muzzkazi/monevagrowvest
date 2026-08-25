@@ -86,6 +86,13 @@ const PortfolioIntelligenceInner = () => {
     () => new URLSearchParams(window.location.search).get("client"),
     [],
   );
+  /** ?run=1 — launched straight from a client record: sync and analyse at once. */
+  const autoRunParam = useMemo(
+    () => new URLSearchParams(window.location.search).get("run") === "1",
+    [],
+  );
+  const autoRanRef = useRef(false);
+
   const draftKey = useMemo(() => draftKeyFor(clientParam), [clientParam]);
   const scrollKey = useMemo(() => scrollKeyFor(clientParam), [clientParam]);
   const draft = useMemo(() => loadDraft(draftKey), [draftKey]);
