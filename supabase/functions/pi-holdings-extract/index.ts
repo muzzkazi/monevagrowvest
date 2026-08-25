@@ -22,7 +22,9 @@ RULES
 2. If a field is absent for a row, return 0 for numeric fields and "" for text fields, and add the field name to that row's missingFields.
 3. Amounts are Indian rupees. Strip currency symbols, commas and "Cr"/"L" suffixes by expanding them to plain rupees (1.2 L = 120000, 1.2 Cr = 12000000). Never round to a different order of magnitude.
 4. SIP detection: fill sipAmount with the instalment amount EXACTLY as printed (do not convert it to a monthly figure) and set sipFrequency to the printed/derivable frequency. Only report a SIP when the document shows an active SIP, recurring instalment, or a repeating debit pattern for that scheme; otherwise sipAmount = 0 and sipFrequency = "None".
-5. sipFrequency evidence, in order of preference: an explicit label (Monthly / Weekly / Fortnightly / Quarterly / Daily / Yearly), an instalment schedule ("every 5th"), or a transaction list where equal-amount debits repeat at a regular interval. If a SIP clearly exists but the interval cannot be established, use "Unknown" and add a warning.
+4a. SIP LISTS / SIP SCREENSHOTS: when the document is a list of SIPs (headings or columns such as "SIP", "SIPs", "Active SIPs", "Instalment", "Instalment amount", "SIP amount", "Amount", "Monthly amount", "Next instalment", "₹x/month"), EVERY row is an active SIP: put that printed rupee amount in sipAmount and set sipFrequency from the label ("/month", "Monthly" → Monthly), defaulting to "Monthly" when a SIP list prints no frequency (note this in that row's assumptions). Never return sipAmount = 0 for a row that visibly prints an instalment amount.
+4b. AMOUNT COLUMN MAPPING: never discard a printed rupee figure. Map each amount column by its header — "Current"/"Market"/"Value"/"Current value" → currentValue; "Invested"/"Cost"/"Total invested" → investedAmount; instalment-style headers (4a) → sipAmount. If a screenshot prints exactly ONE amount per scheme and the header is missing or ambiguous, decide from context (a SIP/instalment screen → sipAmount; a holdings/portfolio screen → currentValue), put the figure there, and record which field you chose in that row's assumptions. Read amounts even when the rupee symbol is rendered as "Rs", "INR", "₹" or is cut off.
+5. sipFrequency evidence, in order of preference: an explicit label (Monthly / Weekly / Fortnightly / Quarterly / Daily / Yearly), an instalment schedule ("every 5th"), or a transaction list where equal-amount debits repeat at a regular interval. If a SIP clearly exists but the interval cannot be established, use "Monthly" and note the assumption.
 6. Dates: sipStartDate = first SIP instalment / SIP registration date, purchaseDate = first purchase (lumpsum or otherwise). Use YYYY-MM-DD. If only month and year are printed, use the 1st of that month and say so in that row's assumptions. sipDay = day-of-month of the instalment when visible, else 0.
 7. Scheme details: keep the scheme name verbatim, and additionally split out plan ("Direct" / "Regular") and option ("Growth" / "IDCW") when the name or a column states it, else "Unknown". Capture folio, isin and schemeCode only when printed.
 8. Classify assetBucket and role from the scheme name and category only. If unsure, use "Indian Equity" + "Flexi Cap" and lower the confidence.
@@ -160,7 +162,7 @@ serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-pro",
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content },
@@ -188,7 +190,7 @@ serve(async (req) => {
       return json({ error: "Invalid AI response" }, 502);
     }
 
-    return json({ result: parsed, model: "google/gemini-2.5-flash", extractedAt: new Date().toISOString() });
+    return json({ result: parsed, model: "google/gemini-2.5-pro", extractedAt: new Date().toISOString() });
   } catch (e) {
     console.error("pi-holdings-extract failed", e);
     return json({ error: "Unexpected error" }, 500);
