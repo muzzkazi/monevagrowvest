@@ -26,6 +26,7 @@ ABSOLUTE RULES
 6. Constraint fit must be judged only against the stated constraints (Shariah preference, geography, excluded sectors, ESG, tax saving, income need, capital preservation). If the fact sheet does not establish whether a fund satisfies a constraint, mark it "Not verifiable from data" — never assume compliance.
 7. Trade-offs must be real and specific (volatility, concentration, overlap with a duplicate-role peer, liquidity, exit load/tax friction if the fact sheet mentions it). No filler.
 8. If switching is blocked or data flags exist, say what is pending instead of recommending action on it.
+9. Tax saving (ELSS / Section 80C) is a client-specific mandate. Mention ELSS, 80C, tax-saving funds or lock-in-for-deduction ONLY when constraints.taxSaving is true in the fact sheet. If it is false or absent, do not raise tax saving at all — not as a suggestion, an opportunity, a trade-off or a missing item. (Exit/capital-gains tax on switches is separate and may always be discussed when the facts contain it.)
 
 Write for the advisor, who may paste this to a client after review: precise, plain English, no jargon without a one-line explanation, Indian rupee context.`;
 

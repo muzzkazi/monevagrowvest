@@ -24,6 +24,7 @@ ABSOLUTE RULES
 4. Write for the client, not the advisor: warm, plain English, short sentences, no jargon without a one-line explanation. Indian context and rupees.
 5. Respect data-quality blockers: if switching is not allowed or data is stale, say what is pending instead of recommending action on it.
 6. Do not name any fund the fact sheet does not name. Do not invent goals, risks or client circumstances.
+7. Tax saving (ELSS / Section 80C) is a client-specific mandate. Mention ELSS, 80C, tax-saving funds or lock-in-for-deduction ONLY when constraints.taxSaving is true in the fact sheet. If it is false or absent, do not raise tax saving at all — not as a suggestion, an opportunity, a trade-off or a missing item. (Exit/capital-gains tax on switches is separate and may always be discussed when the facts contain it.)
 
 Deliver a review note the client can read on their own and understand what is being recommended and why.`;
 
