@@ -21,6 +21,8 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { generateClientReportPdf } from "@/lib/clientReportPdf";
 import HoldingsImportDialog from "@/components/portfolio-intelligence/HoldingsImportDialog";
 import ClientRunHistoryPanel from "@/components/portfolio-intelligence/ClientRunHistoryPanel";
+import ClientInlineReview from "@/components/admin/ClientInlineReview";
+
 
 import type { ExtractedHolding } from "@/lib/pi/holdingsImport";
 
@@ -360,7 +362,10 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
             <p className="text-xs text-muted-foreground">
               Editing a SIP amount or status is logged automatically in History.
             </p>
+
+            <ClientInlineReview clientId={client.id} clientName={client.full_name} />
           </TabsContent>
+
 
           {/* Profile */}
           <TabsContent value="profile" className="mt-6">
