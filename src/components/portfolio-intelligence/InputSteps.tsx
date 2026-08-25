@@ -380,8 +380,17 @@ export const PortfolioStep = ({
   const update = (id: string, patch: Partial<PortfolioFund>) =>
     onChange(funds.map((f) => (f.id === id ? { ...f, ...patch } : f)));
 
+  const totalInvested = funds.reduce((s, f) => s + (f.investedAmount || 0), 0);
+  const totalCurrent = funds.reduce((s, f) => s + (f.currentValue || 0), 0);
+  const totalSip = funds.reduce((s, f) => s + (f.sipAmount || 0), 0);
+  const gain = totalCurrent - totalInvested;
+  const gainPct = totalInvested > 0 ? (gain / totalInvested) * 100 : 0;
+  const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
+  const sipMismatch = declaredSipBudget > 0 && Math.abs(declaredSipBudget - totalSip) > 1;
+
   return (
     <div className="space-y-4">
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">SIP budget</CardTitle>
