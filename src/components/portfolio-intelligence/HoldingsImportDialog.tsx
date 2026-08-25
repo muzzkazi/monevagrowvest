@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import { Upload, FileUp, Loader2, AlertTriangle, Info, X } from "lucide-react";
 import {
   ACCEPTED_TYPES, ExtractedHolding, ExtractionResult, extractHoldings,
-  monthlyEquivalent,
 } from "@/lib/pi/holdingsImport";
 import type { AssetBucket, FundRole } from "@/lib/pi/types";
 
