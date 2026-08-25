@@ -155,7 +155,7 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
         "Imported from holdings statement",
         r.currentValue ? `current value ${inr(r.currentValue)}` : "",
         r.sipFrequency !== "None" && r.sipInstalment
-          ? `${r.sipFrequency.toLowerCase()} SIP of ${inr(r.sipInstalment)} (≈ ${inr(r.sipAmount)}/month)`
+          ? `monthly SIP of ${inr(r.sipInstalment)}`
           : "",
         r.plan !== "Unknown" ? `${r.plan} plan` : "",
         r.option !== "Unknown" ? r.option : "",
