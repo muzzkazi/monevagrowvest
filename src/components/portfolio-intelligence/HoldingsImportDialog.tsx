@@ -97,6 +97,11 @@ const HoldingsImportDialog = ({
 
   const selectedCount = rows.filter((_, i) => selected[i]).length;
 
+  /** Flags a read where no rupee figure came through at all. */
+  const noAmounts =
+    rows.length > 0 &&
+    rows.every((r) => !r.currentValue && !r.investedAmount && !r.sipInstalment);
+
   /** Document-level assumptions plus every row-level inference, de-duplicated. */
   const allAssumptions = Array.from(
     new Set([
