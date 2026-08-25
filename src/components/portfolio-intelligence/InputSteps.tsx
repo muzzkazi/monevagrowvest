@@ -562,8 +562,3 @@ export const PortfolioStep = ({
     </div>
   );
 };
-
-
-    </div>
-  );
-};
