@@ -184,7 +184,21 @@ const HoldingsImportDialog = ({
               <span className="text-muted-foreground">{rows.length} rows read · {selectedCount} selected</span>
             </div>
 
+            {noAmounts && (
+              <Card className="p-3 border-destructive/40">
+                <div className="flex gap-2 text-xs text-muted-foreground">
+                  <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
+                  <p>
+                    No rupee amounts could be read from this file — the schemes came through but the
+                    figures did not. Enter the SIP or value amounts below, or re-upload a sharper /
+                    uncropped screenshot that shows the amount column.
+                  </p>
+                </div>
+              </Card>
+            )}
+
             {result.warnings.length > 0 && (
+
               <Card className="p-3 border-destructive/40">
                 <div className="flex gap-2 text-xs text-muted-foreground">
                   <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
