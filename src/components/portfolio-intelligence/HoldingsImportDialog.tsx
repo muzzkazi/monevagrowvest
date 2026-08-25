@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import { Upload, FileUp, Loader2, AlertTriangle, Info, X } from "lucide-react";
 import {
   ACCEPTED_TYPES, ExtractedHolding, ExtractionResult, extractHoldings,
-  monthlyEquivalent, SIP_FREQUENCIES, SipFrequency,
 } from "@/lib/pi/holdingsImport";
 import type { AssetBucket, FundRole } from "@/lib/pi/types";
 
@@ -108,14 +107,10 @@ const HoldingsImportDialog = ({
     ]),
   );
 
-  /** Keeps the monthly-equivalent SIP in step with instalment/frequency edits. */
-  const updateSip = (i: number, patch: { sipInstalment?: number; sipFrequency?: SipFrequency }) =>
+  /** SIPs are always monthly — keep the instalment and monthly amount in sync. */
+  const updateSip = (i: number, sipInstalment: number) =>
     setRows((prev) =>
-      prev.map((r, idx) => {
-        if (idx !== i) return r;
-        const next = { ...r, ...patch };
-        return { ...next, sipAmount: monthlyEquivalent(next.sipInstalment, next.sipFrequency) };
-      }),
+      prev.map((r, idx) => (idx === i ? { ...r, sipInstalment, sipAmount: sipInstalment } : r)),
     );
 
   return (
@@ -211,7 +206,7 @@ const HoldingsImportDialog = ({
 
             <p className="text-xs text-muted-foreground">
               Check every figure against the document before importing — low-confidence rows were partly unreadable.
-              SIPs are stored as a monthly equivalent; edit the instalment or frequency to correct it.
+              SIPs are stored as a monthly amount; edit the instalment to correct it.
             </p>
 
             <div className="overflow-x-auto">
@@ -224,7 +219,7 @@ const HoldingsImportDialog = ({
                     <TableHead className="min-w-[130px]">Role</TableHead>
                     <TableHead className="min-w-[120px]">Current ₹</TableHead>
                     <TableHead className="min-w-[120px]">Invested ₹</TableHead>
-                    <TableHead className="min-w-[200px]">SIP instalment &amp; frequency</TableHead>
+                    <TableHead className="min-w-[150px]">Monthly SIP ₹</TableHead>
                     <TableHead className="min-w-[150px]">SIP start</TableHead>
                     <TableHead>Confidence</TableHead>
                   </TableRow>
@@ -290,22 +285,10 @@ const HoldingsImportDialog = ({
                       <TableCell>
                         <NumberInput
                           value={r.sipInstalment}
-                          onTextChange={(v) => updateSip(i, { sipInstalment: Number(v.replace(/[^0-9]/g, "") || 0) })}
+                          onTextChange={(v) => updateSip(i, Number(v.replace(/[^0-9]/g, "") || 0))}
                           className="h-9"
-                          aria-label={`SIP instalment for ${r.schemeName || `row ${i + 1}`}`}
+                          aria-label={`Monthly SIP for ${r.schemeName || `row ${i + 1}`}`}
                         />
-                        <Select
-                          value={r.sipFrequency}
-                          onValueChange={(v) => updateSip(i, { sipFrequency: v as SipFrequency })}
-                        >
-                          <SelectTrigger className="h-8 mt-1 text-xs"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {SIP_FREQUENCIES.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                        <p className="text-[11px] text-muted-foreground mt-1">
-                          ≈ ₹{r.sipAmount.toLocaleString("en-IN")}/month
-                        </p>
                       </TableCell>
                       <TableCell>
                         <Input

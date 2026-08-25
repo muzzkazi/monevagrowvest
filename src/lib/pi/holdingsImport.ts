@@ -160,20 +160,21 @@ const normaliseHolding = (h: Partial<ExtractedHolding>): ExtractedHolding => {
   const schemeName = String(h.schemeName ?? "").trim();
   const assumptions = Array.isArray(h.assumptions) ? h.assumptions.map(String) : [];
 
-  const instalment = n(h.sipInstalment ?? h.sipAmount);
-  let frequency: SipFrequency = SIP_FREQUENCIES.includes(h.sipFrequency as SipFrequency)
+  // SIPs are always treated as monthly. When the statement prints a non-monthly
+  // instalment (quarterly, yearly, …) the amount is silently converted to its
+  // monthly equivalent so downstream math stays correct, with a single note.
+  const printedInstalment = n(h.sipInstalment ?? h.sipAmount);
+  const detected = SIP_FREQUENCIES.includes(h.sipFrequency as SipFrequency)
     ? (h.sipFrequency as SipFrequency)
-    : instalment > 0
-      ? "Unknown"
-      : "None";
-  if (instalment === 0 && frequency !== "None") frequency = "None";
-  if (frequency === "Unknown" && instalment > 0) {
-    assumptions.push("SIP frequency was not stated — treated as monthly. Confirm the instalment interval.");
-  } else if (frequency !== "None" && frequency !== "Monthly" && instalment > 0) {
+    : "Monthly";
+  let instalment = printedInstalment;
+  if (printedInstalment > 0 && detected !== "Monthly" && detected !== "None" && detected !== "Unknown") {
+    instalment = monthlyEquivalent(printedInstalment, detected);
     assumptions.push(
-      `${frequency} instalment of ₹${instalment.toLocaleString("en-IN")} converted to a monthly equivalent of ₹${monthlyEquivalent(instalment, frequency).toLocaleString("en-IN")}.`,
+      `${detected} instalment of ₹${printedInstalment.toLocaleString("en-IN")} normalised to ₹${instalment.toLocaleString("en-IN")}/month.`,
     );
   }
+  const frequency: SipFrequency = instalment > 0 ? "Monthly" : "None";
 
   let plan = (["Direct", "Regular", "Unknown"] as const).includes(h.plan as "Direct") ? h.plan! : "Unknown";
   if (plan === "Unknown") {
