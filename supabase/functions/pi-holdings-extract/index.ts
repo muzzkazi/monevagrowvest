@@ -162,7 +162,7 @@ serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-pro",
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content },
@@ -190,7 +190,7 @@ serve(async (req) => {
       return json({ error: "Invalid AI response" }, 502);
     }
 
-    return json({ result: parsed, model: "google/gemini-2.5-flash", extractedAt: new Date().toISOString() });
+    return json({ result: parsed, model: "google/gemini-2.5-pro", extractedAt: new Date().toISOString() });
   } catch (e) {
     console.error("pi-holdings-extract failed", e);
     return json({ error: "Unexpected error" }, 500);
