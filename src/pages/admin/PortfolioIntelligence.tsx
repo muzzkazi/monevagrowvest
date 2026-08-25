@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, ArrowRight, BrainCircuit, Calculator, FileDown, Loader2, MessagesSquare, Play, RefreshCw, Save, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -66,7 +66,7 @@ const SCROLL_KEY = "moneva.pi.scroll.v1";
 const draftKeyFor = (clientId: string | null) => (clientId ? `${DRAFT_KEY}.client.${clientId}` : DRAFT_KEY);
 const scrollKeyFor = (clientId: string | null) => (clientId ? `${SCROLL_KEY}.client.${clientId}` : SCROLL_KEY);
 
-type Draft = PiRunInputs & { runName: string };
+type Draft = PiRunInputs & { runName: string; tab?: string };
 
 const loadDraft = (key: string): Partial<Draft> => {
   if (typeof window === "undefined") return {};
@@ -97,7 +97,7 @@ const PortfolioIntelligenceInner = () => {
   const [declaredSipBudget, setDeclaredSipBudget] = useState(() => draft.declaredSipBudget ?? 0);
   const [output, setOutput] = useState<EngineOutput | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [tab, setTab] = useState(() => searchParams.get("tab") ?? "profile");
+  const [tab, setTab] = useState(() => searchParams.get("tab") ?? draft.tab ?? "profile");
   const [runId, setRunId] = useState<string | null>(null);
   const [linkedClientId, setLinkedClientId] = useState<string | null>(clientParam);
   const [prefilling, setPrefilling] = useState(Boolean(clientParam) && !draft.profile);
@@ -122,19 +122,77 @@ const PortfolioIntelligenceInner = () => {
   const [narrative, setNarrative] = useState<ClientNarrative | null>(null);
   const [commentary, setCommentary] = useState<FundCommentary | null>(null);
   const restoringScroll = useRef(false);
+  const draftSavedAtMs = useRef(0);
+  const draftRef = useRef<Draft>({
+    profile,
+    goals,
+    riskAnswers,
+    constraints,
+    funds,
+    additionalSip,
+    declaredSipBudget,
+    runName,
+    tab,
+  });
   const showMath = layerView !== "plain";
   const showPlain = layerView !== "math";
 
-  const persistDraft = useCallback(() => {
+  const persistDraft = useCallback((snapshot = draftRef.current) => {
     if (prefilling) return;
     try {
-      window.localStorage.setItem(
-        draftKey,
-        JSON.stringify({ profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName }),
-      );
-      setDraftSavedAt(new Date());
+      window.localStorage.setItem(draftKey, JSON.stringify(snapshot));
+      const now = Date.now();
+      if (now - draftSavedAtMs.current > 1000) {
+        draftSavedAtMs.current = now;
+        setDraftSavedAt(new Date(now));
+      }
     } catch { /* quota — ignore */ }
-  }, [profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget, runName, draftKey, prefilling]);
+  }, [draftKey, prefilling]);
+
+  const updateDraft = useCallback((patch: Partial<Draft>) => {
+    draftRef.current = { ...draftRef.current, ...patch };
+    persistDraft(draftRef.current);
+  }, [persistDraft]);
+
+  const updateProfile = useCallback((next: ClientProfile) => {
+    setProfile(next);
+    updateDraft({ profile: next });
+  }, [updateDraft]);
+
+  const updateGoals = useCallback((next: Goal[]) => {
+    setGoals(next);
+    updateDraft({ goals: next });
+  }, [updateDraft]);
+
+  const updateRiskAnswers = useCallback((next: RiskAnswers) => {
+    setRiskAnswers(next);
+    updateDraft({ riskAnswers: next });
+  }, [updateDraft]);
+
+  const updateConstraints = useCallback((next: Constraints) => {
+    setConstraints(next);
+    updateDraft({ constraints: next });
+  }, [updateDraft]);
+
+  const updateFunds = useCallback((next: PortfolioFund[]) => {
+    setFunds(next);
+    updateDraft({ funds: next });
+  }, [updateDraft]);
+
+  const updateAdditionalSip = useCallback((next: number) => {
+    setAdditionalSip(next);
+    updateDraft({ additionalSip: next });
+  }, [updateDraft]);
+
+  const updateDeclaredSipBudget = useCallback((next: number) => {
+    setDeclaredSipBudget(next);
+    updateDraft({ declaredSipBudget: next });
+  }, [updateDraft]);
+
+  const updateRunName = useCallback((next: string) => {
+    setRunName(next);
+    updateDraft({ runName: next });
+  }, [updateDraft]);
 
   const saveScrollPosition = useCallback(() => {
     if (restoringScroll.current) return;
@@ -178,6 +236,17 @@ const PortfolioIntelligenceInner = () => {
         setDeclaredSipBudget(p.declaredSipBudget);
         setRunName(p.runName);
         setPrefillNotes(p.missing);
+        draftRef.current = {
+          profile: p.profile,
+          goals: p.goals.length > 0 ? p.goals : draftRef.current.goals,
+          riskAnswers: p.riskAnswers,
+          constraints: p.constraints,
+          funds: p.funds,
+          additionalSip: draftRef.current.additionalSip,
+          declaredSipBudget: p.declaredSipBudget,
+          runName: p.runName,
+          tab: draftRef.current.tab,
+        };
         setPrefilling(false);
         toast({
           title: `Loaded ${p.profile.clientName}`,
@@ -195,7 +264,7 @@ const PortfolioIntelligenceInner = () => {
 
 
   /* Restore the user's working position after the preview/browser reloads. */
-  useEffect(() => {
+  useLayoutEffect(() => {
     restoringScroll.current = true;
     let raf = 0;
     try {
@@ -233,24 +302,18 @@ const PortfolioIntelligenceInner = () => {
     };
   }, [saveScrollPosition]);
 
-  /* Autosave the whole input draft quickly so switching apps never drops fresh edits. */
-  useEffect(() => {
-    if (prefilling) return;
-    const t = setTimeout(persistDraft, 120);
-    return () => clearTimeout(t);
-  }, [persistDraft, prefilling]);
-
   /* Flush immediately when the browser tab/app is backgrounded or closed. */
   useEffect(() => {
+    const flushDraft = () => persistDraft();
     const flushOnHide = () => {
       if (document.visibilityState === "hidden") persistDraft();
     };
-    window.addEventListener("blur", persistDraft);
-    window.addEventListener("pagehide", persistDraft);
+    window.addEventListener("blur", flushDraft);
+    window.addEventListener("pagehide", flushDraft);
     document.addEventListener("visibilitychange", flushOnHide);
     return () => {
-      window.removeEventListener("blur", persistDraft);
-      window.removeEventListener("pagehide", persistDraft);
+      window.removeEventListener("blur", flushDraft);
+      window.removeEventListener("pagehide", flushDraft);
       document.removeEventListener("visibilitychange", flushOnHide);
     };
   }, [persistDraft]);
@@ -266,6 +329,17 @@ const PortfolioIntelligenceInner = () => {
     setDeclaredSipBudget(0);
     setOutput(null);
     setRunName("Untitled run");
+    draftRef.current = {
+      profile: emptyProfile(),
+      goals: [],
+      riskAnswers: emptyRiskAnswers(),
+      constraints: emptyConstraints(),
+      funds: [],
+      additionalSip: 10000,
+      declaredSipBudget: 0,
+      runName: "Untitled run",
+      tab,
+    };
     setDraftSavedAt(null);
     setPrefillNotes([]);
     toast({ title: "Draft cleared", description: "All inputs reset to defaults." });
@@ -298,10 +372,16 @@ const PortfolioIntelligenceInner = () => {
     profile, goals, riskAnswers, constraints, funds, additionalSip, declaredSipBudget,
   };
 
+  const changeTab = useCallback((nextTab: string) => {
+    updateDraft({ tab: nextTab });
+    saveScrollPosition();
+    setTab(nextTab);
+  }, [saveScrollPosition, updateDraft]);
+
   const run = (source?: PiRunInputs) => {
     const src = source ?? inputs;
     setOutput(runEngine({ ...src, assumedReturnPct }));
-    setTab("analysis");
+    changeTab("analysis");
   };
 
   /* Tax-aware switch plan — candidates come only from engine findings. */
@@ -530,7 +610,7 @@ const PortfolioIntelligenceInner = () => {
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={(nextTab) => { persistDraft(); saveScrollPosition(); setTab(nextTab); }}>
+      <Tabs value={tab} onValueChange={changeTab}>
         <TabsList className="flex flex-wrap h-auto">
           <TabsTrigger value="profile">1 · Client</TabsTrigger>
           <TabsTrigger value="goals">2 · Goals</TabsTrigger>
@@ -542,25 +622,25 @@ const PortfolioIntelligenceInner = () => {
         </TabsList>
 
         <TabsContent value="profile" forceMount className="mt-6 data-[state=inactive]:hidden">
-          <ProfileStep profile={profile} onChange={setProfile} />
+          <ProfileStep profile={profile} onChange={updateProfile} />
         </TabsContent>
         <TabsContent value="goals" forceMount className="mt-6 data-[state=inactive]:hidden">
-          <GoalsStep goals={goals} onChange={setGoals} />
+          <GoalsStep goals={goals} onChange={updateGoals} />
         </TabsContent>
         <TabsContent value="risk" forceMount className="mt-6 data-[state=inactive]:hidden">
-          <RiskStep answers={riskAnswers} onChange={setRiskAnswers} />
+          <RiskStep answers={riskAnswers} onChange={updateRiskAnswers} />
         </TabsContent>
         <TabsContent value="constraints" forceMount className="mt-6 data-[state=inactive]:hidden">
-          <ConstraintsStep constraints={constraints} onChange={setConstraints} />
+          <ConstraintsStep constraints={constraints} onChange={updateConstraints} />
         </TabsContent>
         <TabsContent value="portfolio" forceMount className="mt-6 data-[state=inactive]:hidden">
           <PortfolioStep
             funds={funds}
-            onChange={setFunds}
+            onChange={updateFunds}
             additionalSip={additionalSip}
-            onAdditionalSipChange={setAdditionalSip}
+            onAdditionalSipChange={updateAdditionalSip}
             declaredSipBudget={declaredSipBudget}
-            onDeclaredSipChange={setDeclaredSipBudget}
+            onDeclaredSipChange={updateDeclaredSipBudget}
           />
         </TabsContent>
 
@@ -574,7 +654,7 @@ const PortfolioIntelligenceInner = () => {
               <Button
                 variant="outline"
                 disabled={idx === 0}
-                onClick={() => setTab(order[idx - 1])}
+                onClick={() => changeTab(order[idx - 1])}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
@@ -588,7 +668,7 @@ const PortfolioIntelligenceInner = () => {
                   Run analysis
                 </Button>
               ) : (
-                <Button onClick={() => setTab(order[idx + 1])}>
+                <Button onClick={() => changeTab(order[idx + 1])}>
                   Next
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -742,7 +822,7 @@ const PortfolioIntelligenceInner = () => {
             currentRunId={runId}
             onRunSaved={(id, name, clientId) => {
               setRunId(id);
-              setRunName(name);
+              updateRunName(name);
               setLinkedClientId(clientId);
               // Each save appends an immutable version so iterations stay comparable.
               appendVersion({
@@ -763,7 +843,7 @@ const PortfolioIntelligenceInner = () => {
             }}
             onRunLoaded={(id, name, clientId, loaded) => {
               setRunId(id);
-              setRunName(name);
+              updateRunName(name);
               setVersionToken((t) => t + 1);
               setLinkedClientId(clientId);
               setProfile(loaded.profile);
@@ -773,6 +853,7 @@ const PortfolioIntelligenceInner = () => {
               setFunds(loaded.funds);
               setAdditionalSip(loaded.additionalSip);
               setDeclaredSipBudget(loaded.declaredSipBudget);
+              updateDraft({ ...loaded, runName: name });
               // Re-run the engine on the saved inputs so outputs are reproduced,
               // not restored from a stale snapshot.
               run(loaded);
