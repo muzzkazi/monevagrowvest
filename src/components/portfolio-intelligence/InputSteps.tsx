@@ -142,7 +142,7 @@ export const GoalsStep = ({ goals, onChange }: { goals: Goal[]; onChange: (g: Go
   return (
     <div className="space-y-4">
       {goals.length === 0 && (
-        <p className="text-sm text-muted-foreground">No goals yet. Goals drive the target allocation — add at least one.</p>
+        <p className="text-sm text-muted-foreground">No goals added — goals are optional. Add one only if you want the target allocation and gap analysis tied to a specific financial goal.</p>
       )}
       {goals.map((g) => (
         <Card key={g.id}>
