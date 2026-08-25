@@ -850,10 +850,22 @@ const PortfolioReviewPage = () => {
 
               {/* Add fund */}
               <div>
-                <Label>Add a fund</Label>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Label>Add a fund</Label>
+                  <HoldingsImportDialog
+                    onImport={importFunds}
+                    title="Upload a screenshot of your ongoing SIPs"
+                    trigger={
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <Plus className="w-4 h-4" /> Bulk upload SIP screenshot
+                      </Button>
+                    }
+                  />
+                </div>
                 <div className="mt-1.5">
                   <FundSearchPicker onPick={addFund} disabled={loading} />
                 </div>
+
               </div>
 
               {/* Selected funds */}
