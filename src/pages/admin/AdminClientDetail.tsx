@@ -360,7 +360,10 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
             <p className="text-xs text-muted-foreground">
               Editing a SIP amount or status is logged automatically in History.
             </p>
+
+            <ClientInlineReview clientId={client.id} clientName={client.full_name} />
           </TabsContent>
+
 
           {/* Profile */}
           <TabsContent value="profile" className="mt-6">
