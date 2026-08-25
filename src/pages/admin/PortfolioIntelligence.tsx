@@ -283,12 +283,16 @@ const PortfolioIntelligenceInner = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientParam, hadLocalDraft, draftKey]);
 
-  /* Launched from a client record (?client=<id>) with no draft yet → prefill
-   * the wizard from the client book. Nothing is invented: fields the record
-   * does not hold stay at the wizard default and are listed for confirmation. */
+  /* Launched from a client record (?client=<id>) → prefill the wizard from the
+   * client book. Nothing is invented: fields the record does not hold stay at
+   * the wizard default and are listed for confirmation. With ?run=1 the latest
+   * holdings are re-synced over any saved draft and the analysis runs at once. */
   useEffect(() => {
-    if (!clientParam || draft.profile || !serverChecked || serverAppliedRef.current) return;
+    if (!clientParam || !serverChecked) return;
+    if (!autoRunParam && (draft.profile || serverAppliedRef.current)) return;
+    if (autoRunParam && autoRanRef.current) return;
     let cancelled = false;
+    autoRanRef.current = autoRunParam;
     setPrefilling(true);
     setPrefillError(null);
     (async () => {
@@ -300,30 +304,51 @@ const PortfolioIntelligenceInner = () => {
           setPrefillError("That client record could not be found. You can retry or start a blank run.");
           return;
         }
-        setProfile(p.profile);
-        if (p.goals.length > 0) setGoals(p.goals);
-        setRiskAnswers(p.riskAnswers);
-        setConstraints(p.constraints);
+        // Keep anything the advisor already captured in the draft; always take
+        // the holdings/SIPs straight from the client record so they are current.
+        const existing = draftRef.current;
+        const keepDraft = autoRunParam && Boolean(draft.profile);
+        const nextProfile = keepDraft ? { ...p.profile, ...existing.profile, clientName: p.profile.clientName } : p.profile;
+        const nextGoals = keepDraft && existing.goals.length > 0 ? existing.goals : p.goals.length > 0 ? p.goals : existing.goals;
+        const nextRisk = keepDraft ? existing.riskAnswers : p.riskAnswers;
+        const nextConstraints = keepDraft ? existing.constraints : p.constraints;
+
+        setProfile(nextProfile);
+        setGoals(nextGoals);
+        setRiskAnswers(nextRisk);
+        setConstraints(nextConstraints);
         setFunds(p.funds);
         setDeclaredSipBudget(p.declaredSipBudget);
-        setRunName(p.runName);
+        setRunName(keepDraft ? existing.runName : p.runName);
         setPrefillNotes(p.missing);
-        draftRef.current = {
-          profile: p.profile,
-          goals: p.goals.length > 0 ? p.goals : draftRef.current.goals,
-          riskAnswers: p.riskAnswers,
-          constraints: p.constraints,
+        const snapshot: Draft = {
+          profile: nextProfile,
+          goals: nextGoals,
+          riskAnswers: nextRisk,
+          constraints: nextConstraints,
           funds: p.funds,
-          additionalSip: draftRef.current.additionalSip,
+          additionalSip: existing.additionalSip,
           declaredSipBudget: p.declaredSipBudget,
-          runName: p.runName,
-          tab: draftRef.current.tab,
+          runName: keepDraft ? existing.runName : p.runName,
+          tab: existing.tab,
         };
+        draftRef.current = snapshot;
         setPrefilling(false);
         toast({
           title: `Loaded ${p.profile.clientName}`,
-          description: `${p.funds.length} holding(s) and ${p.goals.length} goal(s) pulled from the client record.`,
+          description: `${p.funds.length} holding(s) and ${nextGoals.length} goal(s) pulled from the client record.`,
         });
+        if (autoRunParam) {
+          run({
+            profile: nextProfile,
+            goals: nextGoals,
+            riskAnswers: nextRisk,
+            constraints: nextConstraints,
+            funds: p.funds,
+            additionalSip: existing.additionalSip,
+            declaredSipBudget: p.declaredSipBudget,
+          });
+        }
       } catch (e) {
         if (cancelled) return;
         setPrefilling(false);
@@ -332,7 +357,8 @@ const PortfolioIntelligenceInner = () => {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientParam, prefillAttempt, serverChecked]);
+  }, [clientParam, prefillAttempt, serverChecked, autoRunParam]);
+
 
 
   /* Restore the user's working position after the preview/browser reloads. */
