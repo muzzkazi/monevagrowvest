@@ -219,7 +219,7 @@ const HoldingsImportDialog = ({
                     <TableHead className="min-w-[130px]">Role</TableHead>
                     <TableHead className="min-w-[120px]">Current ₹</TableHead>
                     <TableHead className="min-w-[120px]">Invested ₹</TableHead>
-                    <TableHead className="min-w-[200px]">SIP instalment &amp; frequency</TableHead>
+                    <TableHead className="min-w-[150px]">Monthly SIP ₹</TableHead>
                     <TableHead className="min-w-[150px]">SIP start</TableHead>
                     <TableHead>Confidence</TableHead>
                   </TableRow>
