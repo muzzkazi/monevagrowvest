@@ -81,7 +81,7 @@ export const saveServerDraft = async (
 
   const { error } = await supabase
     .from("pi_drafts")
-    .upsert(payload, { onConflict: clientId ? "client_id" : "owner_id" });
+    .upsert(payload as never, { onConflict: clientId ? "client_id" : "owner_id" });
   if (error) return null;
   return new Date();
 };
