@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, ArrowRight, BrainCircuit, Calculator, FileDown, Loader2, MessagesSquare, Play, RefreshCw, Save, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -122,6 +122,7 @@ const PortfolioIntelligenceInner = () => {
   const [narrative, setNarrative] = useState<ClientNarrative | null>(null);
   const [commentary, setCommentary] = useState<FundCommentary | null>(null);
   const restoringScroll = useRef(false);
+  const draftSavedAtMs = useRef(0);
   const draftRef = useRef<Draft>({
     profile,
     goals,
@@ -140,7 +141,11 @@ const PortfolioIntelligenceInner = () => {
     if (prefilling) return;
     try {
       window.localStorage.setItem(draftKey, JSON.stringify(snapshot));
-      setDraftSavedAt(new Date());
+      const now = Date.now();
+      if (now - draftSavedAtMs.current > 1000) {
+        draftSavedAtMs.current = now;
+        setDraftSavedAt(new Date(now));
+      }
     } catch { /* quota — ignore */ }
   }, [draftKey, prefilling]);
 
@@ -259,7 +264,7 @@ const PortfolioIntelligenceInner = () => {
 
 
   /* Restore the user's working position after the preview/browser reloads. */
-  useEffect(() => {
+  useLayoutEffect(() => {
     restoringScroll.current = true;
     let raf = 0;
     try {
@@ -296,13 +301,6 @@ const PortfolioIntelligenceInner = () => {
       document.removeEventListener("visibilitychange", saveOnHide);
     };
   }, [saveScrollPosition]);
-
-  /* Autosave the whole input draft quickly so switching apps never drops fresh edits. */
-  useEffect(() => {
-    if (prefilling) return;
-    const t = setTimeout(persistDraft, 120);
-    return () => clearTimeout(t);
-  }, [persistDraft, prefilling]);
 
   /* Flush immediately when the browser tab/app is backgrounded or closed. */
   useEffect(() => {
