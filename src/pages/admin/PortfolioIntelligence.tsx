@@ -475,19 +475,19 @@ const PortfolioIntelligenceInner = () => {
           <TabsTrigger value="saved">7 · Saved runs</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile" className="mt-6">
+        <TabsContent value="profile" forceMount className="mt-6 data-[state=inactive]:hidden">
           <ProfileStep profile={profile} onChange={setProfile} />
         </TabsContent>
-        <TabsContent value="goals" className="mt-6">
+        <TabsContent value="goals" forceMount className="mt-6 data-[state=inactive]:hidden">
           <GoalsStep goals={goals} onChange={setGoals} />
         </TabsContent>
-        <TabsContent value="risk" className="mt-6">
+        <TabsContent value="risk" forceMount className="mt-6 data-[state=inactive]:hidden">
           <RiskStep answers={riskAnswers} onChange={setRiskAnswers} />
         </TabsContent>
-        <TabsContent value="constraints" className="mt-6">
+        <TabsContent value="constraints" forceMount className="mt-6 data-[state=inactive]:hidden">
           <ConstraintsStep constraints={constraints} onChange={setConstraints} />
         </TabsContent>
-        <TabsContent value="portfolio" className="mt-6">
+        <TabsContent value="portfolio" forceMount className="mt-6 data-[state=inactive]:hidden">
           <PortfolioStep
             funds={funds}
             onChange={setFunds}
@@ -497,7 +497,7 @@ const PortfolioIntelligenceInner = () => {
             onDeclaredSipChange={setDeclaredSipBudget}
           />
         </TabsContent>
-        <TabsContent value="analysis" className="mt-6 space-y-6">
+        <TabsContent value="analysis" forceMount className="mt-6 space-y-6 data-[state=inactive]:hidden">
           {output ? (
             <>
               <Card className="border-financial-accent/30">
@@ -633,7 +633,7 @@ const PortfolioIntelligenceInner = () => {
             </Card>
           )}
         </TabsContent>
-        <TabsContent value="saved" className="mt-6 space-y-6">
+        <TabsContent value="saved" forceMount className="mt-6 space-y-6 data-[state=inactive]:hidden">
           <SavedRunsPanel
             inputs={inputs}
             assumedReturnPct={assumedReturnPct}
