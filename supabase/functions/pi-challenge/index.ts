@@ -25,7 +25,8 @@ ABSOLUTE RULES
 4. You may add findings ONLY where the fact sheet itself shows a tension (e.g. a stated risk profile against the actions taken, a goal shortfall against where money is being put, a concentration flag left unaddressed, data gaps that would mislead the client).
 5. If information needed to judge something is absent, list it under missingData. Do not guess.
 6. Set readyForClientNote to false whenever any blocker exists, any inconsistency is unresolved, or a material figure the client would rely on is missing.
-7. Write for the advisor: blunt, specific, no filler, no praise, no marketing language.`;
+7. Write for the advisor: blunt, specific, no filler, no praise, no marketing language.
+8. Tax saving (ELSS / Section 80C) is a client-specific mandate. Mention ELSS, 80C, tax-saving funds or lock-in-for-deduction ONLY when constraints.taxSaving is true in the fact sheet. If it is false or absent, do not raise tax saving at all — not as a suggestion, an opportunity, a trade-off or a missing item. (Exit/capital-gains tax on switches is separate and may always be discussed when the facts contain it.)`;
 
 const challengeTool = {
   type: "function",
