@@ -18,6 +18,8 @@ import {
   RiskStep,
 } from "@/components/portfolio-intelligence/InputSteps";
 import AnalysisPanel from "@/components/portfolio-intelligence/AnalysisPanel";
+import LookThroughExposure from "@/components/portfolio/LookThroughExposure";
+import SchemeOverlapMatrixPanel from "@/components/portfolio-intelligence/SchemeOverlapMatrixPanel";
 import StressTestPanel from "@/components/portfolio-intelligence/StressTestPanel";
 import TaxSwitchPanel from "@/components/portfolio-intelligence/TaxSwitchPanel";
 import NavDataPanel from "@/components/portfolio-intelligence/NavDataPanel";
@@ -847,6 +849,29 @@ const PortfolioIntelligenceInner = () => {
                   <AnalysisPanel output={output} />
                 </>
               )}
+
+              <LookThroughExposure
+                basis="value"
+                funds={funds
+                  .filter((f) => f.schemeCode)
+                  .map((f) => ({
+                    schemeCode: String(f.schemeCode),
+                    schemeName: f.schemeName,
+                    category: f.category,
+                    subCategory: f.subCategory,
+                    monthlySip: f.currentValue || 0,
+                  }))}
+              />
+
+              <SchemeOverlapMatrixPanel
+                schemes={funds
+                  .filter((f) => f.schemeCode)
+                  .map((f) => ({
+                    schemeCode: String(f.schemeCode),
+                    schemeName: f.schemeName,
+                    subCategory: f.subCategory,
+                  }))}
+              />
 
               {narrativeFacts && challenge && (
                 <ChallengeReviewPanel

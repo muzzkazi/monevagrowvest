@@ -30,7 +30,15 @@ const inr = (n: number) =>
   : n >= 1_00_000 ? `₹${(n / 1_00_000).toFixed(2)} L`
   : `₹${Math.round(n).toLocaleString("en-IN")}`;
 
-const LookThroughExposure = ({ funds }: { funds: ExposureFund[] }) => {
+const LookThroughExposure = ({
+  funds,
+  basis = "sip",
+}: {
+  funds: ExposureFund[];
+  /** "sip" = monthly SIP weighting, "value" = current holdings value weighting */
+  basis?: "sip" | "value";
+}) => {
+  const perLabel = basis === "sip" ? "/mo" : "";
   const [expandAll, setExpandAll] = useState(false);
   const [openSymbol, setOpenSymbol] = useState<string | null>(null);
 
@@ -104,8 +112,10 @@ const LookThroughExposure = ({ funds }: { funds: ExposureFund[] }) => {
         </CardTitle>
         <p className="text-sm text-muted-foreground">
           Where your money actually lands. We combine the underlying holdings of your{" "}
-          {equityFundCount} equity {equityFundCount === 1 ? "scheme" : "schemes"}, weighted by your
-          monthly SIP of {inr(equitySip)}{equitySip !== totalSip && <> (of {inr(totalSip)} total)</>}.
+          {equityFundCount} equity {equityFundCount === 1 ? "scheme" : "schemes"}, weighted by{" "}
+          {basis === "sip" ? "your monthly SIP of " : "equity holdings worth "}
+          {inr(equitySip)}{equitySip !== totalSip && <> (of {inr(totalSip)} total)</>}. Every
+          percentage below treats this portfolio as 100%.
         </p>
       </CardHeader>
 
@@ -123,7 +133,7 @@ const LookThroughExposure = ({ funds }: { funds: ExposureFund[] }) => {
               {top.name} <span className="text-muted-foreground font-normal">({top.symbol})</span>
             </div>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {top.pctOfEquity.toFixed(1)}% of your equity exposure ≈ {inr(top.amount)}/month, coming
+              {top.pctOfEquity.toFixed(1)}% of your equity exposure ≈ {inr(top.amount)}{basis === "sip" ? "/month" : ""}, coming
               from {top.contributors.length} {top.contributors.length === 1 ? "scheme" : "schemes"}.
             </p>
           </div>
@@ -178,7 +188,7 @@ const LookThroughExposure = ({ funds }: { funds: ExposureFund[] }) => {
                           {s.pctOfEquity.toFixed(1)}%
                         </div>
                         <div className="text-[11px] text-muted-foreground tabular-nums">
-                          {inr(s.amount)}/mo
+                          {inr(s.amount)}{perLabel}
                         </div>
                       </div>
                       <ChevronDown
@@ -192,7 +202,7 @@ const LookThroughExposure = ({ funds }: { funds: ExposureFund[] }) => {
                         <div key={ci} className="flex items-start justify-between gap-3 text-xs">
                           <span className="text-muted-foreground min-w-0 flex-1">{c.schemeName}</span>
                           <span className="text-foreground font-medium tabular-nums shrink-0">
-                            {c.pct.toFixed(2)}% of fund · {inr(c.amount)}/mo
+                            {c.pct.toFixed(2)}% of fund · {inr(c.amount)}{perLabel}
                           </span>
                         </div>
                       ))}
