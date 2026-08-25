@@ -227,10 +227,16 @@ const AdminClientDetailInner = ({ clientId }: { clientId: string }) => {
           <Badge variant="outline" className="capitalize">{client.risk_profile} risk</Badge>
           {!canEdit && <Badge variant="outline" className="gap-1.5"><Eye className="h-3 w-3" /> Read-only access</Badge>}
           <Button asChild size="sm" className="gap-2 ml-auto">
-            <Link to={`/admin/portfolio-intelligence?client=${client.id}`}>
+            <Link to={`/admin/portfolio-intelligence?client=${client.id}&run=1&tab=analysis`}>
               <BrainCircuit className="h-4 w-4" /> Run portfolio analysis
             </Link>
           </Button>
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link to={`/admin/portfolio-intelligence?client=${client.id}`}>
+              <BrainCircuit className="h-4 w-4" /> Open inputs
+            </Link>
+          </Button>
+
           <Button variant="outline" size="sm" className="gap-2" onClick={downloadReport}>
             <FileDown className="h-4 w-4" /> Download PDF report
           </Button>
