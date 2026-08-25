@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -14,16 +14,19 @@ export const useIsAdmin = () => {
   const { user, loading: authLoading } = useAuth();
   const [roles, setRoles] = useState<TeamRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const loadedUserId = useRef<string | null>(null);
 
   useEffect(() => {
     let active = true;
     if (authLoading) return;
     if (!user) {
       setRoles([]);
+      loadedUserId.current = null;
       setLoading(false);
       return;
     }
-    setLoading(true);
+    const sameUserAlreadyLoaded = loadedUserId.current === user.id;
+    if (!sameUserAlreadyLoaded) setLoading(true);
     supabase
       .from("user_roles")
       .select("role")
@@ -31,6 +34,7 @@ export const useIsAdmin = () => {
       .then(({ data }) => {
         if (!active) return;
         setRoles(((data ?? []).map((r) => r.role) as TeamRole[]) ?? []);
+        loadedUserId.current = user.id;
         setLoading(false);
       });
     return () => {

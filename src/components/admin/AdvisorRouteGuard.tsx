@@ -31,8 +31,9 @@ const AdvisorRouteGuard = ({
   const sessionPresent = Boolean(user);
   const roleOk = allowAdvisor ? isTeam : isAdmin;
   const allowed = sessionPresent && (!requireRole || roleOk);
+  const canKeepPreviousScreen = loading && sessionPresent;
 
-  if (loading) {
+  if (loading && !canKeepPreviousScreen) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-financial-accent" />
@@ -40,7 +41,7 @@ const AdvisorRouteGuard = ({
     );
   }
 
-  if (!allowed) {
+  if (!allowed && !canKeepPreviousScreen) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="max-w-md text-center space-y-4">
