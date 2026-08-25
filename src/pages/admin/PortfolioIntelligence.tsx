@@ -86,7 +86,7 @@ const PortfolioIntelligenceInner = () => {
   const draftKey = useMemo(() => draftKeyFor(clientParam), [clientParam]);
   const draft = useMemo(() => loadDraft(draftKey), [draftKey]);
   const [profile, setProfile] = useState<ClientProfile>(() => draft.profile ?? emptyProfile());
-  const [goals, setGoals] = useState<Goal[]>(() => draft.goals ?? [newGoal()]);
+  const [goals, setGoals] = useState<Goal[]>(() => draft.goals ?? []);
   const [riskAnswers, setRiskAnswers] = useState<RiskAnswers>(() => draft.riskAnswers ?? emptyRiskAnswers());
   const [constraints, setConstraints] = useState<Constraints>(() => draft.constraints ?? emptyConstraints());
   const [funds, setFunds] = useState<PortfolioFund[]>(() => draft.funds ?? []);
