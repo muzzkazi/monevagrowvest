@@ -4,6 +4,15 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 
+const hasCachedAuthSession = () => {
+  if (typeof window === "undefined") return false;
+  try {
+    return Object.keys(window.localStorage).some((key) => key.startsWith("sb-") && key.endsWith("-auth-token"));
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Advisor-only route guard SCAFFOLD.
  *
@@ -31,7 +40,7 @@ const AdvisorRouteGuard = ({
   const sessionPresent = Boolean(user);
   const roleOk = allowAdvisor ? isTeam : isAdmin;
   const allowed = sessionPresent && (!requireRole || roleOk);
-  const canKeepPreviousScreen = loading && sessionPresent;
+  const canKeepPreviousScreen = loading && (sessionPresent || hasCachedAuthSession());
 
   if (loading && !canKeepPreviousScreen) {
     return (
