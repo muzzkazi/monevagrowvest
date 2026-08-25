@@ -95,7 +95,7 @@ export const ProfileStep = ({
               </SelectContent>
             </Select>
           </div>
-          <Field label="Annual income (₹)" value={profile.annualIncome} onChange={(v) => set("annualIncome", num(v))} />
+          <Field label="Annual income (₹)" value={profile.annualIncome} onChange={(v) => onChange({ ...profile, annualIncome: num(v), monthlyIncome: Math.round(num(v) / 12) })} />
           <Field label="Monthly income (₹)" value={profile.monthlyIncome} onChange={(v) => set("monthlyIncome", num(v))} />
           <Field label="Monthly expenses (₹)" value={profile.monthlyExpenses} onChange={(v) => set("monthlyExpenses", num(v))} />
           <Field plain label="Dependents" value={profile.dependents} onChange={(v) => set("dependents", num(v))} />
