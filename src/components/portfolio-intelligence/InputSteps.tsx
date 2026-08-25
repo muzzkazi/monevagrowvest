@@ -521,6 +521,49 @@ export const PortfolioStep = ({
         <Plus className="h-4 w-4 mr-1" /> Add holding
       </Button>
 
+      {funds.length > 0 && (
+        <Card className="border-primary/30 bg-financial-muted/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Portfolio totals</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Live sum of the {funds.length} holding{funds.length > 1 ? "s" : ""} entered above — check this against the
+              statement before running the analysis.
+            </p>
+          </CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-4">
+            <div>
+              <p className="text-xs text-muted-foreground">Total invested</p>
+              <p className="text-lg font-semibold text-foreground">{inr(totalInvested)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Current value</p>
+              <p className="text-lg font-semibold text-foreground">{inr(totalCurrent)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Unrealised gain / loss</p>
+              <p className={`text-lg font-semibold ${gain >= 0 ? "text-financial-success" : "text-destructive"}`}>
+                {gain >= 0 ? "+" : "−"}{inr(Math.abs(gain))}
+                <span className="ml-1 text-sm">({gainPct >= 0 ? "+" : "−"}{Math.abs(gainPct).toFixed(1)}%)</span>
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Fund-wise monthly SIP</p>
+              <p className="text-lg font-semibold text-foreground">{inr(totalSip)}</p>
+              {sipMismatch && (
+                <p className="text-[11px] text-destructive mt-0.5">
+                  Declared {inr(declaredSipBudget)} — differs by {inr(Math.abs(declaredSipBudget - totalSip))}
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+    </div>
+  );
+};
+
+
     </div>
   );
 };
