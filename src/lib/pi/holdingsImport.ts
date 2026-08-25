@@ -198,7 +198,6 @@ const normaliseHolding = (h: Partial<ExtractedHolding>): ExtractedHolding => {
   if (frequency !== "None" && !sipStartDate && purchaseDate) {
     assumptions.push("SIP start date not printed — first purchase date used instead.");
   }
-  void detected;
 
   return {
     schemeName,
